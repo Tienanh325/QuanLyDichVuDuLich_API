@@ -1,0 +1,22 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build folders
+bin/
+obj/
+
+# NuGet
+packages/
+
+# Logs
+*.log
+
+# React
+node_modules/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
