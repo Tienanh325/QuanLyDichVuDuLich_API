@@ -2,26 +2,26 @@
 using System.Collections.Generic;
 
 namespace Models
-{ 
-        public partial class KhachSan
+{
+    public class KhachSan
     {
-        public int MaKhachSan { get; set; }
+        public int maKhachSan { get; set; }
 
-        public int? MaDichVu { get; set; }
+        public int maDichVu { get; set; }
 
-        public string Ten { get; set; }
+        public string ten { get; set; }
 
-        public string ViTri { get; set; }
+        public string viTri { get; set; }
 
-        public string DanhGia { get; set; }
+        public string danhGia { get; set; }
 
-        public double? Gia { get; set; }
+        public double gia { get; set; }
 
-        public int? PhongTrong { get; set; }
+        public int phongTrong { get; set; }
 
-        public string MoTa { get; set; }
+        public string moTa { get; set; }
 
-        public virtual DichVu MaDichVuNavigation { get; set; }
+        public DichVu DichVu { get; set; }
     }
 }
 

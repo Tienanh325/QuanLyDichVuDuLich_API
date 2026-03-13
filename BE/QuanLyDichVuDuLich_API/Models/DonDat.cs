@@ -7,7 +7,7 @@ namespace Models
     {
         public int MaDon { get; set; }
 
-        public int? MaNguoiDung { get; set; }
+        public int? maNguoiDung { get; set; }
 
         public double? TongGia { get; set; }
 
@@ -15,10 +15,10 @@ namespace Models
 
         public DateTime? NgayTao { get; set; }
 
-        public virtual ICollection<ChiTietDon> ChiTietDons { get; set; } = new List<ChiTietDon>();
+        public virtual ICollection<ChiTietDon> ChiTietDon { get; set; } = new List<ChiTietDon>();
 
-        public virtual NguoiDung MaNguoiDungNavigation { get; set; }
+        public virtual NguoiDung NguoiDung { get; set; }
 
-        public virtual ICollection<ThanhToan> ThanhToans { get; set; } = new List<ThanhToan>();
+        public virtual ICollection<ThanhToan> ThanhToan { get; set; } = new List<ThanhToan>();
     }
 }

@@ -5,13 +5,13 @@ namespace Models
 {
     public partial class NguoiDung
     {
-        public int MaNguoiDung { get; set; }
-        public string TenDangNhap { get; set; }
-        public string MatKhau { get; set; }
-        public string Email { get; set; }
-        public string SoDienThoai { get; set; }
-        public string DiaChi { get; set; }
-        public virtual ICollection<DonDat> DonDats { get; set; } = new List<DonDat>();
+        public int maNguoiDung { get; set; }
+        public string ten { get; set; }
+        public string sdt { get; set; }
+        public string email { get; set; }
+        public int accID { get; set; }
+        public TaiKhoan TaiKhoan { get; set; }
+        public virtual ICollection<DonDat> DonDat { get; set; } = new List<DonDat>();
     }
 }
 

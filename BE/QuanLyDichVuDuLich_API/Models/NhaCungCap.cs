@@ -19,6 +19,7 @@ namespace Models
 
         public string TrangThai { get; set; }
 
-        public virtual ICollection<DichVu> DichVus { get; set; } = new List<DichVu>();
+        public virtual ICollection<DichVu> DichVu { get; set; } = new List<DichVu>();
     }
+    
 }

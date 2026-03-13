@@ -7,7 +7,7 @@ namespace Models
     {
         public int MaVe { get; set; }
 
-        public int? MaDichVu { get; set; }
+        public int? maDichVu { get; set; }
 
         public string Loai { get; set; }
 
@@ -23,6 +23,6 @@ namespace Models
 
         public string Hang { get; set; }
 
-        public virtual DichVu MaDichVuNavigation { get; set; }
+        public virtual DichVu DichVu { get; set; }
     }
 }

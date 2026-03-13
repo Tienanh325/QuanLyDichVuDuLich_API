@@ -11,6 +11,6 @@ namespace Models
         public DateTime NgayBatDau { get; set; }
         public DateTime NgayKetThuc { get; set; }
         public string TrangThai { get; set; }
-        public virtual ICollection<DonDat> DonDats { get; set; } = new List<DonDat>();
+        public virtual ICollection<DonDat> DonDat { get; set; } = new List<DonDat>();
     }
 }

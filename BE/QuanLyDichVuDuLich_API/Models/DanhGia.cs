@@ -7,9 +7,9 @@ namespace Models
     {
         public int MaDanhGia { get; set; }
 
-        public int? MaNguoiDung { get; set; }
+        public int? maNguoiDung { get; set; }
 
-        public int? MaDichVu { get; set; }
+        public int? maDichVu { get; set; }
 
         public int? SoSao { get; set; }
 
@@ -17,8 +17,8 @@ namespace Models
 
         public DateTime? NgayDanhGia { get; set; }
 
-        public virtual DichVu MaDichVuNavigation { get; set; }
+        public virtual DichVu DichVu { get; set; }
 
-        public virtual NguoiDung MaNguoiDungNavigation { get; set; }
+        public virtual NguoiDung NguoiDung { get; set; }
     }
 }

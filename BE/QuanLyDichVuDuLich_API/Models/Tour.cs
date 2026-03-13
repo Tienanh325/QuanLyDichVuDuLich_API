@@ -7,7 +7,7 @@ namespace Models
     {
         public int MaTour { get; set; }
 
-        public int? MaDichVu { get; set; }
+        public int? maDichVu { get; set; }
 
         public string Ten { get; set; }
 
@@ -25,6 +25,6 @@ namespace Models
 
         public double? DanhGia { get; set; }
 
-        public virtual DichVu MaDichVuNavigation { get; set; }
+        public virtual DichVu DichVu { get; set; }
     }
 }

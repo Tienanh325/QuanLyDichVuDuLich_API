@@ -7,7 +7,7 @@ namespace Models
     {
         public int MaThanhToan { get; set; }
 
-        public int? MaDon { get; set; }
+        public int? maDon { get; set; }
 
         public double SoTien { get; set; }
 
@@ -17,7 +17,7 @@ namespace Models
 
         public DateTime? NgayThanhToan { get; set; }
 
-        public virtual DonDat MaDonNavigation { get; set; }
+        public virtual DonDat DonDat { get; set; }
     }
 }
 

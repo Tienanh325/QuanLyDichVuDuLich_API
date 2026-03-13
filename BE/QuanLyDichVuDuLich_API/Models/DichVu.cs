@@ -16,20 +16,20 @@ namespace Models
 
         public string LoaiDichVu { get; set; }
 
-        public int? MaNhaCungCap { get; set; }
+        public int? maNhaCungCap { get; set; }
 
         public string TrangThai { get; set; }
 
-        public virtual ICollection<ChiTietDon> ChiTietDons { get; set; } = new List<ChiTietDon>();
+        public virtual ICollection<ChiTietDon> ChiTietDon { get; set; } = new List<ChiTietDon>();
 
         public virtual ICollection<DanhGia> DanhGia { get; set; } = new List<DanhGia>();
 
-        public virtual ICollection<KhachSan> KhachSans { get; set; } = new List<KhachSan>();
+        public virtual ICollection<KhachSan> KhachSan { get; set; } = new List<KhachSan>();
 
-        public virtual NhaCungCap MaNhaCungCapNavigation { get; set; }
+        public virtual NhaCungCap NhaCungCap { get; set; }
 
-        public virtual ICollection<Tour> Tours { get; set; } = new List<Tour>();
+        public virtual ICollection<Tour> Tour { get; set; } = new List<Tour>();
 
-        public virtual ICollection<Ve> Ves { get; set; } = new List<Ve>();
+        public virtual ICollection<Ve> Ve { get; set; } = new List<Ve>();
     }
 }
