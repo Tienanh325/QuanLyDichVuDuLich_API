@@ -104,7 +104,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="TaiKhoanDAL.cs" />
     <Compile Include="Helper\AppSettings.cs" />
     <Compile Include="Helper\CollectionHelper.cs" />
     <Compile Include="Helper\DatabaseHelper.cs" />

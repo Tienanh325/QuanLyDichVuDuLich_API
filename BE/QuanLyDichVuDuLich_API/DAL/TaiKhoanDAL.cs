@@ -18,7 +18,7 @@ namespace DAL
             _db = db;
         }
 
-        public List<TaiKhoan> GetAllUsers(out string error)
+        public List<TaiKhoan> GetAllTaiKhoan(out string error)
         {
             error = "";
             var dt = _db.ExecuteQueryToDataTable("SELECT * FROM TaiKhoan", out error);
@@ -42,7 +42,7 @@ namespace DAL
             return list;
         }
 
-        public TaiKhoan GetUserById(int id, out string error)
+        public TaiKhoan GetTaiKhoanById(int id, out string error)
         {
             error = "";
             var dt = _db.ExecuteQueryToDataTable($"SELECT * FROM TaiKhoan WHERE accID={id}", out error);
@@ -61,7 +61,7 @@ namespace DAL
             };
         }
 
-        public bool InsertUser(TaiKhoan taikhoan, out string error)
+        public bool InsertTaiKhoan(TaiKhoan taikhoan, out string error)
         {
             string sql =
                 $"INSERT INTO TaiKhoan ( tenDangNhap, matKhau, vaiTro) " +
@@ -71,7 +71,7 @@ namespace DAL
 
             return string.IsNullOrEmpty(error);
         }
-        public bool UpdateUser(TaiKhoan taikhoan, out string error)
+        public bool UpdateTaiKhoan(TaiKhoan taikhoan, out string error)
         {
             if (taikhoan.accID <= 0)
             {
