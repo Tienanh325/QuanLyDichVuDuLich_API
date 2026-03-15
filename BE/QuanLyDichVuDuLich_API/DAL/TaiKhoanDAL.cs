@@ -83,11 +83,73 @@ namespace DAL
                 $"UPDATE TaiKhoan SET " +
                 $"tenDangNhap = '{taikhoan.tenDangNhap.Replace("'", "''")}', " +
                 $"matKhau = '{taikhoan.matKhau.Replace("'", "''")}', " +
-                $"vaiTro = '{taikhoan.vaiTro.Replace("'", "''")}', " +
+                $"vaiTro = '{taikhoan.vaiTro.Replace("'", "''")}' " +
                 $"WHERE accID = {taikhoan.accID}";
 
             error = _db.ExecuteNoneQuery(sql);
             return string.IsNullOrEmpty(error);
+        }
+        public TaiKhoan Login(string tenDangNhap, string matKhau, out string error)
+        {
+            error = "";
+            var dt = _db.ExecuteQueryToDataTable(
+                $"SELECT * FROM TaiKhoan WHERE tenDangNhap='{tenDangNhap}' AND matKhau='{matKhau}'",
+                out error);
+
+            if (!string.IsNullOrEmpty(error) || dt == null || dt.Rows.Count == 0)
+                return null;
+
+            var row = dt.Rows[0];
+
+            return new TaiKhoan
+            {
+                accID = (int)row["accID"],
+                tenDangNhap = row["tenDangNhap"].ToString(),
+                matKhau = row["matKhau"].ToString(),
+                vaiTro = row["vaiTro"].ToString()
+            };
+        }
+        public bool DeleteTaiKhoan(int id, out string error)
+        {
+            string sql = $"DELETE FROM TaiKhoan WHERE accID={id}";
+
+            error = _db.ExecuteNoneQuery(sql);
+
+            return string.IsNullOrEmpty(error);
+        }
+        public bool ChangePassword(int id, string newPassword, out string error)
+        {
+            string sql =
+                $"UPDATE TaiKhoan SET matKhau='{newPassword}' WHERE accID={id}";
+
+            error = _db.ExecuteNoneQuery(sql);
+
+            return string.IsNullOrEmpty(error);
+        }
+        public List<TaiKhoan> SearchByUsername(string tenDangNhap, out string error)
+        {
+            error = "";
+
+            var dt = _db.ExecuteQueryToDataTable(
+                $"SELECT * FROM TaiKhoan WHERE tenDangNhap LIKE '%{tenDangNhap}%'", out error);
+
+            var list = new List<TaiKhoan>();
+
+            if (!string.IsNullOrEmpty(error) || dt == null)
+                return list;
+
+            foreach (DataRow row in dt.Rows)
+            {
+                list.Add(new TaiKhoan
+                {
+                    accID = (int)row["accID"],
+                    tenDangNhap = row["tenDangNhap"].ToString(),
+                    matKhau = row["matKhau"].ToString(),
+                    vaiTro = row["vaiTro"].ToString()
+                });
+            }
+
+            return list;
         }
     }
 }

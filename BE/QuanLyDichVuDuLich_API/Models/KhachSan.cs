@@ -20,6 +20,7 @@ namespace Models
         public int phongTrong { get; set; }
 
         public string moTa { get; set; }
+        public string loaiPhong { get; set; }
 
         public DichVu DichVu { get; set; }
     }

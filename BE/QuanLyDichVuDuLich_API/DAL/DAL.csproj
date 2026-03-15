@@ -104,12 +104,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="KhachSanDAL.cs" />
     <Compile Include="TaiKhoanDAL.cs" />
     <Compile Include="Helper\AppSettings.cs" />
     <Compile Include="Helper\CollectionHelper.cs" />
     <Compile Include="Helper\DatabaseHelper.cs" />
     <Compile Include="Helper\Interfaces\IDatabaseHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TourDAL.cs" />
+    <Compile Include="VeDAL.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Models\Models.csproj">

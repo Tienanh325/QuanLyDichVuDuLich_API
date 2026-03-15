@@ -23,7 +23,7 @@ namespace Models
 
         public string MoTa { get; set; }
 
-        public double? DanhGia { get; set; }
+        public string DanhGia { get; set; }
 
         public virtual DichVu DichVu { get; set; }
     }
