@@ -9,7 +9,9 @@ namespace Models
 
         public int? maDichVu { get; set; }
 
-        public string Loai { get; set; }
+        public string TenVe { get; set; }
+
+        public int LoaiVeID { get; set; }
 
         public string DiemKhoiHanh { get; set; }
 
@@ -21,7 +23,7 @@ namespace Models
 
         public int? SoChoTrong { get; set; }
 
-        public string Hang { get; set; }
+        public string Hang { get; set; }       
 
         public virtual DichVu DichVu { get; set; }
     }

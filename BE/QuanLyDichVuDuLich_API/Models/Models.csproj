@@ -107,6 +107,7 @@
     <Compile Include="DonDat.cs" />
     <Compile Include="KhachSan.cs" />
     <Compile Include="KhuyenMai.cs" />
+    <Compile Include="LoaiVe.cs" />
     <Compile Include="NguoiDung.cs" />
     <Compile Include="NhaCungCap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
