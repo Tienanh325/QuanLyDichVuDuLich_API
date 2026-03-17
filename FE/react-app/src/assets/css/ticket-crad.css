@@ -1,0 +1,22 @@
+.card {
+  background: white;
+  padding: 15px;
+  margin: 15px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price {
+  color: red;
+  font-weight: bold;
+}
+
+.card button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+}
