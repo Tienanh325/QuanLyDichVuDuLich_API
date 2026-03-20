@@ -104,6 +104,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Admin_DanhGiaDAL.cs" />
     <Compile Include="KhachSanDAL.cs" />
     <Compile Include="TaiKhoanDAL.cs" />
     <Compile Include="Helper\AppSettings.cs" />
