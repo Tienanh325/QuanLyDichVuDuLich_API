@@ -105,6 +105,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin_DanhGiaDAL.cs" />
+    <Compile Include="Admin_LoaiVeDAL.cs" />
+    <Compile Include="Admin_NhacungcapDAL.cs" />
     <Compile Include="KhachSanDAL.cs" />
     <Compile Include="TaiKhoanDAL.cs" />
     <Compile Include="Helper\AppSettings.cs" />
@@ -114,6 +116,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TourDAL.cs" />
     <Compile Include="User_DanhGiaDAL.cs" />
+    <Compile Include="User_LoaiVeDAL.cs" />
     <Compile Include="VeDAL.cs" />
   </ItemGroup>
   <ItemGroup>

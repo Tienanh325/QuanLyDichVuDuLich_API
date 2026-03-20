@@ -102,11 +102,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin_DanhGiaBLL.cs" />
+    <Compile Include="Admin_NhacungcapBLL.cs" />
     <Compile Include="KhachSanBLL.cs" />
     <Compile Include="TaiKhoanBLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TourBLL.cs" />
     <Compile Include="User_DanhGiaBLL.cs" />
+    <Compile Include="User_LoaiVeBLL.cs" />
     <Compile Include="VeBLL.cs" />
   </ItemGroup>
   <ItemGroup>
