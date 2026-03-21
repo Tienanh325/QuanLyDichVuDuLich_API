@@ -102,6 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin_DanhGiaBLL.cs" />
+    <Compile Include="Admin_LoaiVeBLL.cs" />
     <Compile Include="Admin_NhacungcapBLL.cs" />
     <Compile Include="KhachSanBLL.cs" />
     <Compile Include="TaiKhoanBLL.cs" />
