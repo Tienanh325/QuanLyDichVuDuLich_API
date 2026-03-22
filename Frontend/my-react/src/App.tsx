@@ -1,202 +1,166 @@
-import React from 'react';
-import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import AppRouter from './routes';
 
-const { Header, Content, Sider } = Layout;
-
-const items1: MenuProps['items'] = ['1', '2', '3'].map((key) => ({
-  key,
-  label: `nav ${key}`,
-}));
-
-const items2: MenuProps['items'] = [UserOutlined, LaptopOutlined, NotificationOutlined].map(
-  (icon, index) => {
-    const key = String(index + 1);
-
-    return {
-      key: `sub${key}`,
-      icon: React.createElement(icon),
-      label: `subnav ${key}`,
-      children: Array.from({ length: 4 }).map((_, j) => {
-        const subKey = index * 4 + j + 1;
-        return {
-          key: subKey,
-          label: `option${subKey}`,
-        };
-      }),
-    };
-  },
-);
-
-const App: React.FC = () => {
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
-  return (
-    <Layout>
-      <Header style={{ display: 'flex', alignItems: 'center' }}>
-        <div className="demo-logo" />
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          defaultSelectedKeys={['2']}
-          items={items1}
-          style={{ flex: 1, minWidth: 0 }}
-        />
-      </Header>
-      <Layout>
-        <Sider width={200} style={{ background: colorBgContainer }}>
-          <Menu
-            mode="inline"
-            defaultSelectedKeys={['1']}
-            defaultOpenKeys={['sub1']}
-            style={{ height: '100%', borderInlineEnd: 0 }}
-            items={items2}
-          />
-        </Sider>
-        <Layout style={{ padding: '0 24px 24px' }}>
-          <Breadcrumb
-            items={[{ title: 'Home' }, { title: 'List' }, { title: 'App' }]}
-            style={{ margin: '16px 0' }}
-          />
-          <Content
-            style={{
-              padding: 24,
-              margin: 0,
-              minHeight: 280,
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
-            }}
-          >
-            Content
-          </Content>
-        </Layout>
-      </Layout>
-    </Layout>
-  );
-};
+function App() {
+  return <AppRouter />;
+}
 
 export default App;
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from './assets/vite.svg'
-// import heroImg from './assets/hero.png'
-// import './App.css'
+// import React, { useState } from 'react';
+// import { Avatar, Dropdown } from 'antd';
+// import logo from './assets/images/thuonghieu.jpg';
+// import {
+//   MenuFoldOutlined,
+//   MenuUnfoldOutlined,
+//   LaptopOutlined,
+//   UserOutlined,
+//   NotificationOutlined,
+//   LogoutOutlined, 
+// } from '@ant-design/icons';
+// import type { MenuProps } from 'antd';
+// import { Button, Layout, Menu, theme } from 'antd';
 
-// function App() {
-//   const [count, setCount] = useState(0)
+// const { Header, Content, Sider } = Layout;
+
+// const items2: MenuProps['items'] = [UserOutlined, LaptopOutlined, NotificationOutlined].map(
+//   (icon, index) => {
+//     const key = String(index + 1);
+
+//     return {
+//       key: `sub${key}`,
+//       icon: React.createElement(icon),
+//       label: `subnav ${key}`,
+//       children: Array.from({ length: 4 }).map((_, j) => {
+//         const subKey = index * 4 + j + 1;
+//         return {
+//           key: subKey,
+//           label: `option${subKey}`,
+//         };
+//       }),
+//     };
+//   },
+// );
+// const userMenu = [
+//   {
+//     key: 'profile',
+//     label: 'Thông tin cá nhân',
+//   },
+//   {
+//     key: 'logout',
+//     icon: <LogoutOutlined />,
+//     label: 'Đăng xuất',
+//   },
+// ];
+// const App: React.FC = () => {
+//   const [collapsed, setCollapsed] = useState(false);
+//   const {
+//     token: { colorBgContainer, borderRadiusLG },
+//   } = theme.useToken();
 
 //   return (
-//     <>
-//       <section id="center">
-//         <div className="hero">
-//           <img src={heroImg} className="base" width="170" height="179" alt="" />
-//           <img src={reactLogo} className="framework" alt="React logo" />
-//           <img src={viteLogo} className="vite" alt="Vite logo" />
-//         </div>
-//         <div>
-//           <h1>Get started</h1>
-//           <p>
-//             Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-//           </p>
-//         </div>
-//         <button
-//           className="counter"
-//           onClick={() => setCount((count) => count + 1)}
+//     <Layout style={{ minWidth: '100vh' }}>
+//       <Sider
+//         trigger={null}
+//         collapsible
+//         collapsed={collapsed}
+//         style={{
+//           display: 'flex',
+//           flexDirection: 'column',
+//           height: '100vh',
+//           background: '#fff' // ❗ bỏ màu đen
+//         }}
+//       >
+//         {/* LOGO */}
+//         <div
+//           style={{
+//             height: 64,
+//             display: 'flex',
+//             alignItems: 'center',
+//             justifyContent: 'center',
+//             borderBottom: '1px solid #f0f0f0'
+//           }}
 //         >
-//           Count is {count}
-//         </button>
-//       </section>
-
-//       <div className="ticks"></div>
-
-//       <section id="next-steps">
-//         <div id="docs">
-//           <svg className="icon" role="presentation" aria-hidden="true">
-//             <use href="/icons.svg#documentation-icon"></use>
-//           </svg>
-//           <h2>Documentation</h2>
-//           <p>Your questions, answered</p>
-//           <ul>
-//             <li>
-//               <a href="https://vite.dev/" target="_blank">
-//                 <img className="logo" src={viteLogo} alt="" />
-//                 Explore Vite
-//               </a>
-//             </li>
-//             <li>
-//               <a href="https://react.dev/" target="_blank">
-//                 <img className="button-icon" src={reactLogo} alt="" />
-//                 Learn more
-//               </a>
-//             </li>
-//           </ul>
+//           <img
+//             src={logo}
+//             alt="logo"
+//             style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+//           />
 //         </div>
-//         <div id="social">
-//           <svg className="icon" role="presentation" aria-hidden="true">
-//             <use href="/icons.svg#social-icon"></use>
-//           </svg>
-//           <h2>Connect with us</h2>
-//           <p>Join the Vite community</p>
-//           <ul>
-//             <li>
-//               <a href="https://github.com/vitejs/vite" target="_blank">
-//                 <svg
-//                   className="button-icon"
-//                   role="presentation"
-//                   aria-hidden="true"
-//                 >
-//                   <use href="/icons.svg#github-icon"></use>
-//                 </svg>
-//                 GitHub
-//               </a>
-//             </li>
-//             <li>
-//               <a href="https://chat.vite.dev/" target="_blank">
-//                 <svg
-//                   className="button-icon"
-//                   role="presentation"
-//                   aria-hidden="true"
-//                 >
-//                   <use href="/icons.svg#discord-icon"></use>
-//                 </svg>
-//                 Discord
-//               </a>
-//             </li>
-//             <li>
-//               <a href="https://x.com/vite_js" target="_blank">
-//                 <svg
-//                   className="button-icon"
-//                   role="presentation"
-//                   aria-hidden="true"
-//                 >
-//                   <use href="/icons.svg#x-icon"></use>
-//                 </svg>
-//                 X.com
-//               </a>
-//             </li>
-//             <li>
-//               <a href="https://bsky.app/profile/vite.dev" target="_blank">
-//                 <svg
-//                   className="button-icon"
-//                   role="presentation"
-//                   aria-hidden="true"
-//                 >
-//                   <use href="/icons.svg#bluesky-icon"></use>
-//                 </svg>
-//                 Bluesky
-//               </a>
-//             </li>
-//           </ul>
+
+//         {/* MENU */}
+//         <Menu
+//           mode="inline"
+//           defaultSelectedKeys={['1']}
+//           defaultOpenKeys={['sub1']}
+//           style={{
+//             flex: 1,     
+//             overflow: 'auto',
+//             borderInlineEnd: 0
+//           }}
+//           items={items2}
+//         />
+
+//         {/* USER */}
+//         <div
+//           style={{
+//             padding: 16,
+//             borderTop: '1px solid #f0f0f0',
+//             display: 'flex',
+//             alignItems: 'center',
+//             gap: 10,
+//           }}
+//         >
+//           <Dropdown menu={{ items: userMenu }} placement="topRight">
+//             <div
+//               style={{
+//                 display: 'flex',
+//                 alignItems: 'center',
+//                 gap: 10,
+//                 cursor: 'pointer',
+//               }}
+//             >
+//               <Avatar size={40} icon={<UserOutlined />} />
+//               {!collapsed && <span>Tiến Anh</span>}
+//             </div>
+//           </Dropdown>
 //         </div>
-//       </section>
+//       </Sider>
+//       <Layout>
+//         <Header
+//           style={{
+//             padding: '0 16px',
+//             background: colorBgContainer,
+//             display: 'flex',
+//             justifyContent: 'flex-start',
+//             alignItems: 'center',
+//           }}
+//         >
+//           <Button
+//             type="text"
+//             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+//             onClick={() => setCollapsed(!collapsed)}
+//             style={{
+//               fontSize: '18px',
+//               width: 64,
+//               height: 64,
+//             }}
+//           />
+//         </Header>
 
-//       <div className="ticks"></div>
-//       <section id="spacer"></section>
-//     </>
-//   )
-// }
+//         {/* CONTENT */}
+//         <Content
+//           style={{
+//             margin: '24px 16px',
+//             padding: 24,
+//             minHeight: 280,
+//             background: colorBgContainer,
+//             borderRadius: borderRadiusLG,
+//           }}
+//         >
+//           Content
+//         </Content>
+//       </Layout>
+//     </Layout>
+//   );
+// };
 
-// export default App
+// export default App;
