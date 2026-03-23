@@ -7,12 +7,17 @@ const userMenu: MenuProps['items'] = [
   { key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất' },
 ];
 
-const UserDropdown = ({ collapsed }: { collapsed: boolean }) => {
+type Props = {
+  collapsed: boolean;
+};
+
+const UserDropdown = ({ collapsed }: Props) => {
   return (
     <div
       style={{
-        padding: 16,
-        borderTop: '1px solid #f0f0f0'
+        borderTop: '1px solid #f0f0f0',
+        display: 'flex',
+        justifyContent: collapsed ? 'center' : 'flex-start'
       }}
     >
       <Dropdown menu={{ items: userMenu }} placement="topRight">
@@ -21,10 +26,14 @@ const UserDropdown = ({ collapsed }: { collapsed: boolean }) => {
             display: 'flex',
             alignItems: 'center',
             gap: 10,
-            cursor: 'pointer'
+            cursor: 'pointer',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            width: '100%'
           }}
         >
           <Avatar size={40} icon={<UserOutlined />} />
+
+          {/* 🔥 ẨN TÊN KHI COLLAPSE */}
           {!collapsed && <span>Tiến Anh</span>}
         </div>
       </Dropdown>

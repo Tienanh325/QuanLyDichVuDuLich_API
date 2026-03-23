@@ -1,84 +1,39 @@
-import { Card, Col, Row, Statistic } from 'antd';
-import {
-  UserOutlined,
-  ShoppingCartOutlined,
-  DollarOutlined,
-  EyeOutlined,
-} from '@ant-design/icons';
+import StatCard from '../components/ui/StatCard';
+import SalesChart from '../components/ui/SalesChart';
+import TopProducts from '../components/ui/TopProducts';
+import { DollarSign, ShoppingBag, Users, ShoppingCart } from 'lucide-react';
 
-const Dashboard = () => {
+export default function Dashboard() {
   return (
-    <div>
-      {/* TITLE */}
-      <h2 style={{ marginBottom: 20 }}>Dashboard</h2>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+        <StatCard title="Total Revenue" value="2.369.395.104 đ" change="▲ 3343.9% so với tháng trước" icon={<DollarSign size={28} />} />
+        <StatCard title="Total Orders" value="239" change="▲ 895% so với tháng trước" icon={<ShoppingBag size={28} />} />
+        <StatCard title="Total Customers" value="100" change="▲ 1900.0% so với tháng trước" icon={<Users size={28} />} />
+        <StatCard title="Abandoned Carts" value="16" icon={<ShoppingCart size={28} />} />
+      </div>
 
-      {/* STATISTICS */}
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="Người dùng"
-              value={1128}
-              prefix={<UserOutlined />}
-            />
-          </Card>
-        </Col>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+        <div style={{ background: '#fff', padding: 16, borderRadius: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 700 }}>Sales Overview</h2>
+            <select style={{ padding: '6px 10px', borderRadius: 8 }}>
+              <option>This Year</option>
+            </select>
+          </div>
+          <SalesChart />
+        </div>
 
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="Đơn hàng"
-              value={93}
-              prefix={<ShoppingCartOutlined />}
-            />
-          </Card>
-        </Col>
-
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="Doanh thu"
-              value={11280}
-              prefix={<DollarOutlined />}
-              suffix="₫"
-            />
-          </Card>
-        </Col>
-
-        <Col xs={24} sm={12} md={6}>
-          <Card>
-            <Statistic
-              title="Lượt xem"
-              value={9321}
-              prefix={<EyeOutlined />}
-            />
-          </Card>
-        </Col>
-      </Row>
-
-      {/* CONTENT */}
-      <Row gutter={[16, 16]} style={{ marginTop: 20 }}>
-        <Col xs={24} md={16}>
-          <Card title="Biểu đồ doanh thu">
-            <div style={{ height: 300, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              (Chart ở đây - có thể dùng recharts hoặc chart.js)
-            </div>
-          </Card>
-        </Col>
-
-        <Col xs={24} md={8}>
-          <Card title="Hoạt động gần đây">
-            <ul>
-              <li>Người dùng mới đăng ký</li>
-              <li>Đơn hàng #123 đã thanh toán</li>
-              <li>Cập nhật sản phẩm mới</li>
-              <li>Admin đăng nhập</li>
-            </ul>
-          </Card>
-        </Col>
-      </Row>
+        <div style={{ background: '#fff', padding: 16, borderRadius: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 700 }}>Top Products</h2>
+            <select style={{ padding: '6px 10px', borderRadius: 8 }}>
+              <option>This Month</option>
+            </select>
+          </div>
+          <TopProducts />
+        </div>
+      </div>
     </div>
   );
-};
-
-export default Dashboard;
+}

@@ -1,37 +1,19 @@
-import { Layout, theme } from 'antd';
 import { useState } from 'react';
-import Sidebar from '../components/Sidebar/SidebarAdmin';
+import { Outlet } from 'react-router-dom';
+import SidebarAdmin from '../components/Sidebar/SidebarAdmin';
 import HeaderBar from '../components/Header/HeaderBar';
 
-const { Content } = Layout;
-
-const MainLayout = ({ children }: { children: React.ReactNode }) => {
+export default function MainLayout() {
   const [collapsed, setCollapsed] = useState(false);
-
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sidebar collapsed={collapsed} />
-
-      <Layout>
-        <HeaderBar collapsed={collapsed} setCollapsed={setCollapsed} />
-
-        <Content
-          style={{
-            margin: '24px 16px',
-            padding: 24,
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG
-          }}
-        >
-          {children}
-        </Content>
-      </Layout>
-    </Layout>
+    <div className="app-root" style={{ minHeight: '100vh', display: 'flex' }}>
+      <SidebarAdmin collapsed={collapsed} setCollapsed={setCollapsed} />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <HeaderBar />
+        <main style={{ padding: 24 }}>
+          <Outlet />
+        </main> 
+      </div>
+    </div>
   );
-};
-
-export default MainLayout;
+}
