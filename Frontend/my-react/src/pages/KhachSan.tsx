@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import axios from "axios";
-import dayjs, { Dayjs } from "dayjs";
 import {
   Badge,
   Button,
   Card,
-  DatePicker,
   Form,
   Input,
   InputNumber,
@@ -20,103 +18,89 @@ import {
   message,
 } from "antd";
 import type { TableProps } from "antd";
-import {
-  PencilLine,
-  Plus,
-  RefreshCw,
-  Search,
-  Trash2,
-} from "lucide-react";
+import { BedDouble, MapPinned, PencilLine, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
 
 const { Title, Text } = Typography;
-const { RangePicker } = DatePicker;
+const { TextArea } = Input;
 
-type DiscountKind = "fixed" | "percent";
-type VoucherStatus = "active" | "scheduled" | "expired";
+type HotelStatus = "available" | "limited" | "full";
 
-interface VoucherItem {
-  id: string;
-  code: string;
-  description: string;
-  discountType: DiscountKind;
-  discountValue: number;
-  minimumOrder: number;
-  maximumDiscount?: number | null;
-  usedCount: number;
-  startDate: string;
-  endDate?: string | null;
-  status: VoucherStatus;
+interface DichVuOption {
+  maDichVu: number;
+  ten: string;
 }
 
-interface VoucherFormValues {
-  code: string;
-  description: string;
-  discountType: DiscountKind;
-  discountValue: number;
-  minimumOrder: number;
-  maximumDiscount?: number | null;
-  dateRange: [Dayjs, Dayjs];
+interface HotelItem {
+  maKhachSan: number;
+  maDichVu: number;
+  ten: string;
+  viTri: string;
+  danhGia: number;
+  gia: number;
+  phongTrong: number;
+  moTa: string;
+  LoaiPhong: string;
+}
+
+interface HotelFormValues {
+  maDichVu: number;
+  ten: string;
+  viTri: string;
+  danhGia: number;
+  gia: number;
+  phongTrong: number;
+  moTa: string;
+  LoaiPhong: string;
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-const VOUCHER_API_PATH = import.meta.env.VITE_KHUYEN_MAI_API_PATH ?? "/api/khuyen-mai";
+const HOTEL_API_PATH = import.meta.env.VITE_KHACH_SAN_API_PATH ?? "/api/khach-san";
+const DICH_VU_API_PATH = import.meta.env.VITE_DICH_VU_API_PATH ?? "/api/dich-vu";
+
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
 });
 
-const mockVouchers: VoucherItem[] = [
+const mockDichVu: DichVuOption[] = [
+  { maDichVu: 101, ten: "Lưu trú cao cấp" },
+  { maDichVu: 102, ten: "Resort biển" },
+  { maDichVu: 103, ten: "Khách sạn trung tâm" },
+];
+
+const mockHotels: HotelItem[] = [
   {
-    id: "1",
-    code: "SAYHIBANMOI",
-    description: "Giảm 30K đơn hàng online đầu tiên",
-    discountType: "fixed",
-    discountValue: 30000,
-    minimumOrder: 100000,
-    maximumDiscount: null,
-    usedCount: 0,
-    startDate: "2025-05-21",
-    endDate: null,
-    status: "active",
+    maKhachSan: 1,
+    maDichVu: 101,
+    ten: "M Village Riverside",
+    viTri: "Quận 1, TP.HCM",
+    danhGia: 4.7,
+    gia: 1890000,
+    phongTrong: 12,
+    moTa: "Khách sạn phong cách hiện đại, gần trung tâm, phù hợp khách công tác.",
+    LoaiPhong: "Deluxe",
   },
   {
-    id: "2",
-    code: "MEYEU",
-    description: "Giảm 10% tối đa 50K đơn Online 399K",
-    discountType: "percent",
-    discountValue: 10,
-    minimumOrder: 399000,
-    maximumDiscount: 50000,
-    usedCount: 0,
-    startDate: "2025-05-21",
-    endDate: null,
-    status: "active",
+    maKhachSan: 2,
+    maDichVu: 102,
+    ten: "Ocean Pearl Resort",
+    viTri: "Phú Quốc",
+    danhGia: 4.9,
+    gia: 3290000,
+    phongTrong: 4,
+    moTa: "Resort sát biển với hồ bơi riêng và buffet sáng.",
+    LoaiPhong: "Villa",
   },
   {
-    id: "3",
-    code: "AHAHA",
-    description: "Giảm giá ahaha",
-    discountType: "percent",
-    discountValue: 10,
-    minimumOrder: 100000,
-    maximumDiscount: 20000,
-    usedCount: 0,
-    startDate: "2025-05-21",
-    endDate: null,
-    status: "active",
-  },
-  {
-    id: "4",
-    code: "AIHII",
-    description: "string",
-    discountType: "percent",
-    discountValue: 20,
-    minimumOrder: 100000,
-    maximumDiscount: 50000,
-    usedCount: 10,
-    startDate: "2025-04-14",
-    endDate: "2025-04-20",
-    status: "expired",
+    maKhachSan: 3,
+    maDichVu: 103,
+    ten: "Da Nang Harbor Hotel",
+    viTri: "Đà Nẵng",
+    danhGia: 4.3,
+    gia: 1290000,
+    phongTrong: 0,
+    moTa: "Khách sạn 3 sao gần cầu Rồng, thích hợp nghỉ ngắn ngày.",
+    LoaiPhong: "Standard",
   },
 ];
 
@@ -126,146 +110,88 @@ function formatCurrency(value: number): string {
   return `${currencyFormatter.format(value)} đ`;
 }
 
-function formatDate(value?: string | null): string {
-  if (!value) {
-    return "--";
+function inferStatus(item: Pick<HotelItem, "phongTrong">): HotelStatus {
+  if (item.phongTrong <= 0) {
+    return "full";
   }
-
-  return dayjs(value).format("DD/MM/YYYY");
+  if (item.phongTrong <= 5) {
+    return "limited";
+  }
+  return "available";
 }
 
-function inferStatus(startDate: string, endDate?: string | null): VoucherStatus {
-  const today = dayjs().startOf("day");
-  const start = dayjs(startDate).startOf("day");
-  const end = endDate ? dayjs(endDate).startOf("day") : null;
-
-  if (start.isAfter(today)) {
-    return "scheduled";
+function getStatusMeta(status: HotelStatus): { label: string; color: string } {
+  switch (status) {
+    case "available":
+      return { label: "Còn phòng", color: "green" };
+    case "limited":
+      return { label: "Sắp hết phòng", color: "gold" };
+    default:
+      return { label: "Hết phòng", color: "red" };
   }
-
-  if (end && end.isBefore(today)) {
-    return "expired";
-  }
-
-  return "active";
 }
 
-function normalizeVoucher(input: unknown, index: number): VoucherItem {
-  const raw = (typeof input === "object" && input !== null ? input : {}) as Record<string, unknown>;
-
-  const startDate = String(
-    raw.startDate ?? raw.ngayBatDau ?? raw.validFrom ?? dayjs().format("YYYY-MM-DD"),
-  );
-  const endDateValue = raw.endDate ?? raw.ngayKetThuc ?? raw.validTo;
-  const endDate = endDateValue ? String(endDateValue) : null;
-
-  const discountTypeValue = String(
-    raw.discountType ?? raw.loaiGiaTri ?? raw.type ?? "fixed",
-  ).toLowerCase();
-  const discountType: DiscountKind =
-    discountTypeValue === "percent" || discountTypeValue === "phan_tram" || discountTypeValue === "percentage"
-      ? "percent"
-      : "fixed";
-
-  const explicitStatus = String(raw.status ?? raw.trangThai ?? "").toLowerCase();
-  let status: VoucherStatus | null = null;
-
-  if (explicitStatus.includes("active") || explicitStatus.includes("hoat")) {
-    status = "active";
-  } else if (explicitStatus.includes("schedule") || explicitStatus.includes("sap")) {
-    status = "scheduled";
-  } else if (explicitStatus.includes("expire") || explicitStatus.includes("het")) {
-    status = "expired";
-  }
-
-  return {
-    id: String(raw.id ?? raw.maKhuyenMai ?? raw.code ?? index + 1),
-    code: String(raw.code ?? raw.maKhuyenMai ?? `KM${index + 1}`),
-    description: String(raw.description ?? raw.moTa ?? raw.ten ?? "Chưa có mô tả"),
-    discountType,
-    discountValue: Number(raw.discountValue ?? raw.giamGia ?? raw.giaTri ?? 0),
-    minimumOrder: Number(raw.minimumOrder ?? raw.dieuKienToiThieu ?? raw.minOrder ?? 0),
-    maximumDiscount:
-      raw.maximumDiscount === null || raw.maximumDiscount === undefined || raw.maximumDiscount === ""
-        ? null
-        : Number(raw.maximumDiscount ?? raw.giamToiDa ?? raw.maxDiscount ?? 0),
-    usedCount: Number(raw.usedCount ?? raw.soLanDaDung ?? raw.used ?? 0),
-    startDate,
-    endDate,
-    status: status ?? inferStatus(startDate, endDate),
-  };
-}
-
-async function fetchVouchers(): Promise<VoucherItem[]> {
-  const response = await apiClient.get(VOUCHER_API_PATH);
-  const payload = response.data as unknown;
-
+function extractArray(payload: unknown): unknown[] {
   if (Array.isArray(payload)) {
-    return payload.map(normalizeVoucher);
+    return payload;
   }
-
   if (typeof payload === "object" && payload !== null) {
-    const nestedData = (payload as { data?: unknown }).data;
-    const nestedItems = (payload as { items?: unknown }).items;
-
-    if (Array.isArray(nestedData)) {
-      return nestedData.map(normalizeVoucher);
+    const data = payload as { data?: unknown; items?: unknown };
+    if (Array.isArray(data.data)) {
+      return data.data;
     }
-
-    if (Array.isArray(nestedItems)) {
-      return nestedItems.map(normalizeVoucher);
+    if (Array.isArray(data.items)) {
+      return data.items;
     }
   }
-
   return [];
 }
 
-async function createVoucher(voucher: VoucherItem): Promise<VoucherItem> {
-  const response = await apiClient.post(VOUCHER_API_PATH, voucher);
-  return normalizeVoucher(response.data, 0);
+function normalizeHotel(input: unknown, index: number): HotelItem {
+  const raw = (typeof input === "object" && input !== null ? input : {}) as Record<string, unknown>;
+  return {
+    maKhachSan: Number(raw.maKhachSan ?? raw.id ?? index + 1),
+    maDichVu: Number(raw.maDichVu ?? raw.serviceId ?? 0),
+    ten: String(raw.ten ?? raw.name ?? `Khách sạn ${index + 1}`),
+    viTri: String(raw.viTri ?? raw.location ?? ""),
+    danhGia: Number(raw.danhGia ?? raw.rating ?? 0),
+    gia: Number(raw.gia ?? raw.price ?? 0),
+    phongTrong: Number(raw.phongTrong ?? raw.availableRooms ?? 0),
+    moTa: String(raw.moTa ?? raw.description ?? ""),
+    LoaiPhong: String(raw.LoaiPhong ?? raw.loaiPhong ?? raw.roomType ?? "Standard"),
+  };
 }
 
-async function updateVoucher(voucher: VoucherItem): Promise<VoucherItem> {
-  const response = await apiClient.put(`${VOUCHER_API_PATH}/${voucher.id}`, voucher);
-  return normalizeVoucher(response.data, 0);
+function normalizeDichVu(input: unknown, index: number): DichVuOption {
+  const raw = (typeof input === "object" && input !== null ? input : {}) as Record<string, unknown>;
+  return {
+    maDichVu: Number(raw.maDichVu ?? raw.id ?? index + 1),
+    ten: String(raw.ten ?? raw.name ?? `Dịch vụ ${index + 1}`),
+  };
 }
 
-async function deleteVoucher(id: string): Promise<void> {
-  await apiClient.delete(`${VOUCHER_API_PATH}/${id}`);
+async function fetchHotels(): Promise<HotelItem[]> {
+  const response = await apiClient.get(HOTEL_API_PATH);
+  return extractArray(response.data).map(normalizeHotel);
 }
 
-function getStatusMeta(status: VoucherStatus): { label: string; color: string } {
-  switch (status) {
-    case "active":
-      return { label: "Đang hoạt động", color: "green" };
-    case "scheduled":
-      return { label: "Sắp diễn ra", color: "blue" };
-    case "expired":
-      return { label: "Chưa hoạt động/Hết hạn", color: "gold" };
-    default:
-      return { label: "Không xác định", color: "default" };
-  }
+async function fetchDichVuOptions(): Promise<DichVuOption[]> {
+  const response = await apiClient.get(DICH_VU_API_PATH);
+  return extractArray(response.data).map(normalizeDichVu);
 }
 
-function getDiscountLabel(item: VoucherItem): string {
-  if (item.discountType === "percent") {
-    return `${item.discountValue}%`;
-  }
-
-  return formatCurrency(item.discountValue);
+async function createHotel(item: HotelItem): Promise<HotelItem> {
+  const response = await apiClient.post(HOTEL_API_PATH, item);
+  return normalizeHotel(response.data, 0);
 }
 
-function getConditionLines(item: VoucherItem): string[] {
-  const maxDiscountText =
-    item.discountType === "percent" && item.maximumDiscount
-      ? `Giảm tối đa: ${formatCurrency(item.maximumDiscount)}`
-      : "Không giới hạn giảm tối đa";
+async function updateHotel(item: HotelItem): Promise<HotelItem> {
+  const response = await apiClient.put(`${HOTEL_API_PATH}/${item.maKhachSan}`, item);
+  return normalizeHotel(response.data, 0);
+}
 
-  return [
-    `Đơn tối thiểu: ${formatCurrency(item.minimumOrder)}`,
-    maxDiscountText,
-    `Đã dùng: ${item.usedCount} lần`,
-  ];
+async function deleteHotel(id: number): Promise<void> {
+  await apiClient.delete(`${HOTEL_API_PATH}/${id}`);
 }
 
 const pageContainerStyle: CSSProperties = {
@@ -286,39 +212,43 @@ const statCardStyle: CSSProperties = {
   background: "#ffffff",
 };
 
-export default function KhuyenMai() {
-  const [form] = Form.useForm<VoucherFormValues>();
-  const [vouchers, setVouchers] = useState<VoucherItem[]>([]);
+export default function KhachSan() {
+  const [form] = Form.useForm<HotelFormValues>();
+  const [data, setData] = useState<HotelItem[]>([]);
+  const [dichVuOptions, setDichVuOptions] = useState<DichVuOption[]>(mockDichVu);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingVoucher, setEditingVoucher] = useState<VoucherItem | null>(null);
+  const [editingItem, setEditingItem] = useState<HotelItem | null>(null);
   const [searchText, setSearchText] = useState("");
-  const [filterType, setFilterType] = useState<DiscountKind | "all">("all");
-  const [filterStatus, setFilterStatus] = useState<VoucherStatus | "all">("all");
+  const [filterStatus, setFilterStatus] = useState<HotelStatus | "all">("all");
+  const [filterRoomType, setFilterRoomType] = useState<string>("all");
   const [isUsingMockData, setIsUsingMockData] = useState(false);
 
-  const loadVouchers = async () => {
+  const loadHotels = async () => {
     setLoading(true);
 
     try {
-      const data = await fetchVouchers();
-      setVouchers(data.length > 0 ? data : mockVouchers);
-      setIsUsingMockData(data.length === 0);
+      const [hotels, services] = await Promise.all([
+        fetchHotels(),
+        fetchDichVuOptions().catch(() => mockDichVu),
+      ]);
+      setDichVuOptions(services.length > 0 ? services : mockDichVu);
+      setData(hotels.length > 0 ? hotels : mockHotels);
+      setIsUsingMockData(hotels.length === 0);
 
-      if (data.length === 0) {
-        message.info("API chưa trả dữ liệu, đang hiển thị dữ liệu mẫu để bạn kiểm tra giao diện.");
+      if (hotels.length === 0) {
+        message.info("API chưa trả dữ liệu khách sạn, đang hiển thị dữ liệu mẫu.");
       }
     } catch (error) {
-      setVouchers(mockVouchers);
+      setDichVuOptions(mockDichVu);
+      setData(mockHotels);
       setIsUsingMockData(true);
 
       if (axios.isAxiosError(error)) {
-        message.warning(
-          `Không kết nối được API ${API_BASE_URL}${VOUCHER_API_PATH}. Đang dùng dữ liệu mẫu.`,
-        );
+        message.warning(`Không kết nối được API ${API_BASE_URL}${HOTEL_API_PATH}. Đang dùng dữ liệu mẫu.`);
       } else {
-        message.warning("Có lỗi khi tải dữ liệu khuyến mãi. Đang dùng dữ liệu mẫu.");
+        message.warning("Có lỗi khi tải dữ liệu khách sạn. Đang dùng dữ liệu mẫu.");
       }
     } finally {
       setLoading(false);
@@ -326,86 +256,94 @@ export default function KhuyenMai() {
   };
 
   useEffect(() => {
-    void loadVouchers();
+    void loadHotels();
   }, []);
 
-  const filteredVouchers = useMemo(() => {
-    const keyword = searchText.trim().toLowerCase();
+  const roomTypeOptions = useMemo(
+    () => ["all", ...Array.from(new Set(data.map((item) => item.LoaiPhong)))],
+    [data],
+  );
 
-    return vouchers.filter((item) => {
+  const dichVuMap = useMemo(
+    () => new Map(dichVuOptions.map((item) => [item.maDichVu, item.ten])),
+    [dichVuOptions],
+  );
+
+  const filteredData = useMemo(() => {
+    const keyword = searchText.trim().toLowerCase();
+    return data.filter((item) => {
+      const serviceName = dichVuMap.get(item.maDichVu)?.toLowerCase() ?? "";
       const matchesSearch =
         keyword.length === 0 ||
-        item.code.toLowerCase().includes(keyword) ||
-        item.description.toLowerCase().includes(keyword);
-      const matchesType = filterType === "all" || item.discountType === filterType;
-      const matchesStatus = filterStatus === "all" || item.status === filterStatus;
-
-      return matchesSearch && matchesType && matchesStatus;
+        String(item.maKhachSan).includes(keyword) ||
+        item.ten.toLowerCase().includes(keyword) ||
+        item.viTri.toLowerCase().includes(keyword) ||
+        item.moTa.toLowerCase().includes(keyword) ||
+        serviceName.includes(keyword);
+      const matchesStatus = filterStatus === "all" || inferStatus(item) === filterStatus;
+      const matchesRoomType = filterRoomType === "all" || item.LoaiPhong === filterRoomType;
+      return matchesSearch && matchesStatus && matchesRoomType;
     });
-  }, [filterStatus, filterType, searchText, vouchers]);
+  }, [data, dichVuMap, filterRoomType, filterStatus, searchText]);
 
   const stats = useMemo(() => {
-    const activeCount = vouchers.filter((item) => item.status === "active").length;
-    const scheduledCount = vouchers.filter((item) => item.status === "scheduled").length;
-    const expiredCount = vouchers.filter((item) => item.status === "expired").length;
-
+    const available = data.filter((item) => inferStatus(item) === "available").length;
+    const limited = data.filter((item) => inferStatus(item) === "limited").length;
+    const full = data.filter((item) => inferStatus(item) === "full").length;
     return {
-      total: vouchers.length,
-      active: activeCount,
-      scheduled: scheduledCount,
-      expired: expiredCount,
+      total: data.length,
+      available,
+      limited,
+      full,
     };
-  }, [vouchers]);
+  }, [data]);
 
   const resetForm = () => {
     form.resetFields();
-    setEditingVoucher(null);
+    setEditingItem(null);
   };
 
   const openCreateModal = () => {
     resetForm();
     form.setFieldsValue({
-      discountType: "fixed",
-      discountValue: 30000,
-      minimumOrder: 100000,
-      maximumDiscount: null,
-      dateRange: [dayjs(), dayjs().add(7, "day")],
+      maDichVu: dichVuOptions[0]?.maDichVu,
+      danhGia: 4.5,
+      gia: 1500000,
+      phongTrong: 10,
+      LoaiPhong: "Deluxe",
     });
     setModalOpen(true);
   };
 
-  const openEditModal = (voucher: VoucherItem) => {
-    setEditingVoucher(voucher);
+  const openEditModal = (item: HotelItem) => {
+    setEditingItem(item);
     form.setFieldsValue({
-      code: voucher.code,
-      description: voucher.description,
-      discountType: voucher.discountType,
-      discountValue: voucher.discountValue,
-      minimumOrder: voucher.minimumOrder,
-      maximumDiscount: voucher.maximumDiscount ?? null,
-      dateRange: [
-        dayjs(voucher.startDate),
-        dayjs(voucher.endDate ?? voucher.startDate),
-      ],
+      maDichVu: item.maDichVu,
+      ten: item.ten,
+      viTri: item.viTri,
+      danhGia: item.danhGia,
+      gia: item.gia,
+      phongTrong: item.phongTrong,
+      moTa: item.moTa,
+      LoaiPhong: item.LoaiPhong,
     });
     setModalOpen(true);
   };
 
-  const handleDelete = async (voucher: VoucherItem) => {
-    const previous = vouchers;
-
-    setVouchers((current) => current.filter((item) => item.id !== voucher.id));
+  const handleDelete = async (item: HotelItem) => {
+    const previous = data;
+    setData((current) => current.filter((entry) => entry.maKhachSan !== item.maKhachSan));
 
     if (isUsingMockData) {
-      message.success(`Đã xoá mã ${voucher.code} trên dữ liệu mẫu.`);
+      message.success(`Đã xoá khách sạn ${item.ten} trên dữ liệu mẫu.`);
       return;
     }
 
     try {
-      await deleteVoucher(voucher.id);
-      message.success(`Đã xoá mã ${voucher.code}.`);
+      await deleteHotel(item.maKhachSan);
+      message.success(`Đã xoá khách sạn ${item.ten}.`);
     } catch {
-      setVouchers(previous);
+      setData(previous);
       message.error("Xoá không thành công, dữ liệu đã được hoàn lại.");
     }
   };
@@ -415,50 +353,40 @@ export default function KhuyenMai() {
       const values = await form.validateFields();
       setSubmitting(true);
 
-      const voucher: VoucherItem = {
-        id: editingVoucher?.id ?? `${Date.now()}`,
-        code: values.code.trim().toUpperCase(),
-        description: values.description.trim(),
-        discountType: values.discountType,
-        discountValue: values.discountValue,
-        minimumOrder: values.minimumOrder,
-        maximumDiscount:
-          values.discountType === "percent" ? (values.maximumDiscount ?? null) : null,
-        usedCount: editingVoucher?.usedCount ?? 0,
-        startDate: values.dateRange[0].format("YYYY-MM-DD"),
-        endDate: values.dateRange[1].format("YYYY-MM-DD"),
-        status: inferStatus(
-          values.dateRange[0].format("YYYY-MM-DD"),
-          values.dateRange[1].format("YYYY-MM-DD"),
-        ),
+      const payload: HotelItem = {
+        maKhachSan: editingItem?.maKhachSan ?? Date.now(),
+        maDichVu: values.maDichVu,
+        ten: values.ten.trim(),
+        viTri: values.viTri.trim(),
+        danhGia: values.danhGia,
+        gia: values.gia,
+        phongTrong: values.phongTrong,
+        moTa: values.moTa.trim(),
+        LoaiPhong: values.LoaiPhong,
       };
 
       if (isUsingMockData) {
-        setVouchers((current) =>
-          editingVoucher
-            ? current.map((item) => (item.id === editingVoucher.id ? voucher : item))
-            : [voucher, ...current],
+        setData((current) =>
+          editingItem
+            ? current.map((item) => (item.maKhachSan === editingItem.maKhachSan ? payload : item))
+            : [payload, ...current],
         );
-        message.success(
-          editingVoucher
-            ? "Đã cập nhật mã khuyến mãi trên dữ liệu mẫu."
-            : "Đã thêm mã khuyến mãi trên dữ liệu mẫu.",
-        );
+        message.success(editingItem ? "Đã cập nhật khách sạn trên dữ liệu mẫu." : "Đã thêm khách sạn trên dữ liệu mẫu.");
         setModalOpen(false);
         resetForm();
         return;
       }
 
-      if (editingVoucher) {
-        const updated = await updateVoucher(voucher);
-        setVouchers((current) =>
-          current.map((item) => (item.id === editingVoucher.id ? updated : item)),
+      if (editingItem) {
+        const updated = await updateHotel(payload);
+        setData((current) =>
+          current.map((item) => (item.maKhachSan === editingItem.maKhachSan ? updated : item)),
         );
-        message.success("Cập nhật khuyến mãi thành công.");
+        message.success("Cập nhật khách sạn thành công.");
       } else {
-        const created = await createVoucher(voucher);
-        setVouchers((current) => [created, ...current]);
-        message.success("Thêm khuyến mãi thành công.");
+        const created = await createHotel(payload);
+        setData((current) => [created, ...current]);
+        message.success("Thêm khách sạn thành công.");
       }
 
       setModalOpen(false);
@@ -467,7 +395,6 @@ export default function KhuyenMai() {
       if (!axios.isAxiosError(error) && !(error instanceof Error)) {
         return;
       }
-
       if (axios.isAxiosError(error)) {
         message.error("Không lưu được dữ liệu lên API. Kiểm tra endpoint hoặc backend rồi thử lại.");
       }
@@ -476,61 +403,67 @@ export default function KhuyenMai() {
     }
   };
 
-  const columns: TableProps<VoucherItem>["columns"] = [
+  const columns: TableProps<HotelItem>["columns"] = [
     {
-      title: "Mã giảm giá",
-      dataIndex: "code",
-      key: "code",
+      title: "Khách sạn",
+      key: "hotel",
       render: (_value, record) => (
         <div>
-          <div style={{ fontWeight: 700, color: "#1f2a44" }}>{record.code}</div>
-          <Text style={{ color: "#7d869c", fontSize: 13 }}>{record.description}</Text>
+          <div style={{ fontWeight: 700, color: "#1f2a44" }}>{record.ten}</div>
+          <Text style={{ color: "#7d869c", fontSize: 13 }}>Mã KS: {record.maKhachSan}</Text>
         </div>
       ),
     },
     {
-      title: "Loại & giá trị",
-      key: "discount",
+      title: "Vị trí",
+      key: "location",
       render: (_value, record) => (
-        <div>
-          <div style={{ color: "#7d869c", fontSize: 13 }}>
-            {record.discountType === "fixed" ? "Cố định (VND)" : "Phần trăm (%)"}
-          </div>
-          <div style={{ fontWeight: 700, color: "#1f2a44" }}>{getDiscountLabel(record)}</div>
-        </div>
+        <Space size={6}>
+          <MapPinned size={15} color="#2563eb" />
+          <Text>{record.viTri}</Text>
+        </Space>
       ),
     },
     {
-      title: "Điều kiện",
-      key: "conditions",
-      render: (_value, record) => (
-        <div>
-          {getConditionLines(record).map((line) => (
-            <div key={line} style={{ color: "#55607a", fontSize: 13, lineHeight: 1.6 }}>
-              {line}
-            </div>
-          ))}
-        </div>
+      title: "Loại phòng",
+      dataIndex: "LoaiPhong",
+      key: "LoaiPhong",
+      render: (value: string) => (
+        <Space size={6}>
+          <BedDouble size={15} color="#7c3aed" />
+          <Text>{value}</Text>
+        </Space>
       ),
     },
     {
-      title: "Thời gian",
-      key: "time",
-      render: (_value, record) => (
-        <div>
-          <div style={{ color: "#55607a", fontSize: 13 }}>Từ: {formatDate(record.startDate)}</div>
-          <div style={{ color: "#55607a", fontSize: 13 }}>
-            Đến: {record.endDate ? formatDate(record.endDate) : "--"}
-          </div>
-        </div>
-      ),
+      title: "Giá",
+      dataIndex: "gia",
+      key: "gia",
+      render: (value: number) => <Text strong>{formatCurrency(value)}</Text>,
+    },
+    {
+      title: "Phòng trống",
+      dataIndex: "phongTrong",
+      key: "phongTrong",
+      render: (value: number) => <Tag color={value > 0 ? "cyan" : "red"}>{value}</Tag>,
+    },
+    {
+      title: "Dịch vụ",
+      dataIndex: "maDichVu",
+      key: "maDichVu",
+      render: (value: number) => dichVuMap.get(value) ?? `Dịch vụ #${value}`,
+    },
+    {
+      title: "Đánh giá",
+      dataIndex: "danhGia",
+      key: "danhGia",
+      render: (value: number) => <Tag color="gold">{value.toFixed(1)} / 5</Tag>,
     },
     {
       title: "Trạng thái",
-      dataIndex: "status",
       key: "status",
-      render: (status: VoucherStatus) => {
-        const meta = getStatusMeta(status);
+      render: (_value, record) => {
+        const meta = getStatusMeta(inferStatus(record));
         return <Tag color={meta.color}>{meta.label}</Tag>;
       },
     },
@@ -540,25 +473,9 @@ export default function KhuyenMai() {
       align: "center",
       render: (_value, record) => (
         <Space size="middle">
-          <Button
-            type="text"
-            aria-label={`Sửa ${record.code}`}
-            icon={<PencilLine size={16} color="#7c3aed" />}
-            onClick={() => openEditModal(record)}
-          />
-          <Popconfirm
-            title="Xoá mã giảm giá?"
-            description={`Bạn có chắc muốn xoá ${record.code}?`}
-            okText="Xoá"
-            cancelText="Huỷ"
-            onConfirm={() => void handleDelete(record)}
-          >
-            <Button
-              type="text"
-              danger
-              aria-label={`Xoá ${record.code}`}
-              icon={<Trash2 size={16} color="#ef4444" />}
-            />
+          <Button type="text" icon={<PencilLine size={16} color="#7c3aed" />} onClick={() => openEditModal(record)} />
+          <Popconfirm title="Xoá khách sạn?" description={`Bạn có chắc muốn xoá ${record.ten}?`} okText="Xoá" cancelText="Huỷ" onConfirm={() => void handleDelete(record)}>
+            <Button type="text" danger icon={<Trash2 size={16} color="#ef4444" />} />
           </Popconfirm>
         </Space>
       ),
@@ -570,113 +487,52 @@ export default function KhuyenMai() {
       <Space direction="vertical" size={20} style={{ width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
           <div>
-            <Title level={3} style={{ margin: 0, color: "#182338" }}>
-              Quản lý mã giảm giá
-            </Title>
+            <Title level={3} style={{ margin: 0, color: "#182338" }}>Quản lý khách sạn</Title>
             <Text style={{ color: "#7d869c" }}>
-              Theo dõi trạng thái voucher và kiểm tra nhanh dữ liệu từ API.
+              Quản lý khách sạn, giá phòng, loại phòng, số lượng phòng trống và đánh giá.
             </Text>
           </div>
 
           <Space wrap>
             <Tag color={isUsingMockData ? "gold" : "green"} style={{ padding: "6px 10px" }}>
-              {isUsingMockData
-                ? "Đang hiển thị dữ liệu mẫu"
-                : `API: ${API_BASE_URL}${VOUCHER_API_PATH}`}
+              {isUsingMockData ? "Đang hiển thị dữ liệu mẫu" : `API: ${API_BASE_URL}${HOTEL_API_PATH}`}
             </Tag>
-            <Button icon={<RefreshCw size={16} />} onClick={() => void loadVouchers()}>
-              Tải lại
-            </Button>
+            <Button icon={<RefreshCw size={16} />} onClick={() => void loadHotels()}>Tải lại</Button>
           </Space>
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-            gap: 16,
-          }}
-        >
-          <Card style={statCardStyle}>
-            <Space align="start">
-              <Badge color="#7c3aed" />
-              <div>
-                <Text style={{ color: "#7d869c" }}>Tổng mã</Text>
-                <Title level={3} style={{ margin: "4px 0 0", color: "#182338" }}>
-                  {stats.total}
-                </Title>
-              </div>
-            </Space>
-          </Card>
-          <Card style={statCardStyle}>
-            <Space align="start">
-              <Badge color="#16a34a" />
-              <div>
-                <Text style={{ color: "#7d869c" }}>Đang hoạt động</Text>
-                <Title level={3} style={{ margin: "4px 0 0", color: "#182338" }}>
-                  {stats.active}
-                </Title>
-              </div>
-            </Space>
-          </Card>
-          <Card style={statCardStyle}>
-            <Space align="start">
-              <Badge color="#2563eb" />
-              <div>
-                <Text style={{ color: "#7d869c" }}>Sắp diễn ra</Text>
-                <Title level={3} style={{ margin: "4px 0 0", color: "#182338" }}>
-                  {stats.scheduled}
-                </Title>
-              </div>
-            </Space>
-          </Card>
-          <Card style={statCardStyle}>
-            <Space align="start">
-              <Badge color="#f59e0b" />
-              <div>
-                <Text style={{ color: "#7d869c" }}>Hết hạn</Text>
-                <Title level={3} style={{ margin: "4px 0 0", color: "#182338" }}>
-                  {stats.expired}
-                </Title>
-              </div>
-            </Space>
-          </Card>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
+          <Card style={statCardStyle}><Space align="start"><Badge color="#7c3aed" /><div><Text style={{ color: "#7d869c" }}>Tổng khách sạn</Text><Title level={3} style={{ margin: "4px 0 0", color: "#182338" }}>{stats.total}</Title></div></Space></Card>
+          <Card style={statCardStyle}><Space align="start"><Badge color="#16a34a" /><div><Text style={{ color: "#7d869c" }}>Còn phòng</Text><Title level={3} style={{ margin: "4px 0 0", color: "#182338" }}>{stats.available}</Title></div></Space></Card>
+          <Card style={statCardStyle}><Space align="start"><Badge color="#eab308" /><div><Text style={{ color: "#7d869c" }}>Sắp hết phòng</Text><Title level={3} style={{ margin: "4px 0 0", color: "#182338" }}>{stats.limited}</Title></div></Space></Card>
+          <Card style={statCardStyle}><Space align="start"><Badge color="#ef4444" /><div><Text style={{ color: "#7d869c" }}>Hết phòng</Text><Title level={3} style={{ margin: "4px 0 0", color: "#182338" }}>{stats.full}</Title></div></Space></Card>
         </div>
 
         <Card style={cardStyle} styles={{ body: { padding: 20 } }}>
-          <Space
-            direction="vertical"
-            size={16}
-            style={{ width: "100%" }}
-          >
+          <Space direction="vertical" size={16} style={{ width: "100%" }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
               <div>
-                <Title level={4} style={{ margin: 0, color: "#1f2a44" }}>
-                  Danh sách mã giảm giá
-                </Title>
-                <Text style={{ color: "#7d869c" }}>
-                  Có {filteredVouchers.length} mã đang hiển thị trong bảng.
-                </Text>
+                <Title level={4} style={{ margin: 0, color: "#1f2a44" }}>Danh sách khách sạn</Title>
+                <Text style={{ color: "#7d869c" }}>Có {filteredData.length} khách sạn đang hiển thị trong bảng.</Text>
               </div>
 
               <Space wrap>
                 <Input
                   allowClear
                   prefix={<Search size={16} color="#94a3b8" />}
-                  placeholder="Tìm kiếm mã giảm giá..."
+                  placeholder="Tìm tên, vị trí, mô tả..."
                   value={searchText}
                   onChange={(event) => setSearchText(event.target.value)}
-                  style={{ width: 240 }}
+                  style={{ width: 260 }}
                 />
                 <Select
-                  value={filterType}
-                  style={{ width: 150 }}
-                  onChange={(value) => setFilterType(value)}
-                  options={[
-                    { label: "Tất cả loại KM", value: "all" },
-                    { label: "Cố định", value: "fixed" },
-                    { label: "Phần trăm", value: "percent" },
-                  ]}
+                  value={filterRoomType}
+                  style={{ width: 170 }}
+                  onChange={(value) => setFilterRoomType(value)}
+                  options={roomTypeOptions.map((item) => ({
+                    label: item === "all" ? "Tất cả loại phòng" : item,
+                    value: item,
+                  }))}
                 />
                 <Select
                   value={filterStatus}
@@ -684,18 +540,15 @@ export default function KhuyenMai() {
                   onChange={(value) => setFilterStatus(value)}
                   options={[
                     { label: "Tất cả trạng thái", value: "all" },
-                    { label: "Đang hoạt động", value: "active" },
-                    { label: "Sắp diễn ra", value: "scheduled" },
-                    { label: "Hết hạn", value: "expired" },
+                    { label: "Còn phòng", value: "available" },
+                    { label: "Sắp hết phòng", value: "limited" },
+                    { label: "Hết phòng", value: "full" },
                   ]}
                 />
                 <Button
                   type="primary"
                   icon={<Plus size={16} />}
-                  style={{
-                    background: "linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)",
-                    borderColor: "#7c3aed",
-                  }}
+                  style={{ background: "linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)", borderColor: "#7c3aed" }}
                   onClick={openCreateModal}
                 >
                   Thêm mới
@@ -703,96 +556,49 @@ export default function KhuyenMai() {
               </Space>
             </div>
 
-            <Table<VoucherItem>
-              rowKey="id"
+            <Table<HotelItem>
+              rowKey="maKhachSan"
               columns={columns}
-              dataSource={filteredVouchers}
+              dataSource={filteredData}
               loading={loading}
               pagination={{
                 pageSize: 6,
                 showSizeChanger: false,
-                showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} mã`,
+                showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} khách sạn`,
               }}
-              scroll={{ x: 960 }}
+              scroll={{ x: 1280 }}
             />
           </Space>
         </Card>
       </Space>
 
       <Modal
-        title={editingVoucher ? "Cập nhật mã giảm giá" : "Thêm mã giảm giá"}
+        title={editingItem ? "Cập nhật khách sạn" : "Thêm khách sạn"}
         open={modalOpen}
         onOk={() => void handleSubmit()}
         onCancel={() => {
           setModalOpen(false);
           resetForm();
         }}
-        okText={editingVoucher ? "Lưu thay đổi" : "Tạo mã"}
+        okText={editingItem ? "Lưu thay đổi" : "Tạo mới"}
         cancelText="Huỷ"
         confirmLoading={submitting}
       >
-        <Form<VoucherFormValues> form={form} layout="vertical">
-          <Form.Item
-            label="Mã giảm giá"
-            name="code"
-            rules={[
-              { required: true, message: "Nhập mã giảm giá." },
-              { min: 4, message: "Mã nên có ít nhất 4 ký tự." },
-            ]}
-          >
-            <Input placeholder="Ví dụ: SAYHIBANMOI" />
+        <Form<HotelFormValues> form={form} layout="vertical">
+          <Form.Item label="Dịch vụ" name="maDichVu" rules={[{ required: true, message: "Chọn dịch vụ." }]}>
+            <Select options={dichVuOptions.map((item) => ({ label: `${item.ten} (#${item.maDichVu})`, value: item.maDichVu }))} />
           </Form.Item>
-
-          <Form.Item
-            label="Mô tả"
-            name="description"
-            rules={[{ required: true, message: "Nhập mô tả ngắn cho mã giảm giá." }]}
-          >
-            <Input placeholder="Ví dụ: Giảm 30K đơn hàng online đầu tiên" />
-          </Form.Item>
-
+          <Form.Item label="Tên khách sạn" name="ten" rules={[{ required: true, message: "Nhập tên khách sạn." }]}><Input /></Form.Item>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
-            <Form.Item
-              label="Loại giá trị"
-              name="discountType"
-              rules={[{ required: true, message: "Chọn loại giảm giá." }]}
-            >
-              <Select
-                options={[
-                  { label: "Cố định (VND)", value: "fixed" },
-                  { label: "Phần trăm (%)", value: "percent" },
-                ]}
-              />
+            <Form.Item label="Vị trí" name="viTri" rules={[{ required: true, message: "Nhập vị trí." }]}><Input /></Form.Item>
+            <Form.Item label="Loại phòng" name="LoaiPhong" rules={[{ required: true, message: "Chọn loại phòng." }]}>
+              <Select options={[{ label: "Standard", value: "Standard" }, { label: "Superior", value: "Superior" }, { label: "Deluxe", value: "Deluxe" }, { label: "Suite", value: "Suite" }, { label: "Villa", value: "Villa" }]} />
             </Form.Item>
-
-            <Form.Item
-              label="Giá trị giảm"
-              name="discountValue"
-              rules={[{ required: true, message: "Nhập giá trị giảm." }]}
-            >
-              <InputNumber min={1} style={{ width: "100%" }} />
-            </Form.Item>
-
-            <Form.Item
-              label="Đơn tối thiểu"
-              name="minimumOrder"
-              rules={[{ required: true, message: "Nhập điều kiện đơn tối thiểu." }]}
-            >
-              <InputNumber min={0} style={{ width: "100%" }} />
-            </Form.Item>
-
-            <Form.Item label="Giảm tối đa" name="maximumDiscount">
-              <InputNumber min={0} style={{ width: "100%" }} placeholder="Chỉ dùng cho giảm theo %" />
-            </Form.Item>
+            <Form.Item label="Giá" name="gia" rules={[{ required: true, message: "Nhập giá." }]}><InputNumber min={0} style={{ width: "100%" }} /></Form.Item>
+            <Form.Item label="Phòng trống" name="phongTrong" rules={[{ required: true, message: "Nhập số phòng trống." }]}><InputNumber min={0} style={{ width: "100%" }} /></Form.Item>
+            <Form.Item label="Đánh giá" name="danhGia" rules={[{ required: true, message: "Nhập đánh giá." }]}><InputNumber min={0} max={5} step={0.1} style={{ width: "100%" }} /></Form.Item>
           </div>
-
-          <Form.Item
-            label="Thời gian áp dụng"
-            name="dateRange"
-            rules={[{ required: true, message: "Chọn thời gian áp dụng." }]}
-          >
-            <RangePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
-          </Form.Item>
+          <Form.Item label="Mô tả" name="moTa" rules={[{ required: true, message: "Nhập mô tả." }]}><TextArea rows={4} /></Form.Item>
         </Form>
       </Modal>
     </div>
