@@ -18,7 +18,8 @@ import {
   BankOutlined,
   StarOutlined,
   MenuFoldOutlined,
-  MenuUnfoldOutlined
+  MenuUnfoldOutlined,
+  InsertRowAboveOutlined 
 } from '@ant-design/icons';
 import ThuongHieu from '../../assets/images/thuonghieu.jpg';
 import UserDropdown from '../User/user';
@@ -48,7 +49,7 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
     display: 'flex',
     alignItems: 'center',
     justifyContent: collapsed ? 'center' : 'flex-start',
-    padding: '10px 12px',
+    padding: '5px 12px',
     borderRadius: 8,
     color: isActive ? '#8b5cf6' : '#64748b',
     textDecoration: 'none',
@@ -100,6 +101,11 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
             {!collapsed && <span>Thống kê</span>}
           </NavLink>
 
+          <NavLink to="/DichVu" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
+            <InsertRowAboveOutlined />
+            {!collapsed && <span>Dịch vụ</span>}
+          </NavLink>
+
           <NavLink to="/LoaiVe" onClick={handleCloseSubmenu}style={({ isActive }) => linkStyle(isActive)}>
             <AppstoreOutlined />
             {!collapsed && <span>Loại vé</span>}
@@ -115,9 +121,7 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
             {!collapsed && <span>Tour</span>}
           </NavLink>
 
-          {/* ===== VÉ (FIX FULL) ===== */}
           <div>
-            {/* Parent */}
             <div
               onClick={() => {
                 setOpenVe(prev =>
@@ -153,8 +157,6 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
                 </span>
               )}
             </div>
-
-            {/* Submenu */}
             <div
               style={{
                 maxHeight: isOpenVe && !collapsed ? '500px' : '0px',
@@ -163,7 +165,7 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
                 marginLeft: collapsed ? 0 : 20
               }}
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6}}>
 
                 <NavLink to="/VeMayBay"  style={({ isActive }) => linkStyle(isActive)}>
                   <FontAwesomeIcon icon={faPlane} style={faStyle} />
@@ -183,7 +185,6 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
               </div>
             </div>
           </div>
-          {/* ===== END VÉ ===== */}
 
           <NavLink to="/KhuyenMai" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
             <TagsOutlined />

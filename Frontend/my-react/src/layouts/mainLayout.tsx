@@ -8,9 +8,9 @@ export default function MainLayout() {
   return (
     <div className="app-root" style={{ minHeight: '100vh', display: 'flex' }}>
       <SidebarAdmin collapsed={collapsed} setCollapsed={setCollapsed} />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}}>
         <HeaderBar />
-        <main style={{ padding: 24 }}>
+        <main style={{  background:'#ededed' }}>
           <Outlet />
         </main> 
       </div>
