@@ -1,13 +1,18 @@
 import { useLocation } from 'react-router-dom';
 const TITLE_MAP: Record<string, string> = {
-  '/dashboard': 'Bảng điều khiển',
-  '/categories': 'Danh mục',
-  '/products': 'Sản phẩm',
-  '/discounts': 'Khuyến mãi',
-  '/coupons': 'Phiếu giảm giá',
-  '/orders': 'Đơn hàng',
-  '/customers': 'Khách hàng',
-  '/settings': 'Cài đặt',
+  '/ThongKe': 'Thống kê',
+  '/LoaiVe': 'Loại vé',
+  '/KhachSan': 'Khách sạn',
+  '/Tour': 'Tour',
+  '/Ve': 'Vé',
+  '/VeMayBay': 'Vé máy bay',
+  '/VeTauHoa': 'Vé tàu hỏa',
+  '/VeKhuVuiChoi': 'Vé khu vui chơi',
+  '/KhuyenMai': 'Khuyến mãi',
+  '/DanhGia': 'Đánh giá',
+  '/DonHang': 'Đơn hàng',
+  '/NhaCungCap': 'Nhà cung cấp',
+  '/KhachHang': 'Khách hàng',
 };
 
 export default function HeaderBar() {
@@ -16,7 +21,7 @@ export default function HeaderBar() {
   const title =
   Object.entries(TITLE_MAP).find(([p]) =>
     pathname === p || pathname.startsWith(p + '/')
-  )?.[1] || 'Bảng điều khiển';
+  )?.[1] || 'Thống kê';
   return (
     <header style={{ padding: '16px 24px', borderBottom: '1px solid #e6edf3', background: '#fff' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

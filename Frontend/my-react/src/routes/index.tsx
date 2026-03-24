@@ -14,18 +14,22 @@ export default function RoutesIndex() {
   return (
     <Routes>
       <Route path="/" element={<MainLayout />}>
-        <Route index element={<Navigate to="/dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="home" element={<Home />} />
-         <Route path="categories" element={<Categories />} />
-        <Route path="products" element={<Products />} />
-        <Route path="discounts" element={<Discounts />} />
-        <Route path="coupons" element={<Coupons />} />
-        <Route path="orders" element={<Orders />} />
-        <Route path="customers" element={<Customers />} />
-        <Route path="settings" element={<Settings />} />
+        <Route index element={<Navigate to="/ThongKe" replace />} />
+        <Route path="Thongke" element={<Dashboard />} />
+        <Route path="LoaiVe" element={<Categories />} />
+        <Route path="KhachSan" element={<Products />} />
+        <Route path="Tour" element={<Home />} />
+        <Route path="Ve" element={<Orders />} />
+        <Route path="VeMayBay" element={<Orders />} />
+        <Route path="VeTauHoa" element={<Orders />} />
+        <Route path="VeKhuVuiChoi" element={<Orders />} />
+        <Route path="KhuyenMai" element={<Discounts />} />
+        <Route path="DanhGia" element={<Coupons />} />
+        <Route path="DonHang" element={<Orders />} />
+        <Route path="NhaCungCap" element={<Customers />} />
+        <Route path="KhachHang" element={<Settings />} />
       </Route>
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/ThongKe" replace />} />
     </Routes>
   );
 }
