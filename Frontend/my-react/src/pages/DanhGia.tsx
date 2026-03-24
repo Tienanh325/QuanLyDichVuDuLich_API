@@ -7,10 +7,7 @@ import {
   Button,
   Card,
   DatePicker,
-  Form,
   Input,
-  InputNumber,
-  Modal,
   Popconfirm,
   Select,
   Space,
@@ -20,10 +17,9 @@ import {
   message,
 } from "antd";
 import type { TableProps } from "antd";
-import { MessageSquareText, PencilLine, Plus, RefreshCw, Search, Star, Trash2 } from "lucide-react";
+import { MessageSquareText, RefreshCw, Search, Star, Trash2 } from "lucide-react";
 
 const { Title, Text } = Typography;
-const { TextArea } = Input;
 const { RangePicker } = DatePicker;
 
 interface ReviewItem {
@@ -33,14 +29,6 @@ interface ReviewItem {
   soSao: number;
   binhLuan: string;
   ngayDanhGia: string;
-}
-
-interface ReviewFormValues {
-  maNguoiDung: number;
-  maDichVu: number;
-  soSao: number;
-  binhLuan: string;
-  ngayDanhGia: Dayjs;
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
@@ -126,16 +114,6 @@ async function fetchReviews(): Promise<ReviewItem[]> {
   return extractArray(response.data).map(normalizeReview);
 }
 
-async function createReview(item: ReviewItem): Promise<ReviewItem> {
-  const response = await apiClient.post(REVIEW_API_PATH, item);
-  return normalizeReview(response.data, 0);
-}
-
-async function updateReview(item: ReviewItem): Promise<ReviewItem> {
-  const response = await apiClient.put(`${REVIEW_API_PATH}/${item.maDanhGia}`, item);
-  return normalizeReview(response.data, 0);
-}
-
 async function deleteReview(id: number): Promise<void> {
   await apiClient.delete(`${REVIEW_API_PATH}/${id}`);
 }
@@ -169,12 +147,8 @@ const statCardStyle: CSSProperties = {
 };
 
 export default function DanhGia() {
-  const [form] = Form.useForm<ReviewFormValues>();
   const [data, setData] = useState<ReviewItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<ReviewItem | null>(null);
   const [searchText, setSearchText] = useState("");
   const [filterStars, setFilterStars] = useState<number | "all">("all");
   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
@@ -247,34 +221,6 @@ export default function DanhGia() {
     };
   }, [data]);
 
-  const resetForm = () => {
-    form.resetFields();
-    setEditingItem(null);
-  };
-
-  const openCreateModal = () => {
-    resetForm();
-    form.setFieldsValue({
-      maNguoiDung: 100,
-      maDichVu: 200,
-      soSao: 5,
-      ngayDanhGia: dayjs(),
-    });
-    setModalOpen(true);
-  };
-
-  const openEditModal = (item: ReviewItem) => {
-    setEditingItem(item);
-    form.setFieldsValue({
-      maNguoiDung: item.maNguoiDung,
-      maDichVu: item.maDichVu,
-      soSao: item.soSao,
-      binhLuan: item.binhLuan,
-      ngayDanhGia: dayjs(item.ngayDanhGia),
-    });
-    setModalOpen(true);
-  };
-
   const handleDelete = async (item: ReviewItem) => {
     const previous = data;
     setData((current) => current.filter((entry) => entry.maDanhGia !== item.maDanhGia));
@@ -290,58 +236,6 @@ export default function DanhGia() {
     } catch {
       setData(previous);
       message.error("Xoa khong thanh cong, du lieu da duoc hoan lai.");
-    }
-  };
-
-  const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields();
-      setSubmitting(true);
-
-      const payload: ReviewItem = {
-        maDanhGia: editingItem?.maDanhGia ?? Date.now(),
-        maNguoiDung: values.maNguoiDung,
-        maDichVu: values.maDichVu,
-        soSao: values.soSao,
-        binhLuan: values.binhLuan.trim(),
-        ngayDanhGia: values.ngayDanhGia.format("YYYY-MM-DD"),
-      };
-
-      if (isUsingMockData) {
-        setData((current) =>
-          editingItem
-            ? current.map((item) => (item.maDanhGia === editingItem.maDanhGia ? payload : item))
-            : [payload, ...current],
-        );
-        message.success(editingItem ? "Da cap nhat danh gia tren du lieu mau." : "Da them danh gia tren du lieu mau.");
-        setModalOpen(false);
-        resetForm();
-        return;
-      }
-
-      if (editingItem) {
-        const updated = await updateReview(payload);
-        setData((current) =>
-          current.map((item) => (item.maDanhGia === editingItem.maDanhGia ? updated : item)),
-        );
-        message.success("Cap nhat danh gia thanh cong.");
-      } else {
-        const created = await createReview(payload);
-        setData((current) => [created, ...current]);
-        message.success("Them danh gia thanh cong.");
-      }
-
-      setModalOpen(false);
-      resetForm();
-    } catch (error) {
-      if (!axios.isAxiosError(error) && !(error instanceof Error)) {
-        return;
-      }
-      if (axios.isAxiosError(error)) {
-        message.error("Khong luu duoc du lieu len API. Kiem tra endpoint hoac backend roi thu lai.");
-      }
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -398,12 +292,9 @@ export default function DanhGia() {
       key: "actions",
       align: "center",
       render: (_value, record) => (
-        <Space size="middle">
-          <Button type="text" icon={<PencilLine size={16} color="#7c3aed" />} onClick={() => openEditModal(record)} />
-          <Popconfirm title="Xoa danh gia?" description={`Ban co chac muon xoa danh gia #${record.maDanhGia}?`} okText="Xoa" cancelText="Huy" onConfirm={() => void handleDelete(record)}>
-            <Button type="text" danger icon={<Trash2 size={16} color="#ef4444" />} />
-          </Popconfirm>
-        </Space>
+        <Popconfirm title="Xoa danh gia?" description={`Ban co chac muon xoa danh gia #${record.maDanhGia}?`} okText="Xoa" cancelText="Huy" onConfirm={() => void handleDelete(record)}>
+          <Button type="text" danger icon={<Trash2 size={16} color="#ef4444" />} />
+        </Popconfirm>
       ),
     },
   ];
@@ -469,14 +360,6 @@ export default function DanhGia() {
                   ]}
                 />
                 <RangePicker format="DD/MM/YYYY" value={dateRange} onChange={(value) => setDateRange(value)} />
-                <Button
-                  type="primary"
-                  icon={<Plus size={16} />}
-                  style={{ background: "linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)", borderColor: "#7c3aed" }}
-                  onClick={openCreateModal}
-                >
-                  Them moi
-                </Button>
               </Space>
             </div>
 
@@ -495,47 +378,6 @@ export default function DanhGia() {
           </Space>
         </Card>
       </Space>
-
-      <Modal
-        title={editingItem ? "Cap nhat danh gia" : "Them danh gia"}
-        open={modalOpen}
-        onOk={() => void handleSubmit()}
-        onCancel={() => {
-          setModalOpen(false);
-          resetForm();
-        }}
-        okText={editingItem ? "Luu thay doi" : "Tao moi"}
-        cancelText="Huy"
-        confirmLoading={submitting}
-      >
-        <Form<ReviewFormValues> form={form} layout="vertical">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
-            <Form.Item label="Ma nguoi dung" name="maNguoiDung" rules={[{ required: true, message: "Nhap ma nguoi dung." }]}>
-              <InputNumber min={1} style={{ width: "100%" }} />
-            </Form.Item>
-            <Form.Item label="Ma dich vu" name="maDichVu" rules={[{ required: true, message: "Nhap ma dich vu." }]}>
-              <InputNumber min={1} style={{ width: "100%" }} />
-            </Form.Item>
-            <Form.Item label="So sao" name="soSao" rules={[{ required: true, message: "Nhap so sao." }]}>
-              <Select
-                options={[
-                  { label: "1 sao", value: 1 },
-                  { label: "2 sao", value: 2 },
-                  { label: "3 sao", value: 3 },
-                  { label: "4 sao", value: 4 },
-                  { label: "5 sao", value: 5 },
-                ]}
-              />
-            </Form.Item>
-            <Form.Item label="Ngay danh gia" name="ngayDanhGia" rules={[{ required: true, message: "Chon ngay danh gia." }]}>
-              <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
-            </Form.Item>
-          </div>
-          <Form.Item label="Binh luan" name="binhLuan" rules={[{ required: true, message: "Nhap binh luan." }]}>
-            <TextArea rows={4} />
-          </Form.Item>
-        </Form>
-      </Modal>
     </div>
   );
 }
