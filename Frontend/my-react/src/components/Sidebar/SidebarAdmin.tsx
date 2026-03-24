@@ -49,12 +49,17 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
     display: 'flex',
     alignItems: 'center',
     justifyContent: collapsed ? 'center' : 'flex-start',
-    padding: '5px 12px',
-    borderRadius: 8,
+    minHeight: 44,
+    padding: collapsed ? '10px 0' : '10px 12px',
+    borderRadius: 12,
     color: isActive ? '#8b5cf6' : '#64748b',
+    background: isActive ? 'rgba(139, 92, 246, 0.10)' : 'transparent',
     textDecoration: 'none',
     transition: 'all 0.2s',
-    gap: collapsed ? 0 : 10
+    gap: collapsed ? 0 : 10,
+    fontSize: 15,
+    fontWeight: isActive ? 600 : 500,
+    overflow: 'hidden'
   });
 
   const faStyle = { fontSize: 16, width: 16 };
@@ -63,12 +68,16 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
     <aside
       style={{
         width: collapsed ? 80 : 260,
+        minWidth: collapsed ? 80 : 260,
+        flexShrink: 0,
         transition: 'width 0.2s ease',
         background: '#ffffff',
         padding: 20,
         display: 'flex',
         flexDirection: 'column',
-        height: '100vh'
+        height: '100vh',
+        borderRight: '1px solid #eef2f7',
+        overflow: 'hidden'
       }}
     >
       {/* HEADER */}
@@ -93,7 +102,7 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
       </div>
 
       {/* MENU */}
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingRight: 4 }}>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
           <NavLink to="/Thongke" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
