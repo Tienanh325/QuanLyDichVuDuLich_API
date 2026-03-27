@@ -2,6 +2,7 @@ import { Avatar, Dropdown } from 'antd';
 import { UserOutlined, LogoutOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { clearCurrentSession, getCurrentSession } from '../../utils/auth';
 
 type Props = {
   collapsed: boolean;
@@ -9,6 +10,7 @@ type Props = {
 
 const UserDropdown = ({ collapsed }: Props) => {
   const navigate = useNavigate();
+  const currentSession = getCurrentSession();
 
   const userMenu: MenuProps = {
     items: [
@@ -17,6 +19,7 @@ const UserDropdown = ({ collapsed }: Props) => {
     ],
     onClick: ({ key }) => {
       if (key === 'logout') {
+        clearCurrentSession();
         navigate('/dang-nhap');
       }
     },
@@ -42,7 +45,7 @@ const UserDropdown = ({ collapsed }: Props) => {
           }}
         >
           <Avatar size={40} icon={<UserOutlined />} />
-          {!collapsed && <span>Tien Anh</span>}
+          {!collapsed && <span>{currentSession?.fullName ?? 'Tai khoan'}</span>}
         </div>
       </Dropdown>
     </div>

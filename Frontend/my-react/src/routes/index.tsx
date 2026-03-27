@@ -15,11 +15,15 @@ import NhaCungCap from '../pages/NhaCungcap';
 import KhachHang from '../pages/KhachHang';
 import MainLayout from '../layouts/mainLayout';
 import DangNhap from '../pages/DangNhap';
+import DangKy from '../pages/DangKy';
+import MuaSamKhachHang from '../pages/MuaSamKhachHang';
 
 export default function RoutesIndex() {
   return (
     <Routes>
       <Route path="/dang-nhap" element={<DangNhap />} />
+      <Route path="/dang-ky" element={<DangKy />} />
+      <Route path="/mua-sam" element={<MuaSamKhachHang />} />
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Navigate to="/ThongKe" replace />} />
         <Route path="ThongKe" element={<ThongKe />} />

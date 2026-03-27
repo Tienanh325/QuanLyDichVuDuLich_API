@@ -1,9 +1,15 @@
 import type { CSSProperties, FormEvent } from "react";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, LockKeyhole, Mail, ShieldCheck, ShoppingBag } from "lucide-react";
 import thuongHieuImage from "../assets/images/thuonghieu.jpg";
+import { getCurrentSession, getDefaultAdminAccount, loginWithEmail } from "../utils/auth";
 import "../assets/css/DangNhap.css";
+
+type RegisterState = {
+  registeredEmail?: string;
+  registeredMessage?: string;
+};
 
 const pageStyle: CSSProperties = {
   minHeight: "100vh",
@@ -46,7 +52,7 @@ const panelStyle: CSSProperties = {
 
 const formCardStyle: CSSProperties = {
   width: "100%",
-  maxWidth: 460,
+  maxWidth: 470,
   background: "rgba(255,255,255,0.94)",
   border: "1px solid rgba(17, 50, 77, 0.08)",
   borderRadius: 32,
@@ -98,13 +104,40 @@ const secondaryStatStyle: CSSProperties = {
 
 export default function DangNhap() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("admin@travelhub.vn");
-  const [password, setPassword] = useState("Admin@123");
+  const location = useLocation();
+  const registerState = location.state as RegisterState | null;
+  const defaultAdmin = getDefaultAdminAccount();
+  const currentSession = getCurrentSession();
+  const [email, setEmail] = useState(registerState?.registeredEmail ?? defaultAdmin.email);
+  const [password, setPassword] = useState(defaultAdmin.password);
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState(registerState?.registeredMessage ?? "");
+
+  useEffect(() => {
+    if (currentSession?.role === "admin") {
+      navigate("/ThongKe", { replace: true });
+      return;
+    }
+
+    if (currentSession?.role === "customer") {
+      navigate("/mua-sam", { replace: true });
+    }
+  }, [currentSession, navigate]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    navigate("/ThongKe");
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    const result = loginWithEmail(email, password);
+
+    if (!result.ok) {
+      setErrorMessage(result.message);
+      return;
+    }
+
+    navigate(result.session.role === "admin" ? "/ThongKe" : "/mua-sam", { replace: true });
   }
 
   return (
@@ -123,7 +156,7 @@ export default function DangNhap() {
         <div style={{ position: "relative", zIndex: 1 }}>
           <div style={badgeStyle}>
             <ShieldCheck size={18} color="#ea580c" />
-            He thong quan tri du lich TravelHub
+            Dang nhap cho admin va khach hang TravelHub
           </div>
 
           <div style={{ marginTop: 28, maxWidth: 620 }}>
@@ -136,7 +169,7 @@ export default function DangNhap() {
                 fontWeight: 900,
               }}
             >
-              Dang nhap de quan ly don hang, tour va hieu suat kinh doanh tren cung mot man hinh.
+              Mot trang dang nhap, hai luong dieu huong rieng cho quan tri va mua sam khach hang.
             </h1>
             <p
               style={{
@@ -147,8 +180,8 @@ export default function DangNhap() {
                 maxWidth: 560,
               }}
             >
-              Giao dien nay phu hop cho admin hoac nhan vien van hanh, nhan manh vao truy cap
-              nhanh, de nhin va san sang mo rong sang xac thuc that sau nay.
+              Admin dang nhap bang tai khoan duoc cap thu cong va se vao dashboard quan tri. Khach hang
+              co the tao tai khoan tu link dang ky va sau do duoc dua sang khu mua sam.
             </p>
           </div>
         </div>
@@ -164,9 +197,13 @@ export default function DangNhap() {
           }}
         >
           <div style={secondaryStatStyle}>
-            <div style={{ color: "#6c8196", fontSize: 13, marginBottom: 10 }}>Tai khoan dang hoat dong</div>
-            <div style={{ fontSize: 34, fontWeight: 900, color: "#10253b" }}>1,284</div>
-            <div style={{ color: "#16a34a", fontWeight: 700, marginTop: 8 }}>+12% trong 30 ngay</div>
+            <div style={{ color: "#6c8196", fontSize: 13, marginBottom: 10 }}>Tai khoan admin mac dinh</div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: "#10253b", wordBreak: "break-word" }}>
+              {defaultAdmin.email}
+            </div>
+            <div style={{ color: "#16a34a", fontWeight: 700, marginTop: 8 }}>
+              Mat khau demo: {defaultAdmin.password}
+            </div>
           </div>
 
           <div
@@ -207,9 +244,6 @@ export default function DangNhap() {
             <h2 style={{ fontSize: 34, margin: "16px 0 8px", color: "#10253b", fontWeight: 900 }}>
               Chao mung quay lai
             </h2>
-            <p style={{ margin: 0, color: "#64748b", lineHeight: 1.7 }}>
-              Nhap thong tin tai khoan de vao trang quan tri. Ban co the doi sang API dang nhap that bat cu luc nao.
-            </p>
           </div>
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -256,6 +290,36 @@ export default function DangNhap() {
               </div>
             </label>
 
+            {successMessage ? (
+              <div
+                style={{
+                  borderRadius: 16,
+                  padding: "12px 14px",
+                  background: "#ecfdf3",
+                  color: "#15803d",
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                }}
+              >
+                {successMessage}
+              </div>
+            ) : null}
+
+            {errorMessage ? (
+              <div
+                style={{
+                  borderRadius: 16,
+                  padding: "12px 14px",
+                  background: "#fff1f2",
+                  color: "#be123c",
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                }}
+              >
+                {errorMessage}
+              </div>
+            ) : null}
+
             <div
               style={{
                 display: "flex",
@@ -270,38 +334,49 @@ export default function DangNhap() {
                 <input type="checkbox" defaultChecked />
                 Ghi nho dang nhap
               </label>
-              <Link to="/" style={{ color: "#ea580c", fontWeight: 700, textDecoration: "none" }}>
-                Quen mat khau?
-              </Link>
             </div>
 
             <button type="submit" style={primaryButtonStyle}>
-              Dang nhap 
+              Dang nhap
             </button>
           </form>
 
           <div
             style={{
               marginTop: 22,
-              paddingTop: 22,
+              paddingTop: 20,
               borderTop: "1px solid #e7edf3",
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
               gap: 12,
+              flexWrap: "wrap",
             }}
           >
-            <div style={{ padding: 14, borderRadius: 18, background: "#f8fafc" }}>
-              <div style={{ fontSize: 13, color: "#64748b" }}>Vai tro goi y</div>
-              <div style={{ marginTop: 6, color: "#10253b", fontWeight: 800 }}>Admin tong</div>
+            <div style={{ color: "#64748b", lineHeight: 1.6 }}>
+              Chua co tai khoan khach hang?
+              <div style={{ color: "#94a3b8", fontSize: 13 }}>
+                Link dang ky nay chi tao tai khoan user mua sam.
+              </div>
             </div>
-            <div style={{ padding: 14, borderRadius: 18, background: "#f8fafc" }}>
-              <div style={{ fontSize: 13, color: "#64748b" }}>Xac thuc</div>
-              <div style={{ marginTop: 6, color: "#10253b", fontWeight: 800 }}>Email + password</div>
-            </div>
-            <div style={{ padding: 14, borderRadius: 18, background: "#f8fafc" }}>
-              <div style={{ fontSize: 13, color: "#64748b" }}>Trang dich sau dang nhap</div>
-              <div style={{ marginTop: 6, color: "#10253b", fontWeight: 800 }}>/ThongKe</div>
-            </div>
+
+            <Link
+              to="/dang-ky"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "12px 16px",
+                borderRadius: 16,
+                background: "#eff6ff",
+                color: "#2563eb",
+                fontWeight: 800,
+                textDecoration: "none",
+              }}
+            >
+              <ShoppingBag size={16} />
+              Dang ky user
+            </Link>
           </div>
         </div>
       </section>
