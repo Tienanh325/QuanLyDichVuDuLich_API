@@ -1,0 +1,9 @@
+.login-page {
+  min-height: 100vh;
+}
+
+@media (max-width: 980px) {
+  .login-page {
+    display: block !important;
+  }
+}
