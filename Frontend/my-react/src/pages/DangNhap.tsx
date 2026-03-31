@@ -180,8 +180,6 @@ export default function DangNhap() {
                 maxWidth: 560,
               }}
             >
-              Admin dang nhap bang tai khoan duoc cap thu cong va se vao dashboard quan tri. Khach hang
-              co the tao tai khoan tu link dang ky va sau do duoc dua sang khu mua sam.
             </p>
           </div>
         </div>
