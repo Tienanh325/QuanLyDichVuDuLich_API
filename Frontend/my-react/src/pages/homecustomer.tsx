@@ -1,5 +1,5 @@
-import { useState } from "react";
-import type { Dispatch, SetStateAction } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import baibienImage from "../assets/images/baibien.jpg";
 import thuongHieuImage from "../assets/images/thuonghieu.jpg";
 import {
@@ -8,12 +8,17 @@ import {
   BedDouble,
   CalendarDays,
   CarFront,
+  ChevronLeft,
+  ChevronRight,
   CircleDollarSign,
   Copy,
+  Crosshair,
   Gift,
   Info,
   MapPinned,
+  Minus,
   PlaneTakeoff,
+  Plus,
   QrCode,
   Search,
   ShieldCheck,
@@ -46,9 +51,6 @@ const serviceTabs: Array<{
   { id: "activity", label: "Hoạt động & Vui chơi", icon: Ticket },
 ];
 
-const flightModes = ["Một chiều / Khứ hồi", "Nhiều thành phố"];
-const hotelFilters = ["Tất cả", "Khách sạn", "Biệt thự", "Căn hộ"];
-const carFilters = ["Tự lái", "Có tài xế"];
 const activityTags = [
   "Điểm tham quan",
   "Spa & Thư giãn",
@@ -284,6 +286,48 @@ const destinationColumns = [
   },
 ];
 
+const hotelTrustedBrands = ["MILLENNIUM", "ALL", "ARCHIPELAGO", "ASCOTT"];
+const hotelWeekdays = ["Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7", "CN"];
+const hotelCalendarMonths = [
+  { year: 2026, monthIndex: 3 },
+  { year: 2026, monthIndex: 4 },
+];
+const popularHotelDestinations = [
+  {
+    name: "Đà Lạt",
+    subtitle: "Tỉnh Lâm Đồng, Lam Dong, Việt Nam",
+    type: "Thành Phố",
+    count: "1.811 khách sạn",
+  },
+  {
+    name: "Thành phố Vũng Tàu",
+    subtitle: "Bà Rịa - Vũng Tàu, Thành phố Hồ Chí Minh, Việt Nam",
+    type: "Thành Phố",
+    count: "1.024 khách sạn",
+  },
+  {
+    name: "Nha Trang",
+    subtitle: "Khánh Hòa, Tỉnh Khánh Hòa, Việt Nam",
+    type: "Thành Phố",
+    count: "1.355 khách sạn",
+  },
+  {
+    name: "Kuala Lumpur",
+    subtitle: "Malaysia",
+    type: "Thành Phố",
+    count: "5.998 khách sạn",
+  },
+  {
+    name: "Pattaya",
+    subtitle: "Chon Buri, Thái Lan",
+    type: "Thành Phố",
+    count: "4.719 khách sạn",
+  },
+];
+
+type HotelPopover = "destination" | "stay" | "guests" | null;
+type HotelGuestKey = "adults" | "children" | "rooms";
+
 type FieldCardProps = {
   label?: string;
   title: string;
@@ -303,6 +347,63 @@ type RouteGroupProps = {
   placeholder?: boolean;
   mutedTo?: boolean;
 };
+
+type HotelFieldButtonProps = {
+  label: string;
+  value: string;
+  icon: IconType;
+  isOpen?: boolean;
+  onClick: () => void;
+  className?: string;
+  children?: ReactNode;
+};
+
+function addDays(date: Date, amount: number) {
+  const nextDate = new Date(date);
+  nextDate.setDate(nextDate.getDate() + amount);
+  return nextDate;
+}
+
+function isSameDay(leftDate: Date, rightDate: Date) {
+  return (
+    leftDate.getFullYear() === rightDate.getFullYear() &&
+    leftDate.getMonth() === rightDate.getMonth() &&
+    leftDate.getDate() === rightDate.getDate()
+  );
+}
+
+function isDateBetween(date: Date, startDate: Date, endDate: Date) {
+  return date.getTime() > startDate.getTime() && date.getTime() < endDate.getTime();
+}
+
+function formatHotelSearchDate(date: Date) {
+  return `${String(date.getDate()).padStart(2, "0")} thg ${date.getMonth() + 1} ${date.getFullYear()}`;
+}
+
+function formatHotelPanelDate(date: Date) {
+  const weekdayNames = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
+
+  return `${weekdayNames[date.getDay()]}, ${String(date.getDate()).padStart(2, "0")} thg ${
+    date.getMonth() + 1
+  } ${date.getFullYear()}`;
+}
+
+function getCalendarDays(year: number, monthIndex: number) {
+  const firstDay = new Date(year, monthIndex, 1);
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const leadingEmptyDays = (firstDay.getDay() + 6) % 7;
+  const days: Array<Date | null> = Array.from({ length: leadingEmptyDays }, () => null);
+
+  for (let dayNumber = 1; dayNumber <= daysInMonth; dayNumber += 1) {
+    days.push(new Date(year, monthIndex, dayNumber));
+  }
+
+  while (days.length % 7 !== 0) {
+    days.push(null);
+  }
+
+  return days;
+}
 
 function FieldCard({
   label,
@@ -387,9 +488,49 @@ function SearchButton() {
   );
 }
 
+function HotelFieldButton({
+  label,
+  value,
+  icon: Icon,
+  isOpen = false,
+  onClick,
+  className,
+  children,
+}: HotelFieldButtonProps) {
+  const wrapperClassName = ["travel-hotel-field-wrap", className, isOpen ? "is-open" : ""]
+    .filter(Boolean)
+    .join(" ");
+  const fieldClassName = ["travel-hotel-field", isOpen ? "is-open" : ""].filter(Boolean).join(" ");
+
+  return (
+    <div className={wrapperClassName}>
+      <div className="travel-hotel-field__label">{label}</div>
+      <button type="button" className={fieldClassName} onClick={onClick}>
+        <span className="travel-hotel-field__icon">
+          <Icon size={22} />
+        </span>
+        <span className="travel-hotel-field__value">{value}</span>
+      </button>
+      {children}
+    </div>
+  );
+}
+
 export default function HomeCustomer() {
-  const [activeTab, setActiveTab] = useState<ServiceId>("flight");
-  const [tripMode, setTripMode] = useState<"single" | "multi">("single");
+  const hotelSearchRef = useRef<HTMLDivElement | null>(null);
+  const [activeTab, setActiveTab] = useState<ServiceId>("hotel");
+  const [openHotelPopover, setOpenHotelPopover] = useState<HotelPopover>(null);
+  const [hotelDateFocus, setHotelDateFocus] = useState<"checkIn" | "checkOut">("checkIn");
+  const [hotelDestination, setHotelDestination] = useState(popularHotelDestinations[0]);
+  const [hotelStay, setHotelStay] = useState({
+    checkIn: new Date(2026, 3, 2),
+    checkOut: new Date(2026, 3, 3),
+  });
+  const [hotelGuests, setHotelGuests] = useState({
+    adults: 2,
+    children: 0,
+    rooms: 1,
+  });
   const [flightRoute, setFlightRoute] = useState<RouteValues>({
     fromTitle: "TP HCM (SGN)",
     fromSubtitle: "Sân bay Tân Sơn Nhất",
@@ -405,6 +546,32 @@ export default function HomeCustomer() {
     toTitle: "Ví dụ Trung tâm mua sắm AEON Narita",
   });
 
+  useEffect(() => {
+    if (!openHotelPopover) {
+      return undefined;
+    }
+
+    function handlePointerDown(event: MouseEvent) {
+      if (!hotelSearchRef.current?.contains(event.target as Node)) {
+        setOpenHotelPopover(null);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpenHotelPopover(null);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [openHotelPopover]);
+
   function swapRoute(setter: Dispatch<SetStateAction<RouteValues>>) {
     setter((currentValue) => ({
       fromTitle: currentValue.toTitle,
@@ -414,38 +581,319 @@ export default function HomeCustomer() {
     }));
   }
 
+  function handleHotelGuestChange(field: HotelGuestKey, delta: number) {
+    setHotelGuests((currentValue) => {
+      const minimumValue = field === "children" ? 0 : 1;
+      const nextValue = Math.max(minimumValue, currentValue[field] + delta);
+
+      return {
+        ...currentValue,
+        [field]: nextValue,
+      };
+    });
+  }
+
+  function handleHotelDateSelect(date: Date) {
+    if (hotelDateFocus === "checkIn") {
+      setHotelStay((currentValue) => ({
+        checkIn: date,
+        checkOut:
+          currentValue.checkOut.getTime() <= date.getTime() ? addDays(date, 1) : currentValue.checkOut,
+      }));
+      setHotelDateFocus("checkOut");
+      return;
+    }
+
+    setHotelStay((currentValue) => {
+      if (date.getTime() <= currentValue.checkIn.getTime()) {
+        return {
+          checkIn: date,
+          checkOut: addDays(date, 1),
+        };
+      }
+
+      return {
+        ...currentValue,
+        checkOut: date,
+      };
+    });
+    setHotelDateFocus("checkIn");
+  }
+
+  const hotelStaySummary = `${formatHotelSearchDate(hotelStay.checkIn)} - ${formatHotelSearchDate(
+    hotelStay.checkOut,
+  )}`;
+  const hotelGuestSummary = `${hotelGuests.adults} người lớn, ${hotelGuests.children} Trẻ em, ${hotelGuests.rooms} phòng`;
+
   const renderPanel = () => {
     if (activeTab === "hotel") {
       return (
-        <div className="travel-panel travel-panel--hotel">
-          <div className="travel-subtabs">
-            {hotelFilters.map((item, index) => (
-              <button
-                key={item}
-                type="button"
-                className={index === 0 ? "travel-chip is-active" : "travel-chip"}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-
+        <div className="travel-panel travel-panel--hotel" ref={hotelSearchRef}>
           <div className="travel-form">
             <div className="travel-form__layout travel-form__layout--hotel">
-              <FieldCard
+              <HotelFieldButton
                 label="Thành phố, địa điểm hoặc tên khách sạn"
-                title="Thành phố, khách sạn, điểm đến"
+                value={hotelDestination.name}
                 icon={MapPinned}
-                placeholder
-              />
-              <FieldCard
+                isOpen={openHotelPopover === "destination"}
+                onClick={() =>
+                  setOpenHotelPopover((currentValue) =>
+                    currentValue === "destination" ? null : "destination",
+                  )
+                }
+                className="travel-hotel-field-wrap--destination"
+              >
+                {openHotelPopover === "destination" ? (
+                  <div className="travel-hotel-panel travel-hotel-panel--destination">
+                    <button type="button" className="travel-hotel-nearby">
+                      <Crosshair size={18} />
+                      <span>Gần tôi</span>
+                    </button>
+
+                    <div className="travel-hotel-panel__title">Điểm đến phổ biến</div>
+
+                    <div className="travel-hotel-destination-list">
+                      {popularHotelDestinations.map((item) => (
+                        <button
+                          key={item.name}
+                          type="button"
+                          className={
+                            hotelDestination.name === item.name
+                              ? "travel-hotel-destination-item is-selected"
+                              : "travel-hotel-destination-item"
+                          }
+                          onClick={() => {
+                            setHotelDestination(item);
+                            setOpenHotelPopover(null);
+                          }}
+                        >
+                          <span className="travel-hotel-destination-item__copy">
+                            <strong>{item.name}</strong>
+                            <small>{item.subtitle}</small>
+                          </span>
+                          <span className="travel-hotel-destination-item__meta">
+                            <span className="travel-hotel-destination-item__tag">{item.type}</span>
+                            <span className="travel-hotel-destination-item__count">{item.count}</span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </HotelFieldButton>
+              <HotelFieldButton
                 label="Ngày nhận phòng và trả phòng"
-                title="31 thg 3 2026 - 01 thg 4 2026"
+                value={hotelStaySummary}
                 icon={CalendarDays}
-              />
-              <FieldCard label="Khách và Phòng" title="2 người lớn, 0 Trẻ em, 1 phòng" icon={Users} />
+                isOpen={openHotelPopover === "stay"}
+                onClick={() =>
+                  setOpenHotelPopover((currentValue) => (currentValue === "stay" ? null : "stay"))
+                }
+                className="travel-hotel-field-wrap--stay"
+              >
+                {openHotelPopover === "stay" ? (
+                  <div className="travel-hotel-panel travel-hotel-panel--stay">
+                    <div className="travel-hotel-panel__heading">
+                      <h3>Ngày Ở</h3>
+                    </div>
+
+                    <div className="travel-hotel-stay-summary">
+                      <button
+                        type="button"
+                        className={
+                          hotelDateFocus === "checkIn"
+                            ? "travel-hotel-stay-summary-card is-focus"
+                            : "travel-hotel-stay-summary-card"
+                        }
+                        onClick={() => setHotelDateFocus("checkIn")}
+                      >
+                        <span>Nhận phòng</span>
+                        <strong>{formatHotelPanelDate(hotelStay.checkIn)}</strong>
+                      </button>
+                      <button
+                        type="button"
+                        className={
+                          hotelDateFocus === "checkOut"
+                            ? "travel-hotel-stay-summary-card is-focus"
+                            : "travel-hotel-stay-summary-card"
+                        }
+                        onClick={() => setHotelDateFocus("checkOut")}
+                      >
+                        <span>Trả phòng</span>
+                        <strong>{formatHotelPanelDate(hotelStay.checkOut)}</strong>
+                      </button>
+                    </div>
+
+                    <div className="travel-hotel-calendars">
+                      {hotelCalendarMonths.map((item, index) => (
+                        <div key={`${item.year}-${item.monthIndex}`} className="travel-hotel-calendar">
+                          <div className="travel-hotel-calendar__header">
+                            <span className="travel-hotel-calendar__nav" aria-hidden="true">
+                              {index === 0 ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+                            </span>
+                            <strong>{`tháng ${item.monthIndex + 1} năm ${item.year}`}</strong>
+                            <span className="travel-hotel-calendar__nav travel-hotel-calendar__nav--ghost" />
+                          </div>
+
+                          <div className="travel-hotel-calendar__weekdays">
+                            {hotelWeekdays.map((weekday) => (
+                              <span key={weekday} className="travel-hotel-calendar__weekday">
+                                {weekday}
+                              </span>
+                            ))}
+                          </div>
+
+                          <div className="travel-hotel-calendar__days">
+                            {getCalendarDays(item.year, item.monthIndex).map((date, dayIndex) => {
+                              if (!date) {
+                                return (
+                                  <span
+                                    key={`${item.year}-${item.monthIndex}-empty-${dayIndex}`}
+                                    className="travel-hotel-calendar__blank"
+                                  />
+                                );
+                              }
+
+                              const isSelected =
+                                isSameDay(date, hotelStay.checkIn) || isSameDay(date, hotelStay.checkOut);
+                              const isInRange = isDateBetween(date, hotelStay.checkIn, hotelStay.checkOut);
+                              const isWeekend = date.getDay() === 0;
+                              const dayClassName = [
+                                "travel-hotel-calendar__day",
+                                isSelected ? "is-selected" : "",
+                                isInRange ? "is-in-range" : "",
+                                isWeekend ? "is-weekend" : "",
+                              ]
+                                .filter(Boolean)
+                                .join(" ");
+
+                              return (
+                                <button
+                                  key={date.toISOString()}
+                                  type="button"
+                                  className={dayClassName}
+                                  onClick={() => handleHotelDateSelect(date)}
+                                >
+                                  {date.getDate()}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </HotelFieldButton>
+              <HotelFieldButton
+                label="Khách và Phòng"
+                value={hotelGuestSummary}
+                icon={Users}
+                isOpen={openHotelPopover === "guests"}
+                onClick={() =>
+                  setOpenHotelPopover((currentValue) => (currentValue === "guests" ? null : "guests"))
+                }
+                className="travel-hotel-field-wrap--guests"
+              >
+                {openHotelPopover === "guests" ? (
+                  <div className="travel-hotel-panel travel-hotel-panel--guests">
+                    <div className="travel-hotel-guest-list">
+                      <div className="travel-hotel-guest-row">
+                        <div className="travel-hotel-guest-copy">
+                          <strong>Người lớn</strong>
+                        </div>
+                        <div className="travel-hotel-guest-counter">
+                          <button
+                            type="button"
+                            aria-label="Giảm số người lớn"
+                            onClick={() => handleHotelGuestChange("adults", -1)}
+                            disabled={hotelGuests.adults <= 1}
+                          >
+                            <Minus size={16} />
+                          </button>
+                          <span>{hotelGuests.adults}</span>
+                          <button
+                            type="button"
+                            aria-label="Tăng số người lớn"
+                            onClick={() => handleHotelGuestChange("adults", 1)}
+                          >
+                            <Plus size={16} />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="travel-hotel-guest-row">
+                        <div className="travel-hotel-guest-copy">
+                          <strong>Trẻ em</strong>
+                        </div>
+                        <div className="travel-hotel-guest-counter">
+                          <button
+                            type="button"
+                            aria-label="Giảm số trẻ em"
+                            onClick={() => handleHotelGuestChange("children", -1)}
+                            disabled={hotelGuests.children <= 0}
+                          >
+                            <Minus size={16} />
+                          </button>
+                          <span>{hotelGuests.children}</span>
+                          <button
+                            type="button"
+                            aria-label="Tăng số trẻ em"
+                            onClick={() => handleHotelGuestChange("children", 1)}
+                          >
+                            <Plus size={16} />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="travel-hotel-guest-row">
+                        <div className="travel-hotel-guest-copy">
+                          <strong>Phòng</strong>
+                        </div>
+                        <div className="travel-hotel-guest-counter">
+                          <button
+                            type="button"
+                            aria-label="Giảm số phòng"
+                            onClick={() => handleHotelGuestChange("rooms", -1)}
+                            disabled={hotelGuests.rooms <= 1}
+                          >
+                            <Minus size={16} />
+                          </button>
+                          <span>{hotelGuests.rooms}</span>
+                          <button
+                            type="button"
+                            aria-label="Tăng số phòng"
+                            onClick={() => handleHotelGuestChange("rooms", 1)}
+                          >
+                            <Plus size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="travel-hotel-panel__actions">
+                      <button
+                        type="button"
+                        className="travel-hotel-done"
+                        onClick={() => setOpenHotelPopover(null)}
+                      >
+                        Xong
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+              </HotelFieldButton>
               <SearchButton />
             </div>
+          </div>
+
+          <div className="travel-hotel-trusted">
+            <span>Trusted by</span>
+            <ul>
+              {hotelTrustedBrands.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
           </div>
         </div>
       );
@@ -454,23 +902,6 @@ export default function HomeCustomer() {
     if (activeTab === "flight") {
       return (
         <div className="travel-panel travel-panel--flight">
-          <div className="travel-subtabs">
-            {flightModes.map((item, index) => (
-              <button
-                key={item}
-                type="button"
-                className={
-                  (index === 0 && tripMode === "single") || (index === 1 && tripMode === "multi")
-                    ? "travel-chip is-active"
-                    : "travel-chip"
-                }
-                onClick={() => setTripMode(index === 0 ? "single" : "multi")}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-
           <div className="travel-form">
             <div className="travel-form__layout travel-form__layout--flight">
               <RouteGroup
@@ -554,18 +985,6 @@ export default function HomeCustomer() {
     if (activeTab === "car") {
       return (
         <div className="travel-panel travel-panel--car">
-          <div className="travel-subtabs">
-            {carFilters.map((item, index) => (
-              <button
-                key={item}
-                type="button"
-                className={index === 0 ? "travel-chip is-active" : "travel-chip"}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-
           <div className="travel-form">
             <div className="travel-form__layout travel-form__layout--car">
               <FieldCard
@@ -621,12 +1040,15 @@ export default function HomeCustomer() {
 
   return (
     <div className="home-customer">
-      <section className="home-customer__hero-shell">
+      <section
+        className="home-customer__hero-shell"
+        style={{
+          backgroundImage: `linear-gradient(180deg, rgba(11, 25, 45, 0.36) 0%, rgba(11, 25, 45, 0.22) 18%, rgba(9, 27, 52, 0.78) 100%), linear-gradient(90deg, rgba(8, 23, 43, 0.18) 0%, rgba(8, 23, 43, 0.04) 100%), url(${baibienImage})`,
+        }}
+      >
         <div className="customer-shell__container">
           <div className="home-customer__hero-copy">
-            <div className="home-customer__hero-badge">Ưu đãi nổi bật cho khách hàng mới</div>
             <h1>App du lịch hàng đầu, một chạm đi bất cứ đâu</h1>
-            <p>Lên kế hoạch nhanh hơn với vé máy bay, khách sạn, xe khách và hoạt động giải trí.</p>
           </div>
 
           <section className="travel-search" id="tim-kiem">
@@ -640,7 +1062,12 @@ export default function HomeCustomer() {
                     key={item.id}
                     type="button"
                     className={isActive ? "travel-service is-active" : "travel-service"}
-                    onClick={() => setActiveTab(item.id)}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      if (item.id !== "hotel") {
+                        setOpenHotelPopover(null);
+                      }
+                    }}
                   >
                     <Icon size={20} />
                     <span>{item.label}</span>

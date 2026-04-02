@@ -10,7 +10,6 @@ import {
   ReceiptText,
   User,
 } from "lucide-react";
-import baibienImage from "../../assets/images/baibien.jpg";
 import { clearCurrentSession, getCurrentSession } from "../../utils/auth";
 import "../../assets/css/HeaderCustomer.css";
 
@@ -120,140 +119,129 @@ export default function HeaderCustomer() {
   }
 
   return (
-    <section
-      className="customer-hero"
-      style={{
-        backgroundImage: `linear-gradient(180deg, rgba(7, 24, 43, 0.28) 0%, rgba(7, 24, 43, 0.56) 100%), url(${baibienImage})`,
-      }}
-    >
-      <div className="customer-hero__overlay" />
-
-      <header className={isHeaderScrolled ? "customer-header is-scrolled" : "customer-header"}>
-        <div className="customer-header__surface">
-          <div className="customer-shell__container customer-header__surface-inner">
-            <div className="customer-header__row">
-              <div className="customer-header__brand">
-                <Link to="/mua-sam" className="customer-header__brand-text">
-                  traveloka
-                </Link>
-              </div>
-
-              <div className="customer-header__group">
-                <nav className="customer-header__top-links">
-                  <a href="#uu-dai">Khuyến mãi</a>
-                  <a href="#uu-dai">Hợp tác với chúng tôi</a>
-                  <a href="#uu-dai">Hỗ trợ</a>
-                  <a href="#uu-dai">Đặt chỗ của tôi</a>
-                </nav>
-
-                <div className="customer-header__auth">
-                  {isCustomerSession ? (
-                    <div className="customer-header__menu" ref={customerMenuRef}>
-                      <button
-                        type="button"
-                        className="customer-header__menu-trigger"
-                        onClick={() => setIsCustomerMenuOpen((currentValue) => !currentValue)}
-                        aria-haspopup="menu"
-                        aria-expanded={isCustomerMenuOpen}
-                      >
-                        <span className="customer-header__menu-avatar">{customerInitials}</span>
-                        <span className="customer-header__menu-identity">
-                          <strong>{session.fullName}</strong>
-                          <small>0 điểm</small>
-                        </span>
-                        <ChevronDown
-                          size={16}
-                          className={
-                            isCustomerMenuOpen
-                              ? "customer-header__menu-chevron is-open"
-                              : "customer-header__menu-chevron"
-                          }
-                        />
-                      </button>
-
-                      {isCustomerMenuOpen ? (
-                        <div className="customer-header__menu-panel" role="menu">
-                          <div className="customer-header__menu-hero">
-                            <div className="customer-header__menu-copy">
-                              <strong>{session.fullName}</strong>
-                              <span>{session.email}</span>
-                            </div>
-                            <div className="customer-header__menu-badge">Thành viên Bronze Priority</div>
-                          </div>
-
-                          <div className="customer-header__menu-points">
-                            <span className="customer-header__menu-points-label">TravelHub+</span>
-                            <strong>0 điểm</strong>
-                          </div>
-
-                          <div className="customer-header__menu-list">
-                            {customerMenuItems.map((item) => {
-                              const Icon = item.icon;
-
-                              return (
-                                <a
-                                  key={item.id}
-                                  href={item.href}
-                                  className="customer-header__menu-item"
-                                  role="menuitem"
-                                  onClick={() => setIsCustomerMenuOpen(false)}
-                                >
-                                  <span className="customer-header__menu-item-icon">
-                                    <Icon size={18} />
-                                  </span>
-                                  <span className="customer-header__menu-item-copy">
-                                    <strong>{item.label}</strong>
-                                    <small>{item.description}</small>
-                                  </span>
-                                </a>
-                              );
-                            })}
-                          </div>
-
-                          <button
-                            type="button"
-                            className="customer-header__menu-logout"
-                            onClick={handleLogout}
-                          >
-                            <LogOut size={18} />
-                            Đăng xuất
-                          </button>
-                        </div>
-                      ) : null}
-                    </div>
-                  ) : (
-                    <>
-                      <Link
-                        to="/dang-nhap"
-                        className="customer-header__button customer-header__button--light"
-                      >
-                        Đăng nhập
-                      </Link>
-                      <Link
-                        to="/dang-ky"
-                        className="customer-header__button customer-header__button--primary"
-                      >
-                        Đăng ký
-                      </Link>
-                    </>
-                  )}
-                </div>
-              </div>
+    <header className={isHeaderScrolled ? "customer-header is-scrolled" : "customer-header"}>
+      <div className="customer-header__surface">
+        <div className="customer-shell__container customer-header__surface-inner">
+          <div className="customer-header__row">
+            <div className="customer-header__brand">
+              <Link to="/mua-sam" className="customer-header__brand-text">
+                traveloka
+              </Link>
             </div>
 
-            <nav className="customer-header__categories">
-              <a href="#uu-dai">Khách sạn</a>
-              <a href="#tim-kiem">Vé máy bay</a>
-              <a href="#uu-dai">Vé xe khách</a>
-              <a href="#uu-dai">Đưa đón sân bay</a>
-              <a href="#uu-dai">Cho thuê xe</a>
-              <a href="#uu-dai">Hoạt động & Vui chơi</a>
-            </nav>
-          </div>
-        </div>
-      </header>
+            <div className="customer-header__group">
+              <nav className="customer-header__top-links">
+                <a href="#uu-dai">Khuyến mãi</a>
+                <a href="#uu-dai">Hợp tác với chúng tôi</a>
+                <a href="#uu-dai">Hỗ trợ</a>
+                <a href="#uu-dai">Đặt chỗ của tôi</a>
+              </nav>
 
-      <div className="customer-shell__container customer-hero__container" />
-    </section>
+              <div className="customer-header__auth">
+                {isCustomerSession ? (
+                  <div className="customer-header__menu" ref={customerMenuRef}>
+                    <button
+                      type="button"
+                      className="customer-header__menu-trigger"
+                      onClick={() => setIsCustomerMenuOpen((currentValue) => !currentValue)}
+                      aria-haspopup="menu"
+                      aria-expanded={isCustomerMenuOpen}
+                    >
+                      <span className="customer-header__menu-avatar">{customerInitials}</span>
+                      <span className="customer-header__menu-identity">
+                        <strong>{session.fullName}</strong>
+                        <small>0 điểm</small>
+                      </span>
+                      <ChevronDown
+                        size={16}
+                        className={
+                          isCustomerMenuOpen
+                            ? "customer-header__menu-chevron is-open"
+                            : "customer-header__menu-chevron"
+                        }
+                      />
+                    </button>
+
+                    {isCustomerMenuOpen ? (
+                      <div className="customer-header__menu-panel" role="menu">
+                        <div className="customer-header__menu-hero">
+                          <div className="customer-header__menu-copy">
+                            <strong>{session.fullName}</strong>
+                            <span>{session.email}</span>
+                          </div>
+                          <div className="customer-header__menu-badge">Thành viên Bronze Priority</div>
+                        </div>
+
+                        <div className="customer-header__menu-points">
+                          <span className="customer-header__menu-points-label">TravelHub+</span>
+                          <strong>0 điểm</strong>
+                        </div>
+
+                        <div className="customer-header__menu-list">
+                          {customerMenuItems.map((item) => {
+                            const Icon = item.icon;
+
+                            return (
+                              <a
+                                key={item.id}
+                                href={item.href}
+                                className="customer-header__menu-item"
+                                role="menuitem"
+                                onClick={() => setIsCustomerMenuOpen(false)}
+                              >
+                                <span className="customer-header__menu-item-icon">
+                                  <Icon size={18} />
+                                </span>
+                                <span className="customer-header__menu-item-copy">
+                                  <strong>{item.label}</strong>
+                                  <small>{item.description}</small>
+                                </span>
+                              </a>
+                            );
+                          })}
+                        </div>
+
+                        <button
+                          type="button"
+                          className="customer-header__menu-logout"
+                          onClick={handleLogout}
+                        >
+                          <LogOut size={18} />
+                          Đăng xuất
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : (
+                  <>
+                    <Link
+                      to="/dang-nhap"
+                      className="customer-header__button customer-header__button--light"
+                    >
+                      Đăng nhập
+                    </Link>
+                    <Link
+                      to="/dang-ky"
+                      className="customer-header__button customer-header__button--primary"
+                    >
+                      Đăng ký
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <nav className="customer-header__categories">
+            <a href="#uu-dai">Khách sạn</a>
+            <a href="#tim-kiem">Vé máy bay</a>
+            <a href="#uu-dai">Vé xe khách</a>
+            <a href="#uu-dai">Đưa đón sân bay</a>
+            <a href="#uu-dai">Cho thuê xe</a>
+            <a href="#uu-dai">Hoạt động & Vui chơi</a>
+          </nav>
+        </div>
+      </div>
+    </header>
   );
 }
