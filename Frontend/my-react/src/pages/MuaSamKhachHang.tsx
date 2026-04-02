@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import baibienImage from "../assets/images/baibien.jpg";
 import {
   BedDouble,
   CalendarDays,
@@ -9,12 +7,10 @@ import {
   MapPinned,
   PlaneTakeoff,
   Search,
-  ShieldCheck,
   Ticket,
   Train,
   Users,
 } from "lucide-react";
-import { getCurrentSession } from "../utils/auth";
 import "../assets/css/MuaSamKhachHang.css";
 
 type ServiceId = "hotel" | "flight" | "bus" | "airport" | "car" | "activity";
@@ -119,7 +115,6 @@ function SearchButton() {
 }
 
 export default function MuaSamKhachHang() {
-  const session = getCurrentSession();
   const [activeTab, setActiveTab] = useState<ServiceId>("flight");
   const [tripMode, setTripMode] = useState<"single" | "multi">("single");
 
@@ -324,60 +319,8 @@ export default function MuaSamKhachHang() {
 
   return (
     <div className="travel-home">
-      <section
-        className="travel-home__hero"
-        style={{
-          backgroundImage: `linear-gradient(180deg, rgba(7, 24, 43, 0.28) 0%, rgba(7, 24, 43, 0.56) 100%), url(${baibienImage})`,
-        }}
-      >
-        <div className="travel-home__overlay" />
-
-        <div className="travel-home__container">
-          <header className="travel-home__header">
-            <div className="travel-home__header-row">
-              <div className="travel-brand">
-                <div className="travel-brand__text" style={{ padding: "0 16px" }}>
-                  traveloka
-                </div>
-              </div>
-
-              <div className="travel-home__header-group">
-                <nav className="travel-home__top-links">
-                  <a href="#uu-dai">Khuyến mãi</a>
-                  <a href="#uu-dai">Hợp tác với chúng tôi</a>
-                  <a href="#uu-dai">Hỗ trợ</a>
-                  <a href="#uu-dai">Đặt chỗ của tôi</a>
-                </nav>
-
-                <div className="travel-home__auth">
-                  <Link to="/dang-nhap" className="travel-home__button travel-home__button--light">
-                    Đăng nhập
-                  </Link>
-                  <Link to="/dang-ky" className="travel-home__button travel-home__button--primary">
-                    Đăng ký
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            <nav className="travel-home__category-row">
-              <a href="#uu-dai">Khách sạn</a>
-              <a href="#tim-kiem">Vé máy bay</a>
-              <a href="#uu-dai">Vé xe khách</a>
-              <a href="#uu-dai">Đưa đón sân bay</a>
-              <a href="#uu-dai">Cho thuê xe</a>
-              <a href="#uu-dai">Hoạt động & Vui chơi</a>
-            </nav>
-          </header>
-
-          <div className="travel-home__headline">
-            <div className="travel-home__welcome">
-              <ShieldCheck size={16} />
-              Xin chào {session?.fullName ?? "bạn"}
-            </div>
-            <h1>App du lịch hàng đầu, một chạm đi bất cứ đâu</h1>
-          </div>
-
+      <section className="travel-home__search-shell">
+        <div className="customer-shell__container">
           <section className="travel-search" id="tim-kiem">
             <div className="travel-search__services">
               {serviceTabs.map((item) => {
@@ -404,7 +347,7 @@ export default function MuaSamKhachHang() {
       </section>
 
       <section className="travel-home__deals" id="uu-dai">
-        <div className="travel-home__container">
+        <div className="customer-shell__container">
           <div className="travel-home__deals-header">
             <div>
               <div className="travel-home__eyebrow">Trang chủ khách hàng</div>
