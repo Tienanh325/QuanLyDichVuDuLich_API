@@ -1,0 +1,1157 @@
+.home-customer {
+  min-height: 100vh;
+  background: #f5f8fc;
+  color: #17324d;
+}
+
+.home-customer__hero-shell {
+  position: relative;
+  z-index: 2;
+  margin-top: -286px;
+  padding-bottom: 30px;
+}
+
+.home-customer__hero-copy {
+  padding: 0 0 26px;
+  text-align: center;
+  color: #fff;
+}
+
+.home-customer__hero-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.home-customer__hero-copy h1 {
+  margin: 16px auto 0;
+  max-width: 860px;
+  font-size: clamp(34px, 4vw, 56px);
+  line-height: 1.08;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.home-customer__hero-copy p {
+  margin: 14px auto 0;
+  max-width: 640px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.travel-search {
+  color: #fff;
+  padding: 0 0 20px;
+  border-radius: 36px;
+  background: linear-gradient(180deg, rgba(7, 27, 56, 0.94) 0%, rgba(14, 44, 82, 0.72) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 26px 60px rgba(15, 28, 47, 0.2);
+  backdrop-filter: blur(18px);
+}
+
+.travel-search__services {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 14px 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.travel-search__services::-webkit-scrollbar {
+  display: none;
+}
+
+.travel-service {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.travel-service.is-active {
+  background: #fff;
+  color: #102c47;
+  box-shadow: 0 12px 30px rgba(15, 28, 47, 0.18);
+}
+
+.travel-subtabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.travel-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(91, 110, 134, 0.46);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.travel-chip.is-active {
+  background: #1194ff;
+}
+
+.travel-form {
+  padding-top: 36px;
+}
+
+.travel-form__layout {
+  display: grid;
+  align-items: stretch;
+  gap: 0;
+  padding: 0 12px;
+}
+
+.travel-form__layout--flight {
+  grid-template-columns: minmax(0, 2.6fr) minmax(0, 1.2fr) minmax(0, 1.02fr) 68px;
+}
+
+.travel-form__layout--hotel {
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1.18fr) minmax(0, 1.06fr) 68px;
+}
+
+.travel-form__layout--bus {
+  grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.24fr) minmax(0, 1.12fr) minmax(0, 1.05fr) 68px;
+}
+
+.travel-form__layout--airport {
+  grid-template-columns: minmax(0, 2.46fr) minmax(0, 1fr) minmax(0, 0.86fr) 68px;
+}
+
+.travel-form__layout--car {
+  grid-template-columns: minmax(0, 1.28fr) repeat(4, minmax(0, 0.92fr)) 68px;
+}
+
+.travel-route-group {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-width: 0;
+}
+
+.travel-field-card {
+  position: relative;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px 18px;
+  background: #fff;
+  color: #102c47;
+  border-top: 1px solid #cfd6df;
+  border-bottom: 1px solid #cfd6df;
+  border-right: 1px solid #cfd6df;
+  box-shadow: 0 8px 22px rgba(14, 27, 46, 0.14);
+}
+
+.travel-field-card:first-child {
+  border-left: 1px solid #cfd6df;
+  border-top-left-radius: 24px;
+  border-bottom-left-radius: 24px;
+}
+
+.travel-route-group .travel-field-card:last-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.travel-field-card.is-muted {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.travel-field-card.is-placeholder .travel-field-card__copy strong {
+  color: #cfd7e0;
+}
+
+.travel-field-card.is-muted.is-placeholder .travel-field-card__copy strong {
+  color: #d6dde4;
+}
+
+.travel-field-card__label {
+  position: absolute;
+  left: 0;
+  top: -34px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.travel-field-card__body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.travel-field-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #1091ff;
+}
+
+.travel-field-card__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.travel-field-card__copy strong {
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.travel-field-card__copy small {
+  color: #5e6f81;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.travel-field-switch {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cfd6df;
+  border-radius: 999px;
+  background: #fff;
+  color: #1493ff;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(14, 27, 46, 0.12);
+  transform: translate(-50%, -50%);
+  z-index: 3;
+}
+
+.travel-search__submit {
+  width: 68px;
+  min-height: 64px;
+  border: 0;
+  border-top-right-radius: 24px;
+  border-bottom-right-radius: 24px;
+  display: grid;
+  place-items: center;
+  background: #ff6b21;
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(255, 107, 33, 0.35);
+  cursor: pointer;
+}
+
+.travel-search__footer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 0 12px;
+  flex-wrap: wrap;
+}
+
+.travel-search__footer-title {
+  font-size: 16px;
+  font-weight: 900;
+  color: #fff;
+}
+
+.travel-search__footer-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.travel-search__footer-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  background: rgba(129, 139, 156, 0.34);
+}
+
+.travel-activity-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 68px 252px;
+  gap: 16px;
+  align-items: center;
+  padding: 0 12px;
+}
+
+.travel-activity-search__box {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 22px;
+  border: 1px solid #cfd6df;
+  border-right: 0;
+  border-radius: 22px 0 0 22px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(14, 27, 46, 0.14);
+  color: #1091ff;
+}
+
+.travel-activity-search__box span {
+  color: #cad1d9;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.travel-activity-search__submit {
+  min-height: 64px;
+  border: 0;
+  border-radius: 0 22px 22px 0;
+  display: grid;
+  place-items: center;
+  background: #ff6b21;
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(255, 107, 33, 0.35);
+  cursor: pointer;
+}
+
+.travel-activity-idea {
+  min-height: 64px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 20px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  background: rgba(8, 20, 39, 0.72);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.travel-activity-caption {
+  margin: 16px 0 12px;
+  text-align: center;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.travel-activity-tags {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 0 12px;
+}
+
+.travel-activity-tag {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(122, 135, 154, 0.56);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.home-customer__section {
+  padding: 16px 0 0;
+}
+
+.home-customer__section--promo {
+  padding-top: 6px;
+}
+
+.home-customer__section-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.home-customer__section-icon {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #eff5ff;
+  color: #0d7fff;
+  flex-shrink: 0;
+}
+
+.home-customer__section-head h2,
+.home-customer__title-row h2 {
+  margin: 0;
+  color: #163454;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.home-customer__section-head p {
+  margin: 6px 0 0;
+  color: #54708d;
+  font-size: 14px;
+}
+
+.home-customer__coupon-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.home-customer__coupon-card {
+  padding: 18px;
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid #e2ebf4;
+  box-shadow: 0 12px 24px rgba(23, 50, 77, 0.08);
+}
+
+.home-customer__coupon-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.home-customer__coupon-copy {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.home-customer__coupon-dot {
+  width: 12px;
+  height: 12px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #27bbff 0%, #0b7eff 100%);
+  flex-shrink: 0;
+}
+
+.home-customer__coupon-copy strong {
+  display: block;
+  color: #17324d;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.home-customer__coupon-copy p {
+  margin: 6px 0 0;
+  color: #688199;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.home-customer__coupon-info {
+  border: 0;
+  background: transparent;
+  color: #82a0bb;
+  cursor: pointer;
+}
+
+.home-customer__coupon-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed #dce6f0;
+}
+
+.home-customer__coupon-code {
+  color: #56718c;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
+
+.home-customer__coupon-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: #dff2ff;
+  color: #0b7eff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.home-customer__app-banner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 18px;
+  padding: 24px 26px;
+  border-radius: 26px;
+  background: linear-gradient(135deg, #0b7f7d 0%, #0b6b80 56%, #0b4e6f 100%);
+  color: #fff;
+  overflow: hidden;
+}
+
+.home-customer__app-copy span {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 0.84;
+}
+
+.home-customer__app-copy strong {
+  display: block;
+  margin-top: 6px;
+  font-size: clamp(24px, 3vw, 40px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.home-customer__app-qr {
+  width: 86px;
+  height: 86px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #17324d;
+}
+
+.home-customer__app-button {
+  min-height: 42px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: #ff6b21;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.home-customer__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.home-customer__title-row a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #0b7eff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.home-customer__cruise-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.home-customer__cruise-card {
+  position: relative;
+  min-height: 220px;
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+  border-radius: 22px;
+  overflow: hidden;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-shadow: 0 14px 28px rgba(23, 50, 77, 0.14);
+}
+
+.home-customer__cruise-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  min-height: 28px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0b7eff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.home-customer__cruise-copy strong {
+  display: block;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.3;
+}
+
+.home-customer__cruise-copy p {
+  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.home-customer__section--discovery {
+  padding-top: 22px;
+}
+
+.home-customer__chip-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.home-customer__chip-row--compact {
+  margin-top: 12px;
+}
+
+.home-customer__chip {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #eef4fb;
+  color: #5d7690;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.home-customer__chip.is-active {
+  background: #0b7eff;
+  color: #fff;
+}
+
+.home-customer__deal-banner-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.home-customer__deal-banner-card {
+  min-height: 126px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 18px;
+  overflow: hidden;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-shadow: 0 12px 24px rgba(23, 50, 77, 0.1);
+}
+
+.home-customer__deal-banner-badge {
+  width: fit-content;
+  min-height: 24px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #0b7eff;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.home-customer__deal-banner-card strong {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.home-customer__deal-banner-card span:not(.home-customer__deal-banner-badge) {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.home-customer__deal-banner-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.home-customer__see-all-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.home-customer__see-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: #eef4fb;
+  color: #0b7eff;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.home-customer__hotel-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.home-customer__hotel-card {
+  border-radius: 18px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e2ebf4;
+  box-shadow: 0 12px 24px rgba(23, 50, 77, 0.08);
+}
+
+.home-customer__hotel-thumb {
+  position: relative;
+  min-height: 164px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.home-customer__hotel-rating {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  min-height: 24px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(9, 32, 69, 0.9);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.home-customer__hotel-body {
+  padding: 14px;
+}
+
+.home-customer__hotel-location {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #eff5ff;
+  color: #0b7eff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.home-customer__hotel-body strong {
+  display: block;
+  margin-top: 10px;
+  color: #17324d;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.45;
+}
+
+.home-customer__hotel-body p {
+  margin: 8px 0 0;
+  color: #6a8299;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.home-customer__hotel-price {
+  margin-top: 10px;
+  color: #ff6b21;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.home-customer__activity-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.home-customer__activity-card {
+  overflow: hidden;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #e2ebf4;
+  box-shadow: 0 12px 24px rgba(23, 50, 77, 0.08);
+}
+
+.home-customer__activity-thumb {
+  position: relative;
+  min-height: 160px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.home-customer__activity-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  min-height: 24px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #ef4444;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.home-customer__activity-body {
+  padding: 14px;
+}
+
+.home-customer__activity-body strong {
+  display: block;
+  color: #17324d;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.45;
+}
+
+.home-customer__activity-body p {
+  margin: 8px 0 0;
+  color: #6a8299;
+  font-size: 12px;
+}
+
+.home-customer__activity-price {
+  margin-top: 10px;
+  color: #ff6b21;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.home-customer__guide-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.home-customer__guide-card {
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 16px;
+  border-radius: 18px;
+  overflow: hidden;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-shadow: 0 12px 24px rgba(23, 50, 77, 0.1);
+}
+
+.home-customer__guide-card strong {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.home-customer__guide-card span {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.home-customer__inspiration-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.home-customer__mini-card {
+  padding: 10px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #e2ebf4;
+  box-shadow: 0 10px 22px rgba(23, 50, 77, 0.06);
+}
+
+.home-customer__mini-thumb {
+  min-height: 110px;
+  border-radius: 14px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.home-customer__mini-card strong {
+  display: block;
+  margin-top: 10px;
+  color: #17324d;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.home-customer__reason-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.home-customer__reason-card {
+  padding: 18px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #e2ebf4;
+}
+
+.home-customer__reason-icon {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #eaf5ff;
+  color: #0b7eff;
+}
+
+.home-customer__reason-card strong {
+  display: block;
+  margin-top: 12px;
+  color: #17324d;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.45;
+}
+
+.home-customer__reason-card p {
+  margin: 8px 0 0;
+  color: #647b93;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.home-customer__section--links {
+  padding-bottom: 60px;
+}
+
+.home-customer__links-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.home-customer__links-column h3 {
+  margin: 0 0 12px;
+  color: #163454;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.home-customer__links-column ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.home-customer__links-column a {
+  color: #58728d;
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+@media (max-width: 1180px) {
+  .home-customer__coupon-row,
+  .home-customer__cruise-grid,
+  .home-customer__deal-banner-grid,
+  .home-customer__hotel-grid,
+  .home-customer__activity-grid,
+  .home-customer__inspiration-grid,
+  .home-customer__reason-grid,
+  .home-customer__links-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .travel-form__layout--flight,
+  .travel-form__layout--hotel,
+  .travel-form__layout--bus,
+  .travel-form__layout--airport,
+  .travel-form__layout--car {
+    grid-template-columns: 1fr;
+  }
+
+  .travel-route-group {
+    grid-template-columns: 1fr;
+  }
+
+  .travel-field-card {
+    border-left: 1px solid #cfd6df;
+    border-radius: 22px;
+    margin-bottom: 12px;
+  }
+
+  .travel-route-group .travel-field-card:last-child {
+    border-top-right-radius: 22px;
+    border-bottom-right-radius: 22px;
+  }
+
+  .travel-field-card__label {
+    position: static;
+    margin-bottom: 10px;
+  }
+
+  .travel-field-switch {
+    display: none;
+  }
+
+  .travel-search__submit,
+  .travel-activity-search__submit,
+  .travel-activity-idea {
+    width: 100%;
+    border-radius: 22px;
+  }
+}
+
+@media (max-width: 860px) {
+  .home-customer__hero-shell {
+    margin-top: -230px;
+  }
+
+  .home-customer__hero-copy {
+    padding-bottom: 18px;
+  }
+
+  .home-customer__hero-copy h1 {
+    font-size: 30px;
+  }
+
+  .travel-search {
+    border-radius: 28px;
+    padding-bottom: 16px;
+  }
+
+  .travel-search__services,
+  .travel-subtabs,
+  .travel-search__footer-links {
+    width: 100%;
+  }
+
+  .travel-service,
+  .travel-chip,
+  .travel-search__footer-links a {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .travel-search__services,
+  .travel-subtabs {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .travel-activity-search {
+    grid-template-columns: 1fr;
+  }
+
+  .travel-activity-search__box {
+    border-right: 1px solid #cfd6df;
+    border-radius: 22px;
+  }
+
+  .home-customer__coupon-row,
+  .home-customer__cruise-grid,
+  .home-customer__deal-banner-grid,
+  .home-customer__hotel-grid,
+  .home-customer__activity-grid,
+  .home-customer__inspiration-grid,
+  .home-customer__reason-grid,
+  .home-customer__links-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-customer__guide-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-customer__app-banner,
+  .home-customer__title-row,
+  .home-customer__section-head {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .home-customer__app-banner {
+    display: flex;
+  }
+}
