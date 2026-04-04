@@ -18,6 +18,7 @@ import CustomerLayout from '../layouts/CustomerLayout';
 import DangNhap from '../pages/DangNhap';
 import DangKy from '../pages/DangKy';
 import HomeCustomer from '../pages/homecustomer';
+import HotelCustomer from '../pages/HotelCustomer';
 
 export default function RoutesIndex() {
   return (
@@ -26,6 +27,7 @@ export default function RoutesIndex() {
       <Route path="/dang-ky" element={<DangKy />} />
       <Route path="/mua-sam" element={<CustomerLayout />}>
         <Route index element={<HomeCustomer />} />
+        <Route path="khach-san" element={<HotelCustomer />} />
       </Route>
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Navigate to="/ThongKe" replace />} />

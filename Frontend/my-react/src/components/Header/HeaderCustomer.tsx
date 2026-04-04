@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   BadgePercent,
   Bell,
@@ -56,6 +56,15 @@ const customerMenuItems = [
     icon: BadgePercent,
     href: "#uu-dai",
   },
+] as const;
+
+const categoryLinks = [
+  { id: "hotel", label: "Khách sạn", to: "/mua-sam/khach-san" },
+  { id: "flight", label: "Vé máy bay", href: "#tim-kiem" },
+  { id: "bus", label: "Vé xe khách", href: "#uu-dai" },
+  { id: "airport", label: "Đưa đón sân bay", href: "#uu-dai" },
+  { id: "car", label: "Cho thuê xe", href: "#uu-dai" },
+  { id: "activity", label: "Hoạt động & Vui chơi", href: "#uu-dai" },
 ] as const;
 
 export default function HeaderCustomer() {
@@ -133,8 +142,8 @@ export default function HeaderCustomer() {
               <nav className="customer-header__top-links">
                 <a href="#uu-dai">Khuyến mãi</a>
                 <a href="#uu-dai">Hợp tác với chúng tôi</a>
-                <a href="#uu-dai">Hỗ trợ</a>
-                <a href="#uu-dai">Đặt chỗ của tôi</a>
+                <Link to="/mua-sam/khach-san#faq">Hỗ trợ</Link>
+                <a href="#tim-kiem">Đặt chỗ của tôi</a>
               </nav>
 
               <div className="customer-header__auth">
@@ -233,12 +242,25 @@ export default function HeaderCustomer() {
           </div>
 
           <nav className="customer-header__categories">
-            <a href="#uu-dai">Khách sạn</a>
-            <a href="#tim-kiem">Vé máy bay</a>
-            <a href="#uu-dai">Vé xe khách</a>
-            <a href="#uu-dai">Đưa đón sân bay</a>
-            <a href="#uu-dai">Cho thuê xe</a>
-            <a href="#uu-dai">Hoạt động & Vui chơi</a>
+            {categoryLinks.map((item) =>
+              "to" in item ? (
+                <NavLink
+                  key={item.id}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    isActive
+                      ? "customer-header__category-link is-active"
+                      : "customer-header__category-link"
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ) : (
+                <a key={item.id} className="customer-header__category-link" href={item.href}>
+                  {item.label}
+                </a>
+              ),
+            )}
           </nav>
         </div>
       </div>

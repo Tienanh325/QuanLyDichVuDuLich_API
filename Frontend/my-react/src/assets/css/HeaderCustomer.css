@@ -117,6 +117,21 @@
   white-space: nowrap;
 }
 
+.customer-header__category-link {
+  position: relative;
+}
+
+.customer-header__category-link.is-active::after {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 8px;
+  height: 3px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
 .customer-header__auth {
   display: flex;
   align-items: center;
