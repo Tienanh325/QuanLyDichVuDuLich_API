@@ -146,7 +146,7 @@ const statCardStyle: CSSProperties = {
   background: "#ffffff",
 };
 
-export default function DanhGia() {
+export default function AdminDanhGia() {
   const [data, setData] = useState<ReviewItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");

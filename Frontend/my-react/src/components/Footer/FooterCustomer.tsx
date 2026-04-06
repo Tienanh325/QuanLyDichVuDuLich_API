@@ -11,7 +11,7 @@ import {
   Youtube,
 } from "lucide-react";
 import baibienImage from "../../assets/images/baibien.jpg";
-import "../../assets/css/FooterCustomer.css";
+import "../../assets/css/CustomerFooter.css";
 
 const aboutLinks = [
   "Cách đặt chỗ",

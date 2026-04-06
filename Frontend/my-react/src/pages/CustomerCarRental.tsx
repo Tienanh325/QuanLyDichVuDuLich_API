@@ -7,8 +7,8 @@ import {
   MapPin,
   Search,
 } from "lucide-react";
-import "../assets/css/homecustomer.css";
-import "../assets/css/carrental.css";
+import "../assets/css/CustomerHome.css";
+import "../assets/css/CustomerCarRental.css";
 
 type IconType = typeof Search;
 type CarPopover = "pickup" | "dropoff" | "startDate" | "duration" | null;
@@ -222,7 +222,7 @@ const calendarMonths = [
   { year: 2026, monthIndex: 4 },
 ];
 
-export default function CarRentalCustomer() {
+export default function CustomerCarRental() {
   const [rentalType, setRentalType] = useState<RentalType>("self_drive");
   const [pickupLocation, setPickupLocation] = useState("Hà Nội");
   const [startDate, setStartDate] = useState(() => addDays(new Date(), 1));

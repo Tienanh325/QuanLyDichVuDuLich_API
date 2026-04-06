@@ -16,7 +16,7 @@ import {
   Waves,
 } from "lucide-react";
 import baibienImage from "../assets/images/baibien.jpg";
-import "../assets/css/activitycustomer.css";
+import "../assets/css/CustomerActivity.css";
 
 type CardItem = {
   title: string;
@@ -278,7 +278,7 @@ function RecommendationCard({ column }: { column: RecommendationColumn }) {
   );
 }
 
-export default function ActivityCustomer() {
+export default function CustomerActivity() {
   const [selectedDestination, setSelectedDestination] = useState(heroDestinations[0]);
   const [searchValue, setSearchValue] = useState("");
   const [selectedCouponTab, setSelectedCouponTab] = useState(couponTabs[0]);

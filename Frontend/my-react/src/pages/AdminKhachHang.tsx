@@ -143,7 +143,7 @@ const statCardStyle: CSSProperties = {
   background: "#ffffff",
 };
 
-export default function KhachHang() {
+export default function AdminKhachHang() {
   const [form] = Form.useForm<UserFormValues>();
   const [data, setData] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(false);

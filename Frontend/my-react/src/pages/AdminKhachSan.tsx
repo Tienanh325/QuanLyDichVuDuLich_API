@@ -212,7 +212,7 @@ const statCardStyle: CSSProperties = {
   background: "#ffffff",
 };
 
-export default function KhachSan() {
+export default function AdminKhachSan() {
   const [form] = Form.useForm<HotelFormValues>();
   const [data, setData] = useState<HotelItem[]>([]);
   const [dichVuOptions, setDichVuOptions] = useState<DichVuOption[]>(mockDichVu);

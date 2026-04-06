@@ -286,7 +286,7 @@ const statCardStyle: CSSProperties = {
   background: "#ffffff",
 };
 
-export default function KhuyenMai() {
+export default function AdminKhuyenMai() {
   const [form] = Form.useForm<VoucherFormValues>();
   const [vouchers, setVouchers] = useState<VoucherItem[]>([]);
   const [loading, setLoading] = useState(false);

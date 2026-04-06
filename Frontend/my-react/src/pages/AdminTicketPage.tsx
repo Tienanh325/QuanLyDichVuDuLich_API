@@ -59,7 +59,7 @@ interface TicketFormValues {
   danhGia: number;
 }
 
-interface TicketAdminPageProps {
+interface AdminTicketPageProps {
   category: TicketCategory;
   title: string;
   description: string;
@@ -301,7 +301,7 @@ const statCardStyle: CSSProperties = {
   background: "#ffffff",
 };
 
-export default function TicketAdminPage({ category, title, description }: TicketAdminPageProps) {
+export default function AdminTicketPage({ category, title, description }: AdminTicketPageProps) {
   const [form] = Form.useForm<TicketFormValues>();
   const [data, setData] = useState<TicketItem[]>([]);
   const [dichVuOptions, setDichVuOptions] = useState<DichVuOption[]>(mockDichVu);

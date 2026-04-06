@@ -231,7 +231,7 @@ const statCardStyle: CSSProperties = {
   background: "#ffffff",
 };
 
-export default function Tour() {
+export default function AdminTour() {
   const [form] = Form.useForm<TourFormValues>();
   const [data, setData] = useState<TourItem[]>([]);
   const [dichVuOptions, setDichVuOptions] = useState<DichVuOption[]>(mockDichVu);

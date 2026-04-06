@@ -26,7 +26,7 @@ import {
   Train,
   Users,
 } from "lucide-react";
-import "../assets/css/homecustomer.css";
+import "../assets/css/CustomerHome.css";
 
 type ServiceId = "hotel" | "flight" | "bus" | "airport" | "car" | "activity";
 type IconType = typeof Search;
@@ -518,7 +518,7 @@ function HotelFieldButton({
   );
 }
 
-export default function HomeCustomer() {
+export default function CustomerHome() {
   const hotelSearchRef = useRef<HTMLDivElement | null>(null);
   const [activeTab, setActiveTab] = useState<ServiceId>("hotel");
   const [openHotelPopover, setOpenHotelPopover] = useState<HotelPopover>(null);

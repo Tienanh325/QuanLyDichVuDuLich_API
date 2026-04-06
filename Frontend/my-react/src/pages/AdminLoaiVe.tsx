@@ -127,7 +127,7 @@ const statCardStyle: CSSProperties = {
   background: "#ffffff",
 };
 
-export default function LoaiVe() {
+export default function AdminLoaiVe() {
   const [form] = Form.useForm<LoaiVeFormValues>();
   const [data, setData] = useState<LoaiVeItem[]>([]);
   const [loading, setLoading] = useState(false);

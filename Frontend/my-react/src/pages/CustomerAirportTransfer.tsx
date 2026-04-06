@@ -13,8 +13,8 @@ import {
   Clock,
   MapPin,
 } from "lucide-react";
-import "../assets/css/homecustomer.css";
-import "../assets/css/airporttransfer.css";
+import "../assets/css/CustomerHome.css";
+import "../assets/css/CustomerAirportTransfer.css";
 
 type IconType = typeof Search;
 type AirportPopover = "pickup" | "dropoff" | "date" | "time" | null;
@@ -238,7 +238,7 @@ const calendarMonths = [
   { year: 2026, monthIndex: 4 },
 ];
 
-export default function AirportTransferCustomer() {
+export default function CustomerAirportTransfer() {
   const [pickupLocation, setPickupLocation] = useState("Sân bay Tân Sơn Nhất");
   const [dropoffLocation, setDropoffLocation] = useState("Trung tâm thành phố");
   const [pickupDate, setPickupDate] = useState(() => addDays(new Date(), 1));

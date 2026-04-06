@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import SidebarAdmin from '../components/Sidebar/SidebarAdmin';
 import HeaderBar from '../components/Header/HeaderBar';
 
-export default function MainLayout() {
+export default function AdminLayout() {
   const [collapsed, setCollapsed] = useState(false);
   return (
     <div className="app-root" style={{ minHeight: '100vh', display: 'flex', width: '100%' }}>

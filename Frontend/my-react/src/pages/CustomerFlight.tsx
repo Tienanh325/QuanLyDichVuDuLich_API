@@ -19,9 +19,9 @@ import {
 } from "lucide-react";
 import baibienImage from "../assets/images/baibien.jpg";
 import thuongHieuImage from "../assets/images/thuonghieu.jpg";
-import "../assets/css/homecustomer.css";
-import "../assets/css/hotelcustomer.css";
-import "../assets/css/flightcustomer.css";
+import "../assets/css/CustomerHome.css";
+import "../assets/css/CustomerHotel.css";
+import "../assets/css/CustomerFlight.css";
 
 type IconType = typeof Search;
 type TripType = "oneWay" | "roundTrip" | "multiCity";
@@ -316,7 +316,7 @@ function SectionHead({
   );
 }
 
-export default function FlightCustomer() {
+export default function CustomerFlight() {
   const [tripType, setTripType] = useState<TripType>("roundTrip");
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
   const [flightRoute, setFlightRoute] = useState<RouteValues>({

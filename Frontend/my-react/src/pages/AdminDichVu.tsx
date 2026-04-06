@@ -144,7 +144,7 @@ const pageContainerStyle: CSSProperties = { padding: 24, background: "linear-gra
 const cardStyle: CSSProperties = { borderRadius: 20, border: "1px solid #eceef5", boxShadow: "0 18px 45px rgba(15, 23, 42, 0.06)" };
 const statCardStyle: CSSProperties = { ...cardStyle, height: "100%", background: "#ffffff" };
 
-export default function DichVu() {
+export default function AdminDichVu() {
   const [form] = Form.useForm<ServiceFormValues>();
   const [data, setData] = useState<ServiceItem[]>([]);
   const [suppliers, setSuppliers] = useState<SupplierOption[]>(mockSuppliers);

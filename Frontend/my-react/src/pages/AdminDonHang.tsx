@@ -321,7 +321,7 @@ const statCardStyle: CSSProperties = {
   background: "#ffffff",
 };
 
-export default function DonHang() {
+export default function AdminDonHang() {
   const [data, setData] = useState<InvoiceRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");

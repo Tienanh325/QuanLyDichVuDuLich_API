@@ -16,8 +16,8 @@ import {
   Ticket,
   Users,
 } from "lucide-react";
-import "../assets/css/homecustomer.css";
-import "../assets/css/buscustomer.css";
+import "../assets/css/CustomerHome.css";
+import "../assets/css/CustomerBusTicket.css";
 
 type IconType = typeof Search;
 type BusPopover = "departure" | "destination" | "date" | "passengers" | null;
@@ -289,7 +289,7 @@ function BusFieldButton({
   );
 }
 
-export default function BusTicketCustomer() {
+export default function CustomerBusTicket() {
   const [busDeparture, setBusDeparture] = useState("Hà Nội");
   const [busDestination, setBusDestination] = useState("TP HCM");
   const [busJourneyDate, setBusJourneyDate] = useState(() => addDays(new Date(), 1));

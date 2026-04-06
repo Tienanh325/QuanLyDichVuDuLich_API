@@ -1,8 +1,8 @@
-import TicketAdminPage from "./TicketAdminPage";
+import AdminTicketPage from "./AdminTicketPage";
 
-export default function Ve() {
+export default function AdminVe() {
   return (
-    <TicketAdminPage
+    <AdminTicketPage
       category="all"
       title="Quản lý vé "
       description="Quản lý toàn bộ vé trong hệ thống, bao gồm vé máy bay, vé tàu hoả và vé khu vui chơi"

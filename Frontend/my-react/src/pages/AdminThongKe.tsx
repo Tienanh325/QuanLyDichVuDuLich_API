@@ -206,7 +206,7 @@ function formatPerformanceTooltip(value: ChartValue, name: ChartName): [string, 
   ];
 }
 
-export default function ThongKe() {
+export default function AdminThongKe() {
   return (
     <div style={pageStyle}>
       <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>

@@ -11,7 +11,7 @@ import {
   User,
 } from "lucide-react";
 import { clearCurrentSession, getCurrentSession } from "../../utils/auth";
-import "../../assets/css/HeaderCustomer.css";
+import "../../assets/css/CustomerHeader.css";
 
 const customerMenuItems = [
   {

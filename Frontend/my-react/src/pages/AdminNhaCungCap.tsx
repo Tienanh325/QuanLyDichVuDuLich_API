@@ -111,7 +111,7 @@ const pageContainerStyle: CSSProperties = { padding: 24, background: "linear-gra
 const cardStyle: CSSProperties = { borderRadius: 20, border: "1px solid #eceef5", boxShadow: "0 18px 45px rgba(15, 23, 42, 0.06)" };
 const statCardStyle: CSSProperties = { ...cardStyle, height: "100%", background: "#ffffff" };
 
-export default function NhaCungCap() {
+export default function AdminNhaCungCap() {
   const [form] = Form.useForm<SupplierFormValues>();
   const [data, setData] = useState<SupplierItem[]>([]);
   const [loading, setLoading] = useState(false);

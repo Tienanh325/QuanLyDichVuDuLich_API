@@ -25,8 +25,8 @@ import {
 } from "lucide-react";
 import baibienImage from "../assets/images/baibien.jpg";
 import thuongHieuImage from "../assets/images/thuonghieu.jpg";
-import "../assets/css/homecustomer.css";
-import "../assets/css/hotelcustomer.css";
+import "../assets/css/CustomerHome.css";
+import "../assets/css/CustomerHotel.css";
 
 type IconType = typeof Search;
 type HotelPopover = "destination" | "stay" | "guests" | null;
@@ -326,7 +326,7 @@ function HotelFieldButton({
   );
 }
 
-export default function HotelCustomer() {
+export default function CustomerHotel() {
   const hotelSearchRef = useRef<HTMLDivElement | null>(null);
   const [openHotelPopover, setOpenHotelPopover] = useState<HotelPopover>(null);
   const [hotelDateFocus, setHotelDateFocus] = useState<"checkIn" | "checkOut">("checkIn");
