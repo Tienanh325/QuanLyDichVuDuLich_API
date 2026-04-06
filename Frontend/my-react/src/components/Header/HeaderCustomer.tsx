@@ -64,7 +64,7 @@ const categoryLinks = [
   { id: "bus", label: "Vé xe khách", to: "/mua-sam/ve-xe-khach" },
   { id: "airport", label: "Đưa đón sân bay", to: "/mua-sam/dua-don-san-bay" },
   { id: "car", label: "Cho thuê xe", to: "/mua-sam/cho-thue-xe" },
-  { id: "activity", label: "Hoạt động & Vui chơi", href: "#uu-dai" },
+  { id: "activity", label: "Hoạt động & Vui chơi", to: "/mua-sam/hoat-dong-vui-choi" },
 ] as const;
 
 export default function HeaderCustomer() {
@@ -232,25 +232,19 @@ export default function HeaderCustomer() {
           </div>
 
           <nav className="customer-header__categories">
-            {categoryLinks.map((item) =>
-              "to" in item ? (
-                <NavLink
-                  key={item.id}
-                  to={item.to}
-                  className={({ isActive }) =>
-                    isActive
-                      ? "customer-header__category-link is-active"
-                      : "customer-header__category-link"
-                  }
-                >
-                  {item.label}
-                </NavLink>
-              ) : (
-                <a key={item.id} className="customer-header__category-link" href={item.href}>
-                  {item.label}
-                </a>
-              ),
-            )}
+            {categoryLinks.map((item) => (
+              <NavLink
+                key={item.id}
+                to={item.to}
+                className={({ isActive }) =>
+                  isActive
+                    ? "customer-header__category-link is-active"
+                    : "customer-header__category-link"
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
           </nav>
         </div>
       </div>

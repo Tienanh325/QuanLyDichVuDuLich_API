@@ -1,0 +1,708 @@
+.activity-customer {
+  min-height: 100vh;
+  background: #f6f8fc;
+  color: #17324d;
+}
+
+.activity-customer__hero {
+  padding: 176px 0 88px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.activity-customer__hero-copy {
+  color: #fff;
+}
+
+.activity-customer__hero-copy span {
+  display: inline-block;
+  color: #a7ff69;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.activity-customer__hero-copy h1 {
+  margin: 14px 0 24px;
+  font-size: clamp(34px, 4vw, 54px);
+  line-height: 1.08;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.activity-customer__hero-search {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) 148px;
+  gap: 12px;
+  max-width: 920px;
+}
+
+.activity-customer__search-select,
+.activity-customer__search-input {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: rgba(15, 26, 39, 0.92);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 14px 28px rgba(8, 18, 31, 0.2);
+}
+
+.activity-customer__search-select svg,
+.activity-customer__search-input svg {
+  flex-shrink: 0;
+  color: #3fb6ff;
+}
+
+.activity-customer__search-select select,
+.activity-customer__search-input input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 15px;
+}
+
+.activity-customer__search-select option {
+  color: #17324d;
+}
+
+.activity-customer__search-input input::placeholder {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.activity-customer__search-button {
+  min-height: 54px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1ea3ff 0%, #0078ff 100%);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 16px 32px rgba(0, 120, 255, 0.28);
+}
+
+.activity-customer__shortcut-bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: -32px;
+  padding: 14px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 18px 40px rgba(15, 28, 47, 0.1);
+}
+
+.activity-customer__shortcut {
+  min-height: 50px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #17324d;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.activity-customer__shortcut.is-active {
+  background: #f8f7de;
+}
+
+.activity-customer__shortcut-icon {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #e8f4ff;
+  color: #1493ff;
+}
+
+.activity-customer__section {
+  padding: 28px 0 0;
+}
+
+.activity-customer__section--story {
+  padding-bottom: 20px;
+}
+
+.activity-customer__section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.activity-customer__section-head h2 {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.15;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.activity-customer__section-head p {
+  margin: 8px 0 0;
+  color: #6a7f95;
+  font-size: 15px;
+}
+
+.activity-customer__section-arrow {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: #17324d;
+  box-shadow: 0 10px 24px rgba(15, 28, 47, 0.08);
+  cursor: pointer;
+}
+
+.activity-customer__tab-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.activity-customer__chip {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #eef3fb;
+  color: #6d8298;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.activity-customer__chip.is-active {
+  background: #ff7f73;
+  color: #fff;
+}
+
+.activity-customer__coupon-grid,
+.activity-customer__promo-grid,
+.activity-customer__article-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.activity-customer__coupon-card,
+.activity-customer__experience-card,
+.activity-customer__article-card,
+.activity-customer__story-nav,
+.activity-customer__story-content {
+  overflow: hidden;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #e3ebf3;
+  box-shadow: 0 14px 28px rgba(23, 50, 77, 0.08);
+}
+
+.activity-customer__coupon-card {
+  position: relative;
+  padding: 22px 20px 18px;
+}
+
+.activity-customer__coupon-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-height: 28px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  background: #2f8fe9;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: 18px 0 18px 0;
+}
+
+.activity-customer__coupon-top {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.activity-customer__coupon-icon {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff7f73 0%, #ff5b6b 100%);
+  color: #fff;
+}
+
+.activity-customer__coupon-copy h3,
+.activity-customer__article-body h3 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.4;
+  font-weight: 800;
+}
+
+.activity-customer__coupon-copy p,
+.activity-customer__article-body p,
+.activity-customer__story-content p {
+  margin: 8px 0 0;
+  color: #6c8095;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.activity-customer__coupon-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #eef2f7;
+}
+
+.activity-customer__coupon-footer small {
+  display: block;
+  color: #8799ab;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.activity-customer__coupon-footer strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.activity-customer__coupon-footer button,
+.activity-customer__text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  cursor: pointer;
+}
+
+.activity-customer__coupon-footer button {
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #dff3ff;
+  color: #0b7eff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.activity-customer__showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.activity-customer__showcase-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.activity-customer__showcase-grid--five {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.activity-customer__experience-thumb,
+.activity-customer__article-thumb,
+.activity-customer__recommend-hero,
+.activity-customer__mini-thumb {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.activity-customer__experience-thumb {
+  position: relative;
+  min-height: 172px;
+}
+
+.activity-customer__experience-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  min-height: 24px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(255, 123, 123, 0.96);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.activity-customer__experience-body,
+.activity-customer__article-body {
+  padding: 14px;
+}
+
+.activity-customer__experience-location {
+  color: #ff7f73;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.activity-customer__experience-body h3 {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 800;
+}
+
+.activity-customer__experience-body p {
+  margin: 8px 0 0;
+  color: #6f8498;
+  font-size: 12px;
+}
+
+.activity-customer__experience-price {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 10px;
+}
+
+.activity-customer__experience-price span {
+  color: #9bafc2;
+  font-size: 12px;
+  text-decoration: line-through;
+}
+
+.activity-customer__experience-price strong,
+.activity-customer__mini-body strong {
+  color: #ff7f1f;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.activity-customer__promo-card {
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 5px;
+  padding: 18px;
+  border-radius: 20px;
+  color: #fff;
+  box-shadow: 0 16px 30px rgba(23, 50, 77, 0.1);
+}
+
+.activity-customer__promo-card span {
+  width: fit-content;
+  min-height: 26px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #0b7eff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.activity-customer__promo-card strong {
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 900;
+}
+
+.activity-customer__promo-card p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.activity-customer__partner-grid,
+.activity-customer__recommend-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.activity-customer__partner-grid {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+
+.activity-customer__partner-card {
+  display: grid;
+  gap: 12px;
+}
+
+.activity-customer__partner-logo {
+  width: 100%;
+  min-height: 92px;
+  padding: 14px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.activity-customer__partner-logo.is-orange { background: #ff6b1b; }
+.activity-customer__partner-logo.is-red { background: #ef4444; }
+.activity-customer__partner-logo.is-blue { background: #2b67f6; }
+.activity-customer__partner-logo.is-yellow { background: #f59e0b; }
+.activity-customer__partner-logo.is-gold { background: #d97706; }
+.activity-customer__partner-logo.is-cyan { background: #06b6d4; }
+.activity-customer__partner-logo.is-pink { background: #ec4899; }
+.activity-customer__partner-logo.is-lime { background: #84cc16; }
+
+.activity-customer__partner-card strong {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.activity-customer__partner-card span,
+.activity-customer__article-body span,
+.activity-customer__mini-body p,
+.activity-customer__story-nav p {
+  color: #6a7f95;
+  font-size: 13px;
+}
+
+.activity-customer__article-thumb {
+  min-height: 170px;
+}
+
+.activity-customer__article-body span {
+  display: inline-block;
+  margin-top: 8px;
+  color: #4f88ff;
+  font-weight: 700;
+}
+
+.activity-customer__text-link {
+  margin: 18px auto 0;
+  background: transparent;
+  color: #0b7eff;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.activity-customer__recommend-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.activity-customer__recommend-column {
+  padding: 14px;
+  border-radius: 24px;
+  background: #eef9d6;
+}
+
+.activity-customer__recommend-hero {
+  min-height: 150px;
+  display: flex;
+  align-items: flex-end;
+  padding: 22px;
+  border-radius: 18px;
+}
+
+.activity-customer__recommend-hero strong {
+  color: #fff;
+  font-size: 30px;
+  line-height: 1.08;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.activity-customer__recommend-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.activity-customer__mini-card {
+  display: grid;
+  grid-template-columns: 94px minmax(0, 1fr);
+  gap: 12px;
+  padding: 10px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #dbebc1;
+}
+
+.activity-customer__mini-thumb {
+  min-height: 74px;
+  border-radius: 12px;
+}
+
+.activity-customer__mini-body h3 {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 800;
+}
+
+.activity-customer__mini-body strong {
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.activity-customer__recommend-button {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #d6efff;
+  color: #0b7eff;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.activity-customer__story-layout {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  gap: 24px;
+}
+
+.activity-customer__story-nav,
+.activity-customer__story-content {
+  padding: 24px;
+}
+
+.activity-customer__story-nav h3,
+.activity-customer__story-content h2,
+.activity-customer__story-content h3 {
+  margin: 0;
+  font-weight: 900;
+}
+
+.activity-customer__story-nav ul {
+  margin: 18px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.activity-customer__story-content h3 {
+  margin-top: 18px;
+}
+
+.activity-customer__story-reasons {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.activity-customer__story-reason strong {
+  display: block;
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 900;
+}
+
+.activity-customer__story-note {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #f4f9ff;
+  color: #0b7eff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+@media (max-width: 1180px) {
+  .activity-customer__coupon-grid,
+  .activity-customer__promo-grid,
+  .activity-customer__article-grid,
+  .activity-customer__recommend-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .activity-customer__partner-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .activity-customer__showcase-grid--five {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 920px) {
+  .activity-customer__hero {
+    padding-top: 158px;
+  }
+
+  .activity-customer__hero-search,
+  .activity-customer__coupon-grid,
+  .activity-customer__showcase-grid,
+  .activity-customer__showcase-grid--two,
+  .activity-customer__promo-grid,
+  .activity-customer__article-grid,
+  .activity-customer__recommend-grid,
+  .activity-customer__story-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .activity-customer__partner-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .activity-customer__hero {
+    padding-top: 146px;
+    padding-bottom: 72px;
+  }
+
+  .activity-customer__shortcut-bar {
+    margin-top: -24px;
+    border-radius: 24px;
+  }
+
+  .activity-customer__shortcut {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .activity-customer__section-head {
+    flex-direction: column;
+  }
+
+  .activity-customer__partner-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .activity-customer__mini-card {
+    grid-template-columns: 1fr;
+  }
+}

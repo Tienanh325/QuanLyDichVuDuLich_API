@@ -23,6 +23,7 @@ import HotelCustomer from '../pages/HotelCustomer';
 import BusTicketCustomer from '../pages/BusTicketCustomer';
 import AirportTransferCustomer from '../pages/AirportTransferCustomer';
 import CarRentalCustomer from '../pages/CarRentalCustomer';
+import ActivityCustomer from '../pages/ActivityCustomer';
 
 export default function RoutesIndex() {
   return (
@@ -36,6 +37,7 @@ export default function RoutesIndex() {
         <Route path="ve-xe-khach" element={<BusTicketCustomer />} />
         <Route path="dua-don-san-bay" element={<AirportTransferCustomer />} />
         <Route path="cho-thue-xe" element={<CarRentalCustomer />} />
+        <Route path="hoat-dong-vui-choi" element={<ActivityCustomer />} />
       </Route>
       <Route path="Admin" element={<MainLayout />}>
         <Route index element={<Navigate to="/ThongKe" replace />} />
