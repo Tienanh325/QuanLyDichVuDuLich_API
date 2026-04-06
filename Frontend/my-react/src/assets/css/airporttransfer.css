@@ -1,0 +1,609 @@
+.airport-transfer {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(52, 152, 219, 0.12), transparent 30%),
+    linear-gradient(180deg, #e3f2fd 0%, #e0f2fe 100%);
+  color: #17324d;
+}
+
+.airport-transfer__hero {
+  position: relative;
+  padding: 172px 0 36px;
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.airport-transfer__hero-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+.airport-transfer__hero-head {
+  color: #fff;
+}
+
+.airport-transfer__hero-head h1 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 48px);
+  line-height: 1.2;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.airport-transfer__hero-head p {
+  max-width: 680px;
+  margin: 16px 0 0;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.airport-transfer__promo-image {
+  position: relative;
+  height: 220px;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #fff;
+  font-weight: 700;
+  overflow: hidden;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.promo-badge {
+  font-size: 28px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.promo-badge-sub {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.airport-transfer__search {
+  margin-top: 28px;
+  background: rgba(8, 28, 52, 0.32);
+  backdrop-filter: blur(10px);
+}
+
+.airport-transfer__hero-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.airport-transfer__highlight-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(219, 229, 239, 0.9);
+  box-shadow: 0 18px 36px rgba(12, 32, 58, 0.12);
+}
+
+.airport-transfer__highlight-icon {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #c3e7ff 0%, #92d5ff 100%);
+  color: #1565c0;
+}
+
+.airport-transfer__highlight-card strong {
+  display: block;
+  color: #17324d;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.airport-transfer__highlight-card p {
+  margin: 6px 0 0;
+  color: #647b92;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.airport-transfer__section {
+  padding: 34px 0;
+}
+
+.airport-transfer__section--plain {
+  padding-top: 12px;
+}
+
+.airport-transfer__section--process {
+  background: linear-gradient(180deg, #e3f2fd 0%, #b3e5fc 100%);
+}
+
+.airport-transfer__section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.airport-transfer__section-head--stacked {
+  align-items: flex-start;
+}
+
+.airport-transfer__section-head span {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #1565c0;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.airport-transfer__section-head h2 {
+  margin: 0;
+  color: #17324d;
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1.18;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.airport-transfer__section-head p {
+  max-width: 780px;
+  margin: 12px 0 0;
+  color: #61788f;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.airport-transfer__process-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.airport-transfer__process-card {
+  padding: 24px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(33, 150, 243, 0.2);
+  box-shadow: 0 8px 16px rgba(33, 150, 243, 0.1);
+  position: relative;
+}
+
+.airport-transfer__process-number {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  color: #fff;
+  font-weight: 900;
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+.airport-transfer__process-card strong {
+  display: block;
+  color: #17324d;
+  font-size: 16px;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.airport-transfer__process-card p {
+  color: #61788f;
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.airport-transfer__why-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.airport-transfer__why-card {
+  padding: 28px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(219, 229, 239, 0.6);
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.airport-transfer__why-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 12px 24px rgba(33, 150, 243, 0.15);
+}
+
+.airport-transfer__why-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.airport-transfer__why-card strong {
+  display: block;
+  color: #17324d;
+  font-size: 16px;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.airport-transfer__why-card p {
+  color: #61788f;
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.airport-transfer__operator-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+}
+
+.airport-transfer__operator-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(219, 229, 239, 0.6);
+  text-align: center;
+  transition: all 0.2s;
+  min-height: 140px;
+}
+
+.airport-transfer__operator-card:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: #2196F3;
+  box-shadow: 0 8px 16px rgba(33, 150, 243, 0.1);
+}
+
+.airport-transfer__operator-logo {
+  font-size: 32px;
+}
+
+.airport-transfer__operator-card span {
+  color: #17324d;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.airport-transfer__payment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+}
+
+.airport-transfer__payment-card {
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(33, 150, 243, 0.2);
+  color: #61788f;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Search Bar */
+.travel-airport-search-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr auto;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 12px 24px rgba(12, 32, 58, 0.12);
+  align-items: center;
+}
+
+.travel-airport-field-wrap {
+  position: relative;
+  display: flex;
+  flex: 1;
+}
+
+.travel-airport-field {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e0e8f0;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s;
+}
+
+.travel-airport-field:hover {
+  border-color: #2196F3;
+}
+
+.travel-airport-field-wrap.is-open .travel-airport-field {
+  border-color: #2196F3;
+  background: rgba(33, 150, 243, 0.05);
+}
+
+.travel-airport-field__label {
+  color: #99aab8;
+  font-size: 11px;
+  font-weight: 700;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.travel-airport-field__value {
+  color: #17324d;
+  font-size: 14px;
+  font-weight: 600;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.travel-search__submit {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff6b35 0%, #ff5722 100%);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 8px 16px rgba(255, 107, 53, 0.3);
+}
+
+.travel-search__submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(255, 107, 53, 0.4);
+}
+
+.travel-airport-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 16px 32px rgba(12, 32, 58, 0.15);
+  border: 1px solid rgba(219, 229, 239, 0.6);
+  z-index: 100;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.travel-airport-panel__input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e0e8f0;
+  border-radius: 12px;
+  margin: 12px;
+  font-size: 14px;
+}
+
+.travel-airport-panel__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.travel-airport-panel__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #17324d;
+  font-size: 14px;
+  transition: background 0.2s;
+  text-align: left;
+}
+
+.travel-airport-panel__item:hover {
+  background: rgba(33, 150, 243, 0.08);
+  color: #2196F3;
+}
+
+.travel-airport-panel__time-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e0e8f0;
+  border-radius: 12px;
+  margin: 12px;
+  font-size: 14px;
+}
+
+.travel-airport-calendar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 12px;
+}
+
+.travel-airport-calendar__month {
+  padding: 12px;
+}
+
+.travel-airport-calendar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.travel-airport-calendar__title {
+  color: #17324d;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.travel-airport-calendar__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.travel-airport-calendar__weekday {
+  text-align: center;
+  color: #99aab8;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.travel-airport-calendar__days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.travel-airport-calendar__day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  color: #17324d;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.travel-airport-calendar__day:hover {
+  background: rgba(33, 150, 243, 0.08);
+}
+
+.travel-airport-calendar__day.is-selected {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  color: #fff;
+  border-color: #1976D2;
+}
+
+.travel-airport-calendar__day.is-weekend {
+  color: #ff6b35;
+}
+
+.travel-airport-calendar__day.is-past {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.travel-search__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 0 0 18px 18px;
+}
+
+.travel-search__footer-title {
+  color: #99aab8;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.travel-search__footer-links {
+  display: flex;
+  gap: 16px;
+}
+
+.travel-search__footer-links a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #61788f;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.travel-search__footer-links a:hover {
+  color: #2196F3;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .airport-transfer__hero-content {
+    grid-template-columns: 1fr;
+  }
+
+  .airport-transfer__promo-image {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .travel-airport-search-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .airport-transfer__hero-highlights {
+    grid-template-columns: 1fr;
+  }
+
+  .airport-transfer__process-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .airport-transfer__why-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .airport-transfer__operator-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .travel-search__footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .airport-transfer__operator-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -40,14 +40,14 @@ const customerMenuItems = [
     label: "Đặt chỗ của tôi",
     description: "Quay lại khu tìm kiếm để tiếp tục đặt dịch vụ.",
     icon: PlaneTakeoff,
-    href: "#tim-kiem",
+    href: "/mua-sam/ve-may-bay#tim-kiem",
   },
   {
     id: "notifications",
     label: "Thông báo giá vé máy bay",
     description: "Theo dõi chặng yêu thích để nhận mức giá tốt hơn.",
     icon: Bell,
-    href: "#tim-kiem",
+    href: "/mua-sam/ve-may-bay#tim-kiem",
   },
   {
     id: "promotions",
@@ -60,10 +60,10 @@ const customerMenuItems = [
 
 const categoryLinks = [
   { id: "hotel", label: "Khách sạn", to: "/mua-sam/khach-san" },
-  { id: "flight", label: "Vé máy bay", href: "#tim-kiem" },
-  { id: "bus", label: "Vé xe khách", href: "#uu-dai" },
-  { id: "airport", label: "Đưa đón sân bay", href: "#uu-dai" },
-  { id: "car", label: "Cho thuê xe", href: "#uu-dai" },
+  { id: "flight", label: "Vé máy bay", to: "/mua-sam/ve-may-bay" },
+  { id: "bus", label: "Vé xe khách", to: "/mua-sam/ve-xe-khach" },
+  { id: "airport", label: "Đưa đón sân bay", to: "/mua-sam/dua-don-san-bay" },
+  { id: "car", label: "Cho thuê xe", to: "/mua-sam/cho-thue-xe" },
   { id: "activity", label: "Hoạt động & Vui chơi", href: "#uu-dai" },
 ] as const;
 
@@ -142,7 +142,7 @@ export default function HeaderCustomer() {
               <nav className="customer-header__top-links">
                 <a href="#uu-dai">Khuyến mãi</a>
                 <a href="#uu-dai">Hợp tác với chúng tôi</a>
-                <Link to="/mua-sam/khach-san#faq">Hỗ trợ</Link>
+                <a href="#faq">Hỗ trợ</a>
                 <a href="#tim-kiem">Đặt chỗ của tôi</a>
               </nav>
 
@@ -210,11 +210,7 @@ export default function HeaderCustomer() {
                           })}
                         </div>
 
-                        <button
-                          type="button"
-                          className="customer-header__menu-logout"
-                          onClick={handleLogout}
-                        >
+                        <button type="button" className="customer-header__menu-logout" onClick={handleLogout}>
                           <LogOut size={18} />
                           Đăng xuất
                         </button>
@@ -223,16 +219,10 @@ export default function HeaderCustomer() {
                   </div>
                 ) : (
                   <>
-                    <Link
-                      to="/dang-nhap"
-                      className="customer-header__button customer-header__button--light"
-                    >
+                    <Link to="/dang-nhap" className="customer-header__button customer-header__button--light">
                       Đăng nhập
                     </Link>
-                    <Link
-                      to="/dang-ky"
-                      className="customer-header__button customer-header__button--primary"
-                    >
+                    <Link to="/dang-ky" className="customer-header__button customer-header__button--primary">
                       Đăng ký
                     </Link>
                   </>

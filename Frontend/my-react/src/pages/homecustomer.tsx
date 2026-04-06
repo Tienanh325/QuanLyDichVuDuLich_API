@@ -335,6 +335,7 @@ type FieldCardProps = {
   icon?: IconType;
   muted?: boolean;
   placeholder?: boolean;
+  style?: React.CSSProperties;
 };
 
 type RouteGroupProps = {
@@ -412,6 +413,7 @@ function FieldCard({
   icon: Icon,
   muted = false,
   placeholder = false,
+  style,
 }: FieldCardProps) {
   const className = [
     "travel-field-card",
@@ -422,7 +424,7 @@ function FieldCard({
     .join(" ");
 
   return (
-    <div className={className}>
+    <div className={className} style={style}>
       {label ? <div className="travel-field-card__label">{label}</div> : null}
 
       <div className="travel-field-card__body">
@@ -951,7 +953,16 @@ export default function HomeCustomer() {
               />
               <FieldCard label="Ngày khởi hành" title="31 thg 3 2026" icon={CalendarDays} />
               <FieldCard label="Khứ hồi" title="2 thg 4 2026" icon={CalendarDays} muted placeholder />
-              <FieldCard label="Số ghế" title="1 hành khách" icon={Users} />
+              <FieldCard 
+                label="Số ghế" 
+                title="1 hành khách" 
+                icon={Users}
+                style={{
+                  borderRight: "1px solid #cfd6df",
+                  borderTopRightRadius: "24px",
+                  borderBottomRightRadius: "24px"
+                }}
+                />
               <SearchButton />
             </div>
           </div>
@@ -992,6 +1003,11 @@ export default function HomeCustomer() {
                 title="Điền thành phố, sân bay"
                 icon={MapPinned}
                 placeholder
+                style={{
+                  borderRight: "1px solid #cfd6df",
+                  borderTopRightRadius: "24px",
+                  borderBottomRightRadius: "24px"
+                }}
               />
               <FieldCard label="Ngày bắt đầu" title="2 thg 4, 2026" icon={CalendarDays} />
               <FieldCard label="Giờ bắt đầu" title="09:00" icon={CircleDollarSign} />

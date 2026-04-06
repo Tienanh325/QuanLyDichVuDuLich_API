@@ -1,0 +1,628 @@
+.car-rental {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(100, 181, 246, 0.12), transparent 30%),
+    linear-gradient(180deg, #e8f5e9 0%, #f1f8e9 100%);
+  color: #17324d;
+}
+
+.car-rental__hero {
+  position: relative;
+  padding: 173px 0 36px;
+  background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.car-rental__hero-head {
+  color: #fff;
+  margin-bottom: 28px;
+}
+
+.car-rental__hero-head h1 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 48px);
+  line-height: 1.2;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.car-rental__hero-head p {
+  max-width: 680px;
+  margin: 16px 0 0;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.car-rental__search {
+  background: rgba(8, 28, 52, 0.32);
+  backdrop-filter: blur(10px);
+}
+
+.car-rental__tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.car-rental__tab {
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s;
+  border-bottom: 3px solid transparent;
+}
+
+.car-rental__tab:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.car-rental__tab.is-active {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-bottom-color: #fff;
+}
+
+.travel-car-search-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 12px 24px rgba(12, 32, 58, 0.12);
+  align-items: flex-end;
+}
+
+.travel-car-field-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.travel-car-field {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e0e8f0;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s;
+}
+
+.travel-car-field:hover {
+  border-color: #1E88E5;
+}
+
+.travel-car-field-wrap.is-open .travel-car-field {
+  border-color: #1E88E5;
+  background: rgba(30, 136, 229, 0.05);
+}
+
+.travel-car-field__label {
+  color: #99aab8;
+  font-size: 11px;
+  font-weight: 700;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.travel-car-field__value {
+  color: #17324d;
+  font-size: 14px;
+  font-weight: 600;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.travel-car-field__select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e0e8f0;
+  border-radius: 12px;
+  background: #fff;
+  color: #17324d;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.travel-car-field__select:hover {
+  border-color: #1E88E5;
+}
+
+.travel-search__submit {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #FF6B35 0%, #FF5722 100%);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 8px 16px rgba(255, 107, 53, 0.3);
+}
+
+.travel-search__submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(255, 107, 53, 0.4);
+}
+
+.travel-car-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 16px 32px rgba(12, 32, 58, 0.15);
+  border: 1px solid rgba(219, 229, 239, 0.6);
+  z-index: 100;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.travel-car-panel__input {
+  width: calc(100% - 24px);
+  padding: 12px 16px;
+  border: 1px solid #e0e8f0;
+  border-radius: 12px;
+  margin: 12px;
+  font-size: 14px;
+}
+
+.travel-car-panel__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.travel-car-panel__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #17324d;
+  font-size: 14px;
+  transition: background 0.2s;
+  text-align: left;
+}
+
+.travel-car-panel__item:hover {
+  background: rgba(30, 136, 229, 0.08);
+  color: #1E88E5;
+}
+
+.travel-car-calendar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 12px;
+}
+
+.travel-car-calendar__month {
+  padding: 12px;
+}
+
+.travel-car-calendar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.travel-car-calendar__title {
+  color: #17324d;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.travel-car-calendar__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.travel-car-calendar__weekday {
+  text-align: center;
+  color: #99aab8;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.travel-car-calendar__days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.travel-car-calendar__day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  color: #17324d;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.travel-car-calendar__day:hover {
+  background: rgba(30, 136, 229, 0.08);
+}
+
+.travel-car-calendar__day.is-selected {
+  background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%);
+  color: #fff;
+  border-color: #1565C0;
+}
+
+.travel-car-calendar__day.is-past {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.car-rental__section {
+  padding: 34px 0;
+}
+
+.car-rental__section--alt {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.car-rental__section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.car-rental__section-head h2 {
+  margin: 0;
+  color: #17324d;
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1.18;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.car-rental__section-head p {
+  margin: 0;
+  color: #61788f;
+  font-size: 14px;
+}
+
+.car-rental__section h2 {
+  margin: 0 0 24px 0;
+  color: #17324d;
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.car-rental__section p {
+  margin: 0 0 16px 0;
+  color: #61788f;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.car-rental__partners-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+}
+
+.car-rental__partner-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(219, 229, 239, 0.6);
+  font-weight: 600;
+  font-size: 12px;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.car-rental__partner-card:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: #1E88E5;
+  box-shadow: 0 8px 16px rgba(30, 136, 229, 0.1);
+}
+
+.car-rental__requirements-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.car-rental__requirement-card {
+  padding: 24px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(219, 229, 239, 0.6);
+}
+
+.car-rental__requirement-card h3 {
+  margin: 0 0 16px 0;
+  color: #17324d;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.car-rental__requirement-group {
+  margin-bottom: 20px;
+}
+
+.car-rental__requirement-group strong {
+  display: block;
+  margin-bottom: 12px;
+  color: #17324d;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.car-rental__requirement-group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.car-rental__requirement-group li {
+  display: flex;
+  gap: 10px;
+  color: #61788f;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.car-rental__requirement-group .bullet {
+  flex-shrink: 0;
+  color: #1E88E5;
+  font-weight: 700;
+}
+
+.car-rental__note {
+  margin: 16px 0 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(30, 136, 229, 0.08);
+  color: #0d47a1;
+  font-size: 12px;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.car-rental__faq-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.car-rental__faq-item {
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(219, 229, 239, 0.5);
+  cursor: pointer;
+}
+
+.car-rental__faq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #17324d;
+  font-weight: 700;
+  font-size: 14px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.car-rental__faq-question::-webkit-details-marker {
+  display: none;
+}
+
+.car-rental__faq-item[open] .car-rental__faq-question::before {
+  content: "−";
+}
+
+.car-rental__faq-question::before {
+  content: "+";
+  margin-right: 12px;
+  color: #1E88E5;
+  font-weight: 900;
+  font-size: 18px;
+}
+
+.car-rental__faq-answer {
+  margin: 12px 0 0 30px;
+  color: #61788f;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.car-rental__cars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.car-rental__car-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(219, 229, 239, 0.6);
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.car-rental__car-card:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: #1E88E5;
+  box-shadow: 0 8px 16px rgba(30, 136, 229, 0.1);
+}
+
+.car-rental__car-image {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.car-rental__car-card strong {
+  color: #17324d;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.car-rental__car-card span {
+  color: #99aab8;
+  font-size: 12px;
+}
+
+.car-rental__monthly-card {
+  padding: 32px;
+  border-radius: 16px;
+  background: rgba(30, 136, 229, 0.08);
+  border: 2px solid rgba(30, 136, 229, 0.2);
+  text-align: center;
+}
+
+.car-rental__monthly-card h3 {
+  margin: 0 0 12px 0;
+  color: #17324d;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.car-rental__monthly-card p {
+  margin: 0 0 16px 0;
+  color: #61788f;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.car-rental__cta-button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3);
+}
+
+.car-rental__cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(30, 136, 229, 0.4);
+}
+
+.car-rental__destinations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.car-rental__destination-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(219, 229, 239, 0.6);
+  text-align: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.car-rental__destination-card:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: #1E88E5;
+  box-shadow: 0 8px 16px rgba(30, 136, 229, 0.1);
+  transform: translateY(-4px);
+}
+
+.car-rental__destination-image {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.car-rental__destination-card span {
+  color: #17324d;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .travel-car-search-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .car-rental__requirements-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .car-rental__faq-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .car-rental__partners-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .car-rental__cars-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .car-rental__destinations-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -128,14 +128,14 @@
   box-shadow: 0 8px 22px rgba(14, 27, 46, 0.14);
 }
 
-.travel-field-card:first-child, .travel-field-card:nth-child(2)  {
+.travel-field-card:first-child, .travel-field-card:nth-child(2), .travel-field-card:nth-child(4)  {
   border-left: 1px solid #cfd6df;
   border-top-left-radius: 24px;
   border-bottom-left-radius: 24px;
   margin: 0 0 0 12px;
 }
 
-.travel-route-group .travel-field-card:last-child, .travel-field-card:nth-child(3)  {
+.travel-route-group .travel-field-card:last-child, .travel-field-card:nth-child(3), .travel-field-card:nth-child(5) {
   border-right: 1px solid #cfd6df;
   border-top-right-radius: 24px;
   border-bottom-right-radius: 24px;

@@ -17,19 +17,27 @@ import MainLayout from '../layouts/mainLayout';
 import CustomerLayout from '../layouts/CustomerLayout';
 import DangNhap from '../pages/DangNhap';
 import DangKy from '../pages/DangKy';
+import FlightCustomer from '../pages/FlightCustomer';
 import HomeCustomer from '../pages/homecustomer';
 import HotelCustomer from '../pages/HotelCustomer';
+import BusTicketCustomer from '../pages/BusTicketCustomer';
+import AirportTransferCustomer from '../pages/AirportTransferCustomer';
+import CarRentalCustomer from '../pages/CarRentalCustomer';
 
 export default function RoutesIndex() {
   return (
     <Routes>
-      <Route path="/dang-nhap" element={<DangNhap />} />
+      <Route path="/" element={<DangNhap />} />
       <Route path="/dang-ky" element={<DangKy />} />
       <Route path="/mua-sam" element={<CustomerLayout />}>
         <Route index element={<HomeCustomer />} />
         <Route path="khach-san" element={<HotelCustomer />} />
+        <Route path="ve-may-bay" element={<FlightCustomer />} />
+        <Route path="ve-xe-khach" element={<BusTicketCustomer />} />
+        <Route path="dua-don-san-bay" element={<AirportTransferCustomer />} />
+        <Route path="cho-thue-xe" element={<CarRentalCustomer />} />
       </Route>
-      <Route path="/" element={<MainLayout />}>
+      <Route path="Admin" element={<MainLayout />}>
         <Route index element={<Navigate to="/ThongKe" replace />} />
         <Route path="ThongKe" element={<ThongKe />} />
         <Route path="DichVu" element={<DichVu />} />
