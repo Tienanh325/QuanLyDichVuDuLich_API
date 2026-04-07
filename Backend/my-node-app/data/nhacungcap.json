@@ -1,0 +1,29 @@
+[
+  {
+    "maNhaCungCap": 1,
+    "ten": "Cong ty Ve Viet",
+    "email": "contact@veviet.vn",
+    "soDienThoai": "0901234567",
+    "diaChi": "Quan 1, TP.HCM",
+    "loai": "Ve may bay",
+    "trangThai": "active"
+  },
+  {
+    "maNhaCungCap": 2,
+    "ten": "Travel Hub",
+    "email": "sales@travelhub.vn",
+    "soDienThoai": "0912345678",
+    "diaChi": "Ha Noi",
+    "loai": "Tour",
+    "trangThai": "active"
+  },
+  {
+    "maNhaCungCap": 3,
+    "ten": "Resort Booking",
+    "email": "hello@resortbooking.vn",
+    "soDienThoai": "0987654321",
+    "diaChi": "Da Nang",
+    "loai": "Khach san",
+    "trangThai": "inactive"
+  }
+]

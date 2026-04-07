@@ -6,6 +6,12 @@ const rawServer = process.env.DB_SERVER || "LAPTOP-377TGVKG\\MSSQLSERVER01";
 const [serverName, instanceFromServer] = rawServer.split("\\");
 const instanceName = process.env.DB_INSTANCE || instanceFromServer;
 const port = process.env.DB_PORT ? Number(process.env.DB_PORT) : undefined;
+const parseTimeout = (value, fallback) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+};
+const connectionTimeout = parseTimeout(process.env.DB_CONNECTION_TIMEOUT, 3000);
+const requestTimeout = parseTimeout(process.env.DB_REQUEST_TIMEOUT, 5000);
 
 const resolveSqlDriver = () => {
     if (!useTrustedConnection) {
@@ -27,6 +33,8 @@ const baseConfig = {
     server: serverName,
     database: process.env.DB_NAME || "TravelBookingSystem",
     ...(port ? { port } : {}),
+    connectionTimeout,
+    requestTimeout,
     options: {
         trustServerCertificate: true,
         ...(instanceName ? { instanceName } : {})

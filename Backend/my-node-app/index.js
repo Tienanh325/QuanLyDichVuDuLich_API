@@ -15,15 +15,16 @@ app.use("/api", require("./routes/Admin_nhacungcap"));
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
-    try {
-        await connectDB();
-        app.listen(PORT, () => {
-            console.log(`Server is running on port ${PORT}`);
-        });
-    } catch (err) {
-        console.error("Failed to start server:", err.message);
-        process.exit(1);
-    }
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+        connectDB()
+            .then(() => {
+                console.log("Initial database check succeeded");
+            })
+            .catch((err) => {
+                console.warn(`Database unavailable at startup: ${err.message}`);
+            });
+    });
 };
 
 startServer();
