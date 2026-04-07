@@ -15,7 +15,6 @@ import {
 } from "recharts";
 import {
   AlertTriangle,
-  ArrowUpRight,
   BedDouble,
   CircleDollarSign,
   MessageSquareText,
@@ -212,84 +211,6 @@ export default function AdminThongKe() {
       <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
         <section
           style={{
-            ...sectionCardStyle,
-            background:
-              "linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(124,58,237,0.08) 55%, rgba(255,255,255,1) 100%)",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              gap: 20,
-              flexWrap: "wrap",
-            }}
-          >
-            <div style={{ maxWidth: 760 }}>
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: "8px 12px",
-                  borderRadius: 999,
-                  background: "#eef4ff",
-                  color: "#2563eb",
-                  fontWeight: 600,
-                  fontSize: 13,
-                }}
-              >
-                <ArrowUpRight size={14} />
-                Tong quan tang truong nen tang du lich
-              </div>
-              <h1
-                style={{
-                  margin: "16px 0 10px",
-                  fontSize: 34,
-                  lineHeight: 1.12,
-                  color: "#16233b",
-                }}
-              >
-                Dashboard thong ke giup admin biet nen dau tu vao dich vu nao, nhom nguoi dung nao va diem nghen nao can xu ly.
-              </h1>
-              <p style={{ margin: 0, color: "#60708b", fontSize: 16, lineHeight: 1.65 }}>
-                Trang nay uu tien cac chi so can thiet de phat trien web dich vu du lich:
-                doanh thu, don hang, chat luong danh gia, nhom dich vu tang truong,
-                dau hieu roi bo va cac muc can canh bao.
-              </p>
-            </div>
-
-            <div
-              style={{
-                minWidth: 260,
-                maxWidth: 320,
-                width: "100%",
-                padding: 18,
-                borderRadius: 20,
-                background: "#ffffff",
-                border: "1px solid #e6ecf5",
-                boxShadow: "0 12px 28px rgba(15, 23, 42, 0.06)",
-              }}
-            >
-              <div style={{ fontSize: 13, color: "#70809b", marginBottom: 10 }}>
-                Muc tieu thang nay
-              </div>
-              <div style={{ fontSize: 30, fontWeight: 800, color: "#16233b" }}>
-                5.5 ty
-              </div>
-              <div style={{ color: "#16a34a", fontWeight: 700, marginTop: 6 }}>
-                Dat 87.6% ke hoach
-              </div>
-              <div style={{ color: "#70809b", fontSize: 13, marginTop: 10 }}>
-                Neu giu toc do hien tai, co the vuot KPI trong 6-8 ngay cuoi thang.
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section
-          style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
             gap: 16,
@@ -348,9 +269,6 @@ export default function AdminThongKe() {
                 <div style={{ fontWeight: 800, fontSize: 20, color: "#16233b" }}>
                   Xu huong doanh thu va don dat
                 </div>
-                <div style={{ color: "#70809b", marginTop: 4 }}>
-                  Theo doi da tang truong de quyet dinh nen day khuyen mai hay mo rong nguon cung.
-                </div>
               </div>
               <div
                 style={{
@@ -402,9 +320,6 @@ export default function AdminThongKe() {
             <div>
               <div style={{ fontWeight: 800, fontSize: 20, color: "#16233b" }}>
                 Co cau doanh thu theo nhom
-              </div>
-              <div style={{ color: "#70809b", marginTop: 4 }}>
-                Giup admin biet nen uu tien mo rong nhom dich vu nao.
               </div>
             </div>
             <div style={{ width: "100%", height: 250 }}>
@@ -467,9 +382,6 @@ export default function AdminThongKe() {
                 <div style={{ fontWeight: 800, fontSize: 20, color: "#16233b" }}>
                   Hieu suat theo nhom dich vu
                 </div>
-                <div style={{ color: "#70809b", marginTop: 4 }}>
-                  So sanh doanh thu va bien loi nhuan de uu tien ngan sach marketing.
-                </div>
               </div>
             </div>
 
@@ -496,9 +408,6 @@ export default function AdminThongKe() {
             <div>
               <div style={{ fontWeight: 800, fontSize: 20, color: "#16233b" }}>
                 Canh bao van hanh
-              </div>
-              <div style={{ color: "#70809b", marginTop: 4 }}>
-                Cac diem admin nen xu ly de giu tang truong ben vung.
               </div>
             </div>
             {operationalAlerts.map((alert) => (

@@ -42,8 +42,11 @@ interface SupplierFormValues {
   trangThai: SupplierStatus;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-const SUPPLIER_API_PATH = import.meta.env.VITE_NHA_CUNG_CAP_API_PATH ?? "/api/nha-cung-cap";
+const API_BASE_URL =
+  import.meta.env.VITE_SUPPLIER_API_BASE_URL ??
+  import.meta.env.VITE_API_BASE_URL ??
+  "http://localhost:5000";
+const SUPPLIER_API_PATH = "/api/nhacungcap";
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,

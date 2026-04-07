@@ -50,11 +50,19 @@ interface ServiceFormValues {
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
+const SUPPLIER_API_BASE_URL =
+  import.meta.env.VITE_SUPPLIER_API_BASE_URL ??
+  "http://localhost:5000";
 const SERVICE_API_PATH = import.meta.env.VITE_DICH_VU_API_PATH ?? "/api/dich-vu";
-const SUPPLIER_API_PATH = import.meta.env.VITE_NHA_CUNG_CAP_API_PATH ?? "/api/nha-cung-cap";
+const SUPPLIER_API_PATH = import.meta.env.VITE_NHA_CUNG_CAP_API_PATH ?? "/api/nhacungcap";
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 10000,
+});
+
+const supplierApiClient = axios.create({
+  baseURL: SUPPLIER_API_BASE_URL,
   timeout: 10000,
 });
 
@@ -118,7 +126,7 @@ async function fetchServices(): Promise<ServiceItem[]> {
 }
 
 async function fetchSuppliers(): Promise<SupplierOption[]> {
-  const response = await apiClient.get(SUPPLIER_API_PATH);
+  const response = await supplierApiClient.get(SUPPLIER_API_PATH);
   return extractArray(response.data).map(normalizeSupplier);
 }
 
