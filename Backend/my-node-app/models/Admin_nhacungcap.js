@@ -4,6 +4,7 @@ const { sql, connectDB } = require("../config/db");
 
 const dataDir = path.join(__dirname, "..", "data");
 const dataFile = path.join(dataDir, "nhacungcap.json");
+const allowFallback = String(process.env.SUPPLIER_LOCAL_FALLBACK || "false").toLowerCase() === "true";
 
 const defaultSuppliers = [
     {
@@ -82,6 +83,9 @@ const withFallback = async (dbAction, fallbackAction) => {
     try {
         return await dbAction();
     } catch (err) {
+        if (!allowFallback) {
+            throw err;
+        }
         logFallback(err);
         return fallbackAction();
     }
