@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import baibienImage from "../assets/images/baibien.jpg";
 import thuongHieuImage from "../assets/images/thuonghieu.jpg";
@@ -27,6 +28,7 @@ import {
   Users,
 } from "lucide-react";
 import "../assets/css/CustomerHome.css";
+import { buildFlightSearchQuery } from "../utils/flightSearch";
 
 type ServiceId = "hotel" | "flight" | "bus" | "airport" | "car" | "activity";
 type IconType = typeof Search;
@@ -482,9 +484,14 @@ function RouteGroup({
   );
 }
 
-function SearchButton() {
+type SearchButtonProps = {
+  ariaLabel?: string;
+  onClick?: () => void;
+};
+
+function SearchButton({ ariaLabel = "T\u00ecm ki\u1ebfm", onClick }: SearchButtonProps) {
   return (
-    <button type="button" className="travel-search__submit" aria-label="Tìm kiếm">
+    <button type="button" className="travel-search__submit" aria-label={ariaLabel} onClick={onClick}>
       <Search size={24} />
     </button>
   );
@@ -519,6 +526,7 @@ function HotelFieldButton({
 }
 
 export default function CustomerHome() {
+  const navigate = useNavigate();
   const hotelSearchRef = useRef<HTMLDivElement | null>(null);
   const [activeTab, setActiveTab] = useState<ServiceId>("hotel");
   const [openHotelPopover, setOpenHotelPopover] = useState<HotelPopover>(null);
@@ -626,6 +634,26 @@ export default function CustomerHome() {
     hotelStay.checkOut,
   )}`;
   const hotelGuestSummary = `${hotelGuests.adults} người lớn, ${hotelGuests.children} Trẻ em, ${hotelGuests.rooms} phòng`;
+
+  const homeFlightDepartureDate = "2026-04-01";
+  const homeFlightReturnDate = "2026-04-03";
+
+  function handleFlightSearch() {
+    navigate(
+      `/mua-sam/ve-may-bay?${buildFlightSearchQuery({
+        view: "results",
+        tripType: "roundTrip",
+        fromTitle: flightRoute.fromTitle,
+        fromSubtitle: flightRoute.fromSubtitle ?? "",
+        toTitle: flightRoute.toTitle,
+        toSubtitle: flightRoute.toSubtitle ?? "",
+        departDate: homeFlightDepartureDate,
+        returnDate: homeFlightReturnDate,
+        passengers: "1 h\u00e0nh kh\u00e1ch",
+        cabinClass: "Ph\u1ed5 th\u00f4ng",
+      })}`
+    );
+  }
 
   const renderPanel = () => {
     if (activeTab === "hotel") {
@@ -916,7 +944,7 @@ export default function CustomerHome() {
               />
               <FieldCard label="Ngày khởi hành" title="1 thg 4 2026" icon={CalendarDays} />
               <FieldCard label="Khứ hồi" title="3 thg 4 2026" icon={CalendarDays} muted />
-              <SearchButton />
+              <SearchButton ariaLabel="T\u00ecm chuy\u1ebfn bay" onClick={handleFlightSearch} />
             </div>
           </div>
 

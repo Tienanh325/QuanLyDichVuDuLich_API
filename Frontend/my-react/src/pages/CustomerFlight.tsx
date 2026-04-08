@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   ArrowLeftRight,
   ArrowRight,
@@ -22,6 +23,9 @@ import thuongHieuImage from "../assets/images/thuonghieu.jpg";
 import "../assets/css/CustomerHome.css";
 import "../assets/css/CustomerHotel.css";
 import "../assets/css/CustomerFlight.css";
+import CustomerFlightSearchResults from "./CustomerFlightSearchResults";
+import { buildFlightSearchQuery, formatFlightDateLabel, parseFlightSearchParams } from "../utils/flightSearch";
+import type { FlightSearchState } from "../utils/flightSearch";
 
 type IconType = typeof Search;
 type TripType = "oneWay" | "roundTrip" | "multiCity";
@@ -288,9 +292,14 @@ function RouteGroup({ fromLabel, toLabel, fromIcon, toIcon, values, onSwap }: Ro
   );
 }
 
-function SearchButton() {
+type SearchButtonProps = {
+  onClick?: () => void;
+  ariaLabel?: string;
+};
+
+function SearchButton({ onClick, ariaLabel = "T\u00ecm chuy\u1ebfn bay" }: SearchButtonProps) {
   return (
-    <button type="button" className="travel-search__submit" aria-label="Tìm chuyến bay">
+    <button type="button" className="travel-search__submit" aria-label={ariaLabel} onClick={onClick}>
       <Search size={24} />
     </button>
   );
@@ -317,16 +326,62 @@ function SectionHead({
 }
 
 export default function CustomerFlight() {
-  const [tripType, setTripType] = useState<TripType>("roundTrip");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const parsedSearch = useMemo(
+    () => parseFlightSearchParams(new URLSearchParams(location.search)),
+    [location.search]
+  );
+  const [tripType, setTripType] = useState<TripType>(parsedSearch.tripType);
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
   const [flightRoute, setFlightRoute] = useState<RouteValues>({
-    fromTitle: "TP. HCM (SGN)",
-    fromSubtitle: "Sân bay Tân Sơn Nhất",
-    toTitle: "Singapore (SIN)",
-    toSubtitle: "Sân bay Changi",
+    fromTitle: parsedSearch.fromTitle,
+    fromSubtitle: parsedSearch.fromSubtitle,
+    toTitle: parsedSearch.toTitle,
+    toSubtitle: parsedSearch.toSubtitle,
   });
+  const [departDate, setDepartDate] = useState(parsedSearch.departDate);
+  const [returnDate, setReturnDate] = useState(parsedSearch.returnDate);
 
-  const returnDateTitle = tripType === "oneWay" ? "Thêm chiều về" : tripType === "multiCity" ? "Chặng kế tiếp" : "03 thg 5 2026";
+  useEffect(() => {
+    setTripType(parsedSearch.tripType);
+    setFlightRoute({
+      fromTitle: parsedSearch.fromTitle,
+      fromSubtitle: parsedSearch.fromSubtitle,
+      toTitle: parsedSearch.toTitle,
+      toSubtitle: parsedSearch.toSubtitle,
+    });
+    setDepartDate(parsedSearch.departDate);
+    setReturnDate(parsedSearch.returnDate);
+  }, [
+    parsedSearch.departDate,
+    parsedSearch.fromSubtitle,
+    parsedSearch.fromTitle,
+    parsedSearch.returnDate,
+    parsedSearch.toSubtitle,
+    parsedSearch.toTitle,
+    parsedSearch.tripType,
+  ]);
+
+  const isResultsView = parsedSearch.view === "results";
+  const returnDateTitle =
+    tripType === "oneWay"
+      ? "Th\u00eam chi\u1ec1u v\u1ec1"
+      : tripType === "multiCity"
+        ? "Ch\u1eb7ng k\u1ebf ti\u1ebfp"
+        : formatFlightDateLabel(returnDate);
+
+  const activeSearchState: FlightSearchState = {
+    ...parsedSearch,
+    view: isResultsView ? "results" : "landing",
+    tripType,
+    fromTitle: flightRoute.fromTitle,
+    fromSubtitle: flightRoute.fromSubtitle ?? "",
+    toTitle: flightRoute.toTitle,
+    toSubtitle: flightRoute.toSubtitle ?? "",
+    departDate,
+    returnDate: tripType === "oneWay" ? "" : returnDate,
+  };
 
   function swapRoute() {
     setFlightRoute((currentValue) => ({
@@ -335,6 +390,27 @@ export default function CustomerFlight() {
       toTitle: currentValue.fromTitle,
       toSubtitle: currentValue.fromSubtitle,
     }));
+  }
+
+  function handleFlightSearch() {
+    navigate(
+      `/mua-sam/ve-may-bay?${buildFlightSearchQuery({
+        ...activeSearchState,
+        view: "results",
+      })}`
+    );
+  }
+
+  function handleStartNewSearch() {
+    navigate("/mua-sam/ve-may-bay");
+  }
+
+  if (isResultsView) {
+    return (
+      <div className="flight-customer">
+        <CustomerFlightSearchResults searchState={activeSearchState} onStartNewSearch={handleStartNewSearch} />
+      </div>
+    );
   }
 
   return (
@@ -377,7 +453,7 @@ export default function CustomerFlight() {
                     values={flightRoute}
                     onSwap={swapRoute}
                   />
-                  <FieldCard label="Khởi hành" title="30 thg 4 2026" icon={CalendarDays} />
+                  <FieldCard label="Kh\u1edfi h\u00e0nh" title={formatFlightDateLabel(departDate)} icon={CalendarDays} />
                   <FieldCard
                     label="Khứ hồi"
                     title={returnDateTitle}
@@ -387,7 +463,7 @@ export default function CustomerFlight() {
                   />
                   <FieldCard
                     label="Hành khách & hạng ghế"
-                    title="1 người lớn, Phổ thông"
+                    title={`${activeSearchState.passengers}, ${activeSearchState.cabinClass}`}
                     subtitle="Có thể thêm trẻ em sau"
                     icon={Users}
                     style={{
@@ -396,7 +472,7 @@ export default function CustomerFlight() {
                       borderBottomRightRadius: "24px",
                     }}
                   />
-                  <SearchButton />
+                  <SearchButton onClick={handleFlightSearch} />
                 </div>
               </div>
 
