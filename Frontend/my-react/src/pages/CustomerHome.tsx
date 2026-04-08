@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import "../assets/css/CustomerHome.css";
 import { buildFlightSearchQuery } from "../utils/flightSearch";
+import { buildHotelSearchQuery, toHotelQueryDate } from "./CustomerHotelSearchResults";
 
 type ServiceId = "hotel" | "flight" | "bus" | "airport" | "car" | "activity";
 type IconType = typeof Search;
@@ -533,8 +534,8 @@ export default function CustomerHome() {
   const [hotelDateFocus, setHotelDateFocus] = useState<"checkIn" | "checkOut">("checkIn");
   const [hotelDestination, setHotelDestination] = useState(popularHotelDestinations[0]);
   const [hotelStay, setHotelStay] = useState({
-    checkIn: new Date(2026, 3, 2),
-    checkOut: new Date(2026, 3, 3),
+    checkIn: new Date(2026, 3, 9),
+    checkOut: new Date(2026, 3, 10),
   });
   const [hotelGuests, setHotelGuests] = useState({
     adults: 2,
@@ -637,6 +638,21 @@ export default function CustomerHome() {
 
   const homeFlightDepartureDate = "2026-04-01";
   const homeFlightReturnDate = "2026-04-03";
+
+  function handleHotelSearch() {
+    navigate(
+      `/mua-sam/khach-san?${buildHotelSearchQuery({
+        view: "results",
+        destination: hotelDestination.name,
+        destinationSubtitle: hotelDestination.subtitle,
+        checkInDate: toHotelQueryDate(hotelStay.checkIn),
+        checkOutDate: toHotelQueryDate(hotelStay.checkOut),
+        adults: hotelGuests.adults,
+        children: hotelGuests.children,
+        rooms: hotelGuests.rooms,
+      })}`
+    );
+  }
 
   function handleFlightSearch() {
     navigate(
@@ -913,7 +929,7 @@ export default function CustomerHome() {
                   </div>
                 ) : null}
               </HotelFieldButton>
-              <SearchButton />
+              <SearchButton ariaLabel="Tìm khách sạn" onClick={handleHotelSearch} />
             </div>
           </div>
 

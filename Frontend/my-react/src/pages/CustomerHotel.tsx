@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   BedDouble,
   Building2,
@@ -27,6 +28,13 @@ import baibienImage from "../assets/images/baibien.jpg";
 import thuongHieuImage from "../assets/images/thuonghieu.jpg";
 import "../assets/css/CustomerHome.css";
 import "../assets/css/CustomerHotel.css";
+import CustomerHotelSearchResults, {
+  buildHotelSearchQuery,
+  defaultHotelSearchState,
+  hotelQueryDateToDate,
+  parseHotelSearchParams,
+  toHotelQueryDate,
+} from "./CustomerHotelSearchResults";
 
 type IconType = typeof Search;
 type HotelPopover = "destination" | "stay" | "guests" | null;
