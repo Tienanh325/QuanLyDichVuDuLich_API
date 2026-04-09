@@ -1,202 +1,432 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import {
+  Bookmark,
+  ChevronDown,
   ChevronRight,
   Copy,
   Gift,
   Grid2x2,
   Landmark,
+  MapPin,
   MapPinned,
-  Newspaper,
   Search,
   ShieldCheck,
   Sparkles,
-  Ticket,
-  TrainFront,
+  Star,
   Waves,
 } from "lucide-react";
 import baibienImage from "../assets/images/baibien.jpg";
 import "../assets/css/CustomerActivity.css";
 
-type CardItem = {
-  title: string;
-  location: string;
-  price: string;
+type ShortcutId = "kham-pha" | "diem-tham-quan" | "tour-hoat-dong" | "can-thiet" | "tat-ca-hoat-dong";
+type SortId = "popular" | "price-low" | "rating-high";
+
+type DestinationOption = {
+  id: string;
+  name: string;
+  subtitle: string;
+  type: string;
+  count: string;
   image: string;
-  badge?: string;
-  meta?: string;
-  oldPrice?: string;
+  description: string;
+  rating?: string;
+  reviews?: string;
+  bestMonths?: string;
+  duration?: string;
+  mustVisit?: string;
 };
 
-type BannerItem = {
+type PromoItem = {
   title: string;
   subtitle: string;
   badge: string;
   image: string;
 };
 
-type ArticleItem = {
+type CouponItem = {
   title: string;
-  meta: string;
-  source: string;
-  image: string;
+  description: string;
+  code: string;
+  badge: string;
 };
 
-type RecommendationColumn = {
+type ActivityItem = {
   title: string;
+  location: string;
+  destinationId: string;
+  destinationLabel: string;
+  priceValue: number;
   image: string;
-  items: Array<{ title: string; meta: string; price: string; image: string }>;
+  rating: number;
+  reviews: string;
+  badge?: string;
+  oldPriceValue?: number;
+  shortcuts: ShortcutId[];
+  filters: string[];
+  perks: string[];
+};
+
+type FilterGroup = {
+  title: string;
+  options: string[];
 };
 
 const images = {
   sea: baibienImage,
   city: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=1200&q=80",
-  temple: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=1200&q=80",
-  mountain: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
-  cruise: "https://images.unsplash.com/photo-1518623380242-d9924f1c0f0b?auto=format&fit=crop&w=1200&q=80",
-  night: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80",
+  japan: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=1200&q=80",
+  disney: "https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=1200&q=80",
   aquarium: "https://images.unsplash.com/photo-1551009175-15bdf9dcb580?auto=format&fit=crop&w=1200&q=80",
   transit: "https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=1200&q=80",
   mobile: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1200&q=80",
+  mountain: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+  show: "https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=1200&q=80",
+  themePark: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&w=1200&q=80",
 } as const;
 
-const heroDestinations = ["Chọn một điểm đến", "TP. Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Phú Quốc", "Singapore"];
-const quickLinks = [
+const destinations: DestinationOption[] = [
+  {
+    id: "any",
+    name: "Chọn một điểm đến",
+    subtitle: "Khám phá activity trong nước và quốc tế",
+    type: "Xu hướng",
+    count: "32.000+ hoạt động",
+    image: baibienImage,
+    description: "Khám phá vé tham quan, tour, show diễn và tiện ích du lịch trong cùng một nơi.",
+  },
+  {
+    id: "japan",
+    name: "Nhật Bản",
+    subtitle: "Xứ sở hoa anh đào",
+    type: "Quốc tế",
+    count: "4.820 hoạt động",
+    image: images.japan,
+    description: "Từ công viên chủ đề, bảo tàng số cho tới JR Pass và eSIM, bạn có thể gom toàn bộ trải nghiệm Nhật Bản trên cùng một trang.",
+    rating: "8.9",
+    reviews: "1219.6K",
+    bestMonths: "Tháng 3 - 5, 10 - 11",
+    duration: "5 ngày",
+    mustVisit: "Núi Phú Sĩ\nChùa Kinkaku-ji",
+  },
+  {
+    id: "ha-noi",
+    name: "Hà Nội",
+    subtitle: "Thủ đô nghìn năm văn hiến",
+    type: "Việt Nam",
+    count: "680 hoạt động",
+    image: images.aquarium,
+    description: "Lọc nhanh vé thủy cung, show diễn, city tour và các hoạt động gia đình ngay tại Hà Nội.",
+    rating: "8.8",
+    reviews: "154.2K",
+    bestMonths: "Tháng 9 - 11",
+    duration: "3 ngày",
+    mustVisit: "Phố cổ\nLăng Bác",
+  },
+  {
+    id: "phu-quoc",
+    name: "Phú Quốc",
+    subtitle: "Biển đảo và vui chơi giải trí",
+    type: "Việt Nam",
+    count: "530 hoạt động",
+    image: images.sea,
+    description: "Một nơi cho vé vui chơi biển, cáp treo, tour 3 đảo và combo trải nghiệm dành cho gia đình.",
+    rating: "9.1",
+    reviews: "91.4K",
+    bestMonths: "Tháng 11 - 4",
+    duration: "3 ngày",
+    mustVisit: "Hòn Thơm\nSunset Town",
+  },
+  {
+    id: "singapore",
+    name: "Singapore",
+    subtitle: "City break gọn gàng, hiện đại",
+    type: "Quốc tế",
+    count: "1.420 hoạt động",
+    image: images.city,
+    description: "Bạn có thể tìm nhanh công viên chủ đề, city pass, eSIM và attraction nổi bật cho hành trình Singapore.",
+    rating: "9.2",
+    reviews: "310.8K",
+    bestMonths: "Quanh năm",
+    duration: "4 ngày",
+    mustVisit: "Sentosa\nGardens by the Bay",
+  },
+];
+
+const quickLinks: Array<{ id: ShortcutId; label: string; icon: typeof Sparkles }> = [
   { id: "kham-pha", label: "Khám phá", icon: Sparkles },
   { id: "diem-tham-quan", label: "Điểm tham quan", icon: Landmark },
   { id: "tour-hoat-dong", label: "Tour & Hoạt động", icon: Waves },
   { id: "can-thiet", label: "Cần thiết cho du lịch", icon: ShieldCheck },
   { id: "tat-ca-hoat-dong", label: "Tất cả các hoạt động", icon: Grid2x2 },
-] as const;
+];
+
+const sortOptions: Array<{ id: SortId; label: string }> = [
+  { id: "popular", label: "Phổ biến nhất" },
+  { id: "price-low", label: "Giá thấp nhất" },
+  { id: "rating-high", label: "Đánh giá cao nhất" },
+];
+
 const couponTabs = ["Mã nội địa", "Mã quốc tế", "Du thuyền", "Thanh toán"];
-const packageTabs = ["Thái Lan - Malaysia - Singapore", "Hàn Quốc - Nhật Bản - Đài Loan - Trung Quốc"];
-const domesticTabs = ["Phú Quốc", "Nha Trang", "Đà Nẵng", "Đà Lạt", "Ninh Bình-Hạ Long", "Sa Pa-Hà Giang"];
-const internationalTabs = ["Thái Lan", "Malaysia", "Bali", "Trung Quốc", "Đài Loan", "Úc", "Hàn Quốc", "Nhật Bản", "Pháp", "Mỹ"];
 
-const couponCards = [
-  { title: "[VINWONDERS] Giảm đến 2 triệu", description: "Giảm thêm đến 500K khi mua từ 2 triệu cho hoạt động nội địa.", code: "VINWONDERS26", badge: "Sắp hết mã" },
-  { title: "Giảm đến 2 triệu | Sun World", description: "Ưu đãi cho nhóm bạn và gia đình vào dịp lễ, áp dụng toàn quốc.", code: "SUNWORLD", badge: "Sắp hết mã" },
-  { title: "Giảm đến 300K | Vé vui chơi nội địa", description: "Đặt tối thiểu 2 triệu hoặc từ 6 vé để nhận mức giảm tốt hơn.", code: "VUILENVN", badge: "Hết mã" },
-] as const;
-
-const packageCards: CardItem[] = [
-  { title: "Tour Thái Lan trọn gói (Bangkok, Pattaya) - 5N4Đ", location: "Đường Khao San", meta: "9.3/10 • 6,6K đánh giá", price: "7.990.000 VND", image: images.temple, badge: "Đường Khao San" },
-  { title: "Tour Singapore và Malaysia trọn gói (Gardens by the Bay, Tháp đôi)", location: "Singapore", meta: "9.0/10 • 71 đánh giá", price: "12.690.000 VND", image: images.city, badge: "Singapore" },
-];
-
-const cruiseCards: CardItem[] = [
-  { title: "Du thuyền Singapore 4N3Đ trên tàu Disney Adventure", location: "Vịnh Marina", meta: "9.7/10 • 11 đánh giá", price: "11.588.283 VND", image: images.cruise, badge: "Vịnh Marina" },
-  { title: "Du thuyền Singapore 5N4Đ trên tàu Disney Adventure", location: "Vịnh Marina", meta: "8.8/10 • 21 đánh giá", price: "11.776.943 VND", image: images.night, badge: "Vịnh Marina" },
-  { title: "Hành trình 3N2Đ trên du thuyền Genting Dream", location: "Singapore", meta: "8.8/10 • 26 đánh giá", price: "3.029.100 VND", image: images.city, badge: "Singapore" },
-  { title: "Hành trình 4N3Đ trên du thuyền Genting Dream", location: "Singapore", meta: "9.6/10 • 19 đánh giá", price: "4.635.840 VND", image: images.sea, badge: "Singapore" },
-];
-
-const promoCards: BannerItem[] = [
-  { title: "Mừng đại lễ, sale mê say", subtitle: "Mã giảm đến 2 triệu cho hoạt động biển và vui chơi gia đình.", badge: "Ưu đãi khủng tới 50%", image: images.sea },
-  { title: "Du lịch Hàn Quốc", subtitle: "Sống trọn K-culture cùng deal tham quan và city pass tới 50%.", badge: "Traveloka Exclusive", image: images.night },
-  { title: "Du lịch Malaysia", subtitle: "Khóa deal quốc tế giảm đến 50% cho dịp cao điểm tháng 4.", badge: "Đặt sớm lợi hơn", image: images.city },
-];
-
-const domesticCards: CardItem[] = [
-  { title: "Khám phá 2 đảo, Sun World Hòn Thơm, bữa trưa buffet", location: "Xã Cửa Dương", meta: "8.8/10 • 42 đánh giá", oldPrice: "1.404.000 VND", price: "1.314.286 VND", image: images.sea, badge: "Xã Cửa Dương" },
-  { title: "Tour 3 đảo bằng cano Nam Phú Quốc - 1 ngày", location: "Thị trấn Dương Đông", meta: "9.2/10 • 28 đánh giá", price: "722.222 VND", image: images.sea, badge: "Thị trấn Dương Đông" },
-  { title: "Tour ngắm hoàng hôn và câu mực đêm trên đảo Phú Quốc", location: "Thị trấn Dương Đông", meta: "8.9/10 • 31 đánh giá", oldPrice: "388.889 VND", price: "275.132 VND", image: images.night, badge: "Thị trấn Dương Đông" },
-  { title: "Tour khám phá 3 đảo bằng tàu tại Phú Quốc - 1 ngày", location: "Xã Hòn Thơm", meta: "8.6/10 • 17 đánh giá", oldPrice: "888.889 VND", price: "656.085 VND", image: images.cruise, badge: "Xã Hòn Thơm" },
-  { title: "Khám phá 3 đảo Phú Quốc - tour 1 ngày của Rooty Trip", location: "Thị trấn Dương Đông", meta: "9.1/10 • 19 đánh giá", price: "540.000 VND", image: images.mountain, badge: "Thị trấn Dương Đông" },
-];
-
-const internationalCards: CardItem[] = [
-  { title: "Tour trong ngày khám phá Phi Phi, Vịnh Maya, Đầm Pileh", location: "Cape Panwa", meta: "8.8/10 • 5,8K đánh giá", oldPrice: "2.820.732 VND", price: "1.611.847 VND", image: images.sea, badge: "Cape Panwa" },
-  { title: "Quán cà phê nổi Tappia Pattaya", location: "Nam Pattaya", meta: "7.5/10 • 275 đánh giá", price: "322.978 VND", image: images.sea, badge: "Nam Pattaya" },
-  { title: "Join tour VIP full day trip đến Phi Phi Island - Maya Bay", location: "Khlong Klua", meta: "8.8/10 • 65 đánh giá", price: "2.981.917 VND", image: images.sea, badge: "Khlong Klua" },
-  { title: "Vé vào cửa công viên Tiger Park Pattaya", location: "Bãi biển Jomtien", meta: "8.6/10 • 16,3K đánh giá", price: "395.684 VND", image: images.mountain, badge: "Bãi biển Jomtien" },
-  { title: "Phang Nga Bay sea cave canoeing và James Bond Island", location: "Ao Por", meta: "10.0/10 • 4 đánh giá", oldPrice: "1.610.235 VND", price: "1.288.672 VND", image: images.mountain, badge: "Ao Por" },
-];
-
-const essentialCards: CardItem[] = [
-  { title: "Philippines eSIM by Xplori", location: "Đông Nam Á", meta: "10.0/10 • 8 đánh giá", price: "13.942 VND", image: images.mobile, badge: "Đông Nam Á" },
-  { title: "eSIM 4G GoHub dùng tại Dubai (UAE)", location: "Dubai", meta: "4.0/10 • 1 đánh giá", price: "134.823 VND", image: images.mobile, badge: "Dubai" },
-  { title: "eSIM for Singapore by Frewie", location: "Singapore", meta: "8.6/10 • 9 đánh giá", price: "140.217 VND", image: images.mobile, badge: "Singapore" },
-  { title: "eSIM 4G GoHub dùng tại Thái Lan", location: "Đường Khao San", meta: "9.2/10 • 625 đánh giá", price: "27.108 VND", image: images.mobile, badge: "Đường Khao San" },
-  { title: "eSIM Malaysia của Xplori", location: "Kuala Lipis", meta: "8.6/10 • 144 đánh giá", price: "16.046 VND", image: images.mobile, badge: "Kuala Lipis" },
-];
-
-const partners = [
-  { name: "VinWonders", caption: "Thiên đường vui chơi", accent: "is-orange" },
-  { name: "Sun World", caption: "Công viên giải trí", accent: "is-red" },
-  { name: "Universal Studios", caption: "Trải nghiệm điện ảnh", accent: "is-blue" },
-  { name: "LEGOLAND", caption: "Thế giới lego", accent: "is-yellow" },
-  { name: "Disneyland", caption: "Biểu tượng giải trí", accent: "is-gold" },
-  { name: "GoHub", caption: "eSIM & data", accent: "is-cyan" },
-  { name: "SST Travel", caption: "Tour quốc tế", accent: "is-pink" },
-  { name: "Sim2Go", caption: "SIM du lịch", accent: "is-lime" },
-] as const;
-
-const transportCards: CardItem[] = [
-  { title: "The Vietage của Anantara", location: "Tam Thuận", price: "14.100.000 VND", image: images.night, badge: "Tam Thuận" },
-  { title: "Xe riêng Đà Lạt - Cam Ranh", location: "Phường 9", price: "1.905.996 VND", image: images.city, badge: "Phường 9" },
-  { title: "Dịch vụ Fast-Track sân bay kèm ưu tiên đưa đón", location: "Phường 15", meta: "8.6/10 • 3 đánh giá", price: "833.762 VND", image: images.transit, badge: "Phường 15" },
-  { title: "Hanoi to Halong Bay / Halong Bay to Ninh Binh one-way", location: "Cát Linh", price: "453.644 VND", image: images.transit, badge: "Cát Linh" },
-  { title: "Tàu Chapa Express giường nằm một chiều", location: "Trung tâm Sa Pa", price: "346.326 VND", image: images.transit, badge: "Trung tâm Sa Pa" },
-];
-
-const articleCards: ArticleItem[] = [
-  { title: "Du lịch tháng 4 trong nước: đừng bỏ qua những thiên đường lý tưởng này!", meta: "Đọc trong khoảng 9 phút", source: "Traveloka VN", image: images.mountain },
-  { title: "Khi nào là thời điểm tốt nhất để đặt vé máy bay?", meta: "Đọc trong khoảng 3 phút", source: "Travel Bestie", image: images.transit },
-  { title: "Lễ hội pháo hoa Hàn Quốc 2026 tại Seoul & Busan có gì hot?", meta: "Đọc trong khoảng 3 phút", source: "Traveloka Xperience", image: images.night },
-  { title: "Otaru Aquarium: thủy cung sống động sát bờ biển Nhật Bản", meta: "Đọc trong khoảng 3 phút", source: "Traveloka VN", image: images.aquarium },
-];
-
-const recommendationColumns: RecommendationColumn[] = [
+const promoCards: PromoItem[] = [
   {
-    title: "Khuyến nghị trong Việt Nam",
+    title: "Mừng đại lễ, sale mê say",
+    subtitle: "Ưu đãi tới 50% cho vé tham quan, show diễn và combo vui chơi gia đình.",
+    badge: "Ưu đãi khủng tới 50%",
     image: images.sea,
-    items: [
-      { title: "Sun World Ba Den Mountain", meta: "Tây Ninh • 9.2 (20,6K đánh giá)", price: "250.000 VND", image: images.mountain },
-      { title: "Vé VinWonders Cửa Hội", meta: "Nghệ An • 8.8 (5,2K đánh giá)", price: "100.000 VND", image: images.sea },
-      { title: "Lotte World Aquarium | Hà Nội", meta: "Tây Hồ • 9.0 (2,8K đánh giá)", price: "189.594 VND", image: images.aquarium },
-    ],
   },
   {
-    title: "Khuyến nghị trong Thái Lan",
-    image: images.temple,
-    items: [
-      { title: "SEA LIFE Bangkok Ocean World", meta: "Siam • 9.0 (29,3K đánh giá)", price: "112.023 VND", image: images.aquarium },
-      { title: "4G eSIM for Thailand by GoHub", meta: "Pratunam • 9.0 (737 đánh giá)", price: "30.121 VND", image: images.mobile },
-      { title: "Vé Safari World Bangkok", meta: "Bangkok • 8.7 (48,4K đánh giá)", price: "644.739 VND", image: images.mountain },
-    ],
-  },
-  {
-    title: "Khuyến nghị trong Singapore",
+    title: "Du lịch Hàn Quốc",
+    subtitle: "Săn deal city pass, vé tham quan và thẻ SIM cho chuyến đi đầu mùa.",
+    badge: "Traveloka Exclusive",
     image: images.city,
-    items: [
-      { title: "Universal Studios Singapore", meta: "Sentosa • 9.1 (124,9K đánh giá)", price: "512.691 VND", image: images.city },
-      { title: "Gardens by the Bay", meta: "Vịnh Marina • 9.3 (160,6K đánh giá)", price: "205.076 VND", image: images.city },
-      { title: "Vé vào cửa Thủy cung Singapore", meta: "Sentosa • 8.8 (8346 đánh giá)", price: "640.863 VND", image: images.aquarium },
-    ],
+  },
+  {
+    title: "Du lịch Malaysia",
+    subtitle: "Khóa deal quốc tế giảm sâu cho các lịch trình cao điểm tháng này.",
+    badge: "Đặt sớm lợi hơn",
+    image: images.japan,
   },
 ];
 
-const guideLinks = [
-  "Sống giàu trải nghiệm cùng Traveloka",
-  "Tại sao nên đặt hoạt động du lịch với Traveloka?",
-  "1. Hơn 32.000 hoạt động vui chơi toàn cầu",
-  "2. Đặt trực tuyến, miễn xếp hàng",
-  "3. Phương thức thanh toán đa dạng",
-  "4. Traveloka Priority",
-  "5. Dịch vụ chăm sóc khách hàng",
-  "6. Ưu đãi mỗi ngày",
+const couponCards: CouponItem[] = [
+  {
+    title: "[VINWONDERS] Giảm đến 2 triệu",
+    description: "Giảm thêm đến 500K khi mua từ 2 triệu cho hoạt động nội địa.",
+    code: "VINWONDERS26",
+    badge: "Sắp hết mã",
+  },
+  {
+    title: "Giảm đến 300K | Vé vui chơi nội địa",
+    description: "Đặt tối thiểu 2 triệu hoặc từ 6 vé để nhận mức giảm tốt hơn.",
+    code: "VUILENVN",
+    badge: "Sắp hết mã",
+  },
+  {
+    title: "Giảm đến 2 triệu | Sun World",
+    description: "Ưu đãi cho nhóm bạn và gia đình vào dịp lễ, áp dụng toàn quốc.",
+    code: "SUNWORLD",
+    badge: "Sắp hết mã",
+  },
 ];
 
-const reasons = [
-  "Traveloka hợp tác với nhiều thương hiệu vui chơi nổi bật để bạn dễ chọn công viên giải trí, show diễn, city tour, thủy cung hay tour trong ngày.",
-  "Vé điện tử giúp bạn đặt trước nhanh hơn và chủ động lịch trình tốt hơn, nhất là trong dịp lễ hoặc cuối tuần.",
-  "Ngoài vé tham quan, bạn còn có thể gom eSIM, đưa đón sân bay, vé tàu hay fast-track sân bay trong cùng hành trình.",
-  "Khuyến mãi được cập nhật thường xuyên để bạn chọn đúng hoạt động yêu thích mà vẫn giữ ngân sách hợp lý.",
+const activityItems: ActivityItem[] = [
+  {
+    title: "Universal Studios Japan",
+    location: "Konohana, Osaka",
+    destinationId: "japan",
+    destinationLabel: "Nhật Bản",
+    priceValue: 165944,
+    image: images.themePark,
+    rating: 9,
+    reviews: "153.4K đánh giá",
+    shortcuts: ["diem-tham-quan", "tat-ca-hoat-dong"],
+    filters: ["Công viên giải trí", "Vé tham quan", "Gia đình"],
+    perks: ["Vé điện tử", "Xác nhận ngay"],
+  },
+  {
+    title: "Vé vào Cửa Tokyo Disney Resort",
+    location: "Tokyo Disney Resort",
+    destinationId: "japan",
+    destinationLabel: "Nhật Bản",
+    priceValue: 1559874,
+    image: images.disney,
+    rating: 9.1,
+    reviews: "127.4K đánh giá",
+    badge: "Easy Refund",
+    shortcuts: ["diem-tham-quan", "tat-ca-hoat-dong"],
+    filters: ["Công viên giải trí", "Vé tham quan", "Easy Refund"],
+    perks: ["Easy Refund", "Gia đình"],
+  },
+  {
+    title: "teamLab Planets TOKYO",
+    location: "Odaiba, Tokyo",
+    destinationId: "japan",
+    destinationLabel: "Nhật Bản",
+    priceValue: 723995,
+    oldPriceValue: 763343,
+    image: images.show,
+    rating: 9,
+    reviews: "49.7K đánh giá",
+    shortcuts: ["diem-tham-quan", "tat-ca-hoat-dong"],
+    filters: ["Bảo tàng & Phòng trưng bày", "Điểm mốc", "Vé tham quan"],
+    perks: ["Được yêu thích", "Vé điện tử"],
+  },
+  {
+    title: "Scenic Spots of Mt Fuji & Lake Kawaguchi",
+    location: "Narusawa, Minamitsuru",
+    destinationId: "japan",
+    destinationLabel: "Nhật Bản",
+    priceValue: 1294363,
+    image: images.mountain,
+    rating: 8.8,
+    reviews: "10.1K đánh giá",
+    badge: "Easy Refund",
+    shortcuts: ["tour-hoat-dong", "tat-ca-hoat-dong"],
+    filters: ["Tour trong ngày", "Thiên nhiên & động vật", "Easy Refund"],
+    perks: ["Tour trong ngày", "Easy Refund"],
+  },
+  {
+    title: "eSIM cho Nhật Bản của Billion Connect",
+    location: "Tokyo",
+    destinationId: "japan",
+    destinationLabel: "Nhật Bản",
+    priceValue: 39948,
+    image: images.mobile,
+    rating: 9.6,
+    reviews: "36 đánh giá",
+    shortcuts: ["can-thiet", "tat-ca-hoat-dong"],
+    filters: ["Kết nối", "eSIM", "Xác nhận ngay"],
+    perks: ["eSIM", "Xác nhận ngay"],
+  },
+  {
+    title: "Vé JR Kansai WIDE Area",
+    location: "Tajiri, Sennan",
+    destinationId: "japan",
+    destinationLabel: "Nhật Bản",
+    priceValue: 1988322,
+    image: images.transit,
+    rating: 8.8,
+    reviews: "91.6K đánh giá",
+    badge: "Easy Refund",
+    shortcuts: ["can-thiet", "tat-ca-hoat-dong"],
+    filters: ["Phương tiện vận chuyển", "Easy Refund", "Rail pass"],
+    perks: ["Rail pass", "Easy Refund"],
+  },
+  {
+    title: "Lotte World Aquarium | Hà Nội",
+    location: "Phú Thượng, Hà Nội",
+    destinationId: "ha-noi",
+    destinationLabel: "Việt Nam",
+    priceValue: 153061,
+    oldPriceValue: 190180,
+    image: images.aquarium,
+    rating: 8.6,
+    reviews: "17.2K đánh giá",
+    shortcuts: ["diem-tham-quan", "tat-ca-hoat-dong"],
+    filters: ["Thiên nhiên & động vật", "Vé tham quan", "Gia đình"],
+    perks: ["Gia đình", "Vé điện tử"],
+  },
+  {
+    title: "Vé show múa rối nước Thăng Long",
+    location: "Hàng Bạc, Hà Nội",
+    destinationId: "ha-noi",
+    destinationLabel: "Việt Nam",
+    priceValue: 124041,
+    image: images.show,
+    rating: 8.6,
+    reviews: "22.3K đánh giá",
+    badge: "Easy Refund",
+    shortcuts: ["diem-tham-quan", "tour-hoat-dong", "tat-ca-hoat-dong"],
+    filters: ["Sự kiện & Buổi diễn", "Easy Refund", "Vé tham quan"],
+    perks: ["Show diễn", "Easy Refund"],
+  },
+  {
+    title: "Tour 3 đảo Phú Quốc bằng cano - 1 ngày",
+    location: "Dương Đông, Phú Quốc",
+    destinationId: "phu-quoc",
+    destinationLabel: "Việt Nam",
+    priceValue: 722222,
+    image: images.sea,
+    rating: 9.2,
+    reviews: "28 đánh giá",
+    shortcuts: ["tour-hoat-dong", "tat-ca-hoat-dong"],
+    filters: ["Tour trong ngày", "Thiên nhiên & động vật", "Easy Access"],
+    perks: ["Biển đảo", "Tour trong ngày"],
+  },
+  {
+    title: "Cáp treo Hòn Thơm & công viên nước Aquatopia",
+    location: "Hòn Thơm, Phú Quốc",
+    destinationId: "phu-quoc",
+    destinationLabel: "Việt Nam",
+    priceValue: 1314286,
+    image: images.sea,
+    rating: 8.8,
+    reviews: "42 đánh giá",
+    shortcuts: ["diem-tham-quan", "tat-ca-hoat-dong"],
+    filters: ["Công viên giải trí", "Vé tham quan", "Special Promo"],
+    perks: ["Gia đình", "Ưu đãi"],
+  },
+  {
+    title: "Universal Studios Singapore",
+    location: "Sentosa, Singapore",
+    destinationId: "singapore",
+    destinationLabel: "Singapore",
+    priceValue: 512691,
+    image: images.themePark,
+    rating: 9.1,
+    reviews: "124.9K đánh giá",
+    shortcuts: ["diem-tham-quan", "tat-ca-hoat-dong"],
+    filters: ["Công viên giải trí", "Vé tham quan", "Gia đình"],
+    perks: ["Được yêu thích", "Vé điện tử"],
+  },
+  {
+    title: "Gardens by the Bay",
+    location: "Vịnh Marina, Singapore",
+    destinationId: "singapore",
+    destinationLabel: "Singapore",
+    priceValue: 205076,
+    image: images.city,
+    rating: 9.3,
+    reviews: "160.6K đánh giá",
+    shortcuts: ["diem-tham-quan", "tat-ca-hoat-dong"],
+    filters: ["Điểm mốc", "Vé tham quan", "Mới trên Traveloka"],
+    perks: ["Điểm mốc", "Xác nhận ngay"],
+  },
+  {
+    title: "Fast-track sân bay kèm ưu tiên đưa đón",
+    location: "Tân Sơn Nhất, TP.HCM",
+    destinationId: "any",
+    destinationLabel: "Việt Nam",
+    priceValue: 833762,
+    image: images.transit,
+    rating: 8.6,
+    reviews: "3 đánh giá",
+    shortcuts: ["can-thiet", "tat-ca-hoat-dong"],
+    filters: ["Dịch vụ trong sân bay", "Đưa đón sân bay", "Easy Access"],
+    perks: ["Ưu tiên sân bay", "Easy Access"],
+  },
 ];
 
-function coverStyle(image: string, overlay = "linear-gradient(180deg, rgba(8, 24, 45, 0.08) 0%, rgba(8, 24, 45, 0.78) 100%)"): CSSProperties {
+const filterGroupsByShortcut: Record<Exclude<ShortcutId, "kham-pha">, FilterGroup[]> = {
+  "diem-tham-quan": [
+    {
+      title: "Điểm tham quan",
+      options: [
+        "Công viên giải trí",
+        "Thiên nhiên & động vật",
+        "Bảo tàng & Phòng trưng bày",
+        "Điểm mốc",
+        "Sự kiện & Buổi diễn",
+        "Vé tham quan",
+      ],
+    },
+    { title: "Thêm bộ lọc", options: ["Easy Refund", "Gia đình", "Special Promo", "Mới trên Traveloka"] },
+  ],
+  "tour-hoat-dong": [
+    { title: "Tour & Hoạt động", options: ["Tour trong ngày", "Thiên nhiên & động vật", "Easy Access", "Easy Refund"] },
+    { title: "Thêm bộ lọc", options: ["Show diễn", "Biển đảo", "Gia đình", "Ưu đãi"] },
+  ],
+  "can-thiet": [
+    { title: "Cần thiết cho du lịch", options: ["Kết nối", "eSIM", "Phương tiện vận chuyển", "Dịch vụ trong sân bay", "Đưa đón sân bay"] },
+    { title: "Thêm bộ lọc", options: ["Easy Access", "Easy Refund", "Rail pass", "Xác nhận ngay"] },
+  ],
+  "tat-ca-hoat-dong": [
+    { title: "Danh mục phổ biến", options: ["Công viên giải trí", "Điểm mốc", "Tour trong ngày", "Kết nối", "Phương tiện vận chuyển"] },
+    { title: "Thêm bộ lọc", options: ["Easy Refund", "Gia đình", "Special Promo", "Xác nhận ngay"] },
+  ],
+};
+
+function coverStyle(
+  image: string,
+  overlay = "linear-gradient(180deg, rgba(10, 25, 42, 0.06) 0%, rgba(10, 25, 42, 0.72) 100%)",
+): CSSProperties {
   return { backgroundImage: `${overlay}, url(${image})` };
+}
+
+function formatVnd(value: number) {
+  return `${new Intl.NumberFormat("vi-VN").format(value)} VND`;
 }
 
 function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
@@ -206,35 +436,16 @@ function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }
         <h2>{title}</h2>
         {subtitle ? <p>{subtitle}</p> : null}
       </div>
-      <button type="button" className="activity-customer__section-arrow" aria-label={`Xem thêm ${title}`}>
+      <span className="activity-customer__section-arrow" aria-hidden="true">
         <ChevronRight size={18} />
-      </button>
+      </span>
     </div>
   );
 }
 
-function ShowcaseCard({ item }: { item: CardItem }) {
+function PromoCardView({ item }: { item: PromoItem }) {
   return (
-    <article className="activity-customer__experience-card">
-      <div className="activity-customer__experience-thumb" style={coverStyle(item.image)}>
-        {item.badge ? <span className="activity-customer__experience-badge">{item.badge}</span> : null}
-      </div>
-      <div className="activity-customer__experience-body">
-        <div className="activity-customer__experience-location">{item.location}</div>
-        <h3>{item.title}</h3>
-        {item.meta ? <p>{item.meta}</p> : null}
-        <div className="activity-customer__experience-price">
-          {item.oldPrice ? <span>{item.oldPrice}</span> : null}
-          <strong>{item.price}</strong>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function BannerCardView({ item }: { item: BannerItem }) {
-  return (
-    <article className="activity-customer__promo-card" style={coverStyle(item.image, "linear-gradient(180deg, rgba(26, 35, 73, 0.14) 0%, rgba(26, 35, 73, 0.46) 100%)")}>
+    <article className="activity-customer__promo-card" style={coverStyle(item.image, "linear-gradient(180deg, rgba(18, 42, 80, 0.08) 0%, rgba(18, 42, 80, 0.58) 100%)")}>
       <span>{item.badge}</span>
       <strong>{item.title}</strong>
       <p>{item.subtitle}</p>
@@ -242,57 +453,100 @@ function BannerCardView({ item }: { item: BannerItem }) {
   );
 }
 
-function ArticleCardView({ item }: { item: ArticleItem }) {
+function ActivityCard({ item }: { item: ActivityItem }) {
   return (
-    <article className="activity-customer__article-card">
-      <div className="activity-customer__article-thumb" style={coverStyle(item.image)} />
-      <div className="activity-customer__article-body">
+    <article className="activity-customer__listing-card">
+      <div className="activity-customer__listing-media" style={coverStyle(item.image)}>
+        {item.badge ? <span className="activity-customer__listing-badge">{item.badge}</span> : null}
+        <button type="button" className="activity-customer__listing-bookmark" aria-label={`Lưu ${item.title}`}>
+          <Bookmark size={16} />
+        </button>
+      </div>
+      <div className="activity-customer__listing-body">
+        <div className="activity-customer__listing-category">{item.destinationLabel}</div>
         <h3>{item.title}</h3>
-        <p>{item.meta}</p>
-        <span>{item.source}</span>
+        <div className="activity-customer__listing-location">
+          <MapPin size={14} />
+          <span>{item.location}</span>
+        </div>
+        <div className="activity-customer__listing-rating">
+          <span className="activity-customer__listing-rating-score">
+            <Star size={14} />
+            {item.rating.toFixed(1)}
+          </span>
+          <span>{item.reviews}</span>
+        </div>
+        <div className="activity-customer__listing-chips">
+          {item.perks.slice(0, 2).map((perk) => (
+            <span key={perk} className="activity-customer__listing-chip">
+              {perk}
+            </span>
+          ))}
+        </div>
+        <div className="activity-customer__listing-price">
+          {item.oldPriceValue ? <small>{formatVnd(item.oldPriceValue)}</small> : null}
+          <strong>{formatVnd(item.priceValue)}</strong>
+        </div>
       </div>
-    </article>
-  );
-}
-
-function RecommendationCard({ column }: { column: RecommendationColumn }) {
-  return (
-    <article className="activity-customer__recommend-column">
-      <div className="activity-customer__recommend-hero" style={coverStyle(column.image)}>
-        <strong>{column.title}</strong>
-      </div>
-      <div className="activity-customer__recommend-list">
-        {column.items.map((item) => (
-          <article key={item.title} className="activity-customer__mini-card">
-            <div className="activity-customer__mini-thumb" style={coverStyle(item.image, "linear-gradient(180deg, rgba(12, 32, 58, 0.06) 0%, rgba(12, 32, 58, 0.18) 100%)")} />
-            <div className="activity-customer__mini-body">
-              <h3>{item.title}</h3>
-              <p>{item.meta}</p>
-              <strong>Bắt đầu từ {item.price}</strong>
-            </div>
-          </article>
-        ))}
-      </div>
-      <button type="button" className="activity-customer__recommend-button">Khám phá</button>
     </article>
   );
 }
 
 export default function CustomerActivity() {
-  const [selectedDestination, setSelectedDestination] = useState(heroDestinations[0]);
+  const destinationMenuRef = useRef<HTMLDivElement | null>(null);
+  const [selectedDestinationId, setSelectedDestinationId] = useState(destinations[0].id);
+  const [isDestinationMenuOpen, setIsDestinationMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [activeShortcut, setActiveShortcut] = useState<ShortcutId>("kham-pha");
   const [selectedCouponTab, setSelectedCouponTab] = useState(couponTabs[0]);
-  const [selectedPackageTab, setSelectedPackageTab] = useState(packageTabs[0]);
-  const [selectedDomesticTab, setSelectedDomesticTab] = useState(domesticTabs[0]);
-  const [selectedInternationalTab, setSelectedInternationalTab] = useState(internationalTabs[0]);
+  const [sortBy, setSortBy] = useState<SortId>("popular");
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [maxBudget, setMaxBudget] = useState(4000000);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  function scrollToSection(id: string) {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const selectedDestination = destinations.find((item) => item.id === selectedDestinationId) ?? destinations[0];
+  const isDestinationSelected = selectedDestination.id !== "any";
+  const activeShortcutMeta = quickLinks.find((item) => item.id === activeShortcut) ?? quickLinks[0];
+  const searchTerm = searchValue.trim().toLowerCase();
+  const currentFilterGroups =
+    activeShortcut === "kham-pha" ? filterGroupsByShortcut["tat-ca-hoat-dong"] : filterGroupsByShortcut[activeShortcut];
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (destinationMenuRef.current && !destinationMenuRef.current.contains(event.target as Node)) {
+        setIsDestinationMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    setSelectedFilters([]);
+  }, [activeShortcut, selectedDestinationId]);
+
+  function handleShortcutClick(shortcutId: ShortcutId) {
+    setActiveShortcut(shortcutId);
+    setIsDestinationMenuOpen(false);
   }
 
   function handleSearch() {
-    scrollToSection(searchValue.trim() ? "tat-ca-hoat-dong" : "kham-pha");
+    setIsDestinationMenuOpen(false);
+    setActiveShortcut("tat-ca-hoat-dong");
+  }
+
+  function handleDestinationSelect(destinationId: string) {
+    setSelectedDestinationId(destinationId);
+    setIsDestinationMenuOpen(false);
+  }
+
+  function handleToggleFilter(filterValue: string) {
+    setSelectedFilters((currentValue) =>
+      currentValue.includes(filterValue)
+        ? currentValue.filter((item) => item !== filterValue)
+        : [...currentValue, filterValue],
+    );
   }
 
   function handleCopy(code: string) {
@@ -306,44 +560,175 @@ export default function CustomerActivity() {
     }, 1600);
   }
 
+  const heroTitle = isDestinationSelected ? selectedDestination.name : "Du lịch";
+  const heroCrumb = isDestinationSelected ? selectedDestination.name : activeShortcutMeta.label;
+  const heroDescription = isDestinationSelected
+    ? `Khám phá ${activeShortcutMeta.label.toLowerCase()} tại ${selectedDestination.name}, lọc theo giá, loại hình và tiện ích trước khi đặt.`
+    : selectedDestination.description;
+
+  const featuredActivities = activityItems
+    .filter((item) => !isDestinationSelected || item.destinationId === selectedDestination.id || item.destinationId === "any")
+    .filter((item) => item.shortcuts.includes("diem-tham-quan") || item.shortcuts.includes("tour-hoat-dong"))
+    .slice(0, 6);
+
+  const scopedResults = activityItems
+    .filter((item) => !isDestinationSelected || item.destinationId === selectedDestination.id || item.destinationId === "any")
+    .filter((item) => activeShortcut === "kham-pha" || activeShortcut === "tat-ca-hoat-dong" || item.shortcuts.includes(activeShortcut))
+    .filter((item) => item.priceValue <= maxBudget)
+    .filter((item) => {
+      if (!searchTerm) {
+        return true;
+      }
+
+      return [item.title, item.location, item.destinationLabel, item.filters.join(" "), item.perks.join(" ")]
+        .join(" ")
+        .toLowerCase()
+        .includes(searchTerm);
+    })
+    .filter((item) => {
+      if (!selectedFilters.length) {
+        return true;
+      }
+
+      return selectedFilters.every(
+        (filterValue) => item.filters.includes(filterValue) || item.perks.includes(filterValue),
+      );
+    });
+
+  const sortedResults = [...scopedResults].sort((leftItem, rightItem) => {
+    if (sortBy === "price-low") {
+      return leftItem.priceValue - rightItem.priceValue;
+    }
+
+    if (sortBy === "rating-high") {
+      return rightItem.rating - leftItem.rating;
+    }
+
+    return (
+      rightItem.rating * 100 - rightItem.priceValue / 2500 - (leftItem.rating * 100 - leftItem.priceValue / 2500)
+    );
+  });
+
   return (
     <main className="activity-customer">
       <section
         className="activity-customer__hero"
         style={{
-          backgroundImage: `linear-gradient(180deg, rgba(8, 18, 31, 0.42) 0%, rgba(8, 18, 31, 0.28) 22%, rgba(8, 18, 31, 0.82) 100%), linear-gradient(90deg, rgba(8, 18, 31, 0.3) 0%, rgba(8, 18, 31, 0.08) 100%), url(${baibienImage})`,
+          backgroundImage: `linear-gradient(180deg, rgba(8, 18, 31, 0.34) 0%, rgba(8, 18, 31, 0.24) 24%, rgba(8, 18, 31, 0.86) 100%), linear-gradient(90deg, rgba(8, 18, 31, 0.42) 0%, rgba(8, 18, 31, 0.08) 100%), url(${selectedDestination.image})`,
         }}
       >
         <div className="customer-shell__container">
           <div className="activity-customer__hero-copy">
-            <span>Xperience</span>
-            <h1>Du lịch</h1>
+            <div className="activity-customer__hero-path">
+              <span>Xperience</span>
+              <small>/ {heroCrumb}</small>
+            </div>
 
-            <div className="activity-customer__hero-search">
-              <label className="activity-customer__search-select">
-                <MapPinned size={18} />
-                <select value={selectedDestination} onChange={(event) => setSelectedDestination(event.target.value)}>
-                  {heroDestinations.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </select>
-              </label>
+            <div className="activity-customer__hero-heading">
+              <h1>{heroTitle}</h1>
+              {selectedDestination.rating && selectedDestination.reviews ? (
+                <div className="activity-customer__hero-rating">
+                  <Star size={14} />
+                  <strong>{selectedDestination.rating}</strong>
+                  <span>{selectedDestination.reviews} của khách hàng Traveloka</span>
+                </div>
+              ) : null}
+            </div>
 
-              <label className="activity-customer__search-input">
-                <Search size={18} />
-                <input
-                  type="text"
-                  value={searchValue}
-                  onChange={(event) => setSearchValue(event.target.value)}
-                  placeholder="Tìm kiếm địa điểm hoặc hoạt động"
-                />
-              </label>
+            <p className="activity-customer__hero-description">{heroDescription}</p>
 
-              <button type="button" className="activity-customer__search-button" onClick={handleSearch}>
-                Tìm kiếm
-              </button>
+            <div
+              className={
+                isDestinationSelected
+                  ? "activity-customer__hero-search activity-customer__hero-search--destination"
+                  : "activity-customer__hero-search"
+              }
+            >
+              <div className="activity-customer__hero-controls" ref={destinationMenuRef}>
+                <div className="activity-customer__hero-row">
+                  <button
+                    type="button"
+                    className="activity-customer__destination-field"
+                    onClick={() => setIsDestinationMenuOpen((currentValue) => !currentValue)}
+                    aria-expanded={isDestinationMenuOpen}
+                  >
+                    <MapPinned size={18} />
+                    <span className="activity-customer__field-copy">
+                      <small>{isDestinationSelected ? "Đang xem" : "Điểm đến"}</small>
+                      <strong>{isDestinationSelected ? selectedDestination.name : "Chọn một điểm đến"}</strong>
+                    </span>
+                    <ChevronDown size={18} />
+                  </button>
+
+                  <label className="activity-customer__search-input">
+                    <Search size={18} />
+                    <input
+                      type="text"
+                      value={searchValue}
+                      onChange={(event) => setSearchValue(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          handleSearch();
+                        }
+                      }}
+                      placeholder="Tìm kiếm địa điểm hoặc hoạt động"
+                    />
+                  </label>
+
+                  <button type="button" className="activity-customer__search-button" onClick={handleSearch}>
+                    Tìm kiếm
+                  </button>
+                </div>
+
+                {isDestinationMenuOpen ? (
+                  <div className="activity-customer__destination-panel">
+                    <div className="activity-customer__destination-panel-title">Điểm đến phổ biến</div>
+                    <div className="activity-customer__destination-list">
+                      {destinations.map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          className={
+                            item.id === selectedDestinationId
+                              ? "activity-customer__destination-card is-active"
+                              : "activity-customer__destination-card"
+                          }
+                          onClick={() => handleDestinationSelect(item.id)}
+                        >
+                          <span className="activity-customer__destination-copy">
+                            <strong>{item.name}</strong>
+                            <small>{item.subtitle}</small>
+                          </span>
+                          <span className="activity-customer__destination-meta">
+                            <span className="activity-customer__destination-tag">{item.type}</span>
+                            <span className="activity-customer__destination-count">{item.count}</span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+
+              {isDestinationSelected ? (
+                <aside className="activity-customer__hero-insights">
+                  <article className="activity-customer__hero-insight">
+                    <small>Thời gian tốt nhất</small>
+                    <strong>{selectedDestination.bestMonths}</strong>
+                    <p>Lý tưởng cho lịch trình linh hoạt</p>
+                  </article>
+                  <article className="activity-customer__hero-insight">
+                    <small>Thời lượng đề xuất</small>
+                    <strong>{selectedDestination.duration}</strong>
+                    <p>Dễ kết hợp tham quan và vui chơi</p>
+                  </article>
+                  <article className="activity-customer__hero-insight">
+                    <small>Phải ghé thăm</small>
+                    <strong>{selectedDestination.mustVisit}</strong>
+                    <p>Gợi ý mở đầu chuyến đi</p>
+                  </article>
+                </aside>
+              ) : null}
             </div>
           </div>
         </div>
@@ -351,15 +736,16 @@ export default function CustomerActivity() {
 
       <div className="customer-shell__container">
         <nav className="activity-customer__shortcut-bar">
-          {quickLinks.map((item, index) => {
+          {quickLinks.map((item) => {
             const Icon = item.icon;
+            const isActive = item.id === activeShortcut;
 
             return (
               <button
                 key={item.id}
                 type="button"
-                className={index === 0 ? "activity-customer__shortcut is-active" : "activity-customer__shortcut"}
-                onClick={() => scrollToSection(item.id)}
+                className={isActive ? "activity-customer__shortcut is-active" : "activity-customer__shortcut"}
+                onClick={() => handleShortcutClick(item.id)}
               >
                 <span className="activity-customer__shortcut-icon">
                   <Icon size={18} />
@@ -371,246 +757,177 @@ export default function CustomerActivity() {
         </nav>
       </div>
 
-      <section className="activity-customer__section" id="kham-pha">
-        <div className="customer-shell__container">
-          <SectionHeader title="Thu thập mã ưu đãi Xperience" />
-          <div className="activity-customer__tab-row">
-            {couponTabs.map((item) => (
-              <button
-                key={item}
-                type="button"
-                className={item === selectedCouponTab ? "activity-customer__chip is-active" : "activity-customer__chip"}
-                onClick={() => setSelectedCouponTab(item)}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-          <div className="activity-customer__coupon-grid">
-            {couponCards.map((item) => (
-              <article key={item.code} className="activity-customer__coupon-card">
-                <span className="activity-customer__coupon-badge">{item.badge}</span>
-                <div className="activity-customer__coupon-top">
-                  <div className="activity-customer__coupon-icon">
-                    <Gift size={18} />
-                  </div>
-                  <div className="activity-customer__coupon-copy">
-                    <h3>{item.title}</h3>
-                    <p>{item.description}</p>
-                  </div>
-                </div>
-                <div className="activity-customer__coupon-footer">
-                  <div>
-                    <small>Mã ưu đãi</small>
-                    <strong>{item.code}</strong>
-                  </div>
-                  <button type="button" onClick={() => handleCopy(item.code)}>
-                    <Copy size={14} />
-                    {copiedCode === item.code ? "Đã chép" : "Copy"}
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="activity-customer__section" id="tour-hoat-dong">
-        <div className="customer-shell__container">
-          <SectionHeader title="Tour du lịch trọn gói" />
-          <div className="activity-customer__tab-row">
-            {packageTabs.map((item) => (
-              <button
-                key={item}
-                type="button"
-                className={item === selectedPackageTab ? "activity-customer__chip is-active" : "activity-customer__chip"}
-                onClick={() => setSelectedPackageTab(item)}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-          <div className="activity-customer__showcase-grid activity-customer__showcase-grid--two">
-            {packageCards.map((item) => (
-              <ShowcaseCard key={item.title} item={item} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="activity-customer__section" id="diem-tham-quan">
-        <div className="customer-shell__container">
-          <SectionHeader title="Tour du thuyền thế giới hấp dẫn" />
-          <div className="activity-customer__showcase-grid">
-            {cruiseCards.map((item) => (
-              <ShowcaseCard key={item.title} item={item} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="activity-customer__section">
-        <div className="customer-shell__container" id="uu-dai-xperience">
-          <SectionHeader title="Khuyến mãi Xperience hiện hành" subtitle="Tiết kiệm lớn với những ưu đãi đặc biệt giới hạn của chúng tôi" />
-          <div className="activity-customer__promo-grid">
-            {promoCards.map((item) => (
-              <BannerCardView key={item.title} item={item} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="activity-customer__section">
-        <div className="customer-shell__container">
-          <SectionHeader title="Tour du lịch 30/4 trong nước" />
-          <div className="activity-customer__tab-row">
-            {domesticTabs.map((item) => (
-              <button
-                key={item}
-                type="button"
-                className={item === selectedDomesticTab ? "activity-customer__chip is-active" : "activity-customer__chip"}
-                onClick={() => setSelectedDomesticTab(item)}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-          <div className="activity-customer__showcase-grid activity-customer__showcase-grid--five">
-            {domesticCards.map((item) => (
-              <ShowcaseCard key={item.title} item={item} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="activity-customer__section">
-        <div className="customer-shell__container">
-          <SectionHeader title="Tour du lịch 30/4 nước ngoài" />
-          <div className="activity-customer__tab-row">
-            {internationalTabs.map((item) => (
-              <button
-                key={item}
-                type="button"
-                className={item === selectedInternationalTab ? "activity-customer__chip is-active" : "activity-customer__chip"}
-                onClick={() => setSelectedInternationalTab(item)}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-          <div className="activity-customer__showcase-grid activity-customer__showcase-grid--five">
-            {internationalCards.map((item) => (
-              <ShowcaseCard key={item.title} item={item} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="activity-customer__section" id="can-thiet">
-        <div className="customer-shell__container">
-          <SectionHeader title="Cần thiết cho du lịch" />
-          <div className="activity-customer__showcase-grid activity-customer__showcase-grid--five">
-            {essentialCards.map((item) => (
-              <ShowcaseCard key={item.title} item={item} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="activity-customer__section">
-        <div className="customer-shell__container" id="doi-tac">
-          <SectionHeader title="Đối tác của Traveloka" />
-          <div className="activity-customer__partner-grid">
-            {partners.map((item) => (
-              <article key={item.name} className="activity-customer__partner-card">
-                <div className={`activity-customer__partner-logo ${item.accent}`}>{item.name}</div>
-                <strong>{item.name}</strong>
-                <span>{item.caption}</span>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="activity-customer__section">
-        <div className="customer-shell__container">
-          <SectionHeader title="Vé Tàu Hỏa" />
-          <div className="activity-customer__showcase-grid activity-customer__showcase-grid--five">
-            {transportCards.map((item) => (
-              <ShowcaseCard key={item.title} item={item} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="activity-customer__section" id="bai-viet">
-        <div className="customer-shell__container">
-          <SectionHeader title="Các bài viết mới nhất" subtitle="Luôn nắm bắt những kinh nghiệm du lịch mới nhất" />
-          <div className="activity-customer__article-grid">
-            {articleCards.map((item) => (
-              <ArticleCardView key={item.title} item={item} />
-            ))}
-          </div>
-          <button type="button" className="activity-customer__text-link">
-            <Newspaper size={16} />
-            Đọc thêm các bài viết du lịch
-          </button>
-        </div>
-      </section>
-
-      <section className="activity-customer__section" id="tat-ca-hoat-dong">
-        <div className="customer-shell__container">
-          <SectionHeader title="Hoạt động tốt nhất cho chuyến đi của bạn" />
-          <div className="activity-customer__recommend-grid">
-            {recommendationColumns.map((item) => (
-              <RecommendationCard key={item.title} column={item} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="activity-customer__section activity-customer__section--story">
-        <div className="customer-shell__container">
-          <div className="activity-customer__story-layout">
-            <aside className="activity-customer__story-nav">
-              <h3>Khám phá Traveloka</h3>
-              <p>Sống giàu trải nghiệm cùng Traveloka</p>
-              <ul>
-                {guideLinks.map((item) => (
-                  <li key={item}>{item}</li>
+      {activeShortcut === "kham-pha" ? (
+        <>
+          <section className="activity-customer__section" id="activity-overview">
+            <div className="customer-shell__container">
+              <SectionHeader
+                title={isDestinationSelected ? `Khuyến mãi Xperience tại ${selectedDestination.name}` : "Khuyến mãi Xperience hiện hành"}
+                subtitle="Giữ nguyên phần overview để người dùng có thể xem deal trước khi lọc sâu hơn"
+              />
+              <div className="activity-customer__promo-grid">
+                {promoCards.map((item) => (
+                  <PromoCardView key={item.title} item={item} />
                 ))}
-              </ul>
-            </aside>
+              </div>
+            </div>
+          </section>
 
-            <div className="activity-customer__story-content">
-              <h2>Sống giàu trải nghiệm cùng Traveloka</h2>
-              <p>
-                Du lịch không chỉ là đến một nơi mới mà còn là hành trình tận hưởng, khám phá và tích lũy những trải
-                nghiệm đáng nhớ. Traveloka gom sẵn từ vé vui chơi, tour, eSIM cho đến các nhu cầu di chuyển để bạn
-                hoàn thiện lịch trình trong một nơi.
-              </p>
-              <p>
-                Bạn có thể chọn công viên giải trí, thủy cung, show diễn, du thuyền, city tour hay combo trọn gói
-                theo đúng nhịp đi của mình. Trong các dịp cao điểm, việc đặt trước giúp chủ động hơn về thời gian,
-                ngân sách và cả trải nghiệm tại điểm đến.
-              </p>
-              <h3>Tại sao nên đặt hoạt động du lịch với Traveloka?</h3>
-              <div className="activity-customer__story-reasons">
-                {reasons.map((item, index) => (
-                  <article key={item} className="activity-customer__story-reason">
-                    <strong>{index + 1}. Điểm nổi bật</strong>
-                    <p>{item}</p>
+          <section className="activity-customer__section">
+            <div className="customer-shell__container">
+              <SectionHeader
+                title="Thu thập mã ưu đãi Xperience"
+                subtitle="Các chip vẫn giữ cảm giác landing page giống mockup"
+              />
+              <div className="activity-customer__tab-row">
+                {couponTabs.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className={item === selectedCouponTab ? "activity-customer__chip is-active" : "activity-customer__chip"}
+                    onClick={() => setSelectedCouponTab(item)}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+              <div className="activity-customer__coupon-grid">
+                {couponCards.map((item) => (
+                  <article key={item.code} className="activity-customer__coupon-card">
+                    <span className="activity-customer__coupon-badge">{item.badge}</span>
+                    <div className="activity-customer__coupon-top">
+                      <div className="activity-customer__coupon-icon">
+                        <Gift size={18} />
+                      </div>
+                      <div className="activity-customer__coupon-copy">
+                        <h3>{item.title}</h3>
+                        <p>{item.description}</p>
+                      </div>
+                    </div>
+                    <div className="activity-customer__coupon-footer">
+                      <div>
+                        <small>Mã ưu đãi</small>
+                        <strong>{item.code}</strong>
+                      </div>
+                      <button type="button" onClick={() => handleCopy(item.code)}>
+                        <Copy size={14} />
+                        {copiedCode === item.code ? "Đã chép" : "Copy"}
+                      </button>
+                    </div>
                   </article>
                 ))}
               </div>
-              <div className="activity-customer__story-note">
-                <Ticket size={18} />
-                <span>Đặt hoạt động trực tuyến, lưu vé điện tử trong tài khoản và quay lại nhanh từ thanh header khi cần.</span>
+            </div>
+          </section>
+
+          <section className="activity-customer__section">
+            <div className="customer-shell__container">
+              <SectionHeader
+                title={isDestinationSelected ? `Hoạt động nổi bật ở ${selectedDestination.name}` : "Hoạt động nổi bật"}
+                subtitle="Các thẻ preview trước khi người dùng bấm sang shortcut lọc"
+              />
+              <div className="activity-customer__listing-grid">
+                {featuredActivities.map((item) => (
+                  <ActivityCard key={`${item.destinationId}-${item.title}`} item={item} />
+                ))}
               </div>
-              <div className="activity-customer__story-note">
-                <TrainFront size={18} />
-                <span>Gom luôn vé tàu, eSIM và fast-track sân bay để chuyến đi liền mạch hơn từ đầu đến cuối.</span>
+            </div>
+          </section>
+        </>
+      ) : null}
+
+      <section className="activity-customer__section" id="activity-results">
+        <div className="customer-shell__container">
+          <SectionHeader
+            title={
+              activeShortcut === "kham-pha"
+                ? "Tiếp tục lọc hoạt động"
+                : isDestinationSelected
+                  ? `${activeShortcutMeta.label} tại ${selectedDestination.name}`
+                  : `Khám phá ${activeShortcutMeta.label.toLowerCase()}`
+            }
+            subtitle="Khi bấm shortcut bar hoặc tìm kiếm, khu này hoạt động như search results riêng"
+          />
+
+          <div className="activity-customer__results-shell">
+            <aside className="activity-customer__filters">
+              <article className="activity-customer__filter-card">
+                <div className="activity-customer__filter-head">
+                  <strong>Giá</strong>
+                  <span>Tối đa {formatVnd(maxBudget)}</span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={4000000}
+                  step={50000}
+                  value={maxBudget}
+                  onChange={(event) => setMaxBudget(Number(event.target.value))}
+                  className="activity-customer__price-range"
+                />
+                <div className="activity-customer__price-scale">
+                  <span>0 VND</span>
+                  <span>4.000.000 VND+</span>
+                </div>
+              </article>
+
+              {currentFilterGroups.map((group) => (
+                <article key={group.title} className="activity-customer__filter-card">
+                  <div className="activity-customer__filter-group-head">
+                    <strong>{group.title}</strong>
+                    <ChevronDown size={16} />
+                  </div>
+                  <div className="activity-customer__filter-options">
+                    {group.options.map((option) => (
+                      <label key={option} className="activity-customer__filter-option">
+                        <input
+                          type="checkbox"
+                          checked={selectedFilters.includes(option)}
+                          onChange={() => handleToggleFilter(option)}
+                        />
+                        <span>{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </aside>
+
+            <div className="activity-customer__results-content">
+              <div className="activity-customer__results-toolbar">
+                <div className="activity-customer__results-summary">
+                  <strong>{sortedResults.length} kết quả</strong>
+                  <p>
+                    {isDestinationSelected
+                      ? `Gợi ý đã lọc cho ${selectedDestination.name}`
+                      : "Bạn có thể tiếp tục tinh chỉnh theo giá và loại hoạt động"}
+                  </p>
+                </div>
+
+                <label className="activity-customer__sort-box">
+                  <span>Xếp theo:</span>
+                  <select value={sortBy} onChange={(event) => setSortBy(event.target.value as SortId)}>
+                    {sortOptions.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               </div>
+
+              {sortedResults.length ? (
+                <div className="activity-customer__results-grid">
+                  {sortedResults.map((item) => (
+                    <ActivityCard key={`${item.destinationId}-${item.title}`} item={item} />
+                  ))}
+                </div>
+              ) : (
+                <div className="activity-customer__empty">
+                  <strong>Chưa có kết quả khớp bộ lọc hiện tại.</strong>
+                  <p>Thử tăng mức giá, bỏ bớt bộ lọc hoặc chọn điểm đến khác.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
