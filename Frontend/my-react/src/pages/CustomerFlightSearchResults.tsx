@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useState, useRef } from "react";
+import { flushSync } from "react-dom";
 import {
   ArrowRight,
   BellRing,
@@ -213,15 +214,25 @@ export default function CustomerFlightSearchResults({
   const [departureSlots, setDepartureSlots] = useState<TimeSlotId[]>([]);
   const [arrivalSlots, setArrivalSlots] = useState<TimeSlotId[]>([]);
   const [maxDurationHours, setMaxDurationHours] = useState(37);
+  
+  const lastSearchKeyRef = useRef(
+    `${searchState.departDate}-${searchState.fromTitle}-${searchState.toTitle}`
+  );
 
-  useEffect(() => {
-    setSelectedDate(searchState.departDate);
-    setSortBy("recommended");
-    setSelectedStops([]);
-    setSelectedAirlines([]);
-    setDepartureSlots([]);
-    setArrivalSlots([]);
-    setMaxDurationHours(37);
+  useLayoutEffect(() => {
+    const currentSearchKey = `${searchState.departDate}-${searchState.fromTitle}-${searchState.toTitle}`;
+    if (currentSearchKey !== lastSearchKeyRef.current) {
+      lastSearchKeyRef.current = currentSearchKey;
+      flushSync(() => {
+        setSelectedDate(searchState.departDate);
+        setSortBy("recommended");
+        setSelectedStops([]);
+        setSelectedAirlines([]);
+        setDepartureSlots([]);
+        setArrivalSlots([]);
+        setMaxDurationHours(37);
+      });
+    }
   }, [searchState.departDate, searchState.fromTitle, searchState.toTitle]);
 
   const dayOptions = useMemo(
