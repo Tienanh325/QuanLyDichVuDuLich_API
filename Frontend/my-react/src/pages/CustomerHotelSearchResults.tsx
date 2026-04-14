@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   BedDouble,
   CalendarDays,
@@ -7,7 +8,6 @@ import {
   CircleDollarSign,
   Coffee,
   MapPinned,
-  Mountain,
   Search,
   ShieldCheck,
   SlidersHorizontal,
@@ -16,31 +16,22 @@ import {
   TicketPercent,
   Users,
 } from "lucide-react";
-import baibienImage from "../assets/images/baibien.jpg";
-import thuongHieuImage from "../assets/images/thuonghieu.jpg";
+import "../assets/css/CustomerHotelFlow.css";
+import {
+  type HotelAmenityId,
+  type HotelProperty,
+  type HotelTagId,
+  type HotelTypeId,
+  hotelProperties,
+} from "../utils/hotelBooking";
+import {
+  type HotelSearchState,
+  buildHotelSearchQuery,
+  calculateHotelNights,
+  formatHotelDateRange,
+  formatHotelGuestSummary,
+} from "../utils/hotelSearch";
 import { formatCurrencyVnd } from "../utils/flightSearch";
-
-export type HotelSearchState = {
-  view: "landing" | "results";
-  destination: string;
-  destinationSubtitle: string;
-  checkInDate: string;
-  checkOutDate: string;
-  adults: number;
-  children: number;
-  rooms: number;
-};
-
-export const defaultHotelSearchState: HotelSearchState = {
-  view: "landing",
-  destination: "Đà Lạt",
-  destinationSubtitle: "Lâm Đồng, Việt Nam",
-  checkInDate: "2026-04-09",
-  checkOutDate: "2026-04-10",
-  adults: 2,
-  children: 0,
-  rooms: 1,
-};
 
 type CustomerHotelSearchResultsProps = {
   searchState: HotelSearchState;
@@ -48,33 +39,6 @@ type CustomerHotelSearchResultsProps = {
 };
 
 type SortKey = "recommended" | "price" | "rating";
-type HotelTagId = "sale" | "breakfast" | "family" | "freeCancel";
-type HotelAmenityId = "breakfast" | "airport" | "family" | "parking" | "mountain" | "balcony";
-type HotelTypeId = "hotel" | "apartment" | "villa";
-
-type HotelResult = {
-  id: string;
-  name: string;
-  subtitle?: string;
-  district: string;
-  districtKey: string;
-  rating: number;
-  reviews: string;
-  propertyType: string;
-  propertyTypeKey: HotelTypeId;
-  stars: number;
-  nightlyPrice: number;
-  totalPrice: number;
-  originalPrice?: number;
-  highlight: string;
-  reward: string;
-  amenities: string[];
-  amenityIds: HotelAmenityId[];
-  benefits: string[];
-  promoTags: string[];
-  tagIds: HotelTagId[];
-  gallery: string[];
-};
 
 const sortOptions: Array<{ id: SortKey; label: string }> = [
   { id: "recommended", label: "Độ phổ biến" },
@@ -111,239 +75,6 @@ const typeOptions: Array<{ id: HotelTypeId; label: string }> = [
   { id: "villa", label: "Villa" },
 ];
 
-const hotelCollections = [
-  {
-    title: "Khách sạn được đánh giá hàng đầu",
-    price: 2415584,
-    image: baibienImage,
-  },
-  {
-    title: "Khách sạn hướng núi",
-    price: 340274,
-    image: thuongHieuImage,
-  },
-  {
-    title: "Popular picks cuối tuần",
-    price: 184350,
-    image: baibienImage,
-  },
-];
-
-const hotelResults: HotelResult[] = [
-  {
-    id: "the-grace",
-    name: "The Grace Hotel Dalat",
-    district: "Phường 1",
-    districtKey: "ward1",
-    rating: 8.8,
-    reviews: "(1,9N đánh giá)",
-    propertyType: "Khách sạn",
-    propertyTypeKey: "hotel",
-    stars: 4,
-    nightlyPrice: 308778,
-    totalPrice: 356638,
-    originalPrice: 315152,
-    highlight: "Sale lễ",
-    reward: "1.248 Xu",
-    amenities: ["Nhà hàng", "Bữa sáng", "Khu trung tâm"],
-    amenityIds: ["breakfast"],
-    benefits: ["Miễn phí hủy phòng", "Thanh toán tại khách sạn"],
-    promoTags: ["Mã KSLEVN giảm đến 300K", "Ưu đãi phòng cuối tuần"],
-    tagIds: ["sale", "breakfast"],
-    gallery: [baibienImage, thuongHieuImage, baibienImage, thuongHieuImage],
-  },
-  {
-    id: "nature",
-    name: "Nature Hotel - Le Hong Phong",
-    district: "Phường 4",
-    districtKey: "ward4",
-    rating: 8.7,
-    reviews: "(76 đánh giá)",
-    propertyType: "Khách sạn",
-    propertyTypeKey: "hotel",
-    stars: 4,
-    nightlyPrice: 342436,
-    totalPrice: 389951,
-    highlight: "View núi",
-    reward: "1.365 Xu",
-    amenities: ["Khu vui chơi trẻ em", "Cho thuê xe hơi", "Trung tâm thể dục"],
-    amenityIds: ["family", "parking", "mountain"],
-    benefits: ["Miễn phí hủy phòng", "Không thanh toán ngay"],
-    promoTags: ["Mã KSLEVN giảm đến 300K"],
-    tagIds: ["family", "freeCancel"],
-    gallery: [thuongHieuImage, baibienImage, thuongHieuImage, baibienImage],
-  },
-  {
-    id: "lata",
-    name: "LATA Hotel & Apartments",
-    district: "Phường 6",
-    districtKey: "ward6",
-    rating: 9.6,
-    reviews: "(634 đánh giá)",
-    propertyType: "Căn hộ",
-    propertyTypeKey: "apartment",
-    stars: 4,
-    nightlyPrice: 441558,
-    totalPrice: 510000,
-    highlight: "Vị trí tốt",
-    reward: "1.640 Xu",
-    amenities: ["Nhà bếp mini", "Sân hiên", "Khu vực ngoài trời"],
-    amenityIds: ["balcony", "family"],
-    benefits: ["Miễn phí hủy phòng", "Không thanh toán ngay"],
-    promoTags: ["Mã KSLEVN giảm đến 300K", "Ưu đãi chốt sớm"],
-    tagIds: ["freeCancel"],
-    gallery: [baibienImage, thuongHieuImage, baibienImage, thuongHieuImage],
-  },
-  {
-    id: "bazan",
-    name: "Khách sạn Bazan Hotel",
-    subtitle: "(Bazan Hotel)",
-    district: "Phường 3",
-    districtKey: "ward3",
-    rating: 9,
-    reviews: "(50 đánh giá)",
-    propertyType: "Khách sạn",
-    propertyTypeKey: "hotel",
-    stars: 4,
-    nightlyPrice: 234545,
-    totalPrice: 270900,
-    highlight: "Sale lễ",
-    reward: "1.180 Xu",
-    amenities: ["Đón khách tại ga tàu", "Giữ trẻ", "Cho thuê xe hơi"],
-    amenityIds: ["parking", "family"],
-    benefits: ["Miễn phí hủy phòng", "Không thanh toán ngay"],
-    promoTags: ["Mã KSLEVN giảm đến 300K", "Một số phòng có Extra Benefit"],
-    tagIds: ["sale", "family", "freeCancel"],
-    gallery: [thuongHieuImage, baibienImage, thuongHieuImage, baibienImage],
-  },
-  {
-    id: "luxe",
-    name: "The Luxe Hotel Dalat",
-    district: "Phường 3",
-    districtKey: "ward3",
-    rating: 8.5,
-    reviews: "(1,4N đánh giá)",
-    propertyType: "Khách sạn",
-    propertyTypeKey: "hotel",
-    stars: 4,
-    nightlyPrice: 405800,
-    totalPrice: 541066,
-    originalPrice: 541066,
-    highlight: "View núi",
-    reward: "1.640 Xu",
-    amenities: ["Sân thượng", "Sân hiên", "Ban công"],
-    amenityIds: ["mountain", "balcony"],
-    benefits: ["Chỉ còn 5 phòng giá này"],
-    promoTags: ["Mã KSLEVN giảm đến 300K"],
-    tagIds: ["sale"],
-    gallery: [baibienImage, thuongHieuImage, baibienImage, thuongHieuImage],
-  },
-  {
-    id: "lapaix",
-    name: "La Paix Dalat",
-    district: "Phường 3",
-    districtKey: "ward3",
-    rating: 8.2,
-    reviews: "(167 đánh giá)",
-    propertyType: "Villa",
-    propertyTypeKey: "villa",
-    stars: 4,
-    nightlyPrice: 749729,
-    totalPrice: 850062,
-    originalPrice: 999638,
-    highlight: "Cho gia đình",
-    reward: "2.975 Xu",
-    amenities: ["Biệt thự riêng", "Bữa sáng", "Khu vườn"],
-    amenityIds: ["family", "breakfast", "balcony"],
-    benefits: ["Miễn phí hủy phòng", "Không thanh toán ngay"],
-    promoTags: ["Mã KSLEVN giảm đến 300K"],
-    tagIds: ["family", "breakfast", "freeCancel"],
-    gallery: [thuongHieuImage, baibienImage, thuongHieuImage, baibienImage],
-  },
-];
-
-function clampCount(value: number, minimum: number) {
-  return Number.isFinite(value) ? Math.max(minimum, Math.floor(value)) : minimum;
-}
-
-function toHotelDate(dateString: string) {
-  const parsedDate = new Date(`${dateString}T00:00:00`);
-
-  if (Number.isNaN(parsedDate.getTime())) {
-    return new Date(`${defaultHotelSearchState.checkInDate}T00:00:00`);
-  }
-
-  return parsedDate;
-}
-
-export function toHotelQueryDate(date: Date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-}
-
-export function hotelQueryDateToDate(dateString: string) {
-  return toHotelDate(dateString);
-}
-
-export function parseHotelSearchParams(searchParams: URLSearchParams): HotelSearchState {
-  const adults = clampCount(Number(searchParams.get("adults")), defaultHotelSearchState.adults);
-  const children = clampCount(Number(searchParams.get("children")), 0);
-  const rooms = clampCount(Number(searchParams.get("rooms")), defaultHotelSearchState.rooms);
-
-  return {
-    view: searchParams.get("view") === "results" ? "results" : "landing",
-    destination: searchParams.get("destination") || defaultHotelSearchState.destination,
-    destinationSubtitle: searchParams.get("destinationSub") || defaultHotelSearchState.destinationSubtitle,
-    checkInDate: searchParams.get("checkIn") || defaultHotelSearchState.checkInDate,
-    checkOutDate: searchParams.get("checkOut") || defaultHotelSearchState.checkOutDate,
-    adults,
-    children,
-    rooms,
-  };
-}
-
-export function buildHotelSearchQuery(overrides: Partial<HotelSearchState>) {
-  const nextState = {
-    ...defaultHotelSearchState,
-    ...overrides,
-  };
-  const searchParams = new URLSearchParams();
-
-  searchParams.set("view", nextState.view);
-  searchParams.set("destination", nextState.destination);
-  searchParams.set("destinationSub", nextState.destinationSubtitle);
-  searchParams.set("checkIn", nextState.checkInDate);
-  searchParams.set("checkOut", nextState.checkOutDate);
-  searchParams.set("adults", String(nextState.adults));
-  searchParams.set("children", String(nextState.children));
-  searchParams.set("rooms", String(nextState.rooms));
-
-  return searchParams.toString();
-}
-
-export function calculateHotelNights(checkInDate: string, checkOutDate: string) {
-  const startDate = toHotelDate(checkInDate);
-  const endDate = toHotelDate(checkOutDate);
-  const difference = endDate.getTime() - startDate.getTime();
-
-  return Math.max(1, Math.round(difference / (1000 * 60 * 60 * 24)));
-}
-
-function formatHotelMonthDayLabel(dateString: string) {
-  const date = toHotelDate(dateString);
-
-  return `${String(date.getDate()).padStart(2, "0")} thg ${date.getMonth() + 1}`;
-}
-
-export function formatHotelDateRange(checkInDate: string, checkOutDate: string) {
-  const nights = calculateHotelNights(checkInDate, checkOutDate);
-
-  return `${formatHotelMonthDayLabel(checkInDate)} - ${formatHotelMonthDayLabel(checkOutDate)}, ${nights} đêm`;
-}
-
-export function formatHotelGuestSummary(adults: number, children: number, rooms: number) {
-  return `${adults} người lớn, ${children} trẻ em, ${rooms} phòng`;
-}
-
 function getRatingLabel(rating: number) {
   if (rating >= 9) {
     return "Xuất sắc";
@@ -360,10 +91,17 @@ function renderStars(stars: number) {
   return Array.from({ length: stars }, (_, index) => <Star key={`${stars}-${index}`} size={12} fill="currentColor" />);
 }
 
+function toggleArrayValue<T extends string | number>(value: T, setValue: Dispatch<SetStateAction<T[]>>) {
+  setValue((currentValue) =>
+    currentValue.includes(value) ? currentValue.filter((item) => item !== value) : [...currentValue, value],
+  );
+}
+
 export default function CustomerHotelSearchResults({
   searchState,
   onStartNewSearch,
 }: CustomerHotelSearchResultsProps) {
+  const navigate = useNavigate();
   const [sortBy, setSortBy] = useState<SortKey>("recommended");
   const [priceMode, setPriceMode] = useState("nightly");
   const [selectedPopularTags, setSelectedPopularTags] = useState<HotelTagId[]>([]);
@@ -386,20 +124,20 @@ export default function CustomerHotelSearchResults({
 
   const filteredHotels = useMemo(
     () =>
-      hotelResults.filter((item) => {
+      hotelProperties.filter((item) => {
         const matchesPopular =
           selectedPopularTags.length === 0 || selectedPopularTags.every((tag) => item.tagIds.includes(tag));
         const matchesDistrict =
           selectedDistricts.length === 0 || selectedDistricts.includes(item.districtKey);
         const matchesType = selectedTypes.length === 0 || selectedTypes.includes(item.propertyTypeKey);
         const matchesAmenities =
-          selectedAmenities.length === 0 || selectedAmenities.every((itemId) => item.amenityIds.includes(itemId));
+          selectedAmenities.length === 0 || selectedAmenities.every((amenityId) => item.amenityIds.includes(amenityId));
         const matchesStars = selectedStars.length === 0 || selectedStars.includes(item.stars);
         const matchesPrice = item.nightlyPrice <= maxPrice;
 
         return matchesPopular && matchesDistrict && matchesType && matchesAmenities && matchesStars && matchesPrice;
       }),
-    [maxPrice, selectedAmenities, selectedDistricts, selectedPopularTags, selectedStars, selectedTypes]
+    [maxPrice, selectedAmenities, selectedDistricts, selectedPopularTags, selectedStars, selectedTypes],
   );
 
   const sortedHotels = useMemo(() => {
@@ -430,17 +168,7 @@ export default function CustomerHotelSearchResults({
   const topRating = sortedHotels.length ? Math.max(...sortedHotels.map((item) => item.rating)) : null;
   const staySummary = formatHotelDateRange(searchState.checkInDate, searchState.checkOutDate);
   const guestSummary = formatHotelGuestSummary(searchState.adults, searchState.children, searchState.rooms);
-
-  function toggleArrayValue<T extends string | number>(
-    value: T,
-    setValue: Dispatch<SetStateAction<T[]>>
-  ) {
-    setValue((currentValue) =>
-      currentValue.includes(value)
-        ? currentValue.filter((item) => item !== value)
-        : [...currentValue, value]
-    );
-  }
+  const nights = calculateHotelNights(searchState.checkInDate, searchState.checkOutDate);
 
   function resetFilters() {
     setSortBy("recommended");
@@ -453,7 +181,11 @@ export default function CustomerHotelSearchResults({
     setMaxPrice(900000);
   }
 
-  function renderHotelCard(item: HotelResult, isFeatured = false) {
+  function handleSelectHotel(item: HotelProperty) {
+    navigate(`/mua-sam/khach-san/${item.id}?${buildHotelSearchQuery({ ...searchState, view: "results" })}`);
+  }
+
+  function renderHotelCard(item: HotelProperty, isFeatured = false) {
     return (
       <article key={item.id} className={isFeatured ? "hotel-results__card is-featured" : "hotel-results__card"}>
         {isFeatured ? <div className="hotel-results__card-ribbon">Lựa chọn nổi bật cho tìm kiếm này</div> : null}
@@ -461,14 +193,18 @@ export default function CustomerHotelSearchResults({
         <div className="hotel-results__card-media">
           <div
             className="hotel-results__card-main-image"
-            style={{ backgroundImage: `linear-gradient(180deg, rgba(9, 24, 45, 0.06) 0%, rgba(9, 24, 45, 0.3) 100%), url(${item.gallery[0]})` }}
+            style={{
+              backgroundImage: `linear-gradient(180deg, rgba(9, 24, 45, 0.06) 0%, rgba(9, 24, 45, 0.3) 100%), url(${item.gallery[0]})`,
+            }}
           />
           <div className="hotel-results__card-thumbs">
-            {item.gallery.slice(1).map((image, index) => (
+            {item.gallery.slice(1, 4).map((image, index) => (
               <div
                 key={`${item.id}-${index}`}
                 className={index === 2 ? "hotel-results__card-thumb hotel-results__card-thumb--overlay" : "hotel-results__card-thumb"}
-                style={{ backgroundImage: `linear-gradient(180deg, rgba(8, 22, 44, 0.1) 0%, rgba(8, 22, 44, 0.52) 100%), url(${image})` }}
+                style={{
+                  backgroundImage: `linear-gradient(180deg, rgba(8, 22, 44, 0.1) 0%, rgba(8, 22, 44, 0.52) 100%), url(${image})`,
+                }}
               >
                 {index === 2 ? <span>Xem ảnh</span> : null}
               </div>
@@ -498,7 +234,7 @@ export default function CustomerHotelSearchResults({
               <div className="hotel-results__score">
                 <strong>{`${item.rating.toFixed(1)}/10`}</strong>
                 <span>{getRatingLabel(item.rating)}</span>
-                <small>{item.reviews}</small>
+                <small>{`${item.reviewCount.toLocaleString("vi-VN")} đánh giá`}</small>
               </div>
             </div>
 
@@ -532,9 +268,13 @@ export default function CustomerHotelSearchResults({
           <div className="hotel-results__price-panel">
             <span className="hotel-results__highlight">{item.highlight}</span>
             {item.originalPrice ? <small className="hotel-results__old-price">{formatCurrencyVnd(item.originalPrice)}</small> : null}
-            <strong>{formatCurrencyVnd(item.nightlyPrice)}</strong>
-            <p>{`Tổng ${formatCurrencyVnd(item.totalPrice)} cho ${searchState.rooms} phòng`}</p>
-            <button type="button" className="hotel-results__select-button">
+            <strong>{formatCurrencyVnd(priceMode === "nightly" ? item.nightlyPrice : item.totalPrice)}</strong>
+            <p>
+              {priceMode === "nightly"
+                ? `Mỗi phòng mỗi đêm cho ${searchState.rooms} phòng`
+                : `Tổng ${formatCurrencyVnd(item.totalPrice)} cho ${searchState.rooms} phòng`}
+            </p>
+            <button type="button" className="hotel-results__select-button" onClick={() => handleSelectHotel(item)}>
               Chọn phòng
             </button>
           </div>
@@ -556,7 +296,7 @@ export default function CustomerHotelSearchResults({
             <div className="hotel-results__summary-field">
               <span>Thời gian ở</span>
               <strong>{staySummary}</strong>
-              <small>{`${calculateHotelNights(searchState.checkInDate, searchState.checkOutDate)} đêm`}</small>
+              <small>{`${nights} đêm`}</small>
             </div>
             <div className="hotel-results__summary-field">
               <span>Khách và phòng</span>
@@ -587,7 +327,7 @@ export default function CustomerHotelSearchResults({
               <div>
                 <span>Kết quả tìm kiếm khách sạn</span>
                 <strong>{`${searchState.destination} đang có ưu đãi tốt`}</strong>
-                <p>Hiển thị các khách sạn, căn hộ và villa phù hợp cho hành trình hiện tại.</p>
+                <p>Hiển thị khách sạn, căn hộ và villa phù hợp với hành trình hiện tại của bạn.</p>
               </div>
               <div className="hotel-results__headline-icon">
                 <BedDouble size={42} />
@@ -605,7 +345,7 @@ export default function CustomerHotelSearchResults({
               </div>
               <div className="hotel-results__pill">
                 <Sparkles size={16} />
-                Ưu tiên nơi lưu trú được khách đánh giá tốt gần trung tâm
+                Ưu tiên nơi lưu trú được đánh giá tốt gần trung tâm
               </div>
             </div>
 
@@ -791,34 +531,7 @@ export default function CustomerHotelSearchResults({
                 </button>
               </article>
             ) : (
-              <>
-                {listHotels.map((item, index) => (
-                  <div key={item.id}>
-                    {renderHotelCard(item)}
-                    {index === 1 ? (
-                      <article className="hotel-results__collection-card">
-                        <div className="hotel-results__collection-copy">
-                          <span>Popular Picks</span>
-                          <strong>Gợi ý thêm cho chuyến đi của bạn</strong>
-                          <p>Các nhóm chỗ ở được khách quan tâm nhiều trong cùng khu vực tìm kiếm.</p>
-                        </div>
-                        <div className="hotel-results__collection-grid">
-                          {hotelCollections.map((collection) => (
-                            <article key={collection.title} className="hotel-results__mini-card">
-                              <div
-                                className="hotel-results__mini-card-image"
-                                style={{ backgroundImage: `linear-gradient(180deg, rgba(7, 24, 46, 0.12) 0%, rgba(7, 24, 46, 0.58) 100%), url(${collection.image})` }}
-                              />
-                              <strong>{collection.title}</strong>
-                              <span>{formatCurrencyVnd(collection.price)}</span>
-                            </article>
-                          ))}
-                        </div>
-                      </article>
-                    ) : null}
-                  </div>
-                ))}
-              </>
+              listHotels.map((item) => renderHotelCard(item))
             )}
           </div>
         </div>

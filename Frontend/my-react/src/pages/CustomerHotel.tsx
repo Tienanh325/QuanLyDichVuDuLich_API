@@ -28,13 +28,14 @@ import baibienImage from "../assets/images/baibien.jpg";
 import thuongHieuImage from "../assets/images/thuonghieu.jpg";
 import "../assets/css/CustomerHome.css";
 import "../assets/css/CustomerHotel.css";
-import CustomerHotelSearchResults, {
+import CustomerHotelSearchResults from "./CustomerHotelSearchResults";
+import {
   buildHotelSearchQuery,
   defaultHotelSearchState,
   hotelQueryDateToDate,
   parseHotelSearchParams,
   toHotelQueryDate,
-} from "./CustomerHotelSearchResults";
+} from "../utils/hotelSearch";
 
 type IconType = typeof Search;
 type HotelPopover = "destination" | "stay" | "guests" | null;
@@ -249,6 +250,17 @@ const popularHotelDestinations = [
   },
 ] as const;
 
+function findHotelDestination(destination: string, subtitle: string) {
+  return (
+    popularHotelDestinations.find((item) => item.name === destination) ?? {
+      name: destination || defaultHotelSearchState.destination,
+      subtitle: subtitle || defaultHotelSearchState.destinationSubtitle,
+      type: "Thành phố",
+      count: "Nhiều khách sạn",
+    }
+  );
+}
+
 type HotelFieldButtonProps = {
   label: string;
   value: string;
@@ -335,22 +347,49 @@ function HotelFieldButton({
 }
 
 export default function CustomerHotel() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const parsedSearch = useMemo(
+    () => parseHotelSearchParams(new URLSearchParams(location.search)),
+    [location.search],
+  );
   const hotelSearchRef = useRef<HTMLDivElement | null>(null);
   const [openHotelPopover, setOpenHotelPopover] = useState<HotelPopover>(null);
   const [hotelDateFocus, setHotelDateFocus] = useState<"checkIn" | "checkOut">("checkIn");
-  const [hotelDestination, setHotelDestination] = useState<(typeof popularHotelDestinations)[number]>(
-    popularHotelDestinations[0],
+  const [hotelDestination, setHotelDestination] = useState<(typeof popularHotelDestinations)[number]>(() =>
+    findHotelDestination(parsedSearch.destination, parsedSearch.destinationSubtitle),
   );
-  const [hotelStay, setHotelStay] = useState({
-    checkIn: new Date(2026, 3, 2),
-    checkOut: new Date(2026, 3, 3),
-  });
-  const [hotelGuests, setHotelGuests] = useState({
-    adults: 2,
-    children: 0,
-    rooms: 1,
-  });
+  const [hotelStay, setHotelStay] = useState(() => ({
+    checkIn: hotelQueryDateToDate(parsedSearch.checkInDate),
+    checkOut: hotelQueryDateToDate(parsedSearch.checkOutDate),
+  }));
+  const [hotelGuests, setHotelGuests] = useState(() => ({
+    adults: parsedSearch.adults,
+    children: parsedSearch.children,
+    rooms: parsedSearch.rooms,
+  }));
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
+
+  useEffect(() => {
+    setHotelDestination(findHotelDestination(parsedSearch.destination, parsedSearch.destinationSubtitle));
+    setHotelStay({
+      checkIn: hotelQueryDateToDate(parsedSearch.checkInDate),
+      checkOut: hotelQueryDateToDate(parsedSearch.checkOutDate),
+    });
+    setHotelGuests({
+      adults: parsedSearch.adults,
+      children: parsedSearch.children,
+      rooms: parsedSearch.rooms,
+    });
+  }, [
+    parsedSearch.adults,
+    parsedSearch.checkInDate,
+    parsedSearch.checkOutDate,
+    parsedSearch.children,
+    parsedSearch.destination,
+    parsedSearch.destinationSubtitle,
+    parsedSearch.rooms,
+  ]);
 
   useEffect(() => {
     if (!openHotelPopover) {
