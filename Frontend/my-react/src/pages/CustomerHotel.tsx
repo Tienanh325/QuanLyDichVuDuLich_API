@@ -282,6 +282,8 @@ type HotelFieldButtonProps = {
   isOpen?: boolean;
   onClick: () => void;
   className?: string;
+  helperText?: string;
+  hasChevron?: boolean;
   children?: ReactNode;
 };
 
@@ -310,9 +312,8 @@ function formatHotelSearchDate(date: Date) {
 function formatHotelPanelDate(date: Date) {
   const weekdayNames = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 
-  return `${weekdayNames[date.getDay()]}, ${String(date.getDate()).padStart(2, "0")} thg ${
-    date.getMonth() + 1
-  } ${date.getFullYear()}`;
+  return `${weekdayNames[date.getDay()]}, ${String(date.getDate()).padStart(2, "0")} thg ${date.getMonth() + 1
+    } ${date.getFullYear()}`;
 }
 
 function getCalendarDays(year: number, monthIndex: number) {
@@ -339,6 +340,8 @@ function HotelFieldButton({
   isOpen = false,
   onClick,
   className,
+  helperText,
+  hasChevron = false,
   children,
 }: HotelFieldButtonProps) {
   const wrapperClassName = ["travel-hotel-field-wrap", className, isOpen ? "is-open" : ""]
@@ -354,7 +357,13 @@ function HotelFieldButton({
           <Icon size={22} />
         </span>
         <span className="travel-hotel-field__value">{value}</span>
+        {hasChevron ? (
+          <span className="travel-hotel-field__chevron">
+            <ChevronDown size={18} />
+          </span>
+        ) : null}
       </button>
+      {helperText ? <div className="travel-hotel-field__helper">{helperText}</div> : null}
       {children}
     </div>
   );
@@ -552,10 +561,10 @@ export default function CustomerHotel() {
   if (isResultsView) {
     return (
       <div className="hotel-customer">
-        <CustomerHotelSearchResults 
+        <CustomerHotelSearchResults
           key={`${activeSearchState.checkInDate}-${activeSearchState.checkOutDate}-${activeSearchState.destination}`}
-          searchState={activeSearchState} 
-          onStartNewSearch={handleStartNewSearch} 
+          searchState={activeSearchState}
+          onStartNewSearch={handleStartNewSearch}
         />
       </div>
     );
@@ -563,42 +572,22 @@ export default function CustomerHotel() {
 
   return (
     <div className="hotel-customer">
-      <section
-        className="hotel-customer__hero"
-        style={{
-          backgroundImage: `linear-gradient(180deg, rgba(8, 24, 45, 0.2) 0%, rgba(8, 24, 45, 0.76) 100%), linear-gradient(90deg, rgba(8, 24, 45, 0.22) 0%, rgba(8, 24, 45, 0.06) 100%), url(${baibienImage})`,
-        }}
-      >
+      <section className="hotel-customer__hero">
         <div className="customer-shell__container">
-          <div className="hotel-customer__hero-copy">
-            <span>Khách sạn • Villa • Căn hộ • Resort</span>
-            <h1>Điểm đến tiếp theo của bạn? Bắt đầu săn giá tốt với Traveloka</h1>
-            <p>
-              Tìm khách sạn, căn hộ và biệt thự với ưu đãi mới mỗi ngày, thanh toán tiện lợi và
-              đánh giá minh bạch từ khách thật.
-            </p>
+          {/* Cập nhật linear-gradient để bóng đen tập trung ở dưới cùng, làm nổi chữ */}
+          <div
+            className="hotel-customer__hero-image-wrapper"
+            style={{
+              backgroundImage: `linear-gradient(to bottom, rgba(8, 24, 45, 0) 20%, rgba(8, 24, 45, 0.85) 100%), url(${baibienImage})`,
+            }}
+          >
+            <div className="hotel-customer__hero-copy">
+              <h1>Điểm đến tiếp theo của bạn? Đặt khách sạn giá tốt với Traveloka</h1>
+              <p>Khám phá nhiều lựa chọn từ khách sạn, biệt thự, resort và hơn thế nữa</p>
+            </div>
           </div>
 
           <section className="travel-search hotel-customer__search" id="tim-kiem">
-            <div className="travel-search__services">
-              <button type="button" className="travel-service is-active">
-                <BedDouble size={20} />
-                <span>Khách sạn</span>
-              </button>
-              <button type="button" className="travel-service">
-                <Building2 size={20} />
-                <span>Căn hộ</span>
-              </button>
-              <button type="button" className="travel-service">
-                <Star size={20} />
-                <span>Resort</span>
-              </button>
-              <button type="button" className="travel-service">
-                <TicketPercent size={20} />
-                <span>Ưu đãi hôm nay</span>
-              </button>
-            </div>
-
             <div className="travel-panel travel-panel--hotel" ref={hotelSearchRef}>
               <div className="travel-form">
                 <div className="travel-form__layout travel-form__layout--hotel">
@@ -665,6 +654,7 @@ export default function CustomerHotel() {
                       setOpenHotelPopover((currentValue) => (currentValue === "stay" ? null : "stay"))
                     }
                     className="travel-hotel-field-wrap--stay"
+                    helperText="Thời gian: 1 Đêm"
                   >
                     {openHotelPopover === "stay" ? (
                       <div className="travel-hotel-panel travel-hotel-panel--stay">
@@ -774,6 +764,7 @@ export default function CustomerHotel() {
                       setOpenHotelPopover((currentValue) => (currentValue === "guests" ? null : "guests"))
                     }
                     className="travel-hotel-field-wrap--guests"
+                    hasChevron
                   >
                     {openHotelPopover === "guests" ? (
                       <div className="travel-hotel-panel travel-hotel-panel--guests">
@@ -845,28 +836,20 @@ export default function CustomerHotel() {
                     ) : null}
                   </HotelFieldButton>
 
-                  <button type="button" className="travel-search__submit" aria-label="Tìm khách sạn" onClick={handleHotelSearch}>
-                    <Search size={24} />
+                        <button type="button" className="travel-search__submit" aria-label="Tìm khách sạn" onClick={handleHotelSearch}>
+                    <span>Tìm kiếm</span>
+                    <Search size={20} strokeWidth={2.5} />
                   </button>
                 </div>
               </div>
 
-              <div className="travel-search__footer">
-                <div className="travel-search__footer-title">Tìm kiếm nổi bật</div>
-                <div className="travel-search__footer-links">
-                  <a href="#uu-dai">
-                    <CircleDollarSign size={16} />
-                    Mã giảm giá hôm nay
-                  </a>
-                  <a href="#pho-bien">
-                    <MapPinned size={16} />
-                    Khách sạn phổ biến
-                  </a>
-                  <a href="#faq">
-                    <Info size={16} />
-                    Câu hỏi thường gặp
-                  </a>
-                </div>
+              <div className="travel-search__footer" style={{ padding: "16px 4px 0", marginTop: "12px", borderTop: "none" }}>
+                <a href="#history" className="travel-search__history-link">
+                  <strong>Khách sạn xem gần đây</strong>
+                  <div className="travel-search__history-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" /></svg>
+                  </div>
+                </a>
               </div>
             </div>
           </section>

@@ -8,52 +8,114 @@
 
 .hotel-customer__hero {
   position: relative;
-  padding: 172px 0 36px;
+  /* Giảm padding-top nếu bạn muốn banner kéo sát lên header hơn giống ảnh 1 */
+  padding-top: 155px; 
+  background: transparent;
+}
+
+.hotel-customer__hero-image-wrapper {
+  position: relative;
+  height: 360px; /* Điều chỉnh chiều cao cho cân đối */
+  border-radius: 16px; /* Bo góc nhẹ hơn giống ảnh 1 */
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  display: flex;
+  align-items: flex-end;
+  /* Tăng padding bottom để đẩy chữ lên trên, nhường chỗ cho form tìm kiếm xếp đè lên */
+  padding: 40px 40px 90px 40px; 
+  overflow: hidden;
 }
 
 .hotel-customer__hero-copy {
-  max-width: 760px;
+  max-width: 800px; /* Cho chữ rộng ra một chút */
   color: #fff;
-}
-
-.hotel-customer__hero-copy span {
-  display: inline-flex;
-  align-items: center;
-  min-height: 34px;
-  padding: 0 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
+  position: relative;
+  z-index: 2;
 }
 
 .hotel-customer__hero-copy h1 {
-  margin: 18px 0 0;
-  font-size: clamp(34px, 5vw, 52px);
-  line-height: 1.06;
-  font-weight: 900;
-  letter-spacing: -0.05em;
+  margin: 0;
+  font-size: clamp(24px, 4vw, 32px); /* Tinh chỉnh lại size chữ */
+  line-height: 1.2;
+  font-weight: 700;
+  color: #fff;
 }
 
 .hotel-customer__hero-copy p {
-  max-width: 680px;
-  margin: 16px 0 0;
-  color: rgba(255, 255, 255, 0.92);
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 16px;
-  line-height: 1.7;
+  font-weight: 400;
 }
 
+/* --- KHUNG TÌM KIẾM (SEARCH BOX) --- */
 .hotel-customer__search {
-  margin-top: 28px;
-  background: rgba(8, 28, 52, 0.32);
-  backdrop-filter: blur(10px);
+  position: relative;
+  /* Margin âm để đẩy khung đè lên ảnh. Căn chỉnh auto 2 bên để thụt lề so với mép ảnh */
+  margin: -65px 24px 0 24px; 
+  background: #fff;
+  border-radius: 16px; /* Bo góc mềm giống ảnh 1 */
+  /* Làm bóng đổ mềm mại và tự nhiên hơn */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0,0,0,0.04);
+  z-index: 10;
+  padding: 20px 24px;
+}
+.travel-form__layout--hotel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
 }
 
+/* Đảm bảo các ô input chiếm không gian đều nhau */
+.travel-hotel-field-wrap--destination { flex: 1.2; }
+.travel-hotel-field-wrap--stay { flex: 1.5; }
+.travel-hotel-field-wrap--guests { flex: 1.2; }
+
+
+/* --- NÚT TÌM KIẾM (Biến màu cam thành màu xanh dương chuẩn) --- */
+.travel-search__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px; /* Bằng với chiều cao của các ô input */
+  padding: 0 24px;
+  background-color: #0194f3; /* Màu xanh dương đặc trưng của Traveloka */
+  color: white;
+  border: none;
+  border-radius: 24px; /* Bo góc tròn trịa (Pill shape) */
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  flex-shrink: 0; /* Ngăn nút bị ép nhỏ lại */
+}
+
+.travel-search__submit:hover {
+  background-color: #007ce8;
+}
+
+.travel-search__submit:active {
+  transform: scale(0.98);
+}
+
+/* Định dạng link lịch sử dưới cùng */
+.travel-search__history-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #0194f3; /* Đổi sang xanh dương sáng hơn */
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+}
+.travel-search__history-icon {
+  display: flex;
+  align-items: center;
+  color: #0194f3;
+}
 .hotel-customer__hero-highlights {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -550,6 +612,7 @@
 }
 
 @media (max-width: 1080px) {
+
   .hotel-customer__hero-highlights,
   .hotel-customer__promo-grid,
   .hotel-customer__destination-grid,

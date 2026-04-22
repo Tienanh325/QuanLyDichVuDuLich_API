@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   BadgePercent,
   ChevronDown,
@@ -53,8 +53,10 @@ const categoryLinks = [
 
 export default function HeaderCustomer() {
   const navigate = useNavigate();
+  const location = useLocation();
   const session = getCurrentSession();
   const isCustomerSession = session?.role === "customer";
+  const isHotelPage = location.pathname === "/mua-sam/khach-san";
   const customerInitials =
     session?.fullName
       ?.split(" ")
@@ -112,7 +114,7 @@ export default function HeaderCustomer() {
   }
 
   return (
-    <header className={isHeaderScrolled ? "customer-header is-scrolled" : "customer-header"}>
+    <header className={["customer-header", isHeaderScrolled ? "is-scrolled" : "", isHotelPage ? "is-light-theme" : ""].filter(Boolean).join(" ")}>
       <div className="customer-header__surface">
         <div className="customer-shell__container customer-header__surface-inner">
           <div className="customer-header__row">
