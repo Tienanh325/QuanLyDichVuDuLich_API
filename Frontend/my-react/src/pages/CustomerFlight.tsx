@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -340,28 +340,8 @@ export default function CustomerFlight() {
     toTitle: parsedSearch.toTitle,
     toSubtitle: parsedSearch.toSubtitle,
   });
-  const [departDate, setDepartDate] = useState(parsedSearch.departDate);
-  const [returnDate, setReturnDate] = useState(parsedSearch.returnDate);
-
-  useEffect(() => {
-    setTripType(parsedSearch.tripType);
-    setFlightRoute({
-      fromTitle: parsedSearch.fromTitle,
-      fromSubtitle: parsedSearch.fromSubtitle,
-      toTitle: parsedSearch.toTitle,
-      toSubtitle: parsedSearch.toSubtitle,
-    });
-    setDepartDate(parsedSearch.departDate);
-    setReturnDate(parsedSearch.returnDate);
-  }, [
-    parsedSearch.departDate,
-    parsedSearch.fromSubtitle,
-    parsedSearch.fromTitle,
-    parsedSearch.returnDate,
-    parsedSearch.toSubtitle,
-    parsedSearch.toTitle,
-    parsedSearch.tripType,
-  ]);
+  const [departDate] = useState(parsedSearch.departDate);
+  const [returnDate] = useState(parsedSearch.returnDate);
 
   const isResultsView = parsedSearch.view === "results";
   const returnDateTitle =

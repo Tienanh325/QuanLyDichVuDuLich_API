@@ -30,6 +30,7 @@ import "../assets/css/CustomerHome.css";
 import "../assets/css/CustomerHotel.css";
 import CustomerHotelSearchResults from "./CustomerHotelSearchResults";
 import {
+  type HotelSearchState,
   buildHotelSearchQuery,
   defaultHotelSearchState,
   hotelQueryDateToDate,
@@ -40,6 +41,12 @@ import {
 type IconType = typeof Search;
 type HotelPopover = "destination" | "stay" | "guests" | null;
 type HotelGuestKey = "adults" | "children" | "rooms";
+
+type HotelFormState = {
+  destination: PopularHotelDestination;
+  stay: { checkIn: Date; checkOut: Date };
+  guests: { adults: number; children: number; rooms: number };
+};
 
 const heroHighlights = [
   {
@@ -217,7 +224,14 @@ const hotelCalendarMonths = [
   { year: 2026, monthIndex: 4 },
 ];
 
-const popularHotelDestinations = [
+type PopularHotelDestination = {
+  name: string;
+  subtitle: string;
+  type: string;
+  count: string;
+};
+
+const popularHotelDestinations: PopularHotelDestination[] = [
   {
     name: "Đà Lạt",
     subtitle: "Lâm Đồng, Việt Nam",
@@ -248,7 +262,7 @@ const popularHotelDestinations = [
     type: "Thành phố",
     count: "4.719 khách sạn",
   },
-] as const;
+];
 
 function findHotelDestination(destination: string, subtitle: string) {
   return (
@@ -356,30 +370,35 @@ export default function CustomerHotel() {
   const hotelSearchRef = useRef<HTMLDivElement | null>(null);
   const [openHotelPopover, setOpenHotelPopover] = useState<HotelPopover>(null);
   const [hotelDateFocus, setHotelDateFocus] = useState<"checkIn" | "checkOut">("checkIn");
-  const [hotelDestination, setHotelDestination] = useState<(typeof popularHotelDestinations)[number]>(() =>
-    findHotelDestination(parsedSearch.destination, parsedSearch.destinationSubtitle),
-  );
-  const [hotelStay, setHotelStay] = useState(() => ({
-    checkIn: hotelQueryDateToDate(parsedSearch.checkInDate),
-    checkOut: hotelQueryDateToDate(parsedSearch.checkOutDate),
-  }));
-  const [hotelGuests, setHotelGuests] = useState(() => ({
-    adults: parsedSearch.adults,
-    children: parsedSearch.children,
-    rooms: parsedSearch.rooms,
-  }));
-  const [activeFaqIndex, setActiveFaqIndex] = useState(0);
-
-  useEffect(() => {
-    setHotelDestination(findHotelDestination(parsedSearch.destination, parsedSearch.destinationSubtitle));
-    setHotelStay({
+  const [hotelForm, setHotelForm] = useState<HotelFormState>(() => ({
+    destination: findHotelDestination(parsedSearch.destination, parsedSearch.destinationSubtitle),
+    stay: {
       checkIn: hotelQueryDateToDate(parsedSearch.checkInDate),
       checkOut: hotelQueryDateToDate(parsedSearch.checkOutDate),
-    });
-    setHotelGuests({
+    },
+    guests: {
       adults: parsedSearch.adults,
       children: parsedSearch.children,
       rooms: parsedSearch.rooms,
+    },
+  }));
+  const [activeFaqIndex, setActiveFaqIndex] = useState(0);
+
+  // Synchronize form state with parsed search params from URL
+  // This is a valid pattern for deriving component state from route parameters
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setHotelForm({
+      destination: findHotelDestination(parsedSearch.destination, parsedSearch.destinationSubtitle),
+      stay: {
+        checkIn: hotelQueryDateToDate(parsedSearch.checkInDate),
+        checkOut: hotelQueryDateToDate(parsedSearch.checkOutDate),
+      },
+      guests: {
+        adults: parsedSearch.adults,
+        children: parsedSearch.children,
+        rooms: parsedSearch.rooms,
+      },
     });
   }, [
     parsedSearch.adults,
@@ -418,48 +437,73 @@ export default function CustomerHotel() {
   }, [openHotelPopover]);
 
   function handleHotelGuestChange(field: HotelGuestKey, delta: number) {
-    setHotelGuests((currentValue) => {
+    setHotelForm((currentValue) => {
       const minimumValue = field === "children" ? 0 : 1;
-      const nextValue = Math.max(minimumValue, currentValue[field] + delta);
+      const nextValue = Math.max(minimumValue, currentValue.guests[field] + delta);
 
       return {
         ...currentValue,
-        [field]: nextValue,
+        guests: {
+          ...currentValue.guests,
+          [field]: nextValue,
+        },
       };
     });
   }
 
   function handleHotelDateSelect(date: Date) {
     if (hotelDateFocus === "checkIn") {
-      setHotelStay((currentValue) => ({
-        checkIn: date,
-        checkOut:
-          currentValue.checkOut.getTime() <= date.getTime() ? addDays(date, 1) : currentValue.checkOut,
+      setHotelForm((currentValue) => ({
+        ...currentValue,
+        stay: {
+          checkIn: date,
+          checkOut:
+            currentValue.stay.checkOut.getTime() <= date.getTime() ? addDays(date, 1) : currentValue.stay.checkOut,
+        },
       }));
       setHotelDateFocus("checkOut");
       return;
     }
 
-    setHotelStay((currentValue) => {
-      if (date.getTime() <= currentValue.checkIn.getTime()) {
+    setHotelForm((currentValue) => {
+      if (date.getTime() <= currentValue.stay.checkIn.getTime()) {
         return {
-          checkIn: date,
-          checkOut: addDays(date, 1),
+          ...currentValue,
+          stay: {
+            checkIn: date,
+            checkOut: addDays(date, 1),
+          },
         };
       }
 
       return {
         ...currentValue,
-        checkOut: date,
+        stay: {
+          ...currentValue.stay,
+          checkOut: date,
+        },
       };
     });
     setHotelDateFocus("checkIn");
   }
 
-  const hotelStaySummary = `${formatHotelSearchDate(hotelStay.checkIn)} - ${formatHotelSearchDate(
-    hotelStay.checkOut,
+  const hotelStaySummary = `${formatHotelSearchDate(hotelForm.stay.checkIn)} - ${formatHotelSearchDate(
+    hotelForm.stay.checkOut,
   )}`;
-  const hotelGuestSummary = `${hotelGuests.adults} người lớn, ${hotelGuests.children} trẻ em, ${hotelGuests.rooms} phòng`;
+  const hotelGuestSummary = `${hotelForm.guests.adults} người lớn, ${hotelForm.guests.children} trẻ em, ${hotelForm.guests.rooms} phòng`;
+
+  const isResultsView = parsedSearch.view === "results";
+  const activeSearchState: HotelSearchState = {
+    ...parsedSearch,
+    view: isResultsView ? "results" : "landing",
+    destination: hotelForm.destination.name,
+    destinationSubtitle: hotelForm.destination.subtitle,
+    checkInDate: toHotelQueryDate(hotelForm.stay.checkIn),
+    checkOutDate: toHotelQueryDate(hotelForm.stay.checkOut),
+    adults: hotelForm.guests.adults,
+    children: hotelForm.guests.children,
+    rooms: hotelForm.guests.rooms,
+  };
 
   const destinationThemes = useMemo(
     () => ({
@@ -492,6 +536,31 @@ export default function CustomerHotel() {
     }),
     [],
   );
+
+  function handleHotelSearch() {
+    navigate(
+      `/mua-sam/khach-san?${buildHotelSearchQuery({
+        ...activeSearchState,
+        view: "results",
+      })}`,
+    );
+  }
+
+  function handleStartNewSearch() {
+    navigate("/mua-sam/khach-san");
+  }
+
+  if (isResultsView) {
+    return (
+      <div className="hotel-customer">
+        <CustomerHotelSearchResults 
+          key={`${activeSearchState.checkInDate}-${activeSearchState.checkOutDate}-${activeSearchState.destination}`}
+          searchState={activeSearchState} 
+          onStartNewSearch={handleStartNewSearch} 
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="hotel-customer">
@@ -536,7 +605,7 @@ export default function CustomerHotel() {
                 <div className="travel-form__layout travel-form__layout--hotel">
                   <HotelFieldButton
                     label="Thành phố, địa điểm hoặc tên khách sạn"
-                    value={hotelDestination.name}
+                    value={hotelForm.destination.name}
                     icon={MapPinned}
                     isOpen={openHotelPopover === "destination"}
                     onClick={() =>
@@ -561,12 +630,15 @@ export default function CustomerHotel() {
                               key={item.name}
                               type="button"
                               className={
-                                hotelDestination.name === item.name
+                                hotelForm.destination.name === item.name
                                   ? "travel-hotel-destination-item is-selected"
                                   : "travel-hotel-destination-item"
                               }
                               onClick={() => {
-                                setHotelDestination(item);
+                                setHotelForm((currentValue) => ({
+                                  ...currentValue,
+                                  destination: item,
+                                }));
                                 setOpenHotelPopover(null);
                               }}
                             >
@@ -612,7 +684,7 @@ export default function CustomerHotel() {
                             onClick={() => setHotelDateFocus("checkIn")}
                           >
                             <span>Nhận phòng</span>
-                            <strong>{formatHotelPanelDate(hotelStay.checkIn)}</strong>
+                            <strong>{formatHotelPanelDate(hotelForm.stay.checkIn)}</strong>
                           </button>
 
                           <button
@@ -625,7 +697,7 @@ export default function CustomerHotel() {
                             onClick={() => setHotelDateFocus("checkOut")}
                           >
                             <span>Trả phòng</span>
-                            <strong>{formatHotelPanelDate(hotelStay.checkOut)}</strong>
+                            <strong>{formatHotelPanelDate(hotelForm.stay.checkOut)}</strong>
                           </button>
                         </div>
 
@@ -662,8 +734,8 @@ export default function CustomerHotel() {
                                   }
 
                                   const isSelected =
-                                    isSameDay(date, hotelStay.checkIn) || isSameDay(date, hotelStay.checkOut);
-                                  const isInRange = isDateBetween(date, hotelStay.checkIn, hotelStay.checkOut);
+                                    isSameDay(date, hotelForm.stay.checkIn) || isSameDay(date, hotelForm.stay.checkOut);
+                                  const isInRange = isDateBetween(date, hotelForm.stay.checkIn, hotelForm.stay.checkOut);
                                   const isWeekend = date.getDay() === 0 || date.getDay() === 6;
 
                                   const className = [
@@ -715,11 +787,11 @@ export default function CustomerHotel() {
                               <button
                                 type="button"
                                 onClick={() => handleHotelGuestChange("adults", -1)}
-                                disabled={hotelGuests.adults <= 1}
+                                disabled={hotelForm.guests.adults <= 1}
                               >
                                 <Minus size={16} />
                               </button>
-                              <span>{hotelGuests.adults}</span>
+                              <span>{hotelForm.guests.adults}</span>
                               <button type="button" onClick={() => handleHotelGuestChange("adults", 1)}>
                                 <Plus size={16} />
                               </button>
@@ -734,11 +806,11 @@ export default function CustomerHotel() {
                               <button
                                 type="button"
                                 onClick={() => handleHotelGuestChange("children", -1)}
-                                disabled={hotelGuests.children <= 0}
+                                disabled={hotelForm.guests.children <= 0}
                               >
                                 <Minus size={16} />
                               </button>
-                              <span>{hotelGuests.children}</span>
+                              <span>{hotelForm.guests.children}</span>
                               <button type="button" onClick={() => handleHotelGuestChange("children", 1)}>
                                 <Plus size={16} />
                               </button>
@@ -753,11 +825,11 @@ export default function CustomerHotel() {
                               <button
                                 type="button"
                                 onClick={() => handleHotelGuestChange("rooms", -1)}
-                                disabled={hotelGuests.rooms <= 1}
+                                disabled={hotelForm.guests.rooms <= 1}
                               >
                                 <Minus size={16} />
                               </button>
-                              <span>{hotelGuests.rooms}</span>
+                              <span>{hotelForm.guests.rooms}</span>
                               <button type="button" onClick={() => handleHotelGuestChange("rooms", 1)}>
                                 <Plus size={16} />
                               </button>
@@ -774,7 +846,7 @@ export default function CustomerHotel() {
                     ) : null}
                   </HotelFieldButton>
 
-                  <button type="button" className="travel-search__submit" aria-label="Tìm khách sạn">
+                  <button type="button" className="travel-search__submit" aria-label="Tìm khách sạn" onClick={handleHotelSearch}>
                     <Search size={24} />
                   </button>
                 </div>

@@ -120,6 +120,7 @@ type HotelSeed = Omit<
   | "faqItems"
   | "scoreBreakdown"
   | "reviews"
+  | "nearbyGroups"
   | "alternativeHotelIds"
 >;
 

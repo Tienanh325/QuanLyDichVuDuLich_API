@@ -1,9 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
-import type { Dispatch, SetStateAction } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   BedDouble,
-  CalendarDays,
   ChevronDown,
   CircleDollarSign,
   Coffee,
@@ -14,7 +12,6 @@ import {
   Sparkles,
   Star,
   TicketPercent,
-  Users,
 } from "lucide-react";
 import "../assets/css/CustomerHotelFlow.css";
 import {
@@ -91,64 +88,74 @@ function renderStars(stars: number) {
   return Array.from({ length: stars }, (_, index) => <Star key={`${stars}-${index}`} size={12} fill="currentColor" />);
 }
 
-function toggleArrayValue<T extends string | number>(value: T, setValue: Dispatch<SetStateAction<T[]>>) {
-  setValue((currentValue) =>
-    currentValue.includes(value) ? currentValue.filter((item) => item !== value) : [...currentValue, value],
+function toggleArrayValue<T extends string | number>(
+  value: T,
+  currentArray: T[],
+  onUpdate: (newArray: T[]) => void
+) {
+  onUpdate(
+    currentArray.includes(value)
+      ? currentArray.filter((item) => item !== value)
+      : [...currentArray, value]
   );
 }
+
+type FilterState = {
+  sortBy: SortKey;
+  priceMode: string;
+  selectedPopularTags: HotelTagId[];
+  selectedDistricts: string[];
+  selectedTypes: HotelTypeId[];
+  selectedAmenities: HotelAmenityId[];
+  selectedStars: number[];
+  maxPrice: number;
+};
+
+const defaultFilterState: FilterState = {
+  sortBy: "recommended",
+  priceMode: "nightly",
+  selectedPopularTags: [],
+  selectedDistricts: [],
+  selectedTypes: [],
+  selectedAmenities: [],
+  selectedStars: [],
+  maxPrice: 900000,
+};
 
 export default function CustomerHotelSearchResults({
   searchState,
   onStartNewSearch,
 }: CustomerHotelSearchResultsProps) {
   const navigate = useNavigate();
-  const [sortBy, setSortBy] = useState<SortKey>("recommended");
-  const [priceMode, setPriceMode] = useState("nightly");
-  const [selectedPopularTags, setSelectedPopularTags] = useState<HotelTagId[]>([]);
-  const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
-  const [selectedTypes, setSelectedTypes] = useState<HotelTypeId[]>([]);
-  const [selectedAmenities, setSelectedAmenities] = useState<HotelAmenityId[]>([]);
-  const [selectedStars, setSelectedStars] = useState<number[]>([]);
-  const [maxPrice, setMaxPrice] = useState(900000);
-
-  useEffect(() => {
-    setSortBy("recommended");
-    setPriceMode("nightly");
-    setSelectedPopularTags([]);
-    setSelectedDistricts([]);
-    setSelectedTypes([]);
-    setSelectedAmenities([]);
-    setSelectedStars([]);
-    setMaxPrice(900000);
-  }, [searchState.checkInDate, searchState.checkOutDate, searchState.destination]);
+  const [filters, setFilters] = useState<FilterState>(defaultFilterState);
 
   const filteredHotels = useMemo(
     () =>
       hotelProperties.filter((item) => {
         const matchesPopular =
-          selectedPopularTags.length === 0 || selectedPopularTags.every((tag) => item.tagIds.includes(tag));
+          filters.selectedPopularTags.length === 0 || filters.selectedPopularTags.every((tag) => item.tagIds.includes(tag));
         const matchesDistrict =
-          selectedDistricts.length === 0 || selectedDistricts.includes(item.districtKey);
-        const matchesType = selectedTypes.length === 0 || selectedTypes.includes(item.propertyTypeKey);
+          filters.selectedDistricts.length === 0 || filters.selectedDistricts.includes(item.districtKey);
+        const matchesType = filters.selectedTypes.length === 0 || filters.selectedTypes.includes(item.propertyTypeKey);
         const matchesAmenities =
-          selectedAmenities.length === 0 || selectedAmenities.every((amenityId) => item.amenityIds.includes(amenityId));
-        const matchesStars = selectedStars.length === 0 || selectedStars.includes(item.stars);
-        const matchesPrice = item.nightlyPrice <= maxPrice;
+          filters.selectedAmenities.length === 0 || filters.selectedAmenities.every((amenityId) => item.amenityIds.includes(amenityId));
+        const matchesStars = filters.selectedStars.length === 0 || filters.selectedStars.includes(item.stars);
+        const matchesPrice = item.nightlyPrice <= filters.maxPrice;
 
         return matchesPopular && matchesDistrict && matchesType && matchesAmenities && matchesStars && matchesPrice;
       }),
-    [maxPrice, selectedAmenities, selectedDistricts, selectedPopularTags, selectedStars, selectedTypes],
+    [filters],
   );
 
   const sortedHotels = useMemo(() => {
     const nextHotels = [...filteredHotels];
 
     nextHotels.sort((leftItem, rightItem) => {
-      if (sortBy === "price") {
+      if (filters.sortBy === "price") {
         return leftItem.nightlyPrice - rightItem.nightlyPrice;
       }
 
-      if (sortBy === "rating") {
+      if (filters.sortBy === "rating") {
         return rightItem.rating - leftItem.rating;
       }
 
@@ -160,7 +167,7 @@ export default function CustomerHotelSearchResults({
     });
 
     return nextHotels;
-  }, [filteredHotels, sortBy]);
+  }, [filteredHotels, filters.sortBy]);
 
   const featuredHotel = sortedHotels[0];
   const listHotels = sortedHotels.filter((item) => item.id !== featuredHotel?.id);
@@ -171,14 +178,14 @@ export default function CustomerHotelSearchResults({
   const nights = calculateHotelNights(searchState.checkInDate, searchState.checkOutDate);
 
   function resetFilters() {
-    setSortBy("recommended");
-    setPriceMode("nightly");
-    setSelectedPopularTags([]);
-    setSelectedDistricts([]);
-    setSelectedTypes([]);
-    setSelectedAmenities([]);
-    setSelectedStars([]);
-    setMaxPrice(900000);
+    setFilters(defaultFilterState);
+  }
+
+  function updateFilter<K extends keyof FilterState>(key: K, value: FilterState[K]) {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
   }
 
   function handleSelectHotel(item: HotelProperty) {
@@ -268,9 +275,9 @@ export default function CustomerHotelSearchResults({
           <div className="hotel-results__price-panel">
             <span className="hotel-results__highlight">{item.highlight}</span>
             {item.originalPrice ? <small className="hotel-results__old-price">{formatCurrencyVnd(item.originalPrice)}</small> : null}
-            <strong>{formatCurrencyVnd(priceMode === "nightly" ? item.nightlyPrice : item.totalPrice)}</strong>
+            <strong>{formatCurrencyVnd(filters.priceMode === "nightly" ? item.nightlyPrice : item.totalPrice)}</strong>
             <p>
-              {priceMode === "nightly"
+              {filters.priceMode === "nightly"
                 ? `Mỗi phòng mỗi đêm cho ${searchState.rooms} phòng`
                 : `Tổng ${formatCurrencyVnd(item.totalPrice)} cho ${searchState.rooms} phòng`}
             </p>
@@ -378,15 +385,24 @@ export default function CustomerHotelSearchResults({
             <section className="hotel-results__filter-card">
               <div className="hotel-results__filter-card-head">
                 <strong>Khoảng giá</strong>
-                <span>{formatCurrencyVnd(maxPrice)}</span>
+                <span>{formatCurrencyVnd(filters.maxPrice)}</span>
               </div>
               <input
                 type="range"
                 min={200000}
                 max={900000}
                 step={25000}
-                value={maxPrice}
-                onChange={(event) => setMaxPrice(Number(event.target.value))}
+                value={filters.maxPrice}
+                onChange={(event) => updateFilter("maxPrice", Number(event.target.value))}
+                className="hotel-results__range-input"
+              />
+              <input
+                type="range"
+                min={200000}
+                max={900000}
+                step={25000}
+                value={filters.maxPrice}
+                onChange={(event) => updateFilter("maxPrice", Number(event.target.value))}
                 className="hotel-results__range-input"
               />
               <div className="hotel-results__range-meta">
@@ -405,8 +421,8 @@ export default function CustomerHotelSearchResults({
                   <label key={item.id} className="hotel-results__check-row">
                     <input
                       type="checkbox"
-                      checked={selectedPopularTags.includes(item.id)}
-                      onChange={() => toggleArrayValue(item.id, setSelectedPopularTags)}
+                      checked={filters.selectedPopularTags.includes(item.id)}
+                      onChange={() => toggleArrayValue(item.id, filters.selectedPopularTags, (value) => updateFilter("selectedPopularTags", value))}
                     />
                     <span>{item.label}</span>
                   </label>
@@ -424,8 +440,8 @@ export default function CustomerHotelSearchResults({
                   <label key={item.id} className="hotel-results__check-row">
                     <input
                       type="checkbox"
-                      checked={selectedDistricts.includes(item.id)}
-                      onChange={() => toggleArrayValue(item.id, setSelectedDistricts)}
+                      checked={filters.selectedDistricts.includes(item.id)}
+                      onChange={() => toggleArrayValue(item.id, filters.selectedDistricts, (value) => updateFilter("selectedDistricts", value))}
                     />
                     <span>{item.label}</span>
                   </label>
@@ -443,8 +459,8 @@ export default function CustomerHotelSearchResults({
                   <label key={item.id} className="hotel-results__check-row">
                     <input
                       type="checkbox"
-                      checked={selectedTypes.includes(item.id)}
-                      onChange={() => toggleArrayValue(item.id, setSelectedTypes)}
+                      checked={filters.selectedTypes.includes(item.id)}
+                      onChange={() => toggleArrayValue(item.id, filters.selectedTypes, (value) => updateFilter("selectedTypes", value))}
                     />
                     <span>{item.label}</span>
                   </label>
@@ -462,8 +478,8 @@ export default function CustomerHotelSearchResults({
                   <label key={item} className="hotel-results__check-row">
                     <input
                       type="checkbox"
-                      checked={selectedStars.includes(item)}
-                      onChange={() => toggleArrayValue(item, setSelectedStars)}
+                      checked={filters.selectedStars.includes(item)}
+                      onChange={() => toggleArrayValue(item, filters.selectedStars, (value) => updateFilter("selectedStars", value))}
                     />
                     <span>{`${item} sao trở lên`}</span>
                   </label>
@@ -481,8 +497,8 @@ export default function CustomerHotelSearchResults({
                   <label key={item.id} className="hotel-results__check-row">
                     <input
                       type="checkbox"
-                      checked={selectedAmenities.includes(item.id)}
-                      onChange={() => toggleArrayValue(item.id, setSelectedAmenities)}
+                      checked={filters.selectedAmenities.includes(item.id)}
+                      onChange={() => toggleArrayValue(item.id, filters.selectedAmenities, (value) => updateFilter("selectedAmenities", value))}
                     />
                     <span>{item.label}</span>
                   </label>
@@ -501,7 +517,7 @@ export default function CustomerHotelSearchResults({
               <div className="hotel-results__list-controls">
                 <label className="hotel-results__select-wrap">
                   <SlidersHorizontal size={14} />
-                  <select value={sortBy} onChange={(event) => setSortBy(event.target.value as SortKey)}>
+                  <select value={filters.sortBy} onChange={(event) => updateFilter("sortBy", event.target.value as SortKey)}>
                     {sortOptions.map((item) => (
                       <option key={item.id} value={item.id}>
                         {item.label}
@@ -512,7 +528,7 @@ export default function CustomerHotelSearchResults({
 
                 <label className="hotel-results__select-wrap">
                   <CircleDollarSign size={14} />
-                  <select value={priceMode} onChange={(event) => setPriceMode(event.target.value)}>
+                  <select value={filters.priceMode} onChange={(event) => updateFilter("priceMode", event.target.value)}>
                     <option value="nightly">Mỗi phòng mỗi đêm</option>
                     <option value="total">Tổng giá cho kỳ ở</option>
                   </select>

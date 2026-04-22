@@ -9,13 +9,25 @@
 .bus-customer__hero {
   position: relative;
   padding: 172px 0 36px;
-  background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  background-attachment: fixed;
+}
+
+.bus-customer__hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
 }
 
 .bus-customer__hero-head {
+  position: relative;
+  z-index: 2;
   max-width: 760px;
   color: #fff;
 }
@@ -37,12 +49,16 @@
 }
 
 .bus-customer__search {
+  position: relative;
+  z-index: 2;
   margin-top: 28px;
   background: rgba(8, 28, 52, 0.32);
   backdrop-filter: blur(10px);
 }
 
 .bus-customer__hero-highlights {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;

@@ -16,6 +16,7 @@ import {
   Ticket,
   Users,
 } from "lucide-react";
+import baibienImage from "../assets/images/baibien.jpg";
 import "../assets/css/CustomerHome.css";
 import "../assets/css/CustomerBusTicket.css";
 
@@ -327,7 +328,12 @@ export default function CustomerBusTicket() {
 
   return (
     <main className="bus-customer">
-      <section className="bus-customer__hero">
+      <section 
+        className="bus-customer__hero"
+        style={{
+          backgroundImage: `url(${baibienImage})`,
+        }}
+      >
         <div className="customer-shell__container">
           <div className="bus-customer__hero-head">
             <h1>Đặt vé xe khách giá rẻ, chất lượng tốt</h1>

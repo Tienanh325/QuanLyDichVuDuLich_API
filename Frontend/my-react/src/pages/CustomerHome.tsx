@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import "../assets/css/CustomerHome.css";
 import { buildFlightSearchQuery } from "../utils/flightSearch";
-import { buildHotelSearchQuery, toHotelQueryDate } from "./CustomerHotelSearchResults";
+import { buildHotelSearchQuery, toHotelQueryDate } from "../utils/hotelSearch";
 
 type ServiceId = "hotel" | "flight" | "bus" | "airport" | "car" | "activity";
 type IconType = typeof Search;
