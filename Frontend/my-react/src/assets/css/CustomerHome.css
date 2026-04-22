@@ -32,9 +32,10 @@
   color: #fff;
   padding: 0 0 20px;
   border-radius: 36px;
-
   border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow: 0 26px 60px rgba(15, 28, 47, 0.2);
+  position: relative;
+  z-index: 50;
 }
 
 .travel-search__services {
@@ -92,6 +93,37 @@
   position: relative;
   z-index: 6;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.3fr) minmax(0, 1.2fr) 68px;
+  border-radius: 28px;
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.3);
+  background: #fff;
+  padding: 0;
+  margin: 0 12px;
+}
+
+.travel-form__layout--hotel .travel-hotel-field {
+  border: none;
+  border-right: 1px solid #cfd6df;
+  border-radius: 0;
+  height: 64px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.travel-form__layout--hotel .travel-hotel-field-wrap:first-child .travel-hotel-field {
+  border-left: none;
+  border-top-left-radius: 28px;
+  border-bottom-left-radius: 28px;
+}
+
+.travel-form__layout--hotel .travel-hotel-field-wrap:nth-child(3) .travel-hotel-field {
+  border-right: none;
+}
+
+.travel-form__layout--hotel .travel-search__submit {
+  height: 64px;
+  width: 100%;
+  border-radius: 0 28px 28px 0;
+  box-shadow: none;
 }
 
 .travel-form__layout--bus {

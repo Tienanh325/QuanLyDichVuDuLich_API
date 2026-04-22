@@ -522,13 +522,10 @@ export default function CustomerActivity() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    setSelectedFilters([]);
-  }, [activeShortcut, selectedDestinationId]);
-
   function handleShortcutClick(shortcutId: ShortcutId) {
     setActiveShortcut(shortcutId);
     setIsDestinationMenuOpen(false);
+    setSelectedFilters([]);
   }
 
   function handleSearch() {
@@ -539,6 +536,7 @@ export default function CustomerActivity() {
   function handleDestinationSelect(destinationId: string) {
     setSelectedDestinationId(destinationId);
     setIsDestinationMenuOpen(false);
+    setSelectedFilters([]);
   }
 
   function handleToggleFilter(filterValue: string) {

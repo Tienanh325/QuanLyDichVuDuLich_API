@@ -490,8 +490,7 @@ export default function CustomerHotel() {
   const hotelStaySummary = `${formatHotelSearchDate(hotelForm.stay.checkIn)} - ${formatHotelSearchDate(
     hotelForm.stay.checkOut,
   )}`;
-  const hotelGuestSummary = `${hotelForm.guests.adults} người lớn, ${hotelForm.guests.children} trẻ em, ${hotelForm.guests.rooms} phòng`;
-
+  const hotelGuestSummary = `${hotelForm.guests.adults} người lớn, ${hotelForm.guests.children} Trẻ em, ${hotelForm.guests.rooms} phòng`;
   const isResultsView = parsedSearch.view === "results";
   const activeSearchState: HotelSearchState = {
     ...parsedSearch,
@@ -604,7 +603,7 @@ export default function CustomerHotel() {
               <div className="travel-form">
                 <div className="travel-form__layout travel-form__layout--hotel">
                   <HotelFieldButton
-                    label="Thành phố, địa điểm hoặc tên khách sạn"
+                    label="Thành phố, địa điểm hoặc tên khách sạn:"
                     value={hotelForm.destination.name}
                     icon={MapPinned}
                     isOpen={openHotelPopover === "destination"}
@@ -658,7 +657,7 @@ export default function CustomerHotel() {
                   </HotelFieldButton>
 
                   <HotelFieldButton
-                    label="Ngày nhận phòng - trả phòng"
+                    label="Ngày nhận phòng và trả phòng"
                     value={hotelStaySummary}
                     icon={CalendarDays}
                     isOpen={openHotelPopover === "stay"}
@@ -767,7 +766,7 @@ export default function CustomerHotel() {
                   </HotelFieldButton>
 
                   <HotelFieldButton
-                    label="Khách và phòng"
+                    label="Khách và Phòng"
                     value={hotelGuestSummary}
                     icon={Users}
                     isOpen={openHotelPopover === "guests"}

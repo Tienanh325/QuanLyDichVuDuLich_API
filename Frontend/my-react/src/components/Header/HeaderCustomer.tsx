@@ -2,9 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   BadgePercent,
-  Bell,
   ChevronDown,
-  CreditCard,
   LogOut,
   PlaneTakeoff,
   ReceiptText,
@@ -22,13 +20,6 @@ const customerMenuItems = [
     href: "#uu-dai",
   },
   {
-    id: "cards",
-    label: "Thẻ của tôi",
-    description: "Quản lý voucher, thẻ thành viên và quyền lợi đã lưu.",
-    icon: CreditCard,
-    href: "#uu-dai",
-  },
-  {
     id: "transactions",
     label: "Danh sách giao dịch",
     description: "Xem nhanh các thanh toán và lịch sử đơn hàng gần đây.",
@@ -40,13 +31,6 @@ const customerMenuItems = [
     label: "Đặt chỗ của tôi",
     description: "Quay lại khu tìm kiếm để tiếp tục đặt dịch vụ.",
     icon: PlaneTakeoff,
-    href: "/mua-sam/ve-may-bay#tim-kiem",
-  },
-  {
-    id: "notifications",
-    label: "Thông báo giá vé máy bay",
-    description: "Theo dõi chặng yêu thích để nhận mức giá tốt hơn.",
-    icon: Bell,
     href: "/mua-sam/ve-may-bay#tim-kiem",
   },
   {
@@ -178,14 +162,7 @@ export default function HeaderCustomer() {
                             <strong>{session.fullName}</strong>
                             <span>{session.email}</span>
                           </div>
-                          <div className="customer-header__menu-badge">Thành viên Bronze Priority</div>
                         </div>
-
-                        <div className="customer-header__menu-points">
-                          <span className="customer-header__menu-points-label">TravelHub+</span>
-                          <strong>0 điểm</strong>
-                        </div>
-
                         <div className="customer-header__menu-list">
                           {customerMenuItems.map((item) => {
                             const Icon = item.icon;
