@@ -81,13 +81,14 @@
   justify-content: center;
   gap: 8px;
   height: 48px; /* Bằng với chiều cao của các ô input */
+  width: 150px;
   padding: 0 24px;
-  background-color: #0194f3; /* Màu xanh dương đặc trưng của Traveloka */
+  background-color: rgb(10, 154, 242); /* Màu xanh dương đặc trưng của Traveloka */
   color: white;
   border: none;
   border-radius: 24px; /* Bo góc tròn trịa (Pill shape) */
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.1s ease;
   flex-shrink: 0; /* Ngăn nút bị ép nhỏ lại */

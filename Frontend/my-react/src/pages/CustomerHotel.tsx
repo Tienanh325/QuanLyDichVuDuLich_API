@@ -836,7 +836,7 @@ export default function CustomerHotel() {
                     ) : null}
                   </HotelFieldButton>
 
-                        <button type="button" className="travel-search__submit" aria-label="Tìm khách sạn" onClick={handleHotelSearch}>
+                  <button type="button" className="travel-search__submit" aria-label="Tìm khách sạn" onClick={handleHotelSearch}>
                     <span>Tìm kiếm</span>
                     <Search size={20} strokeWidth={2.5} />
                   </button>
