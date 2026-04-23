@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router-dom';
 
 const TITLE_MAP: Record<string, string> = {
-  '/ThongKe': 'thống ke',
+  '/ThongKe': 'thống kê',
   '/DichVu': 'dịch vụ',
   '/LoaiVe': 'loại vé',
   '/KhachSan': 'khách sạn',

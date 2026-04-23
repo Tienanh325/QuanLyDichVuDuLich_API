@@ -21,7 +21,7 @@ import {
   MenuUnfoldOutlined,
   InsertRowAboveOutlined 
 } from '@ant-design/icons';
-import ThuongHieu from '../../assets/images/thuonghieu.jpg';
+// removed import
 import UserDropdown from '../User/user';
 
 type SidebarProps = {
@@ -90,7 +90,7 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
         }}
       >
         {!collapsed && (
-          <img src={ThuongHieu} alt="logo" style={{ width: '80%', height: 60 }} />
+          <span style={{ fontSize: 24, fontWeight: 'bold', color: '#8b5cf6', display: 'flex', alignItems: 'center' }}>travel</span>
         )}
 
         <div
@@ -141,7 +141,7 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
               style={{
                 ...linkStyle(isVeRoute),
                 cursor: 'pointer',
-                justifyContent: 'space-between'
+                justifyContent: collapsed ? 'center' : 'space-between'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
