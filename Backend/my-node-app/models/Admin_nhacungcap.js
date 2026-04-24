@@ -1,6 +1,6 @@
 const fs = require("fs/promises");
 const path = require("path");
-const { pool } = require("../config/db"); // Đã bỏ 'sql' vì MySQL không dùng biến này
+const { pool } = require("../config/db");
 
 const dataDir = path.join(__dirname, "..", "data");
 const dataFile = path.join(dataDir, "nhacungcap.json");
@@ -11,7 +11,7 @@ const defaultSuppliers = [
         maNhaCungCap: 1,
         ten: "Cong ty Ve Viet",
         email: "contact@veviet.vn",
-        soDienThoai: "0901234567",
+        sdt: "0901234567",
         diaChi: "Quan 1, TP.HCM",
         loai: "Ve may bay",
         trangThai: "active"
@@ -30,7 +30,7 @@ const normalizeSupplier = (item, fallbackId = 0) => ({
     maNhaCungCap: Number(item?.maNhaCungCap ?? item?.id ?? fallbackId),
     ten: String(item?.ten ?? ""),
     email: String(item?.email ?? ""),
-    soDienThoai: String(item?.soDienThoai ?? ""),
+    sdt: String(item?.sdt ?? ""),
     diaChi: String(item?.diaChi ?? ""),
     loai: String(item?.loai ?? ""),
     trangThai: String(item?.trangThai ?? "active")
@@ -68,20 +68,11 @@ const withFallback = async (dbAction, fallbackAction) => {
 };
 
 const getNextId = (items) =>
-    items.reduce((maxId, item) => Math.max(maxId, Number(item.maNhaCungCap) || 0), 0) + 1;
-
-// ==========================================
-// CÁC HÀM ĐÃ ĐƯỢC CHUYỂN ĐỔI SANG MYSQL
-// ==========================================
-
-// ==========================================
-// CÁC HÀM ĐÃ ĐƯỢC CHUYỂN ĐỔI SANG MYSQL
-// ==========================================
+    items.reduce((maxId, item) => Math.max(maxId, Number(item.maNhaCungCap) || 0), 0) + 1
 
 const getAll = async () =>
     withFallback(
         async () => {
-            // Đã xóa dòng connectDB(), dùng trực tiếp biến pool luôn
             const [rows] = await pool.query("SELECT * FROM NhaCungCap");
             return rows;
         },
@@ -103,9 +94,9 @@ const getById = async (id) =>
 const create = async (data) =>
     withFallback(
         async () => {
-            const sqlQuery = `INSERT INTO NhaCungCap (ten, email, soDienThoai, diaChi, loai, trangThai) VALUES (?, ?, ?, ?, ?, ?)`;
-            const values = [data.ten, data.email, data.soDienThoai, data.diaChi, data.loai, data.trangThai];
-            
+            const sqlQuery = `INSERT INTO NhaCungCap (ten, email, sdt, diaChi, loai, trangThai) VALUES (?, ?, ?, ?, ?, ?)`;
+            const values = [data.ten, data.email, data.sdt, data.diaChi, data.loai, data.trangThai];
+
             const [result] = await pool.query(sqlQuery, values);
             return { maNhaCungCap: result.insertId, ...data };
         },
@@ -121,9 +112,9 @@ const create = async (data) =>
 const update = async (id, data) =>
     withFallback(
         async () => {
-            const sqlQuery = `UPDATE NhaCungCap SET ten = ?, email = ?, soDienThoai = ?, diaChi = ?, loai = ?, trangThai = ? WHERE maNhaCungCap = ?`;
-            const values = [data.ten, data.email, data.soDienThoai, data.diaChi, data.loai, data.trangThai, id];
-            
+            const sqlQuery = `UPDATE NhaCungCap SET ten = ?, email = ?, sdt = ?, diaChi = ?, loai = ?, trangThai = ? WHERE maNhaCungCap = ?`;
+            const values = [data.ten, data.email, data.sdt, data.diaChi, data.loai, data.trangThai, id];
+
             const [result] = await pool.query(sqlQuery, values);
             if (result.affectedRows === 0) return undefined;
             return { maNhaCungCap: id, ...data };

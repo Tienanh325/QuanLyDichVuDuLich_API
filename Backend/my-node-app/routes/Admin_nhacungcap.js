@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const controller = require("../controllers/Admin_nhacungcap");
+const controller = require("../controllers/nhacungcap.controller");
 
 router.get("/nhacungcap", controller.getAll);
 router.get("/nhacungcap/:id", controller.getById);

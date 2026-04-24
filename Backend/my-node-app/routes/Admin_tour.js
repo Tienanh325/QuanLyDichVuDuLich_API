@@ -1,12 +1,11 @@
-const express = require("express");
-const controller = require("../controllers/Admin_tour");
-
+const express = require('express');
 const router = express.Router();
+const TourController = require('../controllers/Admin_tour');
 
-router.get("/tour", controller.getAll);
-router.get("/tour/:id", controller.getById);
-router.post("/tour", controller.create);
-router.put("/tour/:id", controller.update);
-router.delete("/tour/:id", controller.remove);
+router.get('/tours', TourController.getAll);
+router.get('/tours/:id', TourController.getById);
+router.post('/tours', TourController.create);
+router.put('/tours/:id', TourController.update);
+router.delete('/tours/:id', TourController.remove);
 
 module.exports = router;
