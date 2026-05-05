@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
-import axios from "axios";
 import {
   Badge,
   Button,
@@ -19,6 +18,8 @@ import {
 } from "antd";
 import type { TableProps } from "antd";
 import { BedDouble, MapPinned, PencilLine, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
+import api from "../services/api";
+import axios from "axios";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -53,14 +54,9 @@ interface HotelFormValues {
   LoaiPhong: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-const HOTEL_API_PATH = import.meta.env.VITE_KHACH_SAN_API_PATH ?? "/api/khach-san";
-const DICH_VU_API_PATH = import.meta.env.VITE_DICH_VU_API_PATH ?? "/api/dich-vu";
-
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
-});
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
+const HOTEL_API_PATH = "/api/admin/khach-san";
+const DICH_VU_API_PATH = "/api/admin/dich-vu";
 
 const mockDichVu: DichVuOption[] = [
   { maDichVu: 101, ten: "Lưu trú cao cấp" },
@@ -131,21 +127,7 @@ function getStatusMeta(status: HotelStatus): { label: string; color: string } {
   }
 }
 
-function extractArray(payload: unknown): unknown[] {
-  if (Array.isArray(payload)) {
-    return payload;
-  }
-  if (typeof payload === "object" && payload !== null) {
-    const data = payload as { data?: unknown; items?: unknown };
-    if (Array.isArray(data.data)) {
-      return data.data;
-    }
-    if (Array.isArray(data.items)) {
-      return data.items;
-    }
-  }
-  return [];
-}
+
 
 function normalizeHotel(input: unknown, index: number): HotelItem {
   const raw = (typeof input === "object" && input !== null ? input : {}) as Record<string, unknown>;
@@ -171,27 +153,36 @@ function normalizeDichVu(input: unknown, index: number): DichVuOption {
 }
 
 async function fetchHotels(): Promise<HotelItem[]> {
-  const response = await apiClient.get(HOTEL_API_PATH);
-  return extractArray(response.data).map(normalizeHotel);
+  const response = await api.get<{ status: string; data: { data?: unknown[]; items?: unknown[] } | unknown[] }>(HOTEL_API_PATH);
+  const raw = response.data.data;
+  const arr = Array.isArray(raw) ? raw : (raw as { data?: unknown[] }).data ?? [];
+  return arr.map(normalizeHotel);
 }
 
 async function fetchDichVuOptions(): Promise<DichVuOption[]> {
-  const response = await apiClient.get(DICH_VU_API_PATH);
-  return extractArray(response.data).map(normalizeDichVu);
+  const response = await api.get<{ status: string; data: { data?: unknown[]; items?: unknown[] } | unknown[] }>(DICH_VU_API_PATH);
+  const raw = response.data.data;
+  const arr = Array.isArray(raw) ? raw : (raw as { data?: unknown[] }).data ?? [];
+  return arr.map(normalizeDichVu);
 }
 
 async function createHotel(item: HotelItem): Promise<HotelItem> {
-  const response = await apiClient.post(HOTEL_API_PATH, item);
-  return normalizeHotel(response.data, 0);
+  const response = await api.post<{ status: string; data: unknown }>(HOTEL_API_PATH, {
+    maDichVu: item.maDichVu,
+    viTri: item.viTri,
+  });
+  return normalizeHotel(response.data.data, 0);
 }
 
 async function updateHotel(item: HotelItem): Promise<HotelItem> {
-  const response = await apiClient.put(`${HOTEL_API_PATH}/${item.maKhachSan}`, item);
-  return normalizeHotel(response.data, 0);
+  const response = await api.put<{ status: string; data: unknown }>(`${HOTEL_API_PATH}/${item.maKhachSan}`, {
+    viTri: item.viTri,
+  });
+  return normalizeHotel(response.data.data ?? item, 0);
 }
 
 async function deleteHotel(id: number): Promise<void> {
-  await apiClient.delete(`${HOTEL_API_PATH}/${id}`);
+  await api.delete(`${HOTEL_API_PATH}/${id}`);
 }
 
 const pageContainerStyle: CSSProperties = {
@@ -495,7 +486,7 @@ export default function AdminKhachSan() {
 
           <Space wrap>
             <Tag color={isUsingMockData ? "gold" : "green"} style={{ padding: "6px 10px" }}>
-              {isUsingMockData ? "Đang hiển thị dữ liệu mẫu" : `API: ${API_BASE_URL}${HOTEL_API_PATH}`}
+              {isUsingMockData ? "Đang hiển thị dữ liệu mẫu" : `API: ${API_BASE_URL}/api/admin/khach-san`}
             </Tag>
             <Button icon={<RefreshCw size={16} />} onClick={() => void loadHotels()}>Tải lại</Button>
           </Space>

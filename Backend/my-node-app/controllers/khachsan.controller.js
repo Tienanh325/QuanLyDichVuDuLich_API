@@ -107,6 +107,7 @@ class KhachSanController {
             const result = await KhachSanModel.getAll(req.query);
             return res.status(200).json({ status: 'success', data: result, message: 'Lấy danh sách khách sạn thành công!' });
         } catch (error) {
+            console.error('❌ Lỗi publicGetAll khách sạn:', error.message);
             return res.status(500).json({ status: 'error', data: null, message: error.message });
         }
     }

@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -17,6 +18,7 @@ import {
   AlertTriangle,
   BedDouble,
   CircleDollarSign,
+  Loader2,
   MessageSquareText,
   Package,
   Plane,
@@ -25,56 +27,14 @@ import {
   TrainFront,
   Users,
 } from "lucide-react";
+import { adminGetThongKe, adminGetDoanhThu } from "../services/adminService";
+import type { ThongKeOverview, DoanhThuThang } from "../services/adminService";
 
 const moneyFormatter = new Intl.NumberFormat("vi-VN");
 const numberFormatter = new Intl.NumberFormat("vi-VN");
 type ChartValue = number | string | ReadonlyArray<number | string> | undefined;
 type ChartName = number | string | undefined;
 
-const kpiCards = [
-  {
-    title: "Doanh thu 30 ngay",
-    value: "4.82 ty",
-    change: "+18.4%",
-    note: "Tang nho nhom tour va ve may bay",
-    icon: <CircleDollarSign size={22} color="#2563eb" />,
-    accent: "#2563eb",
-  },
-  {
-    title: "Don dat thanh cong",
-    value: "1,284",
-    change: "+12.1%",
-    note: "Ty le thanh cong 86.3%",
-    icon: <Package size={22} color="#7c3aed" />,
-    accent: "#7c3aed",
-  },
-  {
-    title: "Nguoi dung hoat dong",
-    value: "8,942",
-    change: "+9.7%",
-    note: "2,146 nguoi dung quay lai",
-    icon: <Users size={22} color="#16a34a" />,
-    accent: "#16a34a",
-  },
-  {
-    title: "Danh gia trung binh",
-    value: "4.6/5",
-    change: "+0.2",
-    note: "Can xu ly 27 review tieu cuc",
-    icon: <Star size={22} color="#f59e0b" />,
-    accent: "#f59e0b",
-  },
-];
-
-const revenueTrend = [
-  { label: "T2", revenue: 280000000, orders: 180, users: 920 },
-  { label: "T3", revenue: 345000000, orders: 230, users: 1100 },
-  { label: "T4", revenue: 398000000, orders: 265, users: 1240 },
-  { label: "T5", revenue: 452000000, orders: 310, users: 1450 },
-  { label: "T6", revenue: 509000000, orders: 350, users: 1580 },
-  { label: "T7", revenue: 548000000, orders: 374, users: 1710 },
-  { label: "T8", revenue: 612000000, orders: 421, users: 1895 },
-];
 
 const categoryMix = [
   { name: "Tour", value: 31, color: "#2563eb" },
@@ -92,36 +52,22 @@ const servicePerformance = [
   { name: "Khu vui choi", revenue: 730000000, margin: 19 },
 ];
 
-const topProducts = [
-  { name: "Tour Da Lat 3N2D", category: "Tour", revenue: 382000000, bookings: 114, growth: "+21%" },
-  { name: "Combo Phu Quoc Resort", category: "Khach san", revenue: 341000000, bookings: 78, growth: "+16%" },
-  { name: "Ve may bay HN-SGN", category: "Ve may bay", revenue: 296000000, bookings: 162, growth: "+11%" },
-  { name: "Ve Sun World", category: "Khu vui choi", revenue: 214000000, bookings: 205, growth: "+9%" },
-];
-
 const operationalAlerts = [
   {
-    title: "27 danh gia tieu cuc can xu ly",
-    detail: "Tap trung o nhom khach san va ve tau hoa trong 7 ngay qua.",
+    title: "Kiểm tra đánh giá tiêu cực",
+    detail: "Theo dõi và xử lý review không tốt kịp thời để giữ uy tín.",
     tone: "#ef4444",
   },
   {
-    title: "8 dich vu sap het cong suat",
-    detail: "Nhieu nhat la 3 tour cuoi tuan va 2 khach san bien dip le.",
+    title: "Theo dõi công suất dịch vụ",
+    detail: "Kiểm tra các tour và khách sạn sắp hết chỗ trong tuần tới.",
     tone: "#f59e0b",
   },
   {
-    title: "Ty le bo gio hang 14.2%",
-    detail: "Can toi uu trang thanh toan va uu dai cho nguoi dung moi.",
+    title: "Tối ưu tỉ lệ chuyển đổi",
+    detail: "Cải thiện trải nghiệm thanh toán để giảm tỉ lệ bỏ giỏ hàng.",
     tone: "#7c3aed",
   },
-];
-
-const audienceInsights = [
-  { label: "Nguoi dung moi", value: "2,318", note: "Chiem 26% tong traffic" },
-  { label: "Nguoi dung quay lai", value: "2,146", note: "Ty le dat cho cao hon 1.8x" },
-  { label: "Ty le chuyen doi", value: "4.9%", note: "Tang 0.7 diem so voi thang truoc" },
-  { label: "Gia tri don trung binh", value: "3.75 tr", note: "Nen day combo de tang AOV" },
 ];
 
 function dashboardCardStyle(accent: string): CSSProperties {
@@ -206,6 +152,94 @@ function formatPerformanceTooltip(value: ChartValue, name: ChartName): [string, 
 }
 
 export default function AdminThongKe() {
+  const [overview, setOverview] = useState<ThongKeOverview | null>(null);
+  const [doanhThu, setDoanhThu] = useState<DoanhThuThang[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([adminGetThongKe(), adminGetDoanhThu(new Date().getFullYear())])
+      .then(([ov, dt]) => {
+        setOverview(ov);
+        setDoanhThu(dt);
+      })
+      .catch((err) => console.error("Lỗi tải thống kê:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const kpiCards = overview
+    ? [
+        {
+          title: "Doanh thu tổng",
+          value: `${moneyFormatter.format(Math.round((overview.tongDoanhThu ?? 0) / 1_000_000))} tr`,
+          change: "Tổng tất cả thời gian",
+          note: `Hôm nay: ${moneyFormatter.format(Math.round((overview.doanhThuHomNay ?? 0) / 1000))} nghìn`,
+          icon: <CircleDollarSign size={22} color="#2563eb" />,
+          accent: "#2563eb",
+        },
+        {
+          title: "Đơn đặt",
+          value: numberFormatter.format(overview.tongDonDat ?? 0),
+          change: `${overview.donDangCho ?? 0} đang chờ`,
+          note: `Hôm nay: ${overview.donHomNay ?? 0} đơn mới`,
+          icon: <Package size={22} color="#7c3aed" />,
+          accent: "#7c3aed",
+        },
+        {
+          title: "Khách hàng",
+          value: numberFormatter.format(overview.tongKhachHang ?? 0),
+          change: `${overview.tongAdmin ?? 0} admin`,
+          note: `${overview.tongNhaCungCap ?? 0} nhà cung cấp`,
+          icon: <Users size={22} color="#16a34a" />,
+          accent: "#16a34a",
+        },
+        {
+          title: "Dịch vụ",
+          value: numberFormatter.format(overview.tongDichVu ?? 0),
+          change: `${overview.tongTour ?? 0} tour · ${overview.tongKhachSan ?? 0} khách sạn`,
+          note: `${overview.tongVeConTrong ?? 0} vé còn trống`,
+          icon: <Star size={22} color="#f59e0b" />,
+          accent: "#f59e0b",
+        },
+      ]
+    : [];
+
+  const revenueTrend = doanhThu.length > 0
+    ? doanhThu.map((item) => ({
+        label: `T${item.thang}/${String(item.nam).slice(-2)}`,
+        revenue: Number(item.tongDoanhThu) || 0,
+        orders: item.soGiaoDich,
+      }))
+    : [
+        { label: "T1", revenue: 0, orders: 0 },
+        { label: "T2", revenue: 0, orders: 0 },
+        { label: "T3", revenue: 0, orders: 0 },
+      ];
+
+  // Dữ liệu top sản phẩm (minh họa — có thể thay bằng API /api/admin/thong-ke topDichVu)
+  const topProducts = [
+    { name: "Tour Đà Lạt 3N2D", category: "Tour", revenue: 382000000, bookings: 114, growth: "+21%" },
+    { name: "Combo Phú Quốc Resort", category: "Khách sạn", revenue: 341000000, bookings: 78, growth: "+16%" },
+    { name: "Vé máy bay HN-SGN", category: "Vé máy bay", revenue: 296000000, bookings: 162, growth: "+11%" },
+    { name: "Vé Sun World", category: "Khu vui chơi", revenue: 214000000, bookings: 205, growth: "+9%" },
+  ];
+
+  // Chỉ số hành vi người dùng (minh họa)
+  const audienceInsights = [
+    { label: "Tổng khách hàng", value: numberFormatter.format(overview?.tongKhachHang ?? 0), note: "Tài khoản đã đăng ký" },
+    { label: "Nhà cung cấp", value: numberFormatter.format(overview?.tongNhaCungCap ?? 0), note: "Đang hợp tác" },
+    { label: "Đơn hàng hôm nay", value: numberFormatter.format(overview?.donHomNay ?? 0), note: "Đơn mới trong ngày" },
+    { label: "Đơn đang chờ xử lý", value: numberFormatter.format(overview?.donDangCho ?? 0), note: "Cần xác nhận" },
+  ];
+
+  if (loading) {
+    return (
+      <div style={{ ...pageStyle, display: "flex", alignItems: "center", justifyContent: "center", minHeight: "80vh" }}>
+        <Loader2 size={40} style={{ animation: "spin 1s linear infinite", color: "#2563eb" }} />
+      </div>
+    );
+  }
+
   return (
     <div style={pageStyle}>
       <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>

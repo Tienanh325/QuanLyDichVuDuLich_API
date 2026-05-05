@@ -436,9 +436,9 @@ export default function AdminNhaCungCap() {
               <Alert
                 type="error"
                 showIcon
-                message="Khong lay duoc du lieu tu backend"
                 description={
                   <div>
+                    <div style={{ fontWeight: 600 }}>Không lấy được dữ liệu từ backend</div>
                     <div>Endpoint: {API_BASE_URL}{SUPPLIER_API_PATH}</div>
                     <div>Chi tiet: {apiError}</div>
                   </div>

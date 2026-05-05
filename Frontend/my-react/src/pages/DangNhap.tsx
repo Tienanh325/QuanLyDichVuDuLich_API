@@ -1,15 +1,15 @@
 import type { CSSProperties, FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, LockKeyhole, Mail, ShieldCheck, ShoppingBag } from "lucide-react";
-import thuongHieuImage from "../assets/images/thuonghieu.jpg";
-import { getCurrentSession, getDefaultAdminAccount, loginWithEmail } from "../utils/auth";
+import { Eye, EyeOff, LockKeyhole, ShieldCheck, ShoppingBag, User } from "lucide-react";
+import { getCurrentSession, loginWithAPI, loginWithEmail } from "../utils/auth";
 import "../assets/css/DangNhap.css";
 
 type RegisterState = {
   registeredEmail?: string;
   registeredMessage?: string;
 };
+
 
 const pageStyle: CSSProperties = {
   minHeight: "100vh",
@@ -94,50 +94,57 @@ const primaryButtonStyle: CSSProperties = {
   boxShadow: "0 18px 32px rgba(234, 88, 12, 0.24)",
 };
 
-const secondaryStatStyle: CSSProperties = {
-  padding: 18,
-  borderRadius: 22,
-  background: "rgba(255,255,255,0.72)",
-  border: "1px solid rgba(17, 50, 77, 0.08)",
-  backdropFilter: "blur(14px)",
-};
-
 export default function DangNhap() {
   const navigate = useNavigate();
   const location = useLocation();
   const registerState = location.state as RegisterState | null;
-  const defaultAdmin = getDefaultAdminAccount();
   const currentSession = getCurrentSession();
-  const [email, setEmail] = useState(registerState?.registeredEmail ?? defaultAdmin.email);
-  const [password, setPassword] = useState(defaultAdmin.password);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState(registerState?.registeredMessage ?? "");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (currentSession?.role === "admin") {
       navigate("/ThongKe", { replace: true });
       return;
     }
-
     if (currentSession?.role === "customer") {
-      navigate("/mua-sam", { replace: true });
+      const from = (location.state as any)?.from || "/mua-sam";
+      navigate(from, { replace: true });
     }
-  }, [currentSession, navigate]);
+  }, [currentSession, navigate, location.state]);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrorMessage("");
     setSuccessMessage("");
+    setIsLoading(true);
 
-    const result = loginWithEmail(email, password);
+    const from = (location.state as any)?.from;
 
-    if (!result.ok) {
-      setErrorMessage(result.message);
+    // Thử đăng nhập qua API backend trước
+    const apiResult = await loginWithAPI(username, password);
+    if (apiResult.ok && apiResult.session) {
+      setIsLoading(false);
+      const dest = from || (apiResult.session.role === "admin" ? "/ThongKe" : "/mua-sam");
+      navigate(dest, { replace: true });
       return;
     }
 
-    navigate(result.session.role === "admin" ? "/ThongKe" : "/mua-sam", { replace: true });
+    // Fallback: thử login localStorage (admin demo)
+    const localResult = loginWithEmail(username, password);
+    if (localResult.ok) {
+      setIsLoading(false);
+      const dest = from || (localResult.session.role === "admin" ? "/ThongKe" : "/mua-sam");
+      navigate(dest, { replace: true });
+      return;
+    }
+
+    setIsLoading(false);
+    setErrorMessage(apiResult.message ?? "Tên đăng nhập hoặc mật khẩu không đúng.");
   }
 
   return (
@@ -184,41 +191,7 @@ export default function DangNhap() {
           </div>
         </div>
 
-        <div
-          style={{
-            position: "relative",
-            zIndex: 1,
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-            gap: 16,
-            alignItems: "end",
-          }}
-        >
-          <div style={secondaryStatStyle}>
-            <div style={{ color: "#6c8196", fontSize: 13, marginBottom: 10 }}>Tai khoan admin mac dinh</div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: "#10253b", wordBreak: "break-word" }}>
-              {defaultAdmin.email}
-            </div>
-            <div style={{ color: "#16a34a", fontWeight: 700, marginTop: 8 }}>
-              Mat khau demo: {defaultAdmin.password}
-            </div>
-          </div>
 
-          <div
-            style={{
-              ...secondaryStatStyle,
-              padding: 0,
-              overflow: "hidden",
-              minHeight: 220,
-            }}
-          >
-            <img
-              src={thuongHieuImage}
-              alt="Thuong hieu du lich"
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-            />
-          </div>
-        </div>
       </section>
 
       <section style={panelStyle}>
@@ -246,29 +219,31 @@ export default function DangNhap() {
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             <label style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <span style={{ fontWeight: 700, color: "#23374d" }}>Email</span>
+              <span style={{ fontWeight: 700, color: "#23374d" }}>Tên đăng nhập</span>
               <div style={inputWrapStyle}>
-                <Mail size={18} color="#64748b" />
+                <User size={18} color="#64748b" />
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="admin@travelhub.vn"
+                  type="text"
+                  value={username}
+                  onChange={(event) => setUsername(event.target.value)}
+                  placeholder="Nhập tên đăng nhập (username)"
                   style={inputStyle}
+                  autoComplete="username"
                 />
               </div>
             </label>
 
             <label style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <span style={{ fontWeight: 700, color: "#23374d" }}>Mat khau</span>
+              <span style={{ fontWeight: 700, color: "#23374d" }}>Mật khẩu</span>
               <div style={inputWrapStyle}>
                 <LockKeyhole size={18} color="#64748b" />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Nhap mat khau"
+                  placeholder="Nhập mật khẩu"
                   style={inputStyle}
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
@@ -334,8 +309,8 @@ export default function DangNhap() {
               </label>
             </div>
 
-            <button type="submit" style={primaryButtonStyle}>
-              Dang nhap
+            <button type="submit" style={{ ...primaryButtonStyle, opacity: isLoading ? 0.7 : 1 }} disabled={isLoading}>
+              {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
             </button>
           </form>
 

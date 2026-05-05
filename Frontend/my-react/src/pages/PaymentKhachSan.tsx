@@ -1,20 +1,55 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  ShieldCheck, 
-  CreditCard, 
-  Landmark, 
+import {
+  ShieldCheck,
+  CreditCard,
+  Landmark,
   Wallet,
   CheckCircle2,
   HelpCircle,
   CalendarDays,
   Moon,
   BedDouble,
-  Lock
+  Lock,
+  Loader2,
 } from "lucide-react";
 import "../assets/css/paymentkhachsan.css";
-import hotelHeroImg from "../assets/images/hotel_hero_city.png"; // Using a placeholder image for the hotel
+import hotelHeroImg from "../assets/images/hotel_hero_city.png";
+import { createThanhToan } from "../services/hotelService";
 
+// ─── Types ──────────────────────────────────────────────────────
+interface BookingInfo {
+  maDon: number;
+  tongGia: number;
+  tenKhachSan: string;
+  tenLoaiPhong: string;
+  checkIn: string;
+  checkOut: string;
+  nights: number;
+  giaPhong: number;
+  rooms: number;
+  adults: number;
+}
+
+// ─── Helpers ────────────────────────────────────────────────────
+function formatVnd(n: number) {
+  return n.toLocaleString("vi-VN") + " VND";
+}
+
+function formatDate(dateStr: string) {
+  if (!dateStr) return "Chưa chọn";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString("vi-VN", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
+}
+
+const PAYMENT_METHOD_MAP: Record<string, string> = {
+  credit_card: "VNPAY",
+  bank_transfer: "BANK_TRANSFER",
+  e_wallet: "MOMO",
+};
+
+// ─── StepProgress ────────────────────────────────────────────────
 function StepProgress() {
   return (
     <div className="payment-step-progress">
@@ -38,43 +73,35 @@ function StepProgress() {
   );
 }
 
-function PaymentMethod() {
-  const [activeMethod, setActiveMethod] = useState("credit_card");
-
+// ─── PaymentMethod ───────────────────────────────────────────────
+function PaymentMethod({
+  activeMethod,
+  onMethodChange,
+}: {
+  activeMethod: string;
+  onMethodChange: (m: string) => void;
+}) {
   return (
     <>
       <div className="payment-section-title">Phương thức thanh toán</div>
-      
+
       <div className="payment-methods">
-        <div 
-          className={`payment-method-card ${activeMethod === "credit_card" ? "active" : ""}`}
-          onClick={() => setActiveMethod("credit_card")}
-        >
-          {activeMethod === "credit_card" && <CheckCircle2 size={18} className="payment-method-check" />}
-          <CreditCard size={24} className="payment-method-icon" />
-          <div className="payment-method-title">Thẻ tín dụng</div>
-          <div className="payment-method-desc">Visa, Mastercard, JCB</div>
-        </div>
-        
-        <div 
-          className={`payment-method-card ${activeMethod === "bank_transfer" ? "active" : ""}`}
-          onClick={() => setActiveMethod("bank_transfer")}
-        >
-          {activeMethod === "bank_transfer" && <CheckCircle2 size={18} className="payment-method-check" />}
-          <Landmark size={24} className="payment-method-icon" />
-          <div className="payment-method-title">Chuyển khoản</div>
-          <div className="payment-method-desc">Tất cả ngân hàng nội địa</div>
-        </div>
-        
-        <div 
-          className={`payment-method-card ${activeMethod === "e_wallet" ? "active" : ""}`}
-          onClick={() => setActiveMethod("e_wallet")}
-        >
-          {activeMethod === "e_wallet" && <CheckCircle2 size={18} className="payment-method-check" />}
-          <Wallet size={24} className="payment-method-icon" />
-          <div className="payment-method-title">Ví điện tử</div>
-          <div className="payment-method-desc">MoMo, ZaloPay, ShopeePay</div>
-        </div>
+        {[
+          { key: "credit_card", icon: <CreditCard size={24} className="payment-method-icon" />, title: "Thẻ tín dụng", desc: "Visa, Mastercard, JCB" },
+          { key: "bank_transfer", icon: <Landmark size={24} className="payment-method-icon" />, title: "Chuyển khoản", desc: "Tất cả ngân hàng nội địa" },
+          { key: "e_wallet", icon: <Wallet size={24} className="payment-method-icon" />, title: "Ví điện tử", desc: "MoMo, ZaloPay, ShopeePay" },
+        ].map(({ key, icon, title, desc }) => (
+          <div
+            key={key}
+            className={`payment-method-card ${activeMethod === key ? "active" : ""}`}
+            onClick={() => onMethodChange(key)}
+          >
+            {activeMethod === key && <CheckCircle2 size={18} className="payment-method-check" />}
+            {icon}
+            <div className="payment-method-title">{title}</div>
+            <div className="payment-method-desc">{desc}</div>
+          </div>
+        ))}
       </div>
 
       {activeMethod === "credit_card" && (
@@ -89,7 +116,6 @@ function PaymentMethod() {
               <input type="text" className="payment-form-input" placeholder="NGUYEN VAN A" />
             </div>
           </div>
-          
           <div className="payment-form-row">
             <div className="payment-form-group">
               <label className="payment-form-label">Ngày hết hạn</label>
@@ -109,25 +135,11 @@ function PaymentMethod() {
   );
 }
 
-function BillingInfo() {
-  return (
-    <>
-      <div className="payment-section-title">Thông tin hóa đơn</div>
-      <div className="payment-billing-info">
-        <label className="payment-checkbox-wrap">
-          <input type="checkbox" />
-          <div className="payment-checkbox-content">
-            <span className="payment-checkbox-label">Tôi muốn xuất hóa đơn giá trị gia tăng (VAT) cho doanh nghiệp</span>
-            <span className="payment-checkbox-note">Thông tin sẽ được gửi qua email sau khi hoàn tất thanh toán.</span>
-          </div>
-        </label>
-      </div>
-    </>
-  );
-}
-
-function BookingSummary() {
-  const navigate = useNavigate();
+// ─── BookingSummary ───────────────────────────────────────────────
+function BookingSummary({ info, onPay, isLoading }: { info: BookingInfo | null; onPay: () => void; isLoading: boolean }) {
+  const taxFee = info ? Math.round(info.giaPhong * info.nights * info.rooms * 0.1) : 0;
+  const roomCharge = info ? info.giaPhong * info.nights * info.rooms : 0;
+  const total = info?.tongGia ?? roomCharge + taxFee;
 
   return (
     <>
@@ -136,72 +148,74 @@ function BookingSummary() {
           <img src={hotelHeroImg} alt="Hotel Hero" />
           <div className="payment-hotel-hero-overlay">
             <div className="payment-hotel-type">HOTELS</div>
-            <h3 className="payment-hotel-name">The Azure Luxury Resort</h3>
+            <h3 className="payment-hotel-name">{info?.tenKhachSan ?? "Khách sạn"}</h3>
           </div>
         </div>
-        
+
         <div className="payment-booking-details">
           <div className="payment-detail-row">
             <CalendarDays size={20} className="payment-detail-icon" />
             <div className="payment-detail-content">
               <span className="payment-detail-label">Ngày nhận phòng</span>
-              <span className="payment-detail-value">Thứ 6, 12 Th07 2024</span>
+              <span className="payment-detail-value">{info ? formatDate(info.checkIn) : "—"}</span>
             </div>
           </div>
-          
+
           <div className="payment-detail-row">
             <Moon size={20} className="payment-detail-icon" />
             <div className="payment-detail-content">
               <span className="payment-detail-label">Thời gian lưu trú</span>
-              <span className="payment-detail-value">3 đêm (1 phòng, 2 khách)</span>
+              <span className="payment-detail-value">{info ? `${info.nights} đêm (${info.rooms} phòng, ${info.adults} khách)` : "—"}</span>
             </div>
           </div>
-          
+
           <div className="payment-detail-row">
             <BedDouble size={20} className="payment-detail-icon" />
             <div className="payment-detail-content">
               <span className="payment-detail-label">Loại phòng</span>
-              <span className="payment-detail-value">Deluxe Ocean View Double</span>
+              <span className="payment-detail-value">{info?.tenLoaiPhong ?? "—"}</span>
             </div>
           </div>
         </div>
-        
+
         <div className="payment-price-section">
           <div className="payment-price-title">Chi tiết giá</div>
-          
+
           <div className="payment-price-row">
-            <span className="payment-price-label">Giá phòng (3 đêm)</span>
-            <span className="payment-price-value">12.450.000 VND</span>
+            <span className="payment-price-label">Giá phòng ({info?.nights ?? 1} đêm)</span>
+            <span className="payment-price-value">{formatVnd(roomCharge)}</span>
           </div>
-          
+
           <div className="payment-price-row">
-            <span className="payment-price-label">Thuế và phí dịch vụ</span>
-            <span className="payment-price-value">1.245.000 VND</span>
+            <span className="payment-price-label">Thuế và phí dịch vụ (10%)</span>
+            <span className="payment-price-value">{formatVnd(taxFee)}</span>
           </div>
-          
-          <div className="payment-price-row payment-price-discount">
-            <span className="payment-price-label">Khuyến mãi (TRAVELOKA24)</span>
-            <span className="payment-price-value">- 500.000 VND</span>
-          </div>
-          
+
           <div className="payment-total-divider" />
-          
+
           <div className="payment-total-row">
             <span className="payment-total-label">Tổng cộng</span>
-            <span className="payment-total-value">13.195.000 VND</span>
+            <span className="payment-total-value">{formatVnd(total)}</span>
           </div>
         </div>
       </div>
-      
-      <button 
-        type="button" 
+
+      {info?.maDon && (
+        <div style={{ marginBottom: 12, padding: "10px 16px", background: "#f0f9ff", borderRadius: 10, fontSize: 13, color: "#0369a1" }}>
+          Mã đặt phòng: <strong>#{info.maDon}</strong>
+        </div>
+      )}
+
+      <button
+        type="button"
         className="payment-btn"
-        onClick={() => navigate("/mua-sam/thanh-toan-thanh-cong")}
+        onClick={onPay}
+        disabled={isLoading}
+        style={{ opacity: isLoading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
       >
-        <Lock size={18} />
-        Thanh toán an toàn
+        {isLoading ? <><Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> Đang xử lý...</> : <><Lock size={18} /> Thanh toán an toàn</>}
       </button>
-      
+
       <div className="payment-terms">
         Bằng cách nhấn nút, bạn đồng ý với <a href="#">Điều khoản &amp; Chính sách</a> của chúng tôi.
       </div>
@@ -212,20 +226,79 @@ function BookingSummary() {
 // --- MAIN COMPONENT ---
 
 export default function PaymentKhachSan() {
+  const navigate = useNavigate();
+  const [activeMethod, setActiveMethod] = useState("credit_card");
+  const [bookingInfo, setBookingInfo] = useState<BookingInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    // Đọc thông tin đặt phòng từ localStorage
+    const raw = localStorage.getItem("travelhub_booking_info");
+    if (raw) {
+      try {
+        setBookingInfo(JSON.parse(raw) as BookingInfo);
+      } catch {
+        // ignore parse error
+      }
+    }
   }, []);
+
+  async function handlePayment() {
+    if (!bookingInfo?.maDon) {
+      setErrorMsg("Không tìm thấy thông tin đặt phòng. Vui lòng quay lại và thực hiện lại.");
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMsg("");
+
+    const roomCharge = bookingInfo.giaPhong * bookingInfo.nights * bookingInfo.rooms;
+    const taxFee = Math.round(roomCharge * 0.1);
+    const total = bookingInfo.tongGia ?? roomCharge + taxFee;
+
+    try {
+      await createThanhToan({
+        maDon: bookingInfo.maDon,
+        phuongThuc: (PAYMENT_METHOD_MAP[activeMethod] as 'VNPAY' | 'MOMO' | 'COD' | 'BANK_TRANSFER' | 'WALLET') ?? "VNPAY",
+        soTien: total,
+        ghiChu: `Thanh toán phòng ${bookingInfo.tenLoaiPhong} tại ${bookingInfo.tenKhachSan}`,
+      });
+
+      // Xóa booking info khỏi localStorage sau khi thanh toán thành công
+      localStorage.removeItem("travelhub_booking_info");
+      localStorage.removeItem("travelhub_maDon");
+
+      navigate("/mua-sam/thanh-toan-thanh-cong", {
+        state: {
+          maDon: bookingInfo.maDon,
+          tenKhachSan: bookingInfo.tenKhachSan,
+          tongGia: total,
+        },
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Có lỗi xảy ra khi thanh toán.";
+      if (String(msg).includes("401") || String(msg).includes("token")) {
+        navigate("/dang-nhap");
+        return;
+      }
+      setErrorMsg(`Thanh toán thất bại: ${msg}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
     <div className="payment-container">
       <div className="payment-wrapper">
         <StepProgress />
-        
+
         <div className="payment-layout">
           {/* CỘT TRÁI - 70% */}
           <div className="payment-left">
             <h1 className="payment-title">Thanh toán đặt chỗ</h1>
-            
+
             <div className="payment-security-box">
               <ShieldCheck size={24} className="payment-security-icon" />
               <div className="payment-security-content">
@@ -233,14 +306,32 @@ export default function PaymentKhachSan() {
                 <p>Dữ liệu của bạn được mã hóa hoàn toàn bằng công nghệ SSL tiên tiến.</p>
               </div>
             </div>
-            
-            <PaymentMethod />
-            <BillingInfo />
+
+            <PaymentMethod activeMethod={activeMethod} onMethodChange={setActiveMethod} />
+
+            <>
+              <div className="payment-section-title">Thông tin hóa đơn</div>
+              <div className="payment-billing-info">
+                <label className="payment-checkbox-wrap">
+                  <input type="checkbox" />
+                  <div className="payment-checkbox-content">
+                    <span className="payment-checkbox-label">Tôi muốn xuất hóa đơn giá trị gia tăng (VAT) cho doanh nghiệp</span>
+                    <span className="payment-checkbox-note">Thông tin sẽ được gửi qua email sau khi hoàn tất thanh toán.</span>
+                  </div>
+                </label>
+              </div>
+            </>
+
+            {errorMsg && (
+              <div style={{ background: "#fff1f2", color: "#be123c", padding: "12px 16px", borderRadius: 10, marginTop: 16, fontSize: 14 }}>
+                {errorMsg}
+              </div>
+            )}
           </div>
-          
+
           {/* CỘT PHẢI - 30% */}
           <div className="payment-right">
-            <BookingSummary />
+            <BookingSummary info={bookingInfo} onPay={() => void handlePayment()} isLoading={isLoading} />
           </div>
         </div>
       </div>

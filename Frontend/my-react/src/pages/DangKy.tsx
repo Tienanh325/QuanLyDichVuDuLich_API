@@ -1,9 +1,9 @@
 import type { CSSProperties, FormEvent } from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CircleUserRound, LockKeyhole, Mail, ShieldAlert } from "lucide-react";
+import { CircleUserRound, LockKeyhole, Mail, Phone, ShieldAlert, User } from "lucide-react";
 import thuongHieuImage from "../assets/images/thuonghieu.jpg";
-import { registerCustomer } from "../utils/auth";
+import { registerWithAPI } from "../utils/auth";
 import "../assets/css/DangNhap.css";
 
 const pageStyle: CSSProperties = {
@@ -78,26 +78,38 @@ const primaryButtonStyle: CSSProperties = {
 
 export default function DangKy() {
   const navigate = useNavigate();
+  const [username, setUsername] = useState("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [sdt, setSdt] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setErrorMessage("");
 
-    if (!fullName.trim() || !email.trim() || !password.trim()) {
-      setErrorMessage("Vui long nhap day du ho ten, email va mat khau.");
+    if (!username.trim() || !fullName.trim() || !email.trim() || !password.trim()) {
+      setErrorMessage("Vui lòng nhập đầy đủ tên đăng nhập, họ tên, email và mật khẩu.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage("Mat khau xac nhan khong khop.");
+      setErrorMessage("Mật khẩu xác nhận không khớp.");
       return;
     }
 
-    const result = registerCustomer({ fullName, email, password });
+    setIsLoading(true);
+    const result = await registerWithAPI({
+      username: username.trim(),
+      password,
+      ten: fullName.trim(),
+      email: email.trim(),
+      sdt: sdt.trim() || undefined,
+    });
+    setIsLoading(false);
 
     if (!result.ok) {
       setErrorMessage(result.message);
@@ -106,10 +118,7 @@ export default function DangKy() {
 
     navigate("/dang-nhap", {
       replace: true,
-      state: {
-        registeredEmail: result.customer.email,
-        registeredMessage: "Dang ky thanh cong. Ban co the dang nhap voi tai khoan khach hang vua tao.",
-      },
+      state: { registeredMessage: result.message },
     });
   }
 
@@ -143,7 +152,22 @@ export default function DangKy() {
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <label style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <span style={{ fontWeight: 700, color: "#23374d" }}>Ho va ten</span>
+              <span style={{ fontWeight: 700, color: "#23374d" }}>Tên đăng nhập</span>
+              <div style={inputWrapStyle}>
+                <User size={18} color="#64748b" />
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(event) => setUsername(event.target.value)}
+                  placeholder="vd: nguyenvana123"
+                  style={inputStyle}
+                  autoComplete="username"
+                />
+              </div>
+            </label>
+
+            <label style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <span style={{ fontWeight: 700, color: "#23374d" }}>Họ và tên</span>
               <div style={inputWrapStyle}>
                 <CircleUserRound size={18} color="#64748b" />
                 <input
@@ -165,6 +189,20 @@ export default function DangKy() {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="khachhang@email.com"
+                  style={inputStyle}
+                />
+              </div>
+            </label>
+
+            <label style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <span style={{ fontWeight: 700, color: "#23374d" }}>Số điện thoại (tùy chọn)</span>
+              <div style={inputWrapStyle}>
+                <Phone size={18} color="#64748b" />
+                <input
+                  type="tel"
+                  value={sdt}
+                  onChange={(event) => setSdt(event.target.value)}
+                  placeholder="09xxxxxxxx"
                   style={inputStyle}
                 />
               </div>
@@ -213,8 +251,8 @@ export default function DangKy() {
               </div>
             ) : null}
 
-            <button type="submit" style={primaryButtonStyle}>
-              Tao tai khoan khach hang
+            <button type="submit" style={{ ...primaryButtonStyle, opacity: isLoading ? 0.7 : 1 }} disabled={isLoading}>
+              {isLoading ? "Đang tạo tài khoản..." : "Đăng ký tài khoản"}
             </button>
           </form>
 

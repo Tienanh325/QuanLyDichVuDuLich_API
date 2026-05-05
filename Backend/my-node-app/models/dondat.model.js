@@ -78,16 +78,19 @@ class DonDatModel {
     static async getByUser(maUser, { page = 1, limit = 10, trangThai } = {}) {
         const offset = (page - 1) * limit;
         const queryParams = [maUser];
-        let baseQuery = `FROM DonDat dd WHERE dd.maUser = ?`;
+        let baseQuery = `
+            FROM DonDat dd
+            LEFT JOIN KhuyenMai km ON dd.maKhuyenMai = km.maKhuyenMai
+            WHERE dd.maUser = ?
+        `;
         if (trangThai) { baseQuery += ` AND dd.trangThai = ?`; queryParams.push(trangThai.toUpperCase()); }
 
         const [countResult] = await pool.query(`SELECT COUNT(*) as total ${baseQuery}`, queryParams);
         const totalRecords = countResult[0].total;
 
         let dataQuery = `
-            SELECT dd.*, km.ten AS tenKhuyenMai
+            SELECT dd.*, km.ten AS tenKhuyenMai, km.giamGia
             ${baseQuery}
-            LEFT JOIN KhuyenMai km ON dd.maKhuyenMai = km.maKhuyenMai
             ORDER BY dd.ngayTao DESC
             LIMIT ? OFFSET ?
         `;

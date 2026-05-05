@@ -1,16 +1,22 @@
 import { useEffect } from "react";
-import { 
-  CheckCircle2, 
-  Ticket, 
-  Headset, 
+import {
+  CheckCircle2,
+  Ticket,
+  Headset,
   Star,
   ShieldCheck,
   Award,
   ThumbsUp
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "../assets/css/successkhachsan.css";
-import hotelHeroImg from "../assets/images/hotel_hero_city.png"; // Using placeholder
+import hotelHeroImg from "../assets/images/hotel_hero_city.png";
+
+interface SuccessState {
+  maDon?: number;
+  tenKhachSan?: string;
+  tongGia?: number;
+}
 
 // --- SUB-COMPONENTS ---
 
@@ -39,7 +45,7 @@ function StepProgress() {
   );
 }
 
-function SuccessMessage() {
+function SuccessMessage({ maDon }: { maDon?: number }) {
   const navigate = useNavigate();
 
   return (
@@ -47,13 +53,19 @@ function SuccessMessage() {
       <div className="success-icon-wrap">
         <CheckCircle2 size={48} strokeWidth={2.5} />
       </div>
-      
+
       <h1 className="success-title">Thanh toán thành công!</h1>
-    
+
+      {maDon && (
+        <div style={{ marginBottom: 16, padding: "10px 18px", background: "#e6f4ea", borderRadius: 10, color: "#15803d", fontSize: 16, fontWeight: 700 }}>
+          Mã đặt phòng: <span style={{ fontSize: 22 }}>#{maDon}</span>
+        </div>
+      )}
+
       <p className="success-desc">
-        Cảm ơn bạn đã đặt chỗ tại Traveloka. Thông tin chi tiết đã được gửi đến email của bạn. Quý khách vui lòng kiểm tra hộp thư đến hoặc thư rác.
+        Cảm ơn bạn đã đặt chỗ. Thông tin chi tiết đã được gửi đến email của bạn. Quý khách vui lòng kiểm tra hộp thư đến hoặc thư rác.
       </p>
-      
+
       <div className="success-actions">
         <button type="button" className="success-btn-primary">
           <Ticket size={18} />
@@ -63,7 +75,7 @@ function SuccessMessage() {
           Quay lại Trang chủ
         </button>
       </div>
-      
+
       <div className="success-support-card">
         <div className="success-support-icon">
           <Headset size={24} />
@@ -78,7 +90,7 @@ function SuccessMessage() {
   );
 }
 
-function BookingSummary() {
+function BookingSummary({ tenKhachSan, tongGia }: { tenKhachSan?: string; tongGia?: number }) {
   return (
     <div className="success-right">
       <div className="success-summary-card">
@@ -86,47 +98,28 @@ function BookingSummary() {
           <img src={hotelHeroImg} alt="Hotel Hero" />
           <div className="success-badge">XÁC NHẬN NGAY</div>
         </div>
-        
+
         <div className="success-hotel-info">
-          <h3 className="success-hotel-name">The Azure Serenity Resort &amp; Spa</h3>
+          <h3 className="success-hotel-name">{tenKhachSan ?? "Khách sạn"}</h3>
           <div className="success-hotel-rating">
             <div className="success-hotel-rating-stars">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star key={star} size={14} fill="currentColor" stroke="none" />
               ))}
             </div>
-            <span className="success-hotel-rating-score">5.0</span>
           </div>
         </div>
-        
-        <div className="success-booking-dates">
-          <div className="success-date-block">
-            <div className="success-date-label">Ngày nhận phòng</div>
-            <div className="success-date-value">24 Th12 2024</div>
+
+        {tongGia !== undefined && (
+          <div className="success-price-details">
+            <div className="success-total-row">
+              <span className="success-total-label">Tổng thanh toán</span>
+              <span className="success-total-value">{tongGia.toLocaleString("vi-VN")} VND</span>
+            </div>
           </div>
-          <div className="success-date-block">
-            <div className="success-date-label">Ngày trả phòng</div>
-            <div className="success-date-value">26 Th12 2024</div>
-          </div>
-        </div>
-        
-        <div className="success-price-details">
-          <div className="success-price-row">
-            <span className="success-price-label">2 đêm x 1 Phòng Deluxe Ocean View</span>
-            <span className="success-price-value">8.400.000 VND</span>
-          </div>
-          <div className="success-price-row">
-            <span className="success-price-label">Thuế và phí dịch vụ</span>
-            <span className="success-price-value">840.000 VND</span>
-          </div>
-          
-          <div className="success-total-row">
-            <span className="success-total-label">Tổng cộng</span>
-            <span className="success-total-value">9.240.000 VND</span>
-          </div>
-        </div>
+        )}
       </div>
-      
+
       <div className="success-trust-badges">
         <div className="success-trust-badge">
           <ShieldCheck size={24} className="success-trust-badge-icon" />
@@ -148,6 +141,9 @@ function BookingSummary() {
 // --- MAIN COMPONENT ---
 
 export default function SuccessKhachSan() {
+  const location = useLocation();
+  const state = location.state as SuccessState | null;
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -156,10 +152,10 @@ export default function SuccessKhachSan() {
     <div className="success-container">
       <div className="success-wrapper">
         <StepProgress />
-        
+
         <div className="success-layout">
-          <SuccessMessage />
-          <BookingSummary />
+          <SuccessMessage maDon={state?.maDon} />
+          <BookingSummary tenKhachSan={state?.tenKhachSan} tongGia={state?.tongGia} />
         </div>
       </div>
     </div>

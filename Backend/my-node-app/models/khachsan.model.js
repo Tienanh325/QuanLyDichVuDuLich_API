@@ -3,38 +3,45 @@ const { pool } = require('../config/db');
 class KhachSanModel {
     static async getAll({ page = 1, limit = 10, search, viTri } = {}) {
         const offset = (page - 1) * limit;
-        const queryParams = [];
-        let baseQuery = `
-            FROM KhachSan ks
-            LEFT JOIN DichVu dv ON ks.maDichVu = dv.maDichVu
-            LEFT JOIN NhaCungCap ncc ON dv.maNhaCungCap = ncc.maNhaCungCap
-            LEFT JOIN HinhAnh ha ON dv.maDichVu = ha.maDichVu AND ha.isAvatar = 1
-            WHERE dv.trangThai = 1
-        `;
-        if (viTri) { baseQuery += ` AND ks.viTri LIKE ?`; queryParams.push(`%${viTri}%`); }
+        const whereParams = [];
+        let whereClause = `WHERE dv.trangThai = 1`;
+
+        if (viTri) { whereClause += ` AND ks.viTri LIKE ?`; whereParams.push(`%${viTri}%`); }
         if (search) {
-            baseQuery += ` AND (dv.ten LIKE ? OR ks.viTri LIKE ?)`;
-            const s = `%${search}%`; queryParams.push(s, s);
+            whereClause += ` AND (dv.ten LIKE ? OR ks.viTri LIKE ?)`;
+            const s = `%${search}%`; whereParams.push(s, s);
         }
 
-        const [countResult] = await pool.query(`SELECT COUNT(*) as total ${baseQuery}`, queryParams);
-        const totalRecords = countResult[0].total;
+        const [[{ total }]] = await pool.query(
+            `SELECT COUNT(*) as total
+             FROM KhachSan ks
+             LEFT JOIN DichVu dv ON ks.maDichVu = dv.maDichVu
+             LEFT JOIN NhaCungCap ncc ON dv.maNhaCungCap = ncc.maNhaCungCap
+             LEFT JOIN HinhAnh ha ON dv.maDichVu = ha.maDichVu AND ha.isAvatar = 1
+             ${whereClause}`,
+            whereParams
+        );
+        const totalRecords = total;
 
-        let dataQuery = `
-            SELECT ks.maKhachSan, ks.maDichVu, ks.viTri,
-                   dv.ten, dv.moTa,
-                   ncc.ten AS tenNhaCungCap,
-                   ha.urlAnh AS avatar,
-                   MIN(lp.giaPhong) AS giaTuKhoang
-            ${baseQuery}
-            LEFT JOIN LoaiPhong lp ON ks.maKhachSan = lp.maKhachSan AND lp.soLuongPhongTrong > 0
-            GROUP BY ks.maKhachSan
-            ORDER BY ks.maKhachSan DESC
-            LIMIT ? OFFSET ?
-        `;
-        queryParams.push(parseInt(limit), parseInt(offset));
+        const dataParams = [...whereParams, parseInt(limit), parseInt(offset)];
+        const [rows] = await pool.query(
+            `SELECT ks.maKhachSan, ks.maDichVu, ks.viTri,
+                    dv.ten, dv.moTa,
+                    ncc.ten AS tenNhaCungCap,
+                    ha.urlAnh AS avatar,
+                    MIN(lp.giaPhong) AS giaTuKhoang
+             FROM KhachSan ks
+             LEFT JOIN DichVu dv ON ks.maDichVu = dv.maDichVu
+             LEFT JOIN NhaCungCap ncc ON dv.maNhaCungCap = ncc.maNhaCungCap
+             LEFT JOIN HinhAnh ha ON dv.maDichVu = ha.maDichVu AND ha.isAvatar = 1
+             LEFT JOIN LoaiPhong lp ON ks.maKhachSan = lp.maKhachSan AND lp.soLuongPhongTrong > 0
+             ${whereClause}
+             GROUP BY ks.maKhachSan, ks.maDichVu, ks.viTri, dv.ten, dv.moTa, ncc.ten, ha.urlAnh
+             ORDER BY ks.maKhachSan DESC
+             LIMIT ? OFFSET ?`,
+            dataParams
+        );
 
-        const [rows] = await pool.query(dataQuery, queryParams);
         return { data: rows, totalRecords, totalPages: Math.ceil(totalRecords / limit), currentPage: parseInt(page) };
     }
 

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useState, useRef } from "react";
+import { useLayoutEffect, useMemo, useState, useRef, useEffect } from "react";
 import { flushSync } from "react-dom";
 import {
   ArrowRight,
@@ -8,6 +8,7 @@ import {
   ChevronRight,
   CircleDollarSign,
   Clock3,
+  Loader2,
   PlaneTakeoff,
   Search,
   Sparkles,
@@ -22,6 +23,8 @@ import {
   formatFlightDateChip,
   formatFlightDateMeta,
 } from "../utils/flightSearch";
+import { searchMayBay, formatGio } from "../services/veService";
+import type { VeMayBayResult } from "../services/veService";
 
 type TimeSlotId = "lateNight" | "morning" | "afternoon" | "evening";
 type SortKey = "recommended" | "price" | "duration";
@@ -214,10 +217,53 @@ export default function CustomerFlightSearchResults({
   const [departureSlots, setDepartureSlots] = useState<TimeSlotId[]>([]);
   const [arrivalSlots, setArrivalSlots] = useState<TimeSlotId[]>([]);
   const [maxDurationHours, setMaxDurationHours] = useState(37);
-  
+  const [apiResults, setApiResults] = useState<FlightResult[]>([]);
+  const [apiLoading, setApiLoading] = useState(false);
+
   const lastSearchKeyRef = useRef(
     `${searchState.departDate}-${searchState.fromTitle}-${searchState.toTitle}`
   );
+
+  // ─── Fetch từ API thật ────────────────────────────────────────────────────
+  useEffect(() => {
+    setApiLoading(true);
+    searchMayBay({
+      diemKhoiHanh: searchState.fromTitle,
+      diemDen: searchState.toTitle,
+      ngayKhoiHanh: searchState.departDate || undefined,
+      limit: 20,
+    })
+      .then((data: VeMayBayResult[]) => {
+        if (data.length > 0) {
+          // Map API data → FlightResult format
+          const mapped: FlightResult[] = data.map((v, i) => ({
+            id: String(v.maVe),
+            airline: v.hangHangKhong ?? v.tenNhaCungCap ?? "Hãng hàng không",
+            departTime: formatGio(v.thoiGianKhoiHanh),
+            arriveTime: formatGio(v.thoiGianDen),
+            durationMinutes: (() => {
+              const diff = new Date(v.thoiGianDen).getTime() - new Date(v.thoiGianKhoiHanh).getTime();
+              return diff > 0 ? Math.round(diff / 60000) : 90;
+            })(),
+            stops: 0,
+            baggage: "Xem chi tiết",
+            basePrice: v.giaThapNhat ?? 0,
+            priceStep: 0,
+            promoTags: [],
+            badges: ["Chi tiết"],
+            score: 90 - i * 2,
+          }));
+          setApiResults(mapped);
+        } else {
+          // Không có dữ liệu → dùng mock
+          setApiResults(baseResults as unknown as FlightResult[]);
+        }
+      })
+      .catch(() => {
+        setApiResults(baseResults as unknown as FlightResult[]);
+      })
+      .finally(() => setApiLoading(false));
+  }, [searchState.fromTitle, searchState.toTitle, searchState.departDate]);
 
   useLayoutEffect(() => {
     const currentSearchKey = `${searchState.departDate}-${searchState.fromTitle}-${searchState.toTitle}`;
@@ -255,14 +301,15 @@ export default function CustomerFlightSearchResults({
   const allResults = useMemo(() => {
     const fromCode = extractAirportCode(searchState.fromTitle) || "SGN";
     const fallbackArrivalCode = extractAirportCode(searchState.toTitle) || "BKK";
+    const source = apiResults.length > 0 ? apiResults : baseResults as unknown as FlightResult[];
 
-    return baseResults.map<DecoratedFlightResult>((item) => ({
+    return source.map<DecoratedFlightResult>((item) => ({
       ...item,
       price: item.basePrice + item.priceStep * selectedDateIndex,
       fromCode,
       toCode: item.arrivalAirport || fallbackArrivalCode,
     }));
-  }, [searchState.fromTitle, searchState.toTitle, selectedDateIndex]);
+  }, [apiResults, searchState.fromTitle, searchState.toTitle, selectedDateIndex]);
 
   const airlinePriceMap = useMemo(() => {
     const nextMap = new Map<string, number>();
@@ -743,44 +790,53 @@ export default function CustomerFlightSearchResults({
               <strong>Chuyến bay phù hợp nhất cho tìm kiếm của bạn</strong>
             </div>
 
-            {featuredResult ? renderTicket(featuredResult, true) : null}
-
-            <div className="flight-results__section-title flight-results__section-title--compact">
-              <span>Tất cả chuyến bay</span>
-              <strong>{`${filteredResults.length} lựa chọn đang khả dụng`}</strong>
-            </div>
-
-            {filteredResults.length === 0 ? (
-              <article className="flight-results__empty">
-                <strong>Không tìm thấy chuyến bay phù hợp với bộ lọc hiện tại</strong>
-                <p>Thử bỏ bớt bộ lọc hoặc quay lại tạo tìm kiếm mới để xem thêm lựa chọn.</p>
-                <button type="button" className="flight-results__new-search" onClick={resetFilters}>
-                  Bỏ bộ lọc
-                </button>
-              </article>
+            {apiLoading ? (
+              <div style={{ display: "flex", justifyContent: "center", padding: "48px 0", gap: 12, color: "#2563eb" }}>
+                <Loader2 size={24} style={{ animation: "spin 1s linear infinite" }} />
+                <span>Đang tìm chuyến bay...</span>
+              </div>
             ) : (
               <>
-                {listResults.map((item, index) => (
-                  <div key={item.id}>
-                    {renderTicket(item)}
-                    {index === 1 ? (
-                      <article className="flight-results__alert-card" id="faq">
-                        <div className="flight-results__alert-copy">
-                          <strong>Là người đầu tiên biết khi giá giảm!</strong>
-                          <p>Bật thông báo giá và chúng tôi sẽ báo ngay khi chặng bay này có mức giá tốt hơn.</p>
-                          <button type="button" className="flight-results__alert-link">
-                            Bật thông báo ngay
-                            <ArrowRight size={14} />
-                          </button>
-                        </div>
+                {featuredResult ? renderTicket(featuredResult, true) : null}
 
-                        <div className="flight-results__alert-orb">
-                          <Clock3 size={28} />
-                        </div>
-                      </article>
-                    ) : null}
-                  </div>
-                ))}
+                <div className="flight-results__section-title flight-results__section-title--compact">
+                  <span>Tất cả chuyến bay</span>
+                  <strong>{`${filteredResults.length} lựa chọn đang khả dụng`}</strong>
+                </div>
+
+                {filteredResults.length === 0 ? (
+                  <article className="flight-results__empty">
+                    <strong>Không tìm thấy chuyến bay phù hợp với bộ lọc hiện tại</strong>
+                    <p>Thử bỏ bớt bộ lọc hoặc quay lại tạo tìm kiếm mới để xem thêm lựa chọn.</p>
+                    <button type="button" className="flight-results__new-search" onClick={resetFilters}>
+                      Bỏ bộ lọc
+                    </button>
+                  </article>
+                ) : (
+                  <>
+                    {listResults.map((item, index) => (
+                      <div key={item.id}>
+                        {renderTicket(item)}
+                        {index === 1 ? (
+                          <article className="flight-results__alert-card" id="faq">
+                            <div className="flight-results__alert-copy">
+                              <strong>Là người đầu tiên biết khi giá giảm!</strong>
+                              <p>Bật thông báo giá và chúng tôi sẽ báo ngay khi chặng bay này có mức giá tốt hơn.</p>
+                              <button type="button" className="flight-results__alert-link">
+                                Bật thông báo ngay
+                                <ArrowRight size={14} />
+                              </button>
+                            </div>
+
+                            <div className="flight-results__alert-orb">
+                              <Clock3 size={28} />
+                            </div>
+                          </article>
+                        ) : null}
+                      </div>
+                    ))}
+                  </>
+                )}
               </>
             )}
           </div>

@@ -61,8 +61,15 @@ class AuthService {
             throw new Error('Tài khoản của bạn đã bị khóa!');
         }
 
-        // 2. So sánh mật khẩu
-        const isMatch = await bcrypt.compare(password, user.password);
+        // 2. So sánh mật khẩu (hỗ trợ cả bcrypt hash và plain text)
+        let isMatch = false;
+        const isBcryptHash = user.password.startsWith('$2a$') || user.password.startsWith('$2b$');
+        if (isBcryptHash) {
+            isMatch = await bcrypt.compare(password, user.password);
+        } else {
+            // Fallback: plain text so sánh trực tiếp (dùng cho data mẫu)
+            isMatch = (password === user.password);
+        }
         if (!isMatch) {
             throw new Error('Mật khẩu không chính xác!');
         }

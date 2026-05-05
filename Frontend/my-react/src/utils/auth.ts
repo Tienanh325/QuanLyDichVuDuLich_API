@@ -11,7 +11,81 @@ export type SessionUser = {
   fullName: string;
   email: string;
   role: UserRole;
+  token?: string;
+  maUser?: number;
+  username?: string;
 };
+
+const TOKEN_KEY = "travelhub_token";
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
+
+// ─── API-based Auth (kết nối backend thật) ─────────────────────────────────
+
+export async function loginWithAPI(username: string, password: string): Promise<{
+  ok: boolean;
+  session?: SessionUser;
+  message?: string;
+}> {
+  try {
+    const resp = await fetch(`${API_BASE}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    const json = await resp.json() as { status: string; data?: { token: string; user: { maUser: number; username: string; ten: string; email: string; vaiTro: string } }; message?: string };
+    if (!resp.ok || json.status !== "success" || !json.data) {
+      return { ok: false, message: json.message ?? "Đăng nhập thất bại." };
+    }
+    const { token, user } = json.data;
+    const role: UserRole = user.vaiTro === "ADMIN" ? "admin" : "customer";
+    const session: SessionUser = {
+      fullName: user.ten,
+      email: user.email,
+      role,
+      token,
+      maUser: user.maUser,
+      username: user.username,
+    };
+    if (canUseStorage()) {
+      localStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    }
+    return { ok: true, session };
+  } catch {
+    return { ok: false, message: "Không thể kết nối đến server. Vui lòng thử lại." };
+  }
+}
+
+export async function registerWithAPI(data: { username: string; password: string; ten: string; email: string; sdt?: string }): Promise<{
+  ok: boolean;
+  message: string;
+}> {
+  try {
+    const resp = await fetch(`${API_BASE}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const json = await resp.json() as { status: string; message?: string };
+    if (!resp.ok || json.status !== "success") {
+      return { ok: false, message: json.message ?? "Đăng ký thất bại." };
+    }
+    return { ok: true, message: "Đăng ký thành công! Bạn có thể đăng nhập ngay bây giờ." };
+  } catch {
+    return { ok: false, message: "Không thể kết nối đến server. Vui lòng thử lại." };
+  }
+}
+
+export function getToken(): string | null {
+  if (!canUseStorage()) return null;
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function clearToken() {
+  if (canUseStorage()) {
+    localStorage.removeItem(TOKEN_KEY);
+  }
+}
 
 const REGISTERED_CUSTOMERS_KEY = "travelhub_registered_customers";
 const SESSION_KEY = "travelhub_session";
@@ -155,6 +229,7 @@ export function getCurrentSession(): SessionUser | null {
 export function clearCurrentSession() {
   if (canUseStorage()) {
     window.localStorage.removeItem(SESSION_KEY);
+    window.localStorage.removeItem(TOKEN_KEY);
   }
 }
 
