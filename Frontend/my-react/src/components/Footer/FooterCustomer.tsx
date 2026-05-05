@@ -1,16 +1,14 @@
-import type { FormEvent } from "react";
+
 import {
   ArrowRight,
   Facebook,
   Instagram,
-  Mail,
   Music2,
   QrCode,
   Send,
   Smartphone,
   Youtube,
 } from "lucide-react";
-import baibienImage from "../../assets/images/baibien.jpg";
 import "../../assets/css/CustomerFooter.css";
 
 const aboutLinks = [
@@ -79,50 +77,10 @@ const paymentPartners = [
 const storeBadges = ["App Store", "Google Play", "AppGallery"];
 
 export default function FooterCustomer() {
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-  }
+ 
 
   return (
-    <footer className="customer-footer">
-      <section
-        className="customer-footer__newsletter"
-        style={{
-          backgroundImage: `linear-gradient(90deg, rgba(8, 35, 84, 0.44) 0%, rgba(10, 45, 98, 0.2) 100%), url(${baibienImage})`,
-        }}
-      >
-        <div className="customer-shell__container customer-footer__newsletter-inner">
-          <div className="customer-footer__newsletter-content">
-            <h2>
-              Luôn được cập nhật về các lời khuyên
-              <br />
-              du lịch, đề xuất và khuyến mãi mới
-              <br />
-              nhất.
-            </h2>
-
-            <form className="customer-footer__newsletter-form" onSubmit={handleSubmit}>
-              <label className="customer-footer__newsletter-field" aria-label="Địa chỉ email của bạn">
-                <Mail size={16} />
-                <input type="email" placeholder="Địa chỉ email của bạn" />
-              </label>
-              <button type="submit">Đăng ký tin</button>
-            </form>
-
-            <div className="customer-footer__newsletter-app">
-              <p>
-                Có chuyến đi mơ ước của bạn trong tầm tay của bạn. Tải
-                <br />
-                xuống ứng dụng.
-              </p>
-              <div className="customer-footer__newsletter-qr" aria-hidden="true">
-                <QrCode size={38} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
+    <footer className="customer-footer"> 
       <section className="customer-footer__main">
         <div className="customer-shell__container customer-footer__grid">
           <div className="customer-footer__column customer-footer__column--support">
@@ -130,7 +88,6 @@ export default function FooterCustomer() {
               Hợp tác với Traveloka
               <ArrowRight size={16} />
             </a>
-
             <div className="customer-footer__payments">
               <h3>Đối tác thanh toán</h3>
               <div className="customer-footer__payment-grid">

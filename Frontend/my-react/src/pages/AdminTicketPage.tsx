@@ -80,7 +80,7 @@ const mockDichVu: DichVuOption[] = [
 
 const mockTickets: TicketItem[] = [
   {
-    maVe: 1,
+    maVe: 999001,
     maDichVu: 201,
     diemKhoiHanh: "Hà Nội",
     diemDen: "TP.HCM",
@@ -93,7 +93,7 @@ const mockTickets: TicketItem[] = [
     danhGia: 4.6,
   },
   {
-    maVe: 2,
+    maVe: 999002,
     maDichVu: 202,
     diemKhoiHanh: "Hà Nội",
     diemDen: "Đà Nẵng",
@@ -106,7 +106,7 @@ const mockTickets: TicketItem[] = [
     danhGia: 4.3,
   },
   {
-    maVe: 3,
+    maVe: 999003,
     maDichVu: 203,
     diemKhoiHanh: "Cổng chính",
     diemDen: "Khu trò chơi mạo hiểm",
@@ -119,7 +119,7 @@ const mockTickets: TicketItem[] = [
     danhGia: 4.8,
   },
   {
-    maVe: 4,
+    maVe: 999004,
     maDichVu: 201,
     diemKhoiHanh: "Đà Nẵng",
     diemDen: "Phú Quốc",
@@ -179,16 +179,17 @@ function getStatusMeta(status: TicketStatus): { label: string; color: string } {
 }
 
 function extractArray(payload: unknown): unknown[] {
-  if (Array.isArray(payload)) {
-    return payload;
-  }
+  if (Array.isArray(payload)) return payload;
   if (typeof payload === "object" && payload !== null) {
-    const data = payload as { data?: unknown; items?: unknown };
-    if (Array.isArray(data.data)) {
-      return data.data;
-    }
-    if (Array.isArray(data.items)) {
-      return data.items;
+    // Backend: { status, data: { data: [...], totalRecords, ... } }
+    const outer = payload as Record<string, unknown>;
+    const inner = outer.data;
+    if (Array.isArray(inner)) return inner;
+    if (typeof inner === "object" && inner !== null) {
+      const nested = (inner as Record<string, unknown>).data;
+      if (Array.isArray(nested)) return nested;
+      const items = (inner as Record<string, unknown>).items;
+      if (Array.isArray(items)) return items;
     }
   }
   return [];
@@ -196,17 +197,20 @@ function extractArray(payload: unknown): unknown[] {
 
 function normalizeTicket(input: unknown, index: number): TicketItem {
   const raw = (typeof input === "object" && input !== null ? input : {}) as Record<string, unknown>;
+  // Backend Ve table: maVe, maDichVu, loaiVeCon (MAY_BAY|TAU_HOA|VUI_CHOI), trangThai, ngayTao
+  // Sub-tables vemaybay/vetauhoa have: diemKhoiHanh, diemDen, ngayBay, hang, soChoTrong
+  // Joined in adminGetAll
   return {
     maVe: Number(raw.maVe ?? raw.id ?? index + 1),
     maDichVu: Number(raw.maDichVu ?? raw.serviceId ?? 0),
-    diemKhoiHanh: String(raw.diemKhoiHanh ?? raw.departurePoint ?? ""),
-    diemDen: String(raw.diemDen ?? raw.destination ?? ""),
-    ngayKhoiHanh: String(raw.ngayKhoiHanh ?? raw.departureDate ?? dayjs().format("YYYY-MM-DD")),
-    gia: Number(raw.gia ?? raw.price ?? 0),
-    soChoTrong: Number(raw.soChoTrong ?? raw.availableSeats ?? 0),
-    hang: String(raw.hang ?? raw.brand ?? ""),
-    LoaiVeID: Number(raw.LoaiVeID ?? raw.loaiVeId ?? raw.ticketTypeId ?? 0),
-    TenVe: String(raw.TenVe ?? raw.tenVe ?? raw.name ?? `Vé ${index + 1}`),
+    diemKhoiHanh: String(raw.diemKhoiHanh ?? raw.departurePoint ?? raw.noiKhoiHanh ?? ""),
+    diemDen: String(raw.diemDen ?? raw.destination ?? raw.noiDen ?? ""),
+    ngayKhoiHanh: String(raw.ngayKhoiHanh ?? raw.ngayBay ?? raw.departureDate ?? dayjs().format("YYYY-MM-DD")),
+    gia: Number(raw.gia ?? raw.price ?? raw.giaCoBan ?? 0),
+    soChoTrong: Number(raw.soChoTrong ?? raw.availableSeats ?? raw.soCho ?? 0),
+    hang: String(raw.hang ?? raw.brand ?? raw.hangHangKhong ?? raw.loaiVeCon ?? ""),
+    LoaiVeID: Number(raw.LoaiVeID ?? raw.loaiVeId ?? raw.maLoaiVe ?? raw.ticketTypeId ?? 0),
+    TenVe: String(raw.TenVe ?? raw.tenVe ?? raw.ten ?? raw.name ?? `Vé ${index + 1}`),
     danhGia: Number(raw.danhGia ?? raw.rating ?? 0),
   };
 }
@@ -230,12 +234,72 @@ async function fetchDichVuOptions(): Promise<DichVuOption[]> {
 }
 
 async function createTicket(item: TicketItem): Promise<TicketItem> {
-  const response = await api.post(VE_API_PATH, item);
+  const cat = inferCategory(item);
+  let endpoint = `${VE_API_PATH}/may-bay`;
+  let chiTiet: any = {};
+  
+  if (cat === "flight") {
+    endpoint = `${VE_API_PATH}/may-bay`;
+    chiTiet = {
+      hangHangKhong: item.hang,
+      soHieuChuyenBay: `FL-${Date.now().toString().slice(-4)}`,
+      diemKhoiHanh: item.diemKhoiHanh,
+      diemDen: item.diemDen,
+      thoiGianKhoiHanh: item.ngayKhoiHanh + "T08:00:00",
+      thoiGianDen: item.ngayKhoiHanh + "T10:00:00",
+    };
+  } else if (cat === "train") {
+    endpoint = `${VE_API_PATH}/tau-hoa`;
+    chiTiet = {
+      hangTau: item.hang,
+      soHieuChuyenTau: `TR-${Date.now().toString().slice(-4)}`,
+      diemKhoiHanh: item.diemKhoiHanh,
+      diemDen: item.diemDen,
+      thoiGianKhoiHanh: item.ngayKhoiHanh + "T08:00:00",
+      thoiGianDen: item.ngayKhoiHanh + "T10:00:00",
+    };
+  } else {
+    endpoint = `${VE_API_PATH}/vui-choi`;
+    chiTiet = {
+      diaDiemSuDung: item.diemKhoiHanh,
+      ngayHetHan: item.ngayKhoiHanh,
+    };
+  }
+
+  const payload = {
+    maDichVu: item.maDichVu,
+    chiTiet,
+    bảngGia: [{ maLoaiVe: item.LoaiVeID, gia: item.gia, soChoTrong: item.soChoTrong }]
+  };
+
+  const response = await api.post(endpoint, payload);
   return normalizeTicket(response.data, 0);
 }
 
 async function updateTicket(item: TicketItem): Promise<TicketItem> {
-  const response = await api.put(`${VE_API_PATH}/${item.maVe}`, item);
+  const cat = inferCategory(item);
+  let chiTiet: any = {};
+  let loaiVeCon = 'MAY_BAY';
+  
+  if (cat === "flight") {
+    loaiVeCon = 'MAY_BAY';
+    chiTiet = { hangHangKhong: item.hang, diemKhoiHanh: item.diemKhoiHanh, diemDen: item.diemDen, thoiGianKhoiHanh: item.ngayKhoiHanh + "T08:00:00", thoiGianDen: item.ngayKhoiHanh + "T10:00:00" };
+  } else if (cat === "train") {
+    loaiVeCon = 'TAU_HOA';
+    chiTiet = { hangTau: item.hang, diemKhoiHanh: item.diemKhoiHanh, diemDen: item.diemDen, thoiGianKhoiHanh: item.ngayKhoiHanh + "T08:00:00", thoiGianDen: item.ngayKhoiHanh + "T10:00:00" };
+  } else {
+    loaiVeCon = 'VUI_CHOI';
+    chiTiet = { diaDiemSuDung: item.diemKhoiHanh, ngayHetHan: item.ngayKhoiHanh };
+  }
+
+  const payload = {
+    maDichVu: item.maDichVu,
+    loaiVeCon,
+    chiTiet,
+    bảngGia: [{ maLoaiVe: item.LoaiVeID, gia: item.gia, soChoTrong: item.soChoTrong }]
+  };
+
+  const response = await api.put(`${VE_API_PATH}/${item.maVe}`, payload);
   return normalizeTicket(response.data, 0);
 }
 
@@ -574,7 +638,7 @@ export default function AdminTicketPage({ category, title, description }: AdminT
 
   return (
     <div style={pageContainerStyle}>
-      <Space direction="vertical" size={20} style={{ width: "100%" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 20, width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
           <div>
             <Title level={3} style={{ margin: 0, color: "#182338" }}>{title}</Title>
@@ -596,7 +660,7 @@ export default function AdminTicketPage({ category, title, description }: AdminT
         </div>
 
         <Card style={cardStyle} styles={{ body: { padding: 20 } }}>
-          <Space direction="vertical" size={16} style={{ width: "100%" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%" }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
               <div>
                 <Space size={8}>
@@ -613,9 +677,9 @@ export default function AdminTicketPage({ category, title, description }: AdminT
             </div>
 
             <Table<TicketItem> rowKey="maVe" columns={columns} dataSource={filteredData} loading={loading} pagination={{ pageSize: 6, showSizeChanger: false, showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} vé` }} scroll={{ x: 1280 }} />
-          </Space>
+          </div>
         </Card>
-      </Space>
+      </div>
 
       <Modal title={editingItem ? "Cập nhật vé" : "Thêm vé"} open={modalOpen} onOk={() => void handleSubmit()} onCancel={() => { setModalOpen(false); resetForm(); }} okText={editingItem ? "Lưu thay đổi" : "Tạo mới"} cancelText="Huỷ" confirmLoading={submitting}>
         <Form<TicketFormValues> form={form} layout="vertical">

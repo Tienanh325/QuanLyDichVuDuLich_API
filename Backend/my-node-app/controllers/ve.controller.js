@@ -82,6 +82,40 @@ class VeController {
         }
     }
 
+    /** Admin: Cập nhật thông tin vé (PUT) */
+    static async adminUpdate(req, res) {
+        try {
+            const { maDichVu, chiTiet, bảngGia, loaiVeCon } = req.body;
+            const id = req.params.id;
+            
+            // Note: we can't easily change loaiVeCon, we assume it's the same or we just update the specific table
+            const ve = await VeModel.getById(id);
+            if (!ve) return res.status(404).json({ status: 'error', data: null, message: 'Không tìm thấy vé!' });
+
+            // Update specific table based on type
+            const typeToUpdate = loaiVeCon || ve.loaiVeCon;
+            if (typeToUpdate === 'MAY_BAY') {
+                await VeModel.updateVeMayBay(id, chiTiet || {});
+            } else if (typeToUpdate === 'TAU_HOA') {
+                await VeModel.updateVeTauHoa(id, chiTiet || {});
+            } else if (typeToUpdate === 'VUI_CHOI') {
+                await VeModel.updateVeKhuVuiChoi(id, chiTiet || {});
+            }
+
+            // Update prices
+            if (bảngGia && Array.isArray(bảngGia)) {
+                for (const g of bảngGia) {
+                    await VeModel.upsertGiaVe(id, g.maLoaiVe, g.gia, g.soChoTrong || 0);
+                }
+            }
+            
+            const updatedVe = await VeModel.getById(id);
+            return res.status(200).json({ status: 'success', data: updatedVe, message: 'Cập nhật vé thành công!' });
+        } catch (error) {
+            return res.status(500).json({ status: 'error', data: null, message: error.message });
+        }
+    }
+
     /** Admin: Cập nhật trạng thái vé */
     static async adminUpdateStatus(req, res) {
         try {

@@ -123,20 +123,19 @@ function formatDate(value?: string | null): string {
 }
 
 function extractArray(payload: unknown): unknown[] {
-  if (Array.isArray(payload)) {
-    return payload;
-  }
-
+  if (Array.isArray(payload)) return payload;
   if (typeof payload === "object" && payload !== null) {
-    const record = payload as { data?: unknown; items?: unknown };
-    if (Array.isArray(record.data)) {
-      return record.data;
-    }
-    if (Array.isArray(record.items)) {
-      return record.items;
+    // Backend: { status, data: { data: [...], totalRecords, ... } }
+    const outer = payload as Record<string, unknown>;
+    const inner = outer.data;
+    if (Array.isArray(inner)) return inner;
+    if (typeof inner === "object" && inner !== null) {
+      const nested = (inner as Record<string, unknown>).data;
+      if (Array.isArray(nested)) return nested;
+      const items = (inner as Record<string, unknown>).items;
+      if (Array.isArray(items)) return items;
     }
   }
-
   return [];
 }
 
@@ -149,9 +148,11 @@ function normalizeTour(input: unknown, index: number): TourItem {
     ten: String(raw.ten ?? raw.name ?? `Tour ${index + 1}`),
     viTri: String(raw.viTri ?? raw.location ?? ""),
     thoiGian: String(raw.thoiGian ?? raw.duration ?? ""),
-    gia: Number(raw.gia ?? raw.price ?? 0),
+    // Backend: giaTour field
+    gia: Number(raw.gia ?? raw.giaTour ?? raw.price ?? 0),
     ngayBatDau: String(raw.ngayBatDau ?? raw.startDate ?? dayjs().format("YYYY-MM-DD")),
-    soLuong: Number(raw.soLuong ?? raw.quantity ?? 0),
+    // Backend: soLuongKhach field
+    soLuong: Number(raw.soLuong ?? raw.soLuongKhach ?? raw.quantity ?? 0),
     moTa: String(raw.moTa ?? raw.description ?? ""),
     danhGia: Number(raw.danhGia ?? raw.rating ?? 0),
   };

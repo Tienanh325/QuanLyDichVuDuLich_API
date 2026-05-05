@@ -52,16 +52,15 @@ const mockUsers: UserItem[] = [
 ];
 
 function extractArray(payload: unknown): unknown[] {
-  if (Array.isArray(payload)) {
-    return payload;
-  }
+  if (Array.isArray(payload)) return payload;
   if (typeof payload === "object" && payload !== null) {
-    const data = payload as { data?: unknown; items?: unknown };
-    if (Array.isArray(data.data)) {
-      return data.data;
-    }
-    if (Array.isArray(data.items)) {
-      return data.items;
+    // Backend: { status, data: { data: [...], totalRecords, ... } }
+    const outer = payload as Record<string, unknown>;
+    const inner = outer.data;
+    if (Array.isArray(inner)) return inner;
+    if (typeof inner === "object" && inner !== null) {
+      const nested = (inner as Record<string, unknown>).data;
+      if (Array.isArray(nested)) return nested;
     }
   }
   return [];
@@ -69,17 +68,15 @@ function extractArray(payload: unknown): unknown[] {
 
 function normalizeUser(input: unknown, index: number): UserItem {
   const raw = (typeof input === "object" && input !== null ? input : {}) as Record<string, unknown>;
-  const accValue = raw.accID ?? raw.accountId ?? raw.accId;
-
+  // Backend Users table: maUser, username, ten, email, sdt, vaiTro, trangThai
+  const id = Number(raw.maUser ?? raw.maNguoiDung ?? raw.id ?? index + 1);
   return {
-    maNguoiDung: Number(raw.maNguoiDung ?? raw.id ?? index + 1),
-    ten: String(raw.ten ?? raw.name ?? `Nguoi dung ${index + 1}`),
+    maNguoiDung: id,
+    ten: String(raw.ten ?? raw.name ?? raw.username ?? `User ${index + 1}`),
     sdt: String(raw.sdt ?? raw.soDienThoai ?? raw.phone ?? ""),
     email: String(raw.email ?? ""),
-    accID:
-      accValue === null || accValue === undefined || accValue === ""
-        ? null
-        : Number(accValue),
+    // No accID in backend — show vaiTro as accID placeholder
+    accID: raw.vaiTro != null ? id : null,
   };
 }
 

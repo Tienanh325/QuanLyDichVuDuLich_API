@@ -92,6 +92,7 @@ router.get('/ve/:id', VeController.getById);
 router.post('/ve/may-bay', VeController.adminCreateMayBay);
 router.post('/ve/tau-hoa', VeController.adminCreateTauHoa);
 router.post('/ve/vui-choi', VeController.adminCreateVuiChoi);
+router.put('/ve/:id', VeController.adminUpdate);
 router.patch('/ve/:id/status', VeController.adminUpdateStatus);
 router.delete('/ve/:id', VeController.adminRemove);
 // Giá vé

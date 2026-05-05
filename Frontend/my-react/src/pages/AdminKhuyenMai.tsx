@@ -156,31 +156,42 @@ function normalizeVoucher(input: unknown, index: number): VoucherItem {
   const endDateValue = raw.endDate ?? raw.ngayKetThuc ?? raw.validTo;
   const endDate = endDateValue ? String(endDateValue) : null;
 
-  const discountTypeValue = String(
-    raw.discountType ?? raw.loaiGiaTri ?? raw.type ?? "fixed",
-  ).toLowerCase();
+  // Backend giamGia: if <= 100 treat as percent, else fixed VND
+  const giamGia = Number(raw.giamGia ?? raw.discountValue ?? raw.giaTri ?? 0);
+  const discountTypeValue = String(raw.discountType ?? raw.loaiGiaTri ?? raw.type ?? "").toLowerCase();
   const discountType: DiscountKind =
     discountTypeValue === "percent" || discountTypeValue === "phan_tram" || discountTypeValue === "percentage"
       ? "percent"
+      : discountTypeValue === "fixed"
+      ? "fixed"
+      : giamGia <= 100
+      ? "percent"
       : "fixed";
 
-  const explicitStatus = String(raw.status ?? raw.trangThai ?? "").toLowerCase();
+  // trangThai from backend is 0/1 integer
+  const trangThaiRaw = raw.trangThai ?? raw.status;
+  const trangThaiNum = Number(trangThaiRaw);
+  const explicitStatus = String(trangThaiRaw ?? "").toLowerCase();
   let status: VoucherStatus | null = null;
 
-  if (explicitStatus.includes("active") || explicitStatus.includes("hoat")) {
+  if (trangThaiNum === 1 || explicitStatus.includes("active") || explicitStatus.includes("hoat")) {
     status = "active";
+  } else if (trangThaiNum === 0 || explicitStatus.includes("expire") || explicitStatus.includes("het")) {
+    status = "expired";
   } else if (explicitStatus.includes("schedule") || explicitStatus.includes("sap")) {
     status = "scheduled";
-  } else if (explicitStatus.includes("expire") || explicitStatus.includes("het")) {
-    status = "expired";
   }
 
+  // Backend: no code field — use ten as code, maKhuyenMai as id
+  const maKhuyenMai = raw.maKhuyenMai ?? raw.id;
+  const ten = String(raw.ten ?? raw.name ?? `KM${index + 1}`);
+
   return {
-    id: String(raw.id ?? raw.maKhuyenMai ?? raw.code ?? index + 1),
-    code: String(raw.code ?? raw.maKhuyenMai ?? `KM${index + 1}`),
-    description: String(raw.description ?? raw.moTa ?? raw.ten ?? "Chưa có mô tả"),
+    id: String(maKhuyenMai ?? index + 1),
+    code: String(raw.code ?? ten),
+    description: String(raw.description ?? raw.moTa ?? ten ?? "Chưa có mô tả"),
     discountType,
-    discountValue: Number(raw.discountValue ?? raw.giamGia ?? raw.giaTri ?? 0),
+    discountValue: giamGia,
     minimumOrder: Number(raw.minimumOrder ?? raw.dieuKienToiThieu ?? raw.minOrder ?? 0),
     maximumDiscount:
       raw.maximumDiscount === null || raw.maximumDiscount === undefined || raw.maximumDiscount === ""
@@ -197,33 +208,42 @@ async function fetchVouchers(): Promise<VoucherItem[]> {
   const response = await api.get(VOUCHER_API_PATH);
   const payload = response.data as unknown;
 
-  if (Array.isArray(payload)) {
-    return payload.map(normalizeVoucher);
-  }
-
-  if (typeof payload === "object" && payload !== null) {
-    const nestedData = (payload as { data?: unknown }).data;
-    const nestedItems = (payload as { items?: unknown }).items;
-
-    if (Array.isArray(nestedData)) {
-      return nestedData.map(normalizeVoucher);
+  // Unwrap nested: { status, data: { data: [...] } } or { status, data: [...] }
+  const unwrap = (p: unknown): unknown[] => {
+    if (Array.isArray(p)) return p;
+    if (typeof p === "object" && p !== null) {
+      const inner = (p as Record<string, unknown>).data;
+      if (Array.isArray(inner)) return inner;
+      if (typeof inner === "object" && inner !== null) {
+        const nested = (inner as Record<string, unknown>).data;
+        if (Array.isArray(nested)) return nested;
+      }
     }
+    return [];
+  };
 
-    if (Array.isArray(nestedItems)) {
-      return nestedItems.map(normalizeVoucher);
-    }
-  }
-
-  return [];
+  return unwrap(payload).map(normalizeVoucher);
 }
 
 async function createVoucher(voucher: VoucherItem): Promise<VoucherItem> {
-  const response = await api.post(VOUCHER_API_PATH, voucher);
+  const payload = {
+    ten: voucher.code,
+    giamGia: voucher.discountValue,
+    ngayBatDau: voucher.startDate,
+    ngayKetThuc: voucher.endDate,
+  };
+  const response = await api.post(VOUCHER_API_PATH, payload);
   return normalizeVoucher(response.data, 0);
 }
 
 async function updateVoucher(voucher: VoucherItem): Promise<VoucherItem> {
-  const response = await api.put(`${VOUCHER_API_PATH}/${voucher.id}`, voucher);
+  const payload = {
+    ten: voucher.code,
+    giamGia: voucher.discountValue,
+    ngayBatDau: voucher.startDate,
+    ngayKetThuc: voucher.endDate,
+  };
+  const response = await api.put(`${VOUCHER_API_PATH}/${voucher.id}`, payload);
   return normalizeVoucher(response.data, 0);
 }
 

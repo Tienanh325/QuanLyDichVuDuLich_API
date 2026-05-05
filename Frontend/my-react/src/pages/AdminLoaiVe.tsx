@@ -52,10 +52,11 @@ function normalizeLoaiVe(input: unknown, index: number): LoaiVeItem {
   const rawStatus = String(raw.trangthai ?? raw.status ?? "active").toLowerCase();
 
   return {
-    LoaiVeID: String(raw.LoaiVeID ?? raw.loaiVeID ?? raw.id ?? `LV${index + 1}`),
-    TenLoaiVe: String(raw.TenLoaiVe ?? raw.tenLoaiVe ?? raw.name ?? `Loại vé ${index + 1}`),
+    // Backend: maLoaiVe (number), tenLoaiVe (string), no trangthai column
+    LoaiVeID: String(raw.maLoaiVe ?? raw.LoaiVeID ?? raw.loaiVeID ?? raw.id ?? `LV${index + 1}`),
+    TenLoaiVe: String(raw.tenLoaiVe ?? raw.TenLoaiVe ?? raw.name ?? `Loại vé ${index + 1}`),
     trangthai:
-      rawStatus === "inactive" || rawStatus.includes("ngung") || rawStatus.includes("inActive".toLowerCase())
+      rawStatus === "inactive" || rawStatus.includes("ngung") || rawStatus.includes("inactive")
         ? "inactive"
         : "active",
   };
@@ -65,24 +66,21 @@ async function fetchLoaiVe(): Promise<LoaiVeItem[]> {
   const response = await api.get(LOAI_VE_API_PATH);
   const payload = response.data as unknown;
 
-  if (Array.isArray(payload)) {
-    return payload.map(normalizeLoaiVe);
-  }
-
-  if (typeof payload === "object" && payload !== null) {
-    const nestedData = (payload as { data?: unknown }).data;
-    const nestedItems = (payload as { items?: unknown }).items;
-
-    if (Array.isArray(nestedData)) {
-      return nestedData.map(normalizeLoaiVe);
+  // Backend: { status, data: [...] } or { status, data: { data: [...] } }
+  const unwrap = (p: unknown): unknown[] => {
+    if (Array.isArray(p)) return p;
+    if (typeof p === "object" && p !== null) {
+      const inner = (p as Record<string, unknown>).data;
+      if (Array.isArray(inner)) return inner;
+      if (typeof inner === "object" && inner !== null) {
+        const nested = (inner as Record<string, unknown>).data;
+        if (Array.isArray(nested)) return nested;
+      }
     }
+    return [];
+  };
 
-    if (Array.isArray(nestedItems)) {
-      return nestedItems.map(normalizeLoaiVe);
-    }
-  }
-
-  return [];
+  return unwrap(payload).map(normalizeLoaiVe);
 }
 
 async function createLoaiVe(item: LoaiVeItem): Promise<LoaiVeItem> {

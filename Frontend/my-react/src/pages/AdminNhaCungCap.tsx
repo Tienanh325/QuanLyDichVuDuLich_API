@@ -53,6 +53,8 @@ const SUPPLIER_API_PATH = "/api/admin/nha-cung-cap";
 
 
 function normalizeStatus(value: unknown): SupplierStatus {
+  // Backend trangThai is 0/1 integer
+  if (value === 0 || value === "0" || value === false) return "inactive";
   const status = String(value ?? "").toLowerCase();
   return status.includes("inactive") || status.includes("ngung") ? "inactive" : "active";
 }
@@ -64,7 +66,8 @@ function normalizeSupplier(input: unknown, index: number): SupplierItem {
     maNhaCungCap: Number(raw.maNhaCungCap ?? raw.id ?? index + 1),
     ten: String(raw.ten ?? raw.name ?? `Nha cung cap ${index + 1}`),
     email: String(raw.email ?? ""),
-    soDienThoai: String(raw.soDienThoai ?? raw.phone ?? ""),
+    // Backend uses "sdt" field (not soDienThoai)
+    soDienThoai: String(raw.sdt ?? raw.soDienThoai ?? raw.phone ?? ""),
     diaChi: String(raw.diaChi ?? raw.address ?? ""),
     loai: String(raw.loai ?? raw.type ?? "Khac"),
     trangThai: normalizeStatus(raw.trangThai ?? raw.status),
@@ -73,13 +76,18 @@ function normalizeSupplier(input: unknown, index: number): SupplierItem {
 
 function extractArray(payload: unknown): unknown[] {
   if (Array.isArray(payload)) return payload;
-
   if (typeof payload === "object" && payload !== null) {
-    const data = payload as { data?: unknown; items?: unknown };
-    if (Array.isArray(data.data)) return data.data;
-    if (Array.isArray(data.items)) return data.items;
+    // Backend: { status, data: { data: [...], totalRecords, ... } }
+    const outer = payload as Record<string, unknown>;
+    const inner = outer.data;
+    if (Array.isArray(inner)) return inner;
+    if (typeof inner === "object" && inner !== null) {
+      const nested = (inner as Record<string, unknown>).data;
+      if (Array.isArray(nested)) return nested;
+      const items = (inner as Record<string, unknown>).items;
+      if (Array.isArray(items)) return items;
+    }
   }
-
   return [];
 }
 

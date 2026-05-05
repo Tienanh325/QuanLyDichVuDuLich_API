@@ -22,15 +22,50 @@ class VeModel {
         const [countResult] = await pool.query(`SELECT COUNT(*) as total ${baseQuery}`, queryParams);
         const totalRecords = countResult[0].total;
 
+        // JOIN bảng con để lấy thông tin chi tiết (điểm đi, điểm đến, hãng, giá, số chỗ)
         let dataQuery = `
-            SELECT v.*, dv.ten AS tenDichVu, ncc.ten AS tenNhaCungCap
+            SELECT
+                v.maVe, v.maDichVu, v.loaiVeCon, v.trangThai, v.ngayTao,
+                dv.ten AS tenDichVu, ncc.ten AS tenNhaCungCap,
+                -- Máy bay
+                mb.hangHangKhong, mb.soHieuChuyenBay,
+                mb.diemKhoiHanh AS diemKhoiHanh_mb, mb.diemDen AS diemDen_mb,
+                mb.thoiGianKhoiHanh AS thoiGianKhoiHanh_mb,
+                -- Tàu hỏa
+                th.hangTau, th.soHieuChuyenTau,
+                th.diemKhoiHanh AS diemKhoiHanh_th, th.diemDen AS diemDen_th,
+                th.thoiGianKhoiHanh AS thoiGianKhoiHanh_th,
+                -- Khu vui chơi
+                kvc.diaDiemSuDung, kvc.ngayHetHan,
+                -- Giá vé (lấy mức thấp nhất)
+                MIN(gv.gia) AS gia,
+                SUM(gv.soChoTrong) AS soChoTrong
             ${baseQuery}
+            LEFT JOIN VeMayBay mb ON v.maVe = mb.maVe AND v.loaiVeCon = 'MAY_BAY'
+            LEFT JOIN VeTauHoa th ON v.maVe = th.maVe AND v.loaiVeCon = 'TAU_HOA'
+            LEFT JOIN VeKhuVuiChoi kvc ON v.maVe = kvc.maVe AND v.loaiVeCon = 'VUI_CHOI'
+            LEFT JOIN GiaVe gv ON v.maVe = gv.maVe
+            GROUP BY v.maVe
             ORDER BY v.maVe DESC LIMIT ? OFFSET ?
         `;
         queryParams.push(parseInt(limit), parseInt(offset));
         const [rows] = await pool.query(dataQuery, queryParams);
 
-        return { data: rows, totalRecords, totalPages: Math.ceil(totalRecords / limit), currentPage: parseInt(page) };
+        // Chuẩn hóa dữ liệu cho frontend
+        const normalized = rows.map(row => {
+            const isMAYBAY = row.loaiVeCon === 'MAY_BAY';
+            const isTAUHOA = row.loaiVeCon === 'TAU_HOA';
+            return {
+                ...row,
+                diemKhoiHanh: row.diemKhoiHanh_mb || row.diemKhoiHanh_th || row.diaDiemSuDung || '',
+                diemDen: row.diemDen_mb || row.diemDen_th || '',
+                ngayKhoiHanh: row.thoiGianKhoiHanh_mb || row.thoiGianKhoiHanh_th || row.ngayHetHan || null,
+                hang: isMAYBAY ? row.hangHangKhong : (isTAUHOA ? row.hangTau : row.tenNhaCungCap || ''),
+                TenVe: row.tenDichVu || `Vé ${row.loaiVeCon}`,
+            };
+        });
+
+        return { data: normalized, totalRecords, totalPages: Math.ceil(totalRecords / limit), currentPage: parseInt(page) };
     }
 
     static async getById(id) {

@@ -138,7 +138,8 @@ function normalizeDonDat(input: unknown, index: number): DonDatRow {
   const raw = (typeof input === "object" && input !== null ? input : {}) as Record<string, unknown>;
   return {
     maDon: Number(raw.maDon ?? raw.id ?? index + 1),
-    maNguoiDung: Number(raw.maNguoiDung ?? raw.userId ?? 0),
+    // Backend join: maUser field (Users table primary key)
+    maNguoiDung: Number(raw.maUser ?? raw.maNguoiDung ?? raw.userId ?? 0),
     tongGia: Number(raw.tongGia ?? raw.totalPrice ?? 0),
     trangThai: normalizeOrderStatus(raw.trangThai ?? raw.status),
     ngayTao: String(raw.ngayTao ?? raw.createdAt ?? dayjs().format("YYYY-MM-DD")),
@@ -169,23 +170,21 @@ function normalizeThanhToan(input: unknown, index: number): ThanhToanRow {
 }
 
 function extractArray(payload: unknown): unknown[] {
-  if (Array.isArray(payload)) {
-    return payload;
-  }
-
+  if (Array.isArray(payload)) return payload;
   if (typeof payload === "object" && payload !== null) {
-    const record = payload as { data?: unknown; items?: unknown; result?: unknown };
-    if (Array.isArray(record.data)) {
-      return record.data;
-    }
-    if (Array.isArray(record.items)) {
-      return record.items;
-    }
-    if (Array.isArray(record.result)) {
-      return record.result;
+    // Backend: { status, data: { data: [...], totalRecords, ... } }
+    const outer = payload as Record<string, unknown>;
+    const inner = outer.data;
+    if (Array.isArray(inner)) return inner;
+    if (typeof inner === "object" && inner !== null) {
+      const nested = (inner as Record<string, unknown>).data;
+      if (Array.isArray(nested)) return nested;
+      const items = (inner as Record<string, unknown>).items;
+      if (Array.isArray(items)) return items;
+      const result = (inner as Record<string, unknown>).result;
+      if (Array.isArray(result)) return result;
     }
   }
-
   return [];
 }
 
@@ -209,17 +208,36 @@ function mergeInvoices(
 }
 
 async function fetchInvoices(): Promise<InvoiceRow[]> {
-  const [donDatResponse, chiTietResponse, thanhToanResponse] = await Promise.all([
-    api.get(DON_DAT_API_PATH),
-    api.get(CHI_TIET_DON_API_PATH).catch(() => ({ data: [] })),
-    api.get(THANH_TOAN_API_PATH).catch(() => ({ data: [] })),
-  ]);
+  // Backend only has /don-dat and /don-dat/:id (with chiTietDon + lichSuThanhToan)
+  const donDatResponse = await api.get(DON_DAT_API_PATH);
+  const donDatList = extractArray(donDatResponse.data).map(normalizeDonDat);
 
-  const donDat = extractArray(donDatResponse.data).map(normalizeDonDat);
-  const chiTietDon = extractArray(chiTietResponse.data).map(normalizeChiTietDon);
-  const thanhToan = extractArray(thanhToanResponse.data).map(normalizeThanhToan);
+  if (donDatList.length === 0) return [];
 
-  return mergeInvoices(donDat, chiTietDon, thanhToan);
+  // Fetch full details in parallel (limit to first 20 to avoid too many requests)
+  const detailPromises = donDatList.slice(0, 20).map(async (don) => {
+    try {
+      const res = await api.get(`${DON_DAT_API_PATH}/${don.maDon}`);
+      const detail = (res.data as Record<string, unknown>)?.data as Record<string, unknown> | undefined;
+      const chiTietRaw: ChiTietDonRow[] = Array.isArray(detail?.chiTietDon)
+        ? (detail.chiTietDon as unknown[]).map(normalizeChiTietDon)
+        : [];
+      const thanhToanRaw = Array.isArray(detail?.lichSuThanhToan) && detail.lichSuThanhToan.length > 0
+        ? normalizeThanhToan(detail.lichSuThanhToan[0], 0)
+        : null;
+      return {
+        ...don,
+        chiTiet: chiTietRaw,
+        thanhToan: thanhToanRaw,
+        tongSoLuong: chiTietRaw.reduce((s, c) => s + c.soLuong, 0),
+        tongDichVu: chiTietRaw.length,
+      } as InvoiceRow;
+    } catch {
+      return { ...don, chiTiet: [], thanhToan: null, tongSoLuong: 0, tongDichVu: 0 } as InvoiceRow;
+    }
+  });
+
+  return Promise.all(detailPromises);
 }
 
 function getOrderStatusMeta(status: OrderStatus): { label: string; color: string } {

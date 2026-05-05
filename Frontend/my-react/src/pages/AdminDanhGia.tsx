@@ -80,16 +80,15 @@ function formatDate(value?: string | null): string {
 }
 
 function extractArray(payload: unknown): unknown[] {
-  if (Array.isArray(payload)) {
-    return payload;
-  }
+  if (Array.isArray(payload)) return payload;
   if (typeof payload === "object" && payload !== null) {
-    const data = payload as { data?: unknown; items?: unknown };
-    if (Array.isArray(data.data)) {
-      return data.data;
-    }
-    if (Array.isArray(data.items)) {
-      return data.items;
+    // Backend: { status, data: { data: [...], totalRecords, ... } }
+    const outer = payload as Record<string, unknown>;
+    const inner = outer.data;
+    if (Array.isArray(inner)) return inner;
+    if (typeof inner === "object" && inner !== null) {
+      const nested = (inner as Record<string, unknown>).data;
+      if (Array.isArray(nested)) return nested;
     }
   }
   return [];
@@ -99,11 +98,12 @@ function normalizeReview(input: unknown, index: number): ReviewItem {
   const raw = (typeof input === "object" && input !== null ? input : {}) as Record<string, unknown>;
   return {
     maDanhGia: Number(raw.maDanhGia ?? raw.id ?? index + 1),
-    maNguoiDung: Number(raw.maNguoiDung ?? raw.userId ?? 0),
+    // Backend join returns maUser (Users table key)
+    maNguoiDung: Number(raw.maUser ?? raw.maNguoiDung ?? raw.userId ?? 0),
     maDichVu: Number(raw.maDichVu ?? raw.serviceId ?? 0),
     soSao: Number(raw.soSao ?? raw.rating ?? 0),
     binhLuan: String(raw.binhLuan ?? raw.comment ?? ""),
-    ngayDanhGia: String(raw.ngayDanhGia ?? raw.reviewDate ?? dayjs().format("YYYY-MM-DD")),
+    ngayDanhGia: String(raw.ngayDanhGia ?? raw.reviewDate ?? raw.ngayTao ?? dayjs().format("YYYY-MM-DD")),
   };
 }
 
