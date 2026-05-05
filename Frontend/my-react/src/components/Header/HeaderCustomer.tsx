@@ -17,28 +17,28 @@ const customerMenuItems = [
     label: "Chỉnh sửa hồ sơ",
     description: "Cập nhật thông tin tài khoản và ưu đãi cá nhân.",
     icon: User,
-    href: "#uu-dai",
+    href: "/mua-sam/tai-khoan",
   },
   {
     id: "transactions",
     label: "Danh sách giao dịch",
     description: "Xem nhanh các thanh toán và lịch sử đơn hàng gần đây.",
     icon: ReceiptText,
-    href: "#uu-dai",
+    href: "/mua-sam/giao-dich",
   },
   {
     id: "bookings",
     label: "Đặt chỗ của tôi",
-    description: "Quay lại khu tìm kiếm để tiếp tục đặt dịch vụ.",
+    description: "Quản lý và xem lại tất cả các dịch vụ đã đặt.",
     icon: PlaneTakeoff,
-    href: "/mua-sam/ve-may-bay#tim-kiem",
+    href: "/mua-sam/dat-cho-cua-toi",
   },
   {
     id: "promotions",
     label: "Khuyến mãi",
     description: "Mở ngay các deal đang nổi bật dành cho khách hàng.",
     icon: BadgePercent,
-    href: "#uu-dai",
+    href: "/mua-sam/giao-dich",
   },
 ] as const;
 
@@ -59,7 +59,10 @@ export default function HeaderCustomer() {
     location.pathname.startsWith("/mua-sam/khach-san/") || 
     location.pathname === "/mua-sam/thanh-toan-khach-san" || 
     location.pathname === "/mua-sam/thanh-toan-dat-cho" ||
-    location.pathname === "/mua-sam/thanh-toan-thanh-cong";
+    location.pathname === "/mua-sam/thanh-toan-thanh-cong" ||
+    location.pathname === "/mua-sam/giao-dich" ||
+    location.pathname === "/mua-sam/tai-khoan" ||
+    location.pathname === "/mua-sam/dat-cho-cua-toi";
   const customerInitials =
     session?.fullName
       ?.split(" ")
@@ -173,9 +176,9 @@ export default function HeaderCustomer() {
                             const Icon = item.icon;
 
                             return (
-                              <a
+                              <Link
                                 key={item.id}
-                                href={item.href}
+                                to={item.href}
                                 className="customer-header__menu-item"
                                 role="menuitem"
                                 onClick={() => setIsCustomerMenuOpen(false)}
@@ -187,7 +190,7 @@ export default function HeaderCustomer() {
                                   <strong>{item.label}</strong>
                                   <small>{item.description}</small>
                                 </span>
-                              </a>
+                              </Link>
                             );
                           })}
                         </div>

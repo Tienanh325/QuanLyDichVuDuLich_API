@@ -26,6 +26,9 @@ import CustomerHotelDetail from '../pages/CustomerHotelDetail';
 import CheckoutKhachSan from '../pages/CheckoutKhachSan';
 import PaymentKhachSan from '../pages/PaymentKhachSan';
 import SuccessKhachSan from '../pages/SuccessKhachSan';
+import CustomerTransactions from '../pages/CustomerTransactions';
+import CustomerProfile from '../pages/CustomerProfile';
+import CustomerBookings from '../pages/CustomerBookings';
 
 export default function RoutesIndex() {
   return (
@@ -38,6 +41,9 @@ export default function RoutesIndex() {
         <Route path="ve-may-bay" element={<CustomerFlight />} />
         <Route path="ve-tau" element={<CustomerTrainTicket />} />
         <Route path="hoat-dong-vui-choi" element={<CustomerActivity />} />
+        <Route path="giao-dich" element={<CustomerTransactions />} />
+        <Route path="tai-khoan" element={<CustomerProfile />} />
+        <Route path="dat-cho-cua-toi" element={<CustomerBookings />} />
         <Route path="khach-san/:id" element={<CustomerHotelDetail />} />
         <Route path="thanh-toan-khach-san" element={<CheckoutKhachSan />} />
         <Route path="thanh-toan-dat-cho" element={<PaymentKhachSan />} />
