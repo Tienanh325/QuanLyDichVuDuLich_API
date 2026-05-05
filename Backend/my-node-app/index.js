@@ -3,33 +3,75 @@ const cors = require('cors');
 require('dotenv').config();
 const { connectDB } = require('./config/db');
 
-const app = express(); // This line initializes 'app'
+const app = express();
 
-// Middleware
+// ==========================================
+// MIDDLEWARE
+// ==========================================
 app.use(cors({
-    origin: 'http://localhost:5173', // Domain của Frontend
-    credentials: true // Cho phép gửi kèm Cookie / Authorization headers
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true
 }));
 app.use(express.json());
 
-// Routes
-app.use("/api", require("./routes/Admin_nhacungcap"));
-app.use("/api", require("./routes/Admin_resources"));
-app.use("/api/admin", require("./routes/admin.routes")); // Khai báo Admin Dashboard Routes mới
-app.use("/api/auth", require("./routes/auth.routes")); // Khai báo Route Auth
+// ==========================================
+// ROUTES
+// ==========================================
 
+// Auth (Đăng ký, Đăng nhập)
+app.use('/api/auth', require('./routes/auth.routes'));
+
+// Admin (Bảo vệ bằng JWT + role ADMIN)
+app.use('/api/admin', require('./routes/admin.routes'));
+
+// Customer & Public (Public không cần token, /toi/* cần token)
+app.use('/api', require('./routes/customer.routes'));
+
+// ==========================================
+// HEALTH CHECK
+// ==========================================
+app.get('/api/health', (req, res) => {
+    res.status(200).json({
+        status: 'success',
+        message: 'Travel API đang chạy!',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// ==========================================
+// 404 HANDLER
+// ==========================================
+app.use((req, res) => {
+    res.status(404).json({
+        status: 'error',
+        data: null,
+        message: `Không tìm thấy route: ${req.method} ${req.originalUrl}`
+    });
+});
+
+// ==========================================
+// GLOBAL ERROR HANDLER
+// ==========================================
+app.use((err, req, res, next) => {
+    console.error('❌ Unhandled Error:', err);
+    res.status(err.status || 500).json({
+        status: 'error',
+        data: null,
+        message: err.message || 'Lỗi server không xác định!'
+    });
+});
+
+// ==========================================
+// KHỞI ĐỘNG SERVER
+// ==========================================
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
     app.listen(PORT, () => {
-        console.log(`Server đang chạy tại link: http://localhost:${PORT}`);
+        console.log(`🚀 Server đang chạy tại: http://localhost:${PORT}`);
         connectDB()
-            .then(() => {
-                console.log("Initial database check succeeded");
-            })
-            .catch((err) => {
-                console.warn(`Database unavailable at startup: ${err.message}`);
-            });
+            .then(() => console.log('✅ Database kết nối thành công!'))
+            .catch((err) => console.warn(`⚠️  Database không khả dụng: ${err.message}`));
     });
 };
 
