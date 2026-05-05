@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
+import api from "../services/api";
 import axios from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import {
@@ -57,14 +58,11 @@ interface TourFormValues {
   danhGia: number;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-const TOUR_API_PATH = import.meta.env.VITE_TOUR_API_PATH ?? "/api/tour";
-const DICH_VU_API_PATH = import.meta.env.VITE_DICH_VU_API_PATH ?? "/api/dich-vu";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
+const TOUR_API_PATH = import.meta.env.VITE_TOUR_API_PATH ?? "/api/admin/tour";
+const DICH_VU_API_PATH = import.meta.env.VITE_DICH_VU_API_PATH ?? "/api/admin/dich-vu";
 
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
-});
+
 
 const mockDichVu: DichVuOption[] = [
   { maDichVu: 101, ten: "Tour Đà Lạt 3N2Đ" },
@@ -169,27 +167,27 @@ function normalizeDichVu(input: unknown, index: number): DichVuOption {
 }
 
 async function fetchTours(): Promise<TourItem[]> {
-  const response = await apiClient.get(TOUR_API_PATH);
+  const response = await api.get(TOUR_API_PATH);
   return extractArray(response.data).map(normalizeTour);
 }
 
 async function fetchDichVuOptions(): Promise<DichVuOption[]> {
-  const response = await apiClient.get(DICH_VU_API_PATH);
+  const response = await api.get(DICH_VU_API_PATH);
   return extractArray(response.data).map(normalizeDichVu);
 }
 
 async function createTour(item: TourItem): Promise<TourItem> {
-  const response = await apiClient.post(TOUR_API_PATH, item);
+  const response = await api.post(TOUR_API_PATH, item);
   return normalizeTour(response.data, 0);
 }
 
 async function updateTour(item: TourItem): Promise<TourItem> {
-  const response = await apiClient.put(`${TOUR_API_PATH}/${item.maTour}`, item);
+  const response = await api.put(`${TOUR_API_PATH}/${item.maTour}`, item);
   return normalizeTour(response.data, 0);
 }
 
 async function deleteTour(id: number): Promise<void> {
-  await apiClient.delete(`${TOUR_API_PATH}/${id}`);
+  await api.delete(`${TOUR_API_PATH}/${id}`);
 }
 
 function inferTourStatus(item: TourItem): TourStatus {

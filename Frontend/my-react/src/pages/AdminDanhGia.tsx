@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
+import api from "../services/api";
 import axios from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import {
@@ -31,13 +32,10 @@ interface ReviewItem {
   ngayDanhGia: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-const REVIEW_API_PATH = import.meta.env.VITE_DANH_GIA_API_PATH ?? "/api/danh-gia";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
+const REVIEW_API_PATH = import.meta.env.VITE_DANH_GIA_API_PATH ?? "/api/admin/danh-gia";
 
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
-});
+
 
 const mockReviews: ReviewItem[] = [
   {
@@ -110,12 +108,12 @@ function normalizeReview(input: unknown, index: number): ReviewItem {
 }
 
 async function fetchReviews(): Promise<ReviewItem[]> {
-  const response = await apiClient.get(REVIEW_API_PATH);
+  const response = await api.get(REVIEW_API_PATH);
   return extractArray(response.data).map(normalizeReview);
 }
 
 async function deleteReview(id: number): Promise<void> {
-  await apiClient.delete(`${REVIEW_API_PATH}/${id}`);
+  await api.delete(`${REVIEW_API_PATH}/${id}`);
 }
 
 function getReviewTone(stars: number): { label: string; color: string } {

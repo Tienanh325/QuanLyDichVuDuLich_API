@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import axios from "axios";
+import api from "../services/api";
 import {
   Badge,
   Button,
@@ -49,22 +50,9 @@ interface ServiceFormValues {
   trangThai: ServiceStatus;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-const SUPPLIER_API_BASE_URL =
-  import.meta.env.VITE_SUPPLIER_API_BASE_URL ??
-  "http://localhost:5000";
-const SERVICE_API_PATH = import.meta.env.VITE_DICH_VU_API_PATH ?? "/api/dich-vu";
-const SUPPLIER_API_PATH = import.meta.env.VITE_NHA_CUNG_CAP_API_PATH ?? "/api/nhacungcap";
-
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
-});
-
-const supplierApiClient = axios.create({
-  baseURL: SUPPLIER_API_BASE_URL,
-  timeout: 10000,
-});
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
+const SERVICE_API_PATH = "/api/admin/dich-vu";
+const SUPPLIER_API_PATH = "/api/admin/nha-cung-cap";
 
 const mockSuppliers: SupplierOption[] = [
   { maNhaCungCap: 1, ten: "Công ty Vé Việt" },
@@ -121,27 +109,27 @@ function extractArray(payload: unknown): unknown[] {
 }
 
 async function fetchServices(): Promise<ServiceItem[]> {
-  const response = await apiClient.get(SERVICE_API_PATH);
+  const response = await api.get(SERVICE_API_PATH);
   return extractArray(response.data).map(normalizeService);
 }
 
 async function fetchSuppliers(): Promise<SupplierOption[]> {
-  const response = await supplierApiClient.get(SUPPLIER_API_PATH);
+  const response = await api.get(SUPPLIER_API_PATH);
   return extractArray(response.data).map(normalizeSupplier);
 }
 
 async function createService(item: ServiceItem): Promise<ServiceItem> {
-  const response = await apiClient.post(SERVICE_API_PATH, item);
+  const response = await api.post(SERVICE_API_PATH, item);
   return normalizeService(response.data, 0);
 }
 
 async function updateService(item: ServiceItem): Promise<ServiceItem> {
-  const response = await apiClient.put(`${SERVICE_API_PATH}/${item.maDichVu}`, item);
+  const response = await api.put(`${SERVICE_API_PATH}/${item.maDichVu}`, item);
   return normalizeService(response.data, 0);
 }
 
 async function deleteService(id: number): Promise<void> {
-  await apiClient.delete(`${SERVICE_API_PATH}/${id}`);
+  await api.delete(`${SERVICE_API_PATH}/${id}`);
 }
 
 function getStatusMeta(status: ServiceStatus): { label: string; color: string } {

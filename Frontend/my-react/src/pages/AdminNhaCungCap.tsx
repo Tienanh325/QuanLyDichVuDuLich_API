@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
+import api from "../services/api";
 import axios from "axios";
 import {
   Alert,
@@ -47,12 +48,9 @@ const API_BASE_URL =
   import.meta.env.VITE_SUPPLIER_API_BASE_URL ??
   import.meta.env.VITE_API_BASE_URL ??
   "http://localhost:5000";
-const SUPPLIER_API_PATH = "/api/nhacungcap";
+const SUPPLIER_API_PATH = "/api/admin/nha-cung-cap";
 
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
-});
+
 
 function normalizeStatus(value: unknown): SupplierStatus {
   const status = String(value ?? "").toLowerCase();
@@ -107,22 +105,22 @@ function getApiErrorMessage(error: unknown, fallback: string): string {
 }
 
 async function fetchSuppliers(): Promise<SupplierItem[]> {
-  const response = await apiClient.get(SUPPLIER_API_PATH);
+  const response = await api.get(SUPPLIER_API_PATH);
   return extractArray(response.data).map(normalizeSupplier);
 }
 
 async function createSupplier(item: SupplierItem): Promise<SupplierItem> {
-  const response = await apiClient.post(SUPPLIER_API_PATH, item);
+  const response = await api.post(SUPPLIER_API_PATH, item);
   return normalizeSupplier(response.data, 0);
 }
 
 async function updateSupplier(item: SupplierItem): Promise<SupplierItem> {
-  const response = await apiClient.put(`${SUPPLIER_API_PATH}/${item.maNhaCungCap}`, item);
+  const response = await api.put(`${SUPPLIER_API_PATH}/${item.maNhaCungCap}`, item);
   return normalizeSupplier(response.data, 0);
 }
 
 async function deleteSupplier(id: number): Promise<void> {
-  await apiClient.delete(`${SUPPLIER_API_PATH}/${id}`);
+  await api.delete(`${SUPPLIER_API_PATH}/${id}`);
 }
 
 function getStatusMeta(status: SupplierStatus): { label: string; color: string } {

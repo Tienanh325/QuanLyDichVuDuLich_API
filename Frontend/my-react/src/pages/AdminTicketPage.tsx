@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
+import api from "../services/api";
 import axios from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import {
@@ -65,14 +66,11 @@ interface AdminTicketPageProps {
   description: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-const VE_API_PATH = import.meta.env.VITE_VE_API_PATH ?? "/api/ve";
-const DICH_VU_API_PATH = import.meta.env.VITE_DICH_VU_API_PATH ?? "/api/dich-vu";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
+const VE_API_PATH = import.meta.env.VITE_VE_API_PATH ?? "/api/admin/ve";
+const DICH_VU_API_PATH = import.meta.env.VITE_DICH_VU_API_PATH ?? "/api/admin/dich-vu";
 
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
-});
+
 
 const mockDichVu: DichVuOption[] = [
   { maDichVu: 201, ten: "Vé máy bay nội địa" },
@@ -222,27 +220,27 @@ function normalizeDichVu(input: unknown, index: number): DichVuOption {
 }
 
 async function fetchTickets(): Promise<TicketItem[]> {
-  const response = await apiClient.get(VE_API_PATH);
+  const response = await api.get(VE_API_PATH);
   return extractArray(response.data).map(normalizeTicket);
 }
 
 async function fetchDichVuOptions(): Promise<DichVuOption[]> {
-  const response = await apiClient.get(DICH_VU_API_PATH);
+  const response = await api.get(DICH_VU_API_PATH);
   return extractArray(response.data).map(normalizeDichVu);
 }
 
 async function createTicket(item: TicketItem): Promise<TicketItem> {
-  const response = await apiClient.post(VE_API_PATH, item);
+  const response = await api.post(VE_API_PATH, item);
   return normalizeTicket(response.data, 0);
 }
 
 async function updateTicket(item: TicketItem): Promise<TicketItem> {
-  const response = await apiClient.put(`${VE_API_PATH}/${item.maVe}`, item);
+  const response = await api.put(`${VE_API_PATH}/${item.maVe}`, item);
   return normalizeTicket(response.data, 0);
 }
 
 async function deleteTicket(id: number): Promise<void> {
-  await apiClient.delete(`${VE_API_PATH}/${id}`);
+  await api.delete(`${VE_API_PATH}/${id}`);
 }
 
 function getPageDefaults(category: TicketCategory): {

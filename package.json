@@ -1,0 +1,13 @@
+{
+  "name": "doan3-root",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd Backend/my-node-app && npm start",
+    "start:frontend": "cd Frontend/my-react && npm run dev",
+    "install:all": "npm install && cd Backend/my-node-app && npm install && cd ../../Frontend/my-react && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

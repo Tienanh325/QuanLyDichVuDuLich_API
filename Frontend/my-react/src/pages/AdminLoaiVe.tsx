@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
+import api from "../services/api";
 import axios from "axios";
 import {
   Badge,
@@ -35,12 +36,9 @@ interface LoaiVeFormValues {
   trangthai: LoaiVeStatus;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-const LOAI_VE_API_PATH = import.meta.env.VITE_LOAI_VE_API_PATH ?? "/api/loai-ve";
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
-});
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
+const LOAI_VE_API_PATH = import.meta.env.VITE_LOAI_VE_API_PATH ?? "/api/admin/loai-ve";
+
 
 const mockLoaiVe: LoaiVeItem[] = [
   { LoaiVeID: "LV001", TenLoaiVe: "Vé người lớn", trangthai: "active" },
@@ -64,7 +62,7 @@ function normalizeLoaiVe(input: unknown, index: number): LoaiVeItem {
 }
 
 async function fetchLoaiVe(): Promise<LoaiVeItem[]> {
-  const response = await apiClient.get(LOAI_VE_API_PATH);
+  const response = await api.get(LOAI_VE_API_PATH);
   const payload = response.data as unknown;
 
   if (Array.isArray(payload)) {
@@ -88,17 +86,17 @@ async function fetchLoaiVe(): Promise<LoaiVeItem[]> {
 }
 
 async function createLoaiVe(item: LoaiVeItem): Promise<LoaiVeItem> {
-  const response = await apiClient.post(LOAI_VE_API_PATH, item);
+  const response = await api.post(LOAI_VE_API_PATH, item);
   return normalizeLoaiVe(response.data, 0);
 }
 
 async function updateLoaiVe(item: LoaiVeItem): Promise<LoaiVeItem> {
-  const response = await apiClient.put(`${LOAI_VE_API_PATH}/${item.LoaiVeID}`, item);
+  const response = await api.put(`${LOAI_VE_API_PATH}/${item.LoaiVeID}`, item);
   return normalizeLoaiVe(response.data, 0);
 }
 
 async function deleteLoaiVe(id: string): Promise<void> {
-  await apiClient.delete(`${LOAI_VE_API_PATH}/${id}`);
+  await api.delete(`${LOAI_VE_API_PATH}/${id}`);
 }
 
 function getStatusMeta(status: LoaiVeStatus): { label: string; color: string } {

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import axios from "axios";
+import api from "../services/api";
 import dayjs, { Dayjs } from "dayjs";
 import {
   Badge,
@@ -58,12 +59,8 @@ interface VoucherFormValues {
   dateRange: [Dayjs, Dayjs];
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-const VOUCHER_API_PATH = import.meta.env.VITE_KHUYEN_MAI_API_PATH ?? "/api/khuyen-mai";
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
-});
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
+const VOUCHER_API_PATH = "/api/admin/khuyen-mai";
 
 const mockVouchers: VoucherItem[] = [
   {
@@ -197,7 +194,7 @@ function normalizeVoucher(input: unknown, index: number): VoucherItem {
 }
 
 async function fetchVouchers(): Promise<VoucherItem[]> {
-  const response = await apiClient.get(VOUCHER_API_PATH);
+  const response = await api.get(VOUCHER_API_PATH);
   const payload = response.data as unknown;
 
   if (Array.isArray(payload)) {
@@ -221,17 +218,17 @@ async function fetchVouchers(): Promise<VoucherItem[]> {
 }
 
 async function createVoucher(voucher: VoucherItem): Promise<VoucherItem> {
-  const response = await apiClient.post(VOUCHER_API_PATH, voucher);
+  const response = await api.post(VOUCHER_API_PATH, voucher);
   return normalizeVoucher(response.data, 0);
 }
 
 async function updateVoucher(voucher: VoucherItem): Promise<VoucherItem> {
-  const response = await apiClient.put(`${VOUCHER_API_PATH}/${voucher.id}`, voucher);
+  const response = await api.put(`${VOUCHER_API_PATH}/${voucher.id}`, voucher);
   return normalizeVoucher(response.data, 0);
 }
 
 async function deleteVoucher(id: string): Promise<void> {
-  await apiClient.delete(`${VOUCHER_API_PATH}/${id}`);
+  await api.delete(`${VOUCHER_API_PATH}/${id}`);
 }
 
 function getStatusMeta(status: VoucherStatus): { label: string; color: string } {

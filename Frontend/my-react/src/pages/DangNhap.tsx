@@ -138,7 +138,11 @@ export default function DangNhap() {
     const localResult = loginWithEmail(username, password);
     if (localResult.ok) {
       setIsLoading(false);
-      const dest = from || (localResult.session.role === "admin" ? "/ThongKe" : "/mua-sam");
+      if (localResult.session.role === "admin") {
+        setErrorMessage("Vui lòng đăng nhập Admin bằng tài khoản thực trên Database để lấy Token thật.");
+        return;
+      }
+      const dest = from || "/mua-sam";
       navigate(dest, { replace: true });
       return;
     }

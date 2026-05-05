@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import axios from "axios";
+import api from "../services/api";
 import {
   Avatar,
   Badge,
@@ -40,13 +41,8 @@ interface UserFormValues {
   accID: number | null;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-const USER_API_PATH = import.meta.env.VITE_NGUOI_DUNG_API_PATH ?? "/api/nguoi-dung";
-
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
-});
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
+const USER_API_PATH = "/api/admin/nguoi-dung";
 
 const mockUsers: UserItem[] = [
   { maNguoiDung: 1, ten: "Nguyen Minh Anh", sdt: "0901234567", email: "minhanh@gmail.com", accID: 101 },
@@ -88,22 +84,22 @@ function normalizeUser(input: unknown, index: number): UserItem {
 }
 
 async function fetchUsers(): Promise<UserItem[]> {
-  const response = await apiClient.get(USER_API_PATH);
+  const response = await api.get(USER_API_PATH);
   return extractArray(response.data).map(normalizeUser);
 }
 
 async function createUser(item: UserItem): Promise<UserItem> {
-  const response = await apiClient.post(USER_API_PATH, item);
+  const response = await api.post(USER_API_PATH, item);
   return normalizeUser(response.data, 0);
 }
 
 async function updateUser(item: UserItem): Promise<UserItem> {
-  const response = await apiClient.put(`${USER_API_PATH}/${item.maNguoiDung}`, item);
+  const response = await api.put(`${USER_API_PATH}/${item.maNguoiDung}`, item);
   return normalizeUser(response.data, 0);
 }
 
 async function deleteUser(id: number): Promise<void> {
-  await apiClient.delete(`${USER_API_PATH}/${id}`);
+  await api.delete(`${USER_API_PATH}/${id}`);
 }
 
 function getLinkStatus(user: UserItem): UserLinkStatus {

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import axios from "axios";
+import api from "../services/api";
 import dayjs, { Dayjs } from "dayjs";
 import {
   Badge,
@@ -63,15 +64,10 @@ interface InvoiceRow {
   tongDichVu: number;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-const DON_DAT_API_PATH = import.meta.env.VITE_DON_DAT_API_PATH ?? "/api/don-dat";
-const CHI_TIET_DON_API_PATH = import.meta.env.VITE_CHI_TIET_DON_API_PATH ?? "/api/chi-tiet-don";
-const THANH_TOAN_API_PATH = import.meta.env.VITE_THANH_TOAN_API_PATH ?? "/api/thanh-toan";
-
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
-});
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
+const DON_DAT_API_PATH = "/api/admin/don-dat";
+const CHI_TIET_DON_API_PATH = "/api/admin/chi-tiet-don";
+const THANH_TOAN_API_PATH = "/api/admin/thanh-toan";
 
 const mockDonDat: DonDatRow[] = [
   { maDon: 1001, maNguoiDung: 12, tongGia: 2450000, trangThai: "completed", ngayTao: "2026-03-18" },
@@ -214,9 +210,9 @@ function mergeInvoices(
 
 async function fetchInvoices(): Promise<InvoiceRow[]> {
   const [donDatResponse, chiTietResponse, thanhToanResponse] = await Promise.all([
-    apiClient.get(DON_DAT_API_PATH),
-    apiClient.get(CHI_TIET_DON_API_PATH),
-    apiClient.get(THANH_TOAN_API_PATH),
+    api.get(DON_DAT_API_PATH),
+    api.get(CHI_TIET_DON_API_PATH).catch(() => ({ data: [] })),
+    api.get(THANH_TOAN_API_PATH).catch(() => ({ data: [] })),
   ]);
 
   const donDat = extractArray(donDatResponse.data).map(normalizeDonDat);
