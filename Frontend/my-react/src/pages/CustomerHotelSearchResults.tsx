@@ -59,7 +59,6 @@ const districtOptions = [
 
 const amenityOptions: Array<{ id: HotelAmenityId; label: string }> = [
   { id: "breakfast", label: "Bữa sáng" },
-  { id: "airport", label: "Đưa đón sân bay" },
   { id: "family", label: "Phòng gia đình" },
   { id: "parking", label: "Chỗ đậu xe" },
   { id: "mountain", label: "View núi" },

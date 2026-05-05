@@ -122,9 +122,9 @@ const destinationThemes = {
 
 const faqItems = [
   {
-    question: "Cách đặt vé xe khách trên Traveloka?",
+    question: "Cách đặt vé tàu trên Traveloka?",
     answer:
-      "Chọn điểm khởi hành, điểm đến, ngày đi và số hành khách rồi bấm Tìm kiếm. Sau đó bạn có thể lọc theo giá, thời gian xuất phát và hãng xe trước khi đặt vé.",
+      "Chọn điểm khởi hành, điểm đến, ngày đi và số hành khách rồi bấm Tìm kiếm. Sau đó bạn có thể lọc theo giá, thời gian xuất phát và hãng tàu trước khi đặt vé.",
   },
   {
     question: "Tôi có thể hủy vé xe được không?",
@@ -132,7 +132,7 @@ const faqItems = [
       "Tùy vào chính sách hủy của hãng xe. Bạn nên kiểm tra phần điều kiện đặt vé để biết chi tiết về hủy miễn phí hoặc mức phí hủy.",
   },
   {
-    question: "Vé xe khách có những ưu đãi gì?",
+    question: "Vé tàu có những ưu đãi gì?",
     answer:
       "Bạn có thể áp dụng mã giảm giá, tích điểm thành viên, hoặc tận dụng các chương trình khuyến mãi theo mùa để nhận giá vé tốt hơn.",
   },
@@ -142,9 +142,9 @@ const faqItems = [
       "Có. Bạn có thể yêu cầu đổi chuyến trước thời hạn quy định. Nếu chuyến mới có giá thấp hơn, sẽ được hoàn tiền phần chênh lệch.",
   },
   {
-    question: "Xe khách có những tiện nghi gì?",
+    question: "Tàu hỏa có những tiện nghi gì?",
     answer:
-      "Tùy theo hãng xe, các tiện nghi có thể bao gồm: Wi-Fi, điều hòa không khí, ghế reclining, nước lạnh miễn phí, toilet trên xe.",
+      "Tùy theo hãng tàu, các tiện nghi có thể bao gồm: Wi-Fi, điều hòa không khí, giường nằm, nước lạnh miễn phí, toilet trên tàu.",
   },
 ] as const;
 
@@ -290,7 +290,7 @@ function BusFieldButton({
   );
 }
 
-export default function CustomerBusTicket() {
+export default function CustomerTrainTicket() {
   const [busDeparture, setBusDeparture] = useState("Hà Nội");
   const [busDestination, setBusDestination] = useState("TP HCM");
   const [busJourneyDate, setBusJourneyDate] = useState(() => addDays(new Date(), 1));
@@ -336,9 +336,9 @@ export default function CustomerBusTicket() {
       >
         <div className="customer-shell__container">
           <div className="bus-customer__hero-head">
-            <h1>Đặt vé xe khách giá rẻ, chất lượng tốt</h1>
+            <h1>Đặt vé tàu giá rẻ, chất lượng tốt</h1>
             <p>
-              Tìm và so sánh vé xe khách từ hàng trăm tuyến đường trên toàn quốc
+              Tìm và so sánh vé tàu từ hàng trăm tuyến đường trên toàn quốc
             </p>
           </div>
 
@@ -590,7 +590,7 @@ export default function CustomerBusTicket() {
                   ) : null}
                 </BusFieldButton>
 
-                <button type="button" className="travel-search__submit" aria-label="Tìm vé xe">
+                <button type="button" className="travel-search__submit" aria-label="Tìm vé tàu">
                   <Search size={24} />
                 </button>
               </div>
@@ -640,7 +640,7 @@ export default function CustomerBusTicket() {
           <div className="bus-customer__section-head">
             <div>
               <span>Ưu đãi nổi bật</span>
-              <h2>Đặt vé xe khách nhanh chóng và tiết kiệm ngay hôm nay</h2>
+              <h2>Đặt vé tàu nhanh chóng và tiết kiệm ngay hôm nay</h2>
             </div>
           </div>
 
@@ -708,7 +708,7 @@ export default function CustomerBusTicket() {
           <div className="bus-customer__section-head bus-customer__section-head--stacked">
             <div>
               <span>Nhà xe uy tín</span>
-              <h2>Các hãng xe khách hàng đầu</h2>
+              <h2>Các hãng tàu hàng đầu</h2>
               <p>
                 Các nhà xe lớn và uy tín trên toàn quốc đã có mặt để bạn dễ dàng so sánh, đặt vé
                 và thanh toán trên cùng một nền tảng.

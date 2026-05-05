@@ -240,7 +240,7 @@ const discoverColumns = [
   },
   {
     title: "Kết hợp hành trình",
-    links: ["Khách sạn gần sân bay", "Combo vé máy bay và khách sạn", "Đưa đón sân bay linh hoạt", "Gợi ý lịch trình 3 ngày 2 đêm"],
+    links: ["Khách sạn gần sân bay", "Combo vé máy bay và khách sạn", "Gợi ý lịch trình 3 ngày 2 đêm"],
   },
 ];
 

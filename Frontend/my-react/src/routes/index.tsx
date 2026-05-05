@@ -20,10 +20,11 @@ import DangKy from '../pages/DangKy';
 import CustomerFlight from '../pages/CustomerFlight';
 import CustomerHome from '../pages/CustomerHome';
 import CustomerHotel from '../pages/CustomerHotel';
-import CustomerBusTicket from '../pages/CustomerBusTicket';
-import CustomerAirportTransfer from '../pages/CustomerAirportTransfer';
-import CustomerCarRental from '../pages/CustomerCarRental';
+import CustomerTrainTicket from '../pages/CustomerTrainTicket';
 import CustomerActivity from '../pages/CustomerActivity';
+import CustomerHotelDetail from '../pages/CustomerHotelDetail';
+import CheckoutKhachSan from '../pages/CheckoutKhachSan';
+import PaymentKhachSan from '../pages/PaymentKhachSan';
 
 export default function RoutesIndex() {
   return (
@@ -34,10 +35,11 @@ export default function RoutesIndex() {
         <Route index element={<CustomerHome />} />
         <Route path="khach-san" element={<CustomerHotel />} />
         <Route path="ve-may-bay" element={<CustomerFlight />} />
-        <Route path="ve-xe-khach" element={<CustomerBusTicket />} />
-        <Route path="dua-don-san-bay" element={<CustomerAirportTransfer />} />
-        <Route path="cho-thue-xe" element={<CustomerCarRental />} />
+        <Route path="ve-tau" element={<CustomerTrainTicket />} />
         <Route path="hoat-dong-vui-choi" element={<CustomerActivity />} />
+        <Route path="khach-san/:id" element={<CustomerHotelDetail />} />
+        <Route path="thanh-toan-khach-san" element={<CheckoutKhachSan />} />
+        <Route path="thanh-toan-dat-cho" element={<PaymentKhachSan />} />
       </Route>
       <Route path="/" element={<AdminLayout />}>
         <Route index element={<Navigate to="/ThongKe" replace />} />

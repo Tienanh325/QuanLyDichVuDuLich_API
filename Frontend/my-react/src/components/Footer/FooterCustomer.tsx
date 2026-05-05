@@ -24,9 +24,7 @@ const aboutLinks = [
 const productLinks = [
   "Khách sạn",
   "Vé máy bay",
-  "Vé xe khách",
-  "Đưa đón sân bay",
-  "Cho thuê xe",
+  "Vé tàu",
   "Hoạt động & Vui chơi",
   "Du thuyền",
   "Biệt thự",

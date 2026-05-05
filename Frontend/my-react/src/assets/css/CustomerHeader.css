@@ -421,6 +421,13 @@
   box-shadow: inset 0 0 0 1px #d8e8fb;
 }
 
+/* Hotel Detail Page specific */
+.customer-header.is-detail-page:not(.is-scrolled) .customer-header__surface {
+  background: rgba(202, 210, 221, 0.85);
+  backdrop-filter: blur(12px);
+  
+}
+
 @media (max-width: 1280px) {
   .customer-header__row {
     flex-direction: column;

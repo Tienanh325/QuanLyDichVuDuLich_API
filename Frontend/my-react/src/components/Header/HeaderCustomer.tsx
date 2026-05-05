@@ -45,9 +45,7 @@ const customerMenuItems = [
 const categoryLinks = [
   { id: "hotel", label: "Khách sạn", to: "/mua-sam/khach-san" },
   { id: "flight", label: "Vé máy bay", to: "/mua-sam/ve-may-bay" },
-  { id: "bus", label: "Vé xe khách", to: "/mua-sam/ve-xe-khach" },
-  { id: "airport", label: "Đưa đón sân bay", to: "/mua-sam/dua-don-san-bay" },
-  { id: "car", label: "Cho thuê xe", to: "/mua-sam/cho-thue-xe" },
+  { id: "train", label: "Vé tàu", to: "/mua-sam/ve-tau" },
   { id: "activity", label: "Hoạt động & Vui chơi", to: "/mua-sam/hoat-dong-vui-choi" },
 ] as const;
 
@@ -57,6 +55,10 @@ export default function HeaderCustomer() {
   const session = getCurrentSession();
   const isCustomerSession = session?.role === "customer";
   const isHotelPage = location.pathname === "/mua-sam/khach-san";
+  const isHotelDetailPage = 
+    location.pathname.startsWith("/mua-sam/khach-san/") || 
+    location.pathname === "/mua-sam/thanh-toan-khach-san" || 
+    location.pathname === "/mua-sam/thanh-toan-dat-cho";
   const customerInitials =
     session?.fullName
       ?.split(" ")
@@ -114,7 +116,7 @@ export default function HeaderCustomer() {
   }
 
   return (
-    <header className={["customer-header", isHeaderScrolled ? "is-scrolled" : "", isHotelPage ? "is-light-theme" : ""].filter(Boolean).join(" ")}>
+    <header className={["customer-header", isHeaderScrolled ? "is-scrolled" : "", (isHotelPage || isHotelDetailPage) ? "is-light-theme" : "", isHotelDetailPage ? "is-detail-page" : ""].filter(Boolean).join(" ")}>
       <div className="customer-header__surface">
         <div className="customer-shell__container customer-header__surface-inner">
           <div className="customer-header__row">

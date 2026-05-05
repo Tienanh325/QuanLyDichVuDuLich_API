@@ -2,17 +2,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-  BedDouble,
-  Building2,
   CalendarDays,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  CircleDollarSign,
   Copy,
   CreditCard,
   Crosshair,
-  Info,
   MapPinned,
   Minus,
   Plus,
@@ -20,8 +16,6 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
-  Star,
-  TicketPercent,
   Users,
 } from "lucide-react";
 import baibienImage from "../assets/images/baibien.jpg";

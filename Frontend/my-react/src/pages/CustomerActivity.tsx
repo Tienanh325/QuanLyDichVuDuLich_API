@@ -384,7 +384,7 @@ const activityItems: ActivityItem[] = [
     rating: 8.6,
     reviews: "3 đánh giá",
     shortcuts: ["can-thiet", "tat-ca-hoat-dong"],
-    filters: ["Dịch vụ trong sân bay", "Đưa đón sân bay", "Easy Access"],
+    filters: ["Dịch vụ trong sân bay", "Easy Access"],
     perks: ["Ưu tiên sân bay", "Easy Access"],
   },
 ];
@@ -409,7 +409,7 @@ const filterGroupsByShortcut: Record<Exclude<ShortcutId, "kham-pha">, FilterGrou
     { title: "Thêm bộ lọc", options: ["Show diễn", "Biển đảo", "Gia đình", "Ưu đãi"] },
   ],
   "can-thiet": [
-    { title: "Cần thiết cho du lịch", options: ["Kết nối", "eSIM", "Phương tiện vận chuyển", "Dịch vụ trong sân bay", "Đưa đón sân bay"] },
+    { title: "Cần thiết cho du lịch", options: ["Kết nối", "eSIM", "Phương tiện vận chuyển", "Dịch vụ trong sân bay"] },
     { title: "Thêm bộ lọc", options: ["Easy Access", "Easy Refund", "Rail pass", "Xác nhận ngay"] },
   ],
   "tat-ca-hoat-dong": [

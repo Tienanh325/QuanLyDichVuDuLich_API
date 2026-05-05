@@ -6,7 +6,7 @@ import HeaderBar from '../components/Header/HeaderBar';
 export default function AdminLayout() {
   const [collapsed, setCollapsed] = useState(false);
   return (
-    <div className="app-root" style={{ minHeight: '100vh', display: 'flex', width: '100%' }}>
+    <div className="app-root" style={{ height: '100vh', display: 'flex', width: '100%', overflow: 'hidden' }}>
       <SidebarAdmin collapsed={collapsed} setCollapsed={setCollapsed} />
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <HeaderBar />

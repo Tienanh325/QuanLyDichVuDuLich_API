@@ -8,19 +8,14 @@ import {
   ArrowRight,
   BedDouble,
   CalendarDays,
-  CarFront,
   ChevronLeft,
   ChevronRight,
   CircleDollarSign,
-  Copy,
   Crosshair,
-  Gift,
-  Info,
   MapPinned,
   Minus,
   PlaneTakeoff,
   Plus,
-  QrCode,
   Search,
   ShieldCheck,
   Ticket,
@@ -31,7 +26,7 @@ import "../assets/css/CustomerHome.css";
 import { buildFlightSearchQuery } from "../utils/flightSearch";
 import { buildHotelSearchQuery, toHotelQueryDate } from "../utils/hotelSearch";
 
-type ServiceId = "hotel" | "flight" | "bus" | "airport" | "car" | "activity";
+type ServiceId = "hotel" | "flight" | "train" | "activity";
 type IconType = typeof Search;
 
 type RouteValues = {
@@ -48,9 +43,7 @@ const serviceTabs: Array<{
 }> = [
   { id: "hotel", label: "Khách sạn", icon: BedDouble },
   { id: "flight", label: "Vé máy bay", icon: PlaneTakeoff },
-  { id: "bus", label: "Vé xe khách", icon: Train },
-  { id: "airport", label: "Đưa đón sân bay", icon: MapPinned },
-  { id: "car", label: "Cho thuê xe", icon: CarFront },
+  { id: "train", label: "Vé tàu", icon: Train },
   { id: "activity", label: "Hoạt động & Vui chơi", icon: Ticket },
 ];
 
@@ -65,23 +58,6 @@ const activityTags = [
   "Trải nghiệm ẩm thực",
 ];
 
-const couponCards = [
-  {
-    title: "Giảm đến 75,000 cho lần đặt vé máy bay đầu tiên",
-    body: "Áp dụng cho lần đặt đầu tiên trên ứng dụng Traveloka.",
-    code: "TVLKBANMOI",
-  },
-  {
-    title: "Giảm giá tới 250.000 cho lần đặt phòng đầu tiên",
-    body: "Dùng cho khách sạn, căn hộ và biệt thự đủ điều kiện.",
-    code: "HELLOSTAY",
-  },
-  {
-    title: "Giảm 80.000 cho chuyến xe khách đầu tiên",
-    body: "Thêm ưu đãi mới cho tuyến nội địa được yêu thích.",
-    code: "XEKHACHMOI",
-  },
-];
 
 const cruiseCards = [
   {
@@ -109,8 +85,7 @@ const cruiseCards = [
 const dealCategoryTabs = [
   "Vé máy bay",
   "Chỗ ở",
-  "Bus & Shuttle",
-  "Đưa đón sân bay",
+  "Tàu hỏa",
   "Điểm tham quan",
 ];
 
@@ -208,21 +183,6 @@ const activityCards = [
   },
 ];
 
-const guideCards = [
-  "Bali",
-  "Bangkok",
-  "Seoul",
-  "Istanbul",
-  "Liverpool",
-];
-
-const inspirationCards = [
-  "Chuyến đi tự do linh hoạt",
-  "Fun Activities",
-  "Travel insurance",
-  "Ưu đãi, vé, xe và tour",
-];
-
 const reasonCards = [
   {
     title: "Hơn 1 triệu đánh giá thật từ du khách",
@@ -277,7 +237,7 @@ const destinationColumns = [
     ],
   },
   {
-    title: "Tuyến xe khách phổ biến",
+    title: "Tuyến tàu phổ biến",
     links: [
       "Sài Gòn đi Đà Lạt",
       "Sài Gòn đi Vũng Tàu",
@@ -364,7 +324,7 @@ type HotelFieldButtonProps = {
 
 function addDays(date: Date, amount: number) {
   const nextDate = new Date(date);
-  nextDate.setDate(nextDate.getDate() + amount);
+  nextDate.setDate(date.getDate() + amount);
   return nextDate;
 }
 
@@ -490,7 +450,7 @@ type SearchButtonProps = {
   onClick?: () => void;
 };
 
-function SearchButton({ ariaLabel = "T\u00ecm ki\u1ebfm", onClick }: SearchButtonProps) {
+function SearchButton({ ariaLabel = "Tìm kiếm", onClick }: SearchButtonProps) {
   return (
     <button type="button" className="travel-search__submit" aria-label={ariaLabel} onClick={onClick}>
       <Search size={24} />
@@ -548,13 +508,9 @@ export default function CustomerHome() {
     toTitle: "Bangkok (BKKA)",
     toSubtitle: "Tất cả sân bay",
   });
-  const [busRoute, setBusRoute] = useState<RouteValues>({
-    fromTitle: "Nhập thành phố, nhà ga hoặc bến xe",
-    toTitle: "Nhập thành phố, nhà ga hoặc bến xe",
-  });
-  const [airportRoute, setAirportRoute] = useState<RouteValues>({
-    fromTitle: "Ví dụ Sân bay quốc tế Narita",
-    toTitle: "Ví dụ Trung tâm mua sắm AEON Narita",
+  const [trainRoute, setTrainRoute] = useState<RouteValues>({
+    fromTitle: "Nhập thành phố hoặc ga",
+    toTitle: "Nhập thành phố hoặc ga",
   });
 
   useEffect(() => {
@@ -665,8 +621,8 @@ export default function CustomerHome() {
         toSubtitle: flightRoute.toSubtitle ?? "",
         departDate: homeFlightDepartureDate,
         returnDate: homeFlightReturnDate,
-        passengers: "1 h\u00e0nh kh\u00e1ch",
-        cabinClass: "Ph\u1ed5 th\u00f4ng",
+        passengers: "1 hành khách",
+        cabinClass: "Phổ thông",
       })}`
     );
   }
@@ -960,7 +916,7 @@ export default function CustomerHome() {
               />
               <FieldCard label="Ngày khởi hành" title="1 thg 4 2026" icon={CalendarDays} />
               <FieldCard label="Khứ hồi" title="3 thg 4 2026" icon={CalendarDays} muted />
-              <SearchButton ariaLabel="T\u00ecm chuy\u1ebfn bay" onClick={handleFlightSearch} />
+              <SearchButton ariaLabel="Tìm chuyến bay" onClick={handleFlightSearch} />
             </div>
           </div>
 
@@ -981,18 +937,18 @@ export default function CustomerHome() {
       );
     }
 
-    if (activeTab === "bus") {
+    if (activeTab === "train") {
       return (
-        <div className="travel-panel travel-panel--bus">
+        <div className="travel-panel travel-panel--train">
           <div className="travel-form">
-            <div className="travel-form__layout travel-form__layout--bus">
+            <div className="travel-form__layout travel-form__layout--train">
               <RouteGroup
                 fromLabel="Từ"
                 toLabel="Đến"
                 fromIcon={Train}
                 toIcon={Train}
-                values={busRoute}
-                onSwap={() => swapRoute(setBusRoute)}
+                values={trainRoute}
+                onSwap={() => swapRoute(setTrainRoute)}
                 placeholder
               />
               <FieldCard label="Ngày khởi hành" title="31 thg 3 2026" icon={CalendarDays} />
@@ -1007,57 +963,7 @@ export default function CustomerHome() {
                   borderBottomRightRadius: "24px"
                 }}
                 />
-              <SearchButton />
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (activeTab === "airport") {
-      return (
-        <div className="travel-panel travel-panel--airport">
-          <div className="travel-form">
-            <div className="travel-form__layout travel-form__layout--airport">
-              <RouteGroup
-                fromLabel="Từ sân bay"
-                toLabel="Đến khu vực, địa chỉ, tòa nhà"
-                fromIcon={PlaneTakeoff}
-                toIcon={MapPinned}
-                values={airportRoute}
-                onSwap={() => swapRoute(setAirportRoute)}
-                placeholder
-              />
-              <FieldCard label="Ngày đón" title="31 thg 3, 2026" icon={CalendarDays} />
-              <FieldCard label="Giờ đón" title="17:10" icon={CircleDollarSign} />
-              <SearchButton />
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (activeTab === "car") {
-      return (
-        <div className="travel-panel travel-panel--car">
-          <div className="travel-form">
-            <div className="travel-form__layout travel-form__layout--car">
-              <FieldCard
-                label="Địa điểm thuê xe của bạn"
-                title="Điền thành phố, sân bay"
-                icon={MapPinned}
-                placeholder
-                style={{
-                  borderRight: "1px solid #cfd6df",
-                  borderTopRightRadius: "24px",
-                  borderBottomRightRadius: "24px"
-                }}
-              />
-              <FieldCard label="Ngày bắt đầu" title="2 thg 4, 2026" icon={CalendarDays} />
-              <FieldCard label="Giờ bắt đầu" title="09:00" icon={CircleDollarSign} />
-              <FieldCard label="Ngày kết thúc" title="4 thg 4, 2026" icon={CalendarDays} />
-              <FieldCard label="Giờ kết thúc" title="09:00" icon={CircleDollarSign} />
-              <SearchButton />
+              <SearchButton ariaLabel="Tìm vé tàu" onClick={() => navigate("/mua-sam/ve-tau")} />
             </div>
           </div>
         </div>
@@ -1140,65 +1046,6 @@ export default function CustomerHome() {
           </section>
         </div>
       </section>
-
-      <section className="home-customer__section home-customer__section--promo" id="uu-dai">
-        <div className="customer-shell__container">
-          <div className="home-customer__section-head">
-            <div className="home-customer__section-icon">
-              <Gift size={18} />
-            </div>
-            <div>
-              <h2>Đến 12% Phiếu giảm giá cho Người dùng mới</h2>
-              <p>Hiệu lực cho giao dịch đầu tiên trên ứng dụng Traveloka</p>
-            </div>
-          </div>
-
-          <div className="home-customer__coupon-row">
-            {couponCards.map((item) => (
-              <article key={item.code} className="home-customer__coupon-card">
-                <div className="home-customer__coupon-top">
-                  <div className="home-customer__coupon-copy">
-                    <span className="home-customer__coupon-dot" />
-                    <div>
-                      <strong>{item.title}</strong>
-                      <p>{item.body}</p>
-                    </div>
-                  </div>
-                  <button type="button" className="home-customer__coupon-info" aria-label="Thông tin ưu đãi">
-                    <Info size={16} />
-                  </button>
-                </div>
-
-                <div className="home-customer__coupon-bottom">
-                  <span className="home-customer__coupon-code">{item.code}</span>
-                  <button type="button" className="home-customer__coupon-button">
-                    <Copy size={14} />
-                    Copy
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="home-customer__section">
-        <div className="customer-shell__container">
-          <article className="home-customer__app-banner">
-            <div className="home-customer__app-copy">
-              <span>Deal xịn chỉ trên app</span>
-              <strong>Giảm đến 690K cho bạn mới</strong>
-            </div>
-            <div className="home-customer__app-qr">
-              <QrCode size={56} />
-            </div>
-            <button type="button" className="home-customer__app-button">
-              Quét mã tại đây
-            </button>
-          </article>
-        </div>
-      </section>
-
       <section className="home-customer__section">
         <div className="customer-shell__container">
           <div className="home-customer__title-row">
@@ -1236,7 +1083,7 @@ export default function CustomerHome() {
               <button
                 key={item}
                 type="button"
-                className={index === 4 ? "home-customer__chip is-active" : "home-customer__chip"}
+                className={index === 3 ? "home-customer__chip is-active" : "home-customer__chip"}
               >
                 {item}
               </button>
@@ -1372,63 +1219,6 @@ export default function CustomerHome() {
               Xem tất cả
               <ArrowRight size={14} />
             </button>
-          </div>
-        </div>
-      </section>
-
-      <section className="home-customer__section">
-        <div className="customer-shell__container">
-          <div className="home-customer__section-head">
-            <div className="home-customer__section-icon">
-              <MapPinned size={18} />
-            </div>
-            <div>
-              <h2>Cẩm nang du lịch</h2>
-            </div>
-          </div>
-
-          <div className="home-customer__guide-grid">
-            {guideCards.map((item, index) => (
-              <article
-                key={item}
-                className="home-customer__guide-card"
-                style={{
-                  backgroundImage: `linear-gradient(180deg, rgba(9, 16, 31, 0.1) 0%, rgba(9, 16, 31, 0.64) 100%), url(${index % 2 === 0 ? baibienImage : thuongHieuImage})`,
-                }}
-              >
-                <strong>{item}</strong>
-                <span>Anh</span>
-              </article>
-            ))}
-          </div>
-
-          <div className="home-customer__see-all-wrap">
-            <button type="button" className="home-customer__see-all">
-              Xem thêm
-              <ArrowRight size={14} />
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section className="home-customer__section">
-        <div className="customer-shell__container">
-          <div className="home-customer__title-row">
-            <h2>Nâng tầm chuyến đi theo cách bạn muốn</h2>
-          </div>
-
-          <div className="home-customer__inspiration-grid">
-            {inspirationCards.map((item, index) => (
-              <article key={item} className="home-customer__mini-card">
-                <div
-                  className="home-customer__mini-thumb"
-                  style={{
-                    backgroundImage: `linear-gradient(180deg, rgba(8, 22, 47, 0.04) 0%, rgba(8, 22, 47, 0.28) 100%), url(${index % 2 === 0 ? thuongHieuImage : baibienImage})`,
-                  }}
-                />
-                <strong>{item}</strong>
-              </article>
-            ))}
           </div>
         </div>
       </section>
