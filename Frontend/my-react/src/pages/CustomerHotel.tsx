@@ -6,20 +6,17 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Copy,
   CreditCard,
   Crosshair,
   MapPinned,
   Minus,
   Plus,
-  QrCode,
   Search,
   ShieldCheck,
   Sparkles,
   Users,
 } from "lucide-react";
 import baibienImage from "../assets/images/baibien.jpg";
-import thuongHieuImage from "../assets/images/thuonghieu.jpg";
 import "../assets/css/CustomerHome.css";
 import "../assets/css/CustomerHotel.css";
 import CustomerHotelSearchResults from "./CustomerHotelSearchResults";
@@ -60,30 +57,6 @@ const heroHighlights = [
   },
 ] as const;
 
-const promoCards = [
-  {
-    title: "Mừng đại lễ 30/4",
-    subtitle: "Săn ưu đãi nghỉ dưỡng biển",
-    description: "Khách sạn ven biển, resort gia đình và combo nghỉ hè giảm sâu.",
-    tag: "Mới mở bán",
-    accent: "sunrise",
-  },
-  {
-    title: "Hàn Quốc giảm đến 50%",
-    subtitle: "Khách sạn trung tâm, gần tàu điện",
-    description: "Phù hợp cho chuyến đi tự túc với nhiều mức giá dễ chọn.",
-    tag: "Quốc tế",
-    accent: "city",
-  },
-  {
-    title: "Deal chớp nhoáng cuối tuần",
-    subtitle: "Biệt thự, homestay và khách sạn cao cấp",
-    description: "Ưu đãi giới hạn cho kỳ nghỉ gần ngày với chính sách linh hoạt.",
-    tag: "Hot",
-    accent: "villa",
-  },
-] as const;
-
 const destinationCards = [
   { title: "Khách sạn ở Bali", meta: "3.120 chỗ ở", accent: "tropical" },
   { title: "Khách sạn ở Bangkok", meta: "5.410 chỗ ở", accent: "night" },
@@ -97,12 +70,6 @@ const destinationCards = [
   { title: "Khách sạn ở Đà Nẵng", meta: "2.320 chỗ ở", accent: "coast" },
   { title: "Khách sạn ở Nha Trang", meta: "1.760 chỗ ở", accent: "beach" },
   { title: "Khách sạn ở Phan Thiết", meta: "960 chỗ ở", accent: "sand" },
-] as const;
-
-const experienceCards = [
-  { title: "Homestay ở TP HCM", accent: "urban" },
-  { title: "Tìm căn hộ tốt nhất", accent: "city" },
-  { title: "Tìm biệt thự tốt nhất", accent: "villa" },
 ] as const;
 
 const partnerLogos = [
@@ -831,8 +798,7 @@ export default function CustomerHotel() {
                   </HotelFieldButton>
 
                   <button type="button" className="travel-search__submit" aria-label="Tìm khách sạn" onClick={handleHotelSearch}>
-                    <span>Tìm kiếm</span>
-                    <Search size={20} strokeWidth={2.5} />
+                    <Search size={22} strokeWidth={2.5} />
                   </button>
                 </div>
               </div>
@@ -868,48 +834,6 @@ export default function CustomerHotel() {
         </div>
       </section>
 
-      <section className="hotel-customer__section" id="uu-dai">
-        <div className="customer-shell__container">
-          <div className="hotel-customer__section-head">
-            <div>
-              <span>Ưu đãi nổi bật</span>
-              <h2>Tìm và đặt phòng khách sạn giá rẻ chỉ với 3 bước đơn giản</h2>
-            </div>
-          </div>
-
-          <div className="hotel-customer__promo-grid">
-            {promoCards.map((item) => (
-              <article
-                key={item.title}
-                className="hotel-customer__promo-card"
-                style={{
-                  backgroundImage: destinationThemes[item.accent],
-                }}
-              >
-                <span>{item.tag}</span>
-                <strong>{item.title}</strong>
-                <em>{item.subtitle}</em>
-                <p>{item.description}</p>
-              </article>
-            ))}
-          </div>
-
-          <article className="hotel-customer__voucher-banner">
-            <div className="hotel-customer__voucher-copy">
-              <strong>Tải thêm hơn với ưu đãi giảm giá mới nhất của chúng tôi</strong>
-              <p>Sử dụng TVLKHAKSAN để áp dụng cho khách hàng mới đủ điều kiện.</p>
-            </div>
-            <div className="hotel-customer__voucher-code">
-              <span>Mã: TVLKHAKSAN</span>
-              <button type="button">
-                <Copy size={14} />
-                Sao chép
-              </button>
-            </div>
-          </article>
-        </div>
-      </section>
-
       <section className="hotel-customer__section" id="pho-bien">
         <div className="customer-shell__container">
           <div className="hotel-customer__section-head">
@@ -930,29 +854,6 @@ export default function CustomerHotel() {
                   <strong>{item.title}</strong>
                   <span>{item.meta}</span>
                 </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="hotel-customer__section hotel-customer__section--plain">
-        <div className="customer-shell__container">
-          <div className="hotel-customer__section-head">
-            <div>
-              <span>Nhiều hơn khách sạn</span>
-              <h2>Chúng tôi không chỉ có khách sạn</h2>
-            </div>
-          </div>
-
-          <div className="hotel-customer__experience-grid">
-            {experienceCards.map((item) => (
-              <article
-                key={item.title}
-                className="hotel-customer__experience-card"
-                style={{ backgroundImage: destinationThemes[item.accent] }}
-              >
-                <strong>{item.title}</strong>
               </article>
             ))}
           </div>
@@ -1043,28 +944,6 @@ export default function CustomerHotel() {
               );
             })}
           </div>
-        </div>
-      </section>
-
-      <section className="hotel-customer__section hotel-customer__section--plain">
-        <div className="customer-shell__container">
-          <article className="hotel-customer__newsletter">
-            <div className="hotel-customer__newsletter-copy">
-              <span>Đăng ký chỗ nghỉ của bạn</span>
-              <h2>Tiếp cận hàng triệu khách hàng tiềm năng và phát triển kinh doanh cùng chúng tôi</h2>
-              <button type="button">Đăng ký ngay</button>
-            </div>
-            <div
-              className="hotel-customer__newsletter-visual"
-              style={{
-                backgroundImage: `linear-gradient(180deg, rgba(9, 25, 44, 0.08) 0%, rgba(9, 25, 44, 0.42) 100%), url(${thuongHieuImage})`,
-              }}
-            >
-              <div className="hotel-customer__newsletter-qr">
-                <QrCode size={54} />
-              </div>
-            </div>
-          </article>
         </div>
       </section>
 

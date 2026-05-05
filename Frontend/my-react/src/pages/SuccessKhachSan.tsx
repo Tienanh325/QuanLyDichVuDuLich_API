@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { 
   CheckCircle2, 
   Ticket, 
@@ -20,7 +21,7 @@ function StepProgress() {
         <div className="success-step-circle" style={{ backgroundColor: "#e6f4ea", color: "#1e8e3e" }}>
           <CheckCircle2 size={16} />
         </div>
-        <div className="success-step-label">Đặt chỗ</div>
+        <div className="success-step-label">Thông tin khách hàng</div>
       </div>
       <div className="success-step-line active-line" />
       <div className="success-step-item">
@@ -48,8 +49,7 @@ function SuccessMessage() {
       </div>
       
       <h1 className="success-title">Thanh toán thành công!</h1>
-      
-      
+    
       <p className="success-desc">
         Cảm ơn bạn đã đặt chỗ tại Traveloka. Thông tin chi tiết đã được gửi đến email của bạn. Quý khách vui lòng kiểm tra hộp thư đến hoặc thư rác.
       </p>
@@ -148,6 +148,10 @@ function BookingSummary() {
 // --- MAIN COMPONENT ---
 
 export default function SuccessKhachSan() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="success-container">
       <div className="success-wrapper">

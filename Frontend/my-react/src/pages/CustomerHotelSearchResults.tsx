@@ -1,556 +1,288 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  BedDouble,
-  ChevronDown,
-  CircleDollarSign,
-  Coffee,
-  MapPinned,
-  Search,
-  ShieldCheck,
-  SlidersHorizontal,
-  Sparkles,
-  Star,
-  TicketPercent,
-} from "lucide-react";
-import "../assets/css/CustomerHotelFlow.css";
-import {
-  type HotelAmenityId,
-  type HotelProperty,
-  type HotelTagId,
-  type HotelTypeId,
-  hotelProperties,
-} from "../utils/hotelBooking";
-import {
-  type HotelSearchState,
-  buildHotelSearchQuery,
-  calculateHotelNights,
-  formatHotelDateRange,
-  formatHotelGuestSummary,
-} from "../utils/hotelSearch";
+import { useState } from "react";
+import { Card, Button, Slider, Checkbox, Pagination, Rate, Row, Col, Typography, Tag, Space } from "antd";
+import { Edit2, Map, MapPin, Star } from "lucide-react";
+import { type HotelSearchState, formatHotelDateRange, formatHotelGuestSummary } from "../utils/hotelSearch";
+import { hotelProperties } from "../utils/hotelBooking";
 import { formatCurrencyVnd } from "../utils/flightSearch";
+
+const { Title, Text } = Typography;
 
 type CustomerHotelSearchResultsProps = {
   searchState: HotelSearchState;
   onStartNewSearch: () => void;
 };
 
-type SortKey = "recommended" | "price" | "rating";
-
-const sortOptions: Array<{ id: SortKey; label: string }> = [
-  { id: "recommended", label: "Độ phổ biến" },
-  { id: "price", label: "Giá thấp nhất" },
-  { id: "rating", label: "Đánh giá cao nhất" },
-];
-
-const popularTagOptions: Array<{ id: HotelTagId; label: string }> = [
-  { id: "sale", label: "Sale lễ" },
-  { id: "breakfast", label: "Có bữa sáng" },
-  { id: "family", label: "Phù hợp gia đình" },
-  { id: "freeCancel", label: "Miễn phí hủy phòng" },
-];
-
-const districtOptions = [
-  { id: "ward1", label: "Phường 1" },
-  { id: "ward3", label: "Phường 3" },
-  { id: "ward4", label: "Phường 4" },
-  { id: "ward6", label: "Phường 6" },
-];
-
-const amenityOptions: Array<{ id: HotelAmenityId; label: string }> = [
-  { id: "breakfast", label: "Bữa sáng" },
-  { id: "family", label: "Phòng gia đình" },
-  { id: "parking", label: "Chỗ đậu xe" },
-  { id: "mountain", label: "View núi" },
-  { id: "balcony", label: "Ban công" },
-];
-
-const typeOptions: Array<{ id: HotelTypeId; label: string }> = [
-  { id: "hotel", label: "Khách sạn" },
-  { id: "apartment", label: "Căn hộ" },
-  { id: "villa", label: "Villa" },
-];
-
-function getRatingLabel(rating: number) {
-  if (rating >= 9) {
-    return "Xuất sắc";
-  }
-
-  if (rating >= 8.5) {
-    return "Rất tốt";
-  }
-
-  return "Tốt";
-}
-
-function renderStars(stars: number) {
-  return Array.from({ length: stars }, (_, index) => <Star key={`${stars}-${index}`} size={12} fill="currentColor" />);
-}
-
-function toggleArrayValue<T extends string | number>(
-  value: T,
-  currentArray: T[],
-  onUpdate: (newArray: T[]) => void
-) {
-  onUpdate(
-    currentArray.includes(value)
-      ? currentArray.filter((item) => item !== value)
-      : [...currentArray, value]
-  );
-}
-
-type FilterState = {
-  sortBy: SortKey;
-  priceMode: string;
-  selectedPopularTags: HotelTagId[];
-  selectedDistricts: string[];
-  selectedTypes: HotelTypeId[];
-  selectedAmenities: HotelAmenityId[];
-  selectedStars: number[];
-  maxPrice: number;
-};
-
-const defaultFilterState: FilterState = {
-  sortBy: "recommended",
-  priceMode: "nightly",
-  selectedPopularTags: [],
-  selectedDistricts: [],
-  selectedTypes: [],
-  selectedAmenities: [],
-  selectedStars: [],
-  maxPrice: 900000,
-};
-
 export default function CustomerHotelSearchResults({
   searchState,
   onStartNewSearch,
 }: CustomerHotelSearchResultsProps) {
-  const navigate = useNavigate();
-  const [filters, setFilters] = useState<FilterState>(defaultFilterState);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
-  const filteredHotels = useMemo(
-    () =>
-      hotelProperties.filter((item) => {
-        const matchesPopular =
-          filters.selectedPopularTags.length === 0 || filters.selectedPopularTags.every((tag) => item.tagIds.includes(tag));
-        const matchesDistrict =
-          filters.selectedDistricts.length === 0 || filters.selectedDistricts.includes(item.districtKey);
-        const matchesType = filters.selectedTypes.length === 0 || filters.selectedTypes.includes(item.propertyTypeKey);
-        const matchesAmenities =
-          filters.selectedAmenities.length === 0 || filters.selectedAmenities.every((amenityId) => item.amenityIds.includes(amenityId));
-        const matchesStars = filters.selectedStars.length === 0 || filters.selectedStars.includes(item.stars);
-        const matchesPrice = item.nightlyPrice <= filters.maxPrice;
-
-        return matchesPopular && matchesDistrict && matchesType && matchesAmenities && matchesStars && matchesPrice;
-      }),
-    [filters],
-  );
-
-  const sortedHotels = useMemo(() => {
-    const nextHotels = [...filteredHotels];
-
-    nextHotels.sort((leftItem, rightItem) => {
-      if (filters.sortBy === "price") {
-        return leftItem.nightlyPrice - rightItem.nightlyPrice;
-      }
-
-      if (filters.sortBy === "rating") {
-        return rightItem.rating - leftItem.rating;
-      }
-
-      if (rightItem.rating !== leftItem.rating) {
-        return rightItem.rating - leftItem.rating;
-      }
-
-      return leftItem.nightlyPrice - rightItem.nightlyPrice;
-    });
-
-    return nextHotels;
-  }, [filteredHotels, filters.sortBy]);
-
-  const featuredHotel = sortedHotels[0];
-  const listHotels = sortedHotels.filter((item) => item.id !== featuredHotel?.id);
-  const lowestPrice = sortedHotels.length ? Math.min(...sortedHotels.map((item) => item.nightlyPrice)) : null;
-  const topRating = sortedHotels.length ? Math.max(...sortedHotels.map((item) => item.rating)) : null;
-  const staySummary = formatHotelDateRange(searchState.checkInDate, searchState.checkOutDate);
-  const guestSummary = formatHotelGuestSummary(searchState.adults, searchState.children, searchState.rooms);
-  const nights = calculateHotelNights(searchState.checkInDate, searchState.checkOutDate);
-
-  function resetFilters() {
-    setFilters(defaultFilterState);
-  }
-
-  function updateFilter<K extends keyof FilterState>(key: K, value: FilterState[K]) {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  }
-
-  function handleSelectHotel(item: HotelProperty) {
-    navigate(`/mua-sam/khach-san/${item.id}?${buildHotelSearchQuery({ ...searchState, view: "results" })}`);
-  }
-
-  function renderHotelCard(item: HotelProperty, isFeatured = false) {
-    return (
-      <article key={item.id} className={isFeatured ? "hotel-results__card is-featured" : "hotel-results__card"}>
-        {isFeatured ? <div className="hotel-results__card-ribbon">Lựa chọn nổi bật cho tìm kiếm này</div> : null}
-
-        <div className="hotel-results__card-media">
-          <div
-            className="hotel-results__card-main-image"
-            style={{
-              backgroundImage: `linear-gradient(180deg, rgba(9, 24, 45, 0.06) 0%, rgba(9, 24, 45, 0.3) 100%), url(${item.gallery[0]})`,
-            }}
-          />
-          <div className="hotel-results__card-thumbs">
-            {item.gallery.slice(1, 4).map((image, index) => (
-              <div
-                key={`${item.id}-${index}`}
-                className={index === 2 ? "hotel-results__card-thumb hotel-results__card-thumb--overlay" : "hotel-results__card-thumb"}
-                style={{
-                  backgroundImage: `linear-gradient(180deg, rgba(8, 22, 44, 0.1) 0%, rgba(8, 22, 44, 0.52) 100%), url(${image})`,
-                }}
-              >
-                {index === 2 ? <span>Xem ảnh</span> : null}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="hotel-results__card-body">
-          <div className="hotel-results__card-copy">
-            <div className="hotel-results__card-head">
-              <div>
-                <h3>{item.name}</h3>
-                {item.subtitle ? <p className="hotel-results__card-subtitle">{item.subtitle}</p> : null}
-                <div className="hotel-results__card-property">
-                  <span className="hotel-results__property-chip">
-                    <BedDouble size={14} />
-                    {item.propertyType}
-                  </span>
-                  <span className="hotel-results__stars">{renderStars(item.stars)}</span>
-                </div>
-                <div className="hotel-results__card-location">
-                  <MapPinned size={14} />
-                  {item.district}, {searchState.destination}
-                </div>
-              </div>
-
-              <div className="hotel-results__score">
-                <strong>{`${item.rating.toFixed(1)}/10`}</strong>
-                <span>{getRatingLabel(item.rating)}</span>
-                <small>{`${item.reviewCount.toLocaleString("vi-VN")} đánh giá`}</small>
-              </div>
-            </div>
-
-            <div className="hotel-results__amenities">
-              {item.amenities.map((amenity) => (
-                <span key={amenity} className="hotel-results__amenity">
-                  {amenity}
-                </span>
-              ))}
-            </div>
-
-            <div className="hotel-results__benefits">
-              {item.benefits.map((benefit) => (
-                <span key={benefit} className="hotel-results__benefit">
-                  <ShieldCheck size={14} />
-                  {benefit}
-                </span>
-              ))}
-            </div>
-
-            <div className="hotel-results__promo-strip">
-              <span className="hotel-results__reward">{item.reward}</span>
-              {item.promoTags.map((promo) => (
-                <span key={promo} className="hotel-results__promo-tag">
-                  {promo}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="hotel-results__price-panel">
-            <span className="hotel-results__highlight">{item.highlight}</span>
-            {item.originalPrice ? <small className="hotel-results__old-price">{formatCurrencyVnd(item.originalPrice)}</small> : null}
-            <strong>{formatCurrencyVnd(filters.priceMode === "nightly" ? item.nightlyPrice : item.totalPrice)}</strong>
-            <p>
-              {filters.priceMode === "nightly"
-                ? `Mỗi phòng mỗi đêm cho ${searchState.rooms} phòng`
-                : `Tổng ${formatCurrencyVnd(item.totalPrice)} cho ${searchState.rooms} phòng`}
-            </p>
-            <button type="button" className="hotel-results__select-button" onClick={() => handleSelectHotel(item)}>
-              Chọn phòng
-            </button>
-          </div>
-        </div>
-      </article>
-    );
-  }
+  // Sử dụng dữ liệu khách sạn có sẵn từ utils
+  const hotels = hotelProperties;
 
   return (
-    <section className="hotel-results" id="tim-kiem">
-      <div className="customer-shell__container">
-        <div className="hotel-results__topbar">
-          <div className="hotel-results__summary-fields">
-            <div className="hotel-results__summary-field">
-              <span>Điểm đến</span>
-              <strong>{searchState.destination}</strong>
-              <small>{searchState.destinationSubtitle}</small>
-            </div>
-            <div className="hotel-results__summary-field">
-              <span>Thời gian ở</span>
-              <strong>{staySummary}</strong>
-              <small>{`${nights} đêm`}</small>
-            </div>
-            <div className="hotel-results__summary-field">
-              <span>Khách và phòng</span>
-              <strong>{guestSummary}</strong>
-              <small>Giá hiển thị cho mỗi đêm</small>
-            </div>
-          </div>
-
-          <button type="button" className="hotel-results__search-button" onClick={onStartNewSearch}>
-            <Search size={18} />
-            Tìm kiếm mới
-          </button>
-        </div>
-
-        <div className="hotel-results__hero-grid">
-          <aside className="hotel-results__map-card">
-            <span className="hotel-results__map-chip">
-              <MapPinned size={14} />
-              Bản đồ khu vực
-            </span>
-            <strong>{searchState.destination}</strong>
-            <p>{`Gợi ý nổi bật cho ${searchState.destinationSubtitle}`}</p>
-            <button type="button">Xem trên bản đồ</button>
-          </aside>
-
-          <div className="hotel-results__hero-main">
-            <div className="hotel-results__headline-card">
+    <div style={{ backgroundColor: "#f5f7fa", padding: "170px 0", minHeight: "100vh" }}>
+      <div className="customer-shell__container" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px" }}>
+        
+        {/* Thanh Tìm Kiếm (Search Bar) */}
+        <Card style={{ marginBottom: 24, borderRadius: 12, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }} bodyStyle={{ padding: "16px 24px" }}>
+          <Row align="middle" justify="space-between">
+            <Space size={48}>
               <div>
-                <span>Kết quả tìm kiếm khách sạn</span>
-                <strong>{`${searchState.destination} đang có ưu đãi tốt`}</strong>
-                <p>Hiển thị khách sạn, căn hộ và villa phù hợp với hành trình hiện tại của bạn.</p>
+                <Text type="secondary" style={{ fontSize: 12, fontWeight: 600, display: "block", marginBottom: 4 }}>
+                  ĐIỂM ĐẾN
+                </Text>
+                <div style={{ fontSize: 16, fontWeight: 500, color: "#17324d" }}>
+                  {searchState.destination}
+                </div>
               </div>
-              <div className="hotel-results__headline-icon">
-                <BedDouble size={42} />
-              </div>
-            </div>
-
-            <div className="hotel-results__pill-row">
-              <div className="hotel-results__pill">
-                <TicketPercent size={16} />
-                Mã KSLEVN giảm đến 300K cho đơn đủ điều kiện
-              </div>
-              <div className="hotel-results__pill">
-                <Coffee size={16} />
-                Nhiều chỗ ở có bữa sáng và check-in linh hoạt
-              </div>
-              <div className="hotel-results__pill">
-                <Sparkles size={16} />
-                Ưu tiên nơi lưu trú được đánh giá tốt gần trung tâm
-              </div>
-            </div>
-
-            <div className="hotel-results__insights">
-              <article className="hotel-results__insight-card">
-                <span>Giá thấp nhất</span>
-                <strong>{lowestPrice ? formatCurrencyVnd(lowestPrice) : "Không có dữ liệu"}</strong>
-              </article>
-              <article className="hotel-results__insight-card">
-                <span>Điểm đánh giá cao nhất</span>
-                <strong>{topRating ? `${topRating.toFixed(1)}/10` : "Không có dữ liệu"}</strong>
-              </article>
-              <article className="hotel-results__insight-card">
-                <span>Số gợi ý nổi bật</span>
-                <strong>{`${sortedHotels.length} nơi lưu trú`}</strong>
-              </article>
-            </div>
-          </div>
-        </div>
-
-        <div className="hotel-results__content">
-          <aside className="hotel-results__filters">
-            <div className="hotel-results__filter-head">
-              <strong>Bộ lọc</strong>
-              <button type="button" onClick={resetFilters}>
-                Đặt lại
-              </button>
-            </div>
-
-            <section className="hotel-results__filter-card">
-              <div className="hotel-results__filter-card-head">
-                <strong>Khoảng giá</strong>
-                <span>{formatCurrencyVnd(filters.maxPrice)}</span>
-              </div>
-              <input
-                type="range"
-                min={200000}
-                max={900000}
-                step={25000}
-                value={filters.maxPrice}
-                onChange={(event) => updateFilter("maxPrice", Number(event.target.value))}
-                className="hotel-results__range-input"
-              />
-              <input
-                type="range"
-                min={200000}
-                max={900000}
-                step={25000}
-                value={filters.maxPrice}
-                onChange={(event) => updateFilter("maxPrice", Number(event.target.value))}
-                className="hotel-results__range-input"
-              />
-              <div className="hotel-results__range-meta">
-                <span>200.000 VND</span>
-                <span>900.000 VND</span>
-              </div>
-            </section>
-
-            <section className="hotel-results__filter-card">
-              <div className="hotel-results__filter-card-head">
-                <strong>Lọc phổ biến</strong>
-                <ChevronDown size={16} />
-              </div>
-              <div className="hotel-results__check-list">
-                {popularTagOptions.map((item) => (
-                  <label key={item.id} className="hotel-results__check-row">
-                    <input
-                      type="checkbox"
-                      checked={filters.selectedPopularTags.includes(item.id)}
-                      onChange={() => toggleArrayValue(item.id, filters.selectedPopularTags, (value) => updateFilter("selectedPopularTags", value))}
-                    />
-                    <span>{item.label}</span>
-                  </label>
-                ))}
-              </div>
-            </section>
-
-            <section className="hotel-results__filter-card">
-              <div className="hotel-results__filter-card-head">
-                <strong>Khu vực</strong>
-                <ChevronDown size={16} />
-              </div>
-              <div className="hotel-results__check-list">
-                {districtOptions.map((item) => (
-                  <label key={item.id} className="hotel-results__check-row">
-                    <input
-                      type="checkbox"
-                      checked={filters.selectedDistricts.includes(item.id)}
-                      onChange={() => toggleArrayValue(item.id, filters.selectedDistricts, (value) => updateFilter("selectedDistricts", value))}
-                    />
-                    <span>{item.label}</span>
-                  </label>
-                ))}
-              </div>
-            </section>
-
-            <section className="hotel-results__filter-card">
-              <div className="hotel-results__filter-card-head">
-                <strong>Loại hình lưu trú</strong>
-                <ChevronDown size={16} />
-              </div>
-              <div className="hotel-results__check-list">
-                {typeOptions.map((item) => (
-                  <label key={item.id} className="hotel-results__check-row">
-                    <input
-                      type="checkbox"
-                      checked={filters.selectedTypes.includes(item.id)}
-                      onChange={() => toggleArrayValue(item.id, filters.selectedTypes, (value) => updateFilter("selectedTypes", value))}
-                    />
-                    <span>{item.label}</span>
-                  </label>
-                ))}
-              </div>
-            </section>
-
-            <section className="hotel-results__filter-card">
-              <div className="hotel-results__filter-card-head">
-                <strong>Đánh giá sao</strong>
-                <ChevronDown size={16} />
-              </div>
-              <div className="hotel-results__check-list">
-                {[5, 4, 3].map((item) => (
-                  <label key={item} className="hotel-results__check-row">
-                    <input
-                      type="checkbox"
-                      checked={filters.selectedStars.includes(item)}
-                      onChange={() => toggleArrayValue(item, filters.selectedStars, (value) => updateFilter("selectedStars", value))}
-                    />
-                    <span>{`${item} sao trở lên`}</span>
-                  </label>
-                ))}
-              </div>
-            </section>
-
-            <section className="hotel-results__filter-card">
-              <div className="hotel-results__filter-card-head">
-                <strong>Tiện nghi nổi bật</strong>
-                <ChevronDown size={16} />
-              </div>
-              <div className="hotel-results__check-list">
-                {amenityOptions.map((item) => (
-                  <label key={item.id} className="hotel-results__check-row">
-                    <input
-                      type="checkbox"
-                      checked={filters.selectedAmenities.includes(item.id)}
-                      onChange={() => toggleArrayValue(item.id, filters.selectedAmenities, (value) => updateFilter("selectedAmenities", value))}
-                    />
-                    <span>{item.label}</span>
-                  </label>
-                ))}
-              </div>
-            </section>
-          </aside>
-
-          <div className="hotel-results__list-column">
-            <div className="hotel-results__list-head">
               <div>
-                <span>{searchState.destination}</span>
-                <strong>{`${sortedHotels.length} nơi lưu trú phù hợp với tìm kiếm này`}</strong>
+                <Text type="secondary" style={{ fontSize: 12, fontWeight: 600, display: "block", marginBottom: 4 }}>
+                  NGÀY NHẬN PHÒNG
+                </Text>
+                <div style={{ fontSize: 16, fontWeight: 500, color: "#17324d" }}>
+                  {formatHotelDateRange(searchState.checkInDate, searchState.checkOutDate)}
+                </div>
+              </div>
+              <div>
+                <Text type="secondary" style={{ fontSize: 12, fontWeight: 600, display: "block", marginBottom: 4 }}>
+                  KHÁCH & PHÒNG
+                </Text>
+                <div style={{ fontSize: 16, fontWeight: 500, color: "#17324d" }}>
+                  {formatHotelGuestSummary(searchState.adults, searchState.children, searchState.rooms)}
+                </div>
+              </div>
+            </Space>
+            <Button 
+              type="text" 
+              icon={<Edit2 size={16} />} 
+              onClick={onStartNewSearch} 
+              style={{ fontWeight: 600, color: "#0194f3" }}
+            >
+              Thay đổi
+            </Button>
+          </Row>
+        </Card>
+
+        <Row gutter={24}>
+          {/* Cột trái (Sidebar Filter) */}
+          <Col span={6}>
+            <Card 
+              title={<span style={{ fontWeight: 800, fontSize: 16, color: "#17324d" }}>Bộ lọc</span>} 
+              extra={<Button type="link" style={{ padding: 0, fontWeight: 600, color: "#0194f3" }}>Đặt lại</Button>} 
+              style={{ borderRadius: 12, marginBottom: 16, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
+            >
+              {/* Phạm vi giá */}
+              <div style={{ marginBottom: 28 }}>
+                <Text strong style={{ fontSize: 15, color: "#17324d" }}>Phạm vi giá</Text>
+                <Slider 
+                  range 
+                  defaultValue={[0, 20000000]} 
+                  max={20000000} 
+                  step={100000} 
+                  tooltip={{ formatter: (value) => value ? formatCurrencyVnd(value) : "0 VND" }}
+                />
+                <Row justify="space-between" style={{ marginTop: 8 }}>
+                  <Text type="secondary" style={{ fontSize: 12, fontWeight: 600 }}>0 VND</Text>
+                  <Text type="secondary" style={{ fontSize: 12, fontWeight: 600 }}>20.000.000+ VND</Text>
+                </Row>
+              </div>
+              
+              {/* Hạng sao */}
+              <div style={{ marginBottom: 28 }}>
+                <Text strong style={{ fontSize: 15, color: "#17324d", display: "block", marginBottom: 12 }}>Hạng sao</Text>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <Button 
+                      key={star} 
+                      style={{ 
+                        display: "flex", 
+                        alignItems: "center", 
+                        justifyContent: "center", 
+                        gap: 6,
+                        borderRadius: 8,
+                        borderColor: star === 3 ? "#0194f3" : "#d9d9d9",
+                        backgroundColor: star === 3 ? "#e6f4ff" : "#fff"
+                      }}
+                    >
+                      {star} <Star size={14} fill="#fadb14" color="#fadb14" />
+                    </Button>
+                  ))}
+                </div>
               </div>
 
-              <div className="hotel-results__list-controls">
-                <label className="hotel-results__select-wrap">
-                  <SlidersHorizontal size={14} />
-                  <select value={filters.sortBy} onChange={(event) => updateFilter("sortBy", event.target.value as SortKey)}>
-                    {sortOptions.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="hotel-results__select-wrap">
-                  <CircleDollarSign size={14} />
-                  <select value={filters.priceMode} onChange={(event) => updateFilter("priceMode", event.target.value)}>
-                    <option value="nightly">Mỗi phòng mỗi đêm</option>
-                    <option value="total">Tổng giá cho kỳ ở</option>
-                  </select>
-                </label>
+              {/* Tiện ích */}
+              <div style={{ marginBottom: 28 }}>
+                <Text strong style={{ fontSize: 15, color: "#17324d", display: "block", marginBottom: 12 }}>Tiện ích</Text>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <Checkbox>Hồ bơi</Checkbox>
+                  <Checkbox defaultChecked>Wi-Fi miễn phí</Checkbox>
+                  <Checkbox>Bữa sáng miễn phí</Checkbox>
+                  <Checkbox>Phòng Gym</Checkbox>
+                </div>
               </div>
-            </div>
 
-            {featuredHotel ? renderHotelCard(featuredHotel, true) : null}
+              {/* Khu vực */}
+              <div>
+                <Text strong style={{ fontSize: 15, color: "#17324d", display: "block", marginBottom: 12 }}>Khu vực</Text>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <Checkbox defaultChecked>Quận 1</Checkbox>
+                  <Checkbox>Quận 3</Checkbox>
+                  <Checkbox>Quận 7</Checkbox>
+                </div>
+              </div>
+            </Card>
 
-            {sortedHotels.length === 0 ? (
-              <article className="hotel-results__empty">
-                <strong>Không có nơi lưu trú phù hợp với bộ lọc hiện tại</strong>
-                <p>Thử nới bộ lọc giá, khu vực hoặc loại hình để xem thêm gợi ý khác.</p>
-                <button type="button" className="hotel-results__search-button" onClick={resetFilters}>
-                  Bỏ bộ lọc
-                </button>
-              </article>
-            ) : (
-              listHotels.map((item) => renderHotelCard(item))
-            )}
-          </div>
-        </div>
+            {/* Xem trên bản đồ */}
+            <Card 
+              bodyStyle={{ padding: 0 }} 
+              style={{ borderRadius: 12, overflow: "hidden", cursor: "pointer", position: "relative", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
+            >
+              <div style={{ height: 140, backgroundColor: "#e5e7eb", backgroundImage: "url('https://maps.googleapis.com/maps/api/staticmap?center=Ho+Chi+Minh+City&zoom=13&size=400x400&maptype=roadmap')", backgroundSize: "cover", backgroundPosition: "center" }}>
+              </div>
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.3)" }}>
+                <Button icon={<Map size={16} />} style={{ fontWeight: 700, borderRadius: 20, border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+                  Xem trên bản đồ
+                </Button>
+              </div>
+            </Card>
+          </Col>
+
+          {/* Cột phải (Danh sách khách sạn) */}
+          <Col span={18}>
+            <Row align="middle" justify="space-between" style={{ marginBottom: 16 }}>
+              <Text strong style={{ fontSize: 16, color: "#17324d" }}>Đang hiển thị <span style={{ color: "#0194f3" }}>{hotels.length}</span> khách sạn</Text>
+              <Space align="center" size="middle">
+                <Text type="secondary" style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase" }}>Sắp xếp theo:</Text>
+                <Space>
+                  <Button type="primary" shape="round" style={{ fontWeight: 600, backgroundColor: "#e6f4ff", color: "#0194f3", border: "none" }}>Đề xuất</Button>
+                  <Button shape="round" style={{ fontWeight: 600, color: "#17324d" }}>Giá thấp nhất</Button>
+                  <Button shape="round" style={{ fontWeight: 600, color: "#17324d" }}>Điểm đánh giá</Button>
+                </Space>
+              </Space>
+            </Row>
+
+            {hotels.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((hotel, index) => (
+              <Card 
+                key={hotel.id}
+                bodyStyle={{ padding: 0 }} 
+                style={{ borderRadius: 16, marginBottom: 20, overflow: "hidden", border: "1px solid #e5e7eb", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}
+              >
+                <Row style={{ minHeight: 220 }}>
+                  {/* Ảnh khách sạn */}
+                  <Col span={8} style={{ position: "relative" }}>
+                    <img 
+                      src={hotel.gallery?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} 
+                      alt={hotel.name}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                    {/* Tag nổi bật */}
+                    {index === 0 && (
+                      <div style={{ position: "absolute", top: 12, left: 12 }}>
+                        <Tag color="#ff5e1f" style={{ borderRadius: 4, fontWeight: 700, border: "none", padding: "4px 10px", fontSize: 12 }}>
+                          Ưu đãi đặc biệt
+                        </Tag>
+                      </div>
+                    )}
+                    {index === 1 && (
+                      <div style={{ position: "absolute", top: 12, left: 12 }}>
+                        <Tag color="#0194f3" style={{ borderRadius: 4, fontWeight: 700, border: "none", padding: "4px 10px", fontSize: 12 }}>
+                          Được yêu thích nhất
+                        </Tag>
+                      </div>
+                    )}
+                  </Col>
+                  
+                  {/* Nội dung khách sạn */}
+                  <Col span={16} style={{ padding: "20px 24px", display: "flex", flexDirection: "column" }}>
+                    <Row justify="space-between" align="top">
+                      <Col span={18}>
+                        <Rate disabled defaultValue={hotel.stars} style={{ fontSize: 14, color: "#fadb14", marginBottom: 8 }} />
+                        <Title level={4} style={{ margin: "0 0 8px", color: "#17324d", fontSize: 22 }}>{hotel.name}</Title>
+                        <Space style={{ color: "#647b92", fontSize: 14, marginBottom: 16 }}>
+                          <MapPin size={16} color="#0194f3" /> {hotel.address || hotel.district}
+                        </Space>
+                        
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 24px", color: "#647b92", fontSize: 13 }}>
+                          {hotel.amenities?.slice(0, 4).map(amenity => (
+                            <Space key={amenity} size={6}>
+                              <span style={{ color: "#8b9cad" }}>•</span> <Text style={{ color: "#647b92", fontWeight: 500 }}>{amenity}</Text>
+                            </Space>
+                          ))}
+                        </div>
+                      </Col>
+                      
+                      <Col span={6} style={{ textAlign: "right" }}>
+                        <Space align="start" size={12}>
+                          <div style={{ textAlign: "right", marginTop: 2 }}>
+                            <div style={{ color: "#0194f3", fontWeight: 800, fontSize: 15 }}>
+                              {hotel.rating >= 9 ? "Tuyệt vời" : hotel.rating >= 8.5 ? "Rất tốt" : "Tốt"}
+                            </div>
+                            <Text type="secondary" style={{ fontSize: 12, fontWeight: 500 }}>{hotel.reviewCount} nhận xét</Text>
+                          </div>
+                          <div style={{ 
+                            backgroundColor: "#0194f3", 
+                            color: "white", 
+                            fontWeight: 900, 
+                            fontSize: 18, 
+                            padding: "6px 10px", 
+                            borderRadius: 10, 
+                            borderBottomRightRadius: 0,
+                            lineHeight: 1 
+                          }}>
+                            {hotel.rating.toFixed(1)}
+                          </div>
+                        </Space>
+                      </Col>
+                    </Row>
+
+                    {/* Phần giá và Nút chọn */}
+                    <div style={{ marginTop: "auto", paddingTop: 16, display: "flex", justifyContent: "flex-end", alignItems: "flex-end" }}>
+                      <div style={{ textAlign: "right" }}>
+                        {hotel.originalPrice ? (
+                          <Text delete type="secondary" style={{ fontSize: 14, display: "block", marginBottom: 2, fontWeight: 500 }}>
+                            {formatCurrencyVnd(hotel.originalPrice)}
+                          </Text>
+                        ) : <div style={{ height: 22 }}></div>}
+                        <div style={{ color: "#ff5e1f", fontSize: 26, fontWeight: 900, lineHeight: 1 }}>
+                          {formatCurrencyVnd(hotel.nightlyPrice)}
+                        </div>
+                        <Text type="secondary" style={{ fontSize: 12, display: "block", marginTop: 6, fontWeight: 500 }}>bao gồm thuế và phí</Text>
+                        <Button 
+                          type="primary" 
+                          style={{ 
+                            marginTop: 16, 
+                            height: 44, 
+                            padding: "0 32px", 
+                            borderRadius: 8, 
+                            fontWeight: 700, 
+                            fontSize: 16,
+                            backgroundColor: "#0194f3"
+                          }}
+                        >
+                          Chọn phòng
+                        </Button>
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+              </Card>
+            ))}
+
+            <Row justify="center" style={{ marginTop: 32, marginBottom: 40 }}>
+              <Pagination 
+                current={currentPage} 
+                onChange={setCurrentPage} 
+                total={hotels.length} 
+                pageSize={pageSize} 
+                showSizeChanger={false}
+              />
+            </Row>
+          </Col>
+        </Row>
       </div>
-    </section>
+    </div>
   );
 }

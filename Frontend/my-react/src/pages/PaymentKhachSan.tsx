@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   ShieldCheck, 
@@ -15,18 +15,16 @@ import {
 import "../assets/css/paymentkhachsan.css";
 import hotelHeroImg from "../assets/images/hotel_hero_city.png"; // Using a placeholder image for the hotel
 
-// --- SUB-COMPONENTS ---
-
 function StepProgress() {
   return (
     <div className="payment-step-progress">
       <div className="payment-step-item">
-        <div className="payment-step-circle" style={{ backgroundColor: "#f0f6ff", color: "#1a73e8" }}>
+        <div className="payment-step-circle" style={{ backgroundColor: "#e6f4ea", color: "#1e8e3e" }}>
           <CheckCircle2 size={16} />
         </div>
-        <div className="payment-step-label" style={{ color: "#0d1b2e" }}>Thông tin</div>
+        <div className="payment-step-label">Thông tin khách hàng</div>
       </div>
-      <div className="payment-step-line" />
+      <div className="payment-step-line active-line" style={{ backgroundColor: "#01579b", height: "2px" }} />
       <div className="payment-step-item active">
         <div className="payment-step-circle">2</div>
         <div className="payment-step-label">Thanh toán</div>
@@ -214,6 +212,10 @@ function BookingSummary() {
 // --- MAIN COMPONENT ---
 
 export default function PaymentKhachSan() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="payment-container">
       <div className="payment-wrapper">

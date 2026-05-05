@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   MapPin,
@@ -129,6 +129,10 @@ function StarRow({ count }: { count: number }) {
 export default function CustomerHotelDetail() {
   const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   function toggleFaq(index: number) {
     setOpenFaq((prev) => (prev === index ? null : index));

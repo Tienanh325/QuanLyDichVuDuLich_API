@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect } from "react"
 import { useNavigate } from "react-router-dom";
 import { 
   Contact, 
@@ -6,7 +6,6 @@ import {
   Settings2, 
   Star, 
   BedDouble, 
-  Calendar,
   ShieldCheck
 } from "lucide-react";
 import "../assets/css/checkoutkhachsan.css";
@@ -19,7 +18,7 @@ function StepProgress() {
     <div className="step-progress">
       <div className="step-item active">
         <div className="step-circle">1</div>
-        <div className="step-label">Thông tin</div>
+        <div className="step-label">Thông tin khách hàng</div>
       </div>
       <div className="step-line" />
       <div className="step-item">
@@ -200,6 +199,10 @@ function BookingSummary() {
 
 export default function CheckoutKhachSan() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <div className="checkout-container">
