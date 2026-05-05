@@ -12,7 +12,6 @@ import CustomerSidebar from "../components/Sidebar/CustomerSidebar";
 
 const filtersMock = ["90 ngày qua", "Tháng 4 2026", "Tháng 3 2026", "Ngày tùy chọn"];
 
-// --- COMPONENTS ---
 
 function EmptyState() {
   return (
