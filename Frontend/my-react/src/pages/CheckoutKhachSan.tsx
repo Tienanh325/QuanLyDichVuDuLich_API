@@ -19,7 +19,7 @@ function StepProgress() {
     <div className="step-progress">
       <div className="step-item active">
         <div className="step-circle">1</div>
-        <div className="step-label">Thông tin khách<br/>hàng</div>
+        <div className="step-label">Thông tin</div>
       </div>
       <div className="step-line" />
       <div className="step-item">

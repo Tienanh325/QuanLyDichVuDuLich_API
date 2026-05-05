@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   ShieldCheck, 
   CreditCard, 
@@ -128,6 +129,8 @@ function BillingInfo() {
 }
 
 function BookingSummary() {
+  const navigate = useNavigate();
+
   return (
     <>
       <div className="payment-summary-card">
@@ -192,7 +195,11 @@ function BookingSummary() {
         </div>
       </div>
       
-      <button type="button" className="payment-btn">
+      <button 
+        type="button" 
+        className="payment-btn"
+        onClick={() => navigate("/mua-sam/thanh-toan-thanh-cong")}
+      >
         <Lock size={18} />
         Thanh toán an toàn
       </button>

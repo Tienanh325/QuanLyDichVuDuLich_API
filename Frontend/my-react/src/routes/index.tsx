@@ -25,6 +25,7 @@ import CustomerActivity from '../pages/CustomerActivity';
 import CustomerHotelDetail from '../pages/CustomerHotelDetail';
 import CheckoutKhachSan from '../pages/CheckoutKhachSan';
 import PaymentKhachSan from '../pages/PaymentKhachSan';
+import SuccessKhachSan from '../pages/SuccessKhachSan';
 
 export default function RoutesIndex() {
   return (
@@ -40,6 +41,7 @@ export default function RoutesIndex() {
         <Route path="khach-san/:id" element={<CustomerHotelDetail />} />
         <Route path="thanh-toan-khach-san" element={<CheckoutKhachSan />} />
         <Route path="thanh-toan-dat-cho" element={<PaymentKhachSan />} />
+        <Route path="thanh-toan-thanh-cong" element={<SuccessKhachSan />} />
       </Route>
       <Route path="/" element={<AdminLayout />}>
         <Route index element={<Navigate to="/ThongKe" replace />} />

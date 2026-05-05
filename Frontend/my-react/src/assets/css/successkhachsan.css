@@ -1,0 +1,405 @@
+/* successkhachsan.css */
+
+.success-container {
+  font-family: 'Inter', 'Roboto', sans-serif;
+  background-color: #eef3f8;
+  min-height: 100vh;
+  padding: 140px 24px 80px;
+  color: #1a1a2e;
+}
+
+.success-wrapper {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+/* --- STEP PROGRESS --- */
+.success-step-progress {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 48px;
+}
+
+.success-step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.success-step-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #e0e7ef;
+  color: #6b7b8d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 12px;
+  z-index: 2;
+}
+
+.success-step-item.active .success-step-circle {
+  background-color: #01579b;
+  color: #ffffff;
+}
+
+.success-step-label {
+  font-size: 13px;
+  color: #6b7b8d;
+  font-weight: 500;
+}
+
+.success-step-item.active .success-step-label {
+  color: #01579b;
+  font-weight: 700;
+}
+
+.success-step-line {
+  width: 60px;
+  height: 1px;
+  background-color: #c0cad4;
+  margin: 0 16px;
+}
+
+.success-step-line.active-line {
+  background-color: #01579b;
+  height: 2px;
+}
+
+/* --- LAYOUT --- */
+.success-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 40px;
+  align-items: start;
+}
+
+/* --- LEFT COLUMN --- */
+.success-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-top: 20px;
+}
+
+.success-icon-wrap {
+  width: 80px;
+  height: 80px;
+  background-color: #e6f4ea;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e8e3e;
+  margin-bottom: 24px;
+}
+
+.success-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0d1b2e;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.success-booking-badge {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 24px;
+  display: inline-block;
+}
+
+.success-desc {
+  font-size: 15px;
+  color: #3a4a5c;
+  line-height: 1.6;
+  margin-bottom: 40px;
+  max-width: 500px;
+}
+
+.success-actions {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 40px;
+  width: 100%;
+}
+
+.success-btn-primary {
+  flex: 1;
+  background-color: #01579b;
+  color: #ffffff;
+  border: none;
+  padding: 16px 24px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.success-btn-primary:hover {
+  background-color: #01437a;
+  transform: translateY(-2px);
+}
+
+.success-btn-secondary {
+  flex: 1;
+  background-color: #f4f8fc;
+  color: #01579b;
+  border: 1px solid #d8e8fb;
+  padding: 16px 24px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.success-btn-secondary:hover {
+  background-color: #e8f0fe;
+  border-color: #c5d8fb;
+}
+
+.success-support-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  box-shadow: 0 2px 12px rgba(30, 50, 80, 0.04);
+}
+
+.success-support-icon {
+  width: 48px;
+  height: 48px;
+  background-color: #f4f8fc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1a73e8;
+  flex-shrink: 0;
+}
+
+.success-support-content {
+  flex: 1;
+}
+
+.success-support-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0d1b2e;
+  margin-bottom: 4px;
+}
+
+.success-support-desc {
+  font-size: 13px;
+  color: #6b7b8d;
+}
+
+.success-support-link {
+  color: #1a73e8;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.success-support-link:hover {
+  text-decoration: underline;
+}
+
+/* --- RIGHT COLUMN --- */
+.success-summary-card {
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(30, 50, 80, 0.06);
+  margin-bottom: 24px;
+}
+
+.success-hotel-hero {
+  position: relative;
+  height: 160px;
+}
+
+.success-hotel-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.success-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #ffffff;
+  color: #1a73e8;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.success-hotel-info {
+  padding: 24px;
+  border-bottom: 1px solid #e8edf2;
+}
+
+.success-hotel-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0d1b2e;
+  margin: 0 0 8px;
+}
+
+.success-hotel-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.success-hotel-rating-stars {
+  display: flex;
+  gap: 2px;
+  color: #f5a623;
+}
+
+.success-hotel-rating-score {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0d1b2e;
+}
+
+.success-booking-dates {
+  display: flex;
+  justify-content: space-between;
+  padding: 24px;
+  border-bottom: 1px solid #e8edf2;
+}
+
+.success-date-block {
+  flex: 1;
+}
+
+.success-date-label {
+  font-size: 11px;
+  color: #9eaab6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.success-date-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0d1b2e;
+}
+
+.success-price-details {
+  padding: 24px;
+}
+
+.success-price-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.success-price-label {
+  color: #4a5a6a;
+}
+
+.success-price-value {
+  color: #0d1b2e;
+  font-weight: 500;
+}
+
+.success-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.success-total-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #3a4a5c;
+}
+
+.success-total-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #01579b;
+}
+
+.success-trust-badges {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.success-trust-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.success-trust-badge-icon {
+  color: #6b7b8d;
+}
+
+.success-trust-badge-label {
+  font-size: 10px;
+  color: #6b7b8d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  max-width: 80px;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 900px) {
+  .success-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .success-left {
+    align-items: center;
+    text-align: center;
+  }
+  
+  .success-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 600px) {
+  .success-container {
+    padding: 100px 16px 60px;
+  }
+}

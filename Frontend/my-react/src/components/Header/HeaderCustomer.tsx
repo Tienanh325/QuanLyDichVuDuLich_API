@@ -58,7 +58,8 @@ export default function HeaderCustomer() {
   const isHotelDetailPage = 
     location.pathname.startsWith("/mua-sam/khach-san/") || 
     location.pathname === "/mua-sam/thanh-toan-khach-san" || 
-    location.pathname === "/mua-sam/thanh-toan-dat-cho";
+    location.pathname === "/mua-sam/thanh-toan-dat-cho" ||
+    location.pathname === "/mua-sam/thanh-toan-thanh-cong";
   const customerInitials =
     session?.fullName
       ?.split(" ")
