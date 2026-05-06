@@ -17,14 +17,11 @@ import {
   message,
 } from "antd";
 import type { TableProps } from "antd";
-import { BedDouble, MapPinned, PencilLine, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
+import { BedDouble, MapPinned, PencilLine, Plus, RefreshCw, Search, Trash2, Home } from "lucide-react";
 import api from "../services/api";
 import axios from "axios";
 
 const { Title, Text } = Typography;
-const { TextArea } = Input;
-
-type HotelStatus = "available" | "limited" | "full";
 
 interface DichVuOption {
   maDichVu: number;
@@ -34,71 +31,38 @@ interface DichVuOption {
 interface HotelItem {
   maKhachSan: number;
   maDichVu: number;
-  ten: string;
+  tenKhachSan: string;
+  tenDichVu: string;
   viTri: string;
-  danhGia: number;
-  gia: number;
-  phongTrong: number;
   moTa: string;
-  LoaiPhong: string;
+  giaTuKhoang: number;
+}
+
+interface RoomItem {
+  maLoaiPhong: number;
+  maKhachSan: number;
+  tenLoaiPhong: string;
+  giaPhong: number;
+  sucChua: string;
+  soLuongPhongTrong: number;
 }
 
 interface HotelFormValues {
   maDichVu: number;
   ten: string;
   viTri: string;
-  danhGia: number;
-  gia: number;
-  phongTrong: number;
-  moTa: string;
-  LoaiPhong: string;
+}
+
+interface RoomFormValues {
+  tenLoaiPhong: string;
+  giaPhong: number;
+  sucChua: string;
+  soLuongPhongTrong: number;
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
 const HOTEL_API_PATH = "/api/admin/khach-san";
 const DICH_VU_API_PATH = "/api/admin/dich-vu";
-
-const mockDichVu: DichVuOption[] = [
-  { maDichVu: 101, ten: "Lưu trú cao cấp" },
-  { maDichVu: 102, ten: "Resort biển" },
-  { maDichVu: 103, ten: "Khách sạn trung tâm" },
-];
-
-const mockHotels: HotelItem[] = [
-  {
-    maKhachSan: 1,
-    maDichVu: 101,
-    ten: "M Village Riverside",
-    viTri: "Quận 1, TP.HCM",
-    danhGia: 4.7,
-    gia: 1890000,
-    phongTrong: 12,
-    moTa: "Khách sạn phong cách hiện đại, gần trung tâm, phù hợp khách công tác.",
-    LoaiPhong: "Deluxe",
-  },
-  {
-    maKhachSan: 2,
-    maDichVu: 102,
-    ten: "Ocean Pearl Resort",
-    viTri: "Phú Quốc",
-    danhGia: 4.9,
-    gia: 3290000,
-    phongTrong: 4,
-    moTa: "Resort sát biển với hồ bơi riêng và buffet sáng.",
-    LoaiPhong: "Villa",
-  },
-  {
-    maKhachSan: 3,
-    maDichVu: 103,
-    ten: "Da Nang Harbor Hotel",
-    viTri: "Đà Nẵng",
-    danhGia: 4.3,
-    gia: 1290000,
-    phongTrong: 0,
-    moTa: "Khách sạn 3 sao gần cầu Rồng, thích hợp nghỉ ngắn ngày.",
-    LoaiPhong: "Standard",
-  },
-];
 
 const currencyFormatter = new Intl.NumberFormat("vi-VN");
 
@@ -106,41 +70,28 @@ function formatCurrency(value: number): string {
   return `${currencyFormatter.format(value)} đ`;
 }
 
-function inferStatus(item: Pick<HotelItem, "phongTrong">): HotelStatus {
-  if (item.phongTrong <= 0) {
-    return "full";
-  }
-  if (item.phongTrong <= 5) {
-    return "limited";
-  }
-  return "available";
-}
-
-function getStatusMeta(status: HotelStatus): { label: string; color: string } {
-  switch (status) {
-    case "available":
-      return { label: "Còn phòng", color: "green" };
-    case "limited":
-      return { label: "Sắp hết phòng", color: "gold" };
-    default:
-      return { label: "Hết phòng", color: "red" };
-  }
-}
-
-
-
-function normalizeHotel(input: unknown, index: number): HotelItem {
+function normalizeHotel(input: unknown): HotelItem {
   const raw = (typeof input === "object" && input !== null ? input : {}) as Record<string, unknown>;
   return {
-    maKhachSan: Number(raw.maKhachSan ?? raw.id ?? index + 1),
+    maKhachSan: Number(raw.maKhachSan ?? raw.id ?? 0),
     maDichVu: Number(raw.maDichVu ?? raw.serviceId ?? 0),
-    ten: String(raw.ten ?? raw.name ?? `Khách sạn ${index + 1}`),
+    tenKhachSan: String(raw.tenKhachSan ?? raw.ten ?? ""),
+    tenDichVu: String(raw.tenDichVu ?? ""),
     viTri: String(raw.viTri ?? raw.location ?? ""),
-    danhGia: Number(raw.danhGia ?? raw.rating ?? 0),
-    gia: Number(raw.gia ?? raw.price ?? 0),
-    phongTrong: Number(raw.phongTrong ?? raw.availableRooms ?? 0),
     moTa: String(raw.moTa ?? raw.description ?? ""),
-    LoaiPhong: String(raw.LoaiPhong ?? raw.loaiPhong ?? raw.roomType ?? "Standard"),
+    giaTuKhoang: Number(raw.giaTuKhoang ?? raw.gia ?? 0),
+  };
+}
+
+function normalizeRoom(input: unknown): RoomItem {
+  const raw = (typeof input === "object" && input !== null ? input : {}) as Record<string, unknown>;
+  return {
+    maLoaiPhong: Number(raw.maLoaiPhong ?? 0),
+    maKhachSan: Number(raw.maKhachSan ?? 0),
+    tenLoaiPhong: String(raw.tenLoaiPhong ?? ""),
+    giaPhong: Number(raw.giaPhong ?? 0),
+    sucChua: String(raw.sucChua ?? "2 người lớn"),
+    soLuongPhongTrong: Number(raw.soLuongPhongTrong ?? 0),
   };
 }
 
@@ -152,11 +103,12 @@ function normalizeDichVu(input: unknown, index: number): DichVuOption {
   };
 }
 
+// APIs
 async function fetchHotels(): Promise<HotelItem[]> {
   const response = await api.get<{ status: string; data: { data?: unknown[]; items?: unknown[] } | unknown[] }>(HOTEL_API_PATH);
   const raw = response.data.data;
   const arr = Array.isArray(raw) ? raw : (raw as { data?: unknown[] }).data ?? [];
-  return arr.map(normalizeHotel);
+  return arr.map(h => normalizeHotel(h));
 }
 
 async function fetchDichVuOptions(): Promise<DichVuOption[]> {
@@ -166,23 +118,35 @@ async function fetchDichVuOptions(): Promise<DichVuOption[]> {
   return arr.map(normalizeDichVu);
 }
 
-async function createHotel(item: HotelItem): Promise<HotelItem> {
-  const response = await api.post<{ status: string; data: unknown }>(HOTEL_API_PATH, {
-    maDichVu: item.maDichVu,
-    viTri: item.viTri,
-  });
-  return normalizeHotel(response.data.data, 0);
+async function createHotel(item: HotelFormValues): Promise<HotelItem> {
+  const response = await api.post<{ status: string; data: unknown }>(HOTEL_API_PATH, item);
+  return normalizeHotel(response.data.data);
 }
 
-async function updateHotel(item: HotelItem): Promise<HotelItem> {
-  const response = await api.put<{ status: string; data: unknown }>(`${HOTEL_API_PATH}/${item.maKhachSan}`, {
-    viTri: item.viTri,
-  });
-  return normalizeHotel(response.data.data ?? item, 0);
+async function updateHotel(id: number, item: HotelFormValues): Promise<void> {
+  await api.put(`${HOTEL_API_PATH}/${id}`, item);
 }
 
 async function deleteHotel(id: number): Promise<void> {
   await api.delete(`${HOTEL_API_PATH}/${id}`);
+}
+
+async function fetchRooms(maKhachSan: number): Promise<RoomItem[]> {
+  const response = await api.get<{ status: string; data: unknown[] }>(`${HOTEL_API_PATH}/${maKhachSan}/loai-phong`);
+  return (response.data.data || []).map(normalizeRoom);
+}
+
+async function createRoom(maKhachSan: number, item: RoomFormValues): Promise<RoomItem> {
+  const response = await api.post<{ status: string; data: unknown }>(`${HOTEL_API_PATH}/${maKhachSan}/loai-phong`, item);
+  return normalizeRoom(response.data.data);
+}
+
+async function updateRoom(maKhachSan: number, maLoaiPhong: number, item: RoomFormValues): Promise<void> {
+  await api.put(`${HOTEL_API_PATH}/${maKhachSan}/loai-phong/${maLoaiPhong}`, item);
+}
+
+async function deleteRoom(maKhachSan: number, maLoaiPhong: number): Promise<void> {
+  await api.delete(`${HOTEL_API_PATH}/${maKhachSan}/loai-phong/${maLoaiPhong}`);
 }
 
 const pageContainerStyle: CSSProperties = {
@@ -206,15 +170,22 @@ const statCardStyle: CSSProperties = {
 export default function AdminKhachSan() {
   const [form] = Form.useForm<HotelFormValues>();
   const [data, setData] = useState<HotelItem[]>([]);
-  const [dichVuOptions, setDichVuOptions] = useState<DichVuOption[]>(mockDichVu);
+  const [dichVuOptions, setDichVuOptions] = useState<DichVuOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<HotelItem | null>(null);
   const [searchText, setSearchText] = useState("");
-  const [filterStatus, setFilterStatus] = useState<HotelStatus | "all">("all");
-  const [filterRoomType, setFilterRoomType] = useState<string>("all");
-  const [isUsingMockData, setIsUsingMockData] = useState(false);
+
+  // Room Management State
+  const [roomModalOpen, setRoomModalOpen] = useState(false);
+  const [selectedHotelForRooms, setSelectedHotelForRooms] = useState<HotelItem | null>(null);
+  const [roomsData, setRoomsData] = useState<RoomItem[]>([]);
+  const [loadingRooms, setLoadingRooms] = useState(false);
+  const [roomForm] = Form.useForm<RoomFormValues>();
+  const [editingRoom, setEditingRoom] = useState<RoomItem | null>(null);
+  const [roomFormVisible, setRoomFormVisible] = useState(false);
+  const [submittingRoom, setSubmittingRoom] = useState(false);
 
   const loadHotels = async () => {
     setLoading(true);
@@ -222,24 +193,15 @@ export default function AdminKhachSan() {
     try {
       const [hotels, services] = await Promise.all([
         fetchHotels(),
-        fetchDichVuOptions().catch(() => mockDichVu),
+        fetchDichVuOptions().catch(() => []),
       ]);
-      setDichVuOptions(services.length > 0 ? services : mockDichVu);
-      setData(hotels.length > 0 ? hotels : mockHotels);
-      setIsUsingMockData(hotels.length === 0);
-
-      if (hotels.length === 0) {
-        message.info("API chưa trả dữ liệu khách sạn, đang hiển thị dữ liệu mẫu.");
-      }
+      setDichVuOptions(services);
+      setData(hotels);
     } catch (error) {
-      setDichVuOptions(mockDichVu);
-      setData(mockHotels);
-      setIsUsingMockData(true);
-
       if (axios.isAxiosError(error)) {
-        message.warning(`Không kết nối được API ${API_BASE_URL}${HOTEL_API_PATH}. Đang dùng dữ liệu mẫu.`);
+        message.warning(`Không kết nối được API lấy danh sách khách sạn.`);
       } else {
-        message.warning("Có lỗi khi tải dữ liệu khách sạn. Đang dùng dữ liệu mẫu.");
+        message.warning("Có lỗi khi tải dữ liệu khách sạn.");
       }
     } finally {
       setLoading(false);
@@ -250,11 +212,6 @@ export default function AdminKhachSan() {
     void loadHotels();
   }, []);
 
-  const roomTypeOptions = useMemo(
-    () => ["all", ...Array.from(new Set(data.map((item) => item.LoaiPhong)))],
-    [data],
-  );
-
   const dichVuMap = useMemo(
     () => new Map(dichVuOptions.map((item) => [item.maDichVu, item.ten])),
     [dichVuOptions],
@@ -264,45 +221,33 @@ export default function AdminKhachSan() {
     const keyword = searchText.trim().toLowerCase();
     return data.filter((item) => {
       const serviceName = dichVuMap.get(item.maDichVu)?.toLowerCase() ?? "";
-      const matchesSearch =
+      return (
         keyword.length === 0 ||
         String(item.maKhachSan).includes(keyword) ||
-        item.ten.toLowerCase().includes(keyword) ||
+        item.tenKhachSan.toLowerCase().includes(keyword) ||
+        item.tenDichVu.toLowerCase().includes(keyword) ||
         item.viTri.toLowerCase().includes(keyword) ||
-        item.moTa.toLowerCase().includes(keyword) ||
-        serviceName.includes(keyword);
-      const matchesStatus = filterStatus === "all" || inferStatus(item) === filterStatus;
-      const matchesRoomType = filterRoomType === "all" || item.LoaiPhong === filterRoomType;
-      return matchesSearch && matchesStatus && matchesRoomType;
+        serviceName.includes(keyword)
+      );
     });
-  }, [data, dichVuMap, filterRoomType, filterStatus, searchText]);
+  }, [data, dichVuMap, searchText]);
 
   const stats = useMemo(() => {
-    const available = data.filter((item) => inferStatus(item) === "available").length;
-    const limited = data.filter((item) => inferStatus(item) === "limited").length;
-    const full = data.filter((item) => inferStatus(item) === "full").length;
     return {
       total: data.length,
-      available,
-      limited,
-      full,
+      available: data.filter((h) => h.giaTuKhoang > 0).length,
+      limited: 0,
+      full: data.filter((h) => h.giaTuKhoang === 0).length,
     };
   }, [data]);
 
-  const resetForm = () => {
+  // HOTEL ACTIONS
+  const openCreateModal = () => {
     form.resetFields();
     setEditingItem(null);
-  };
-
-  const openCreateModal = () => {
-    resetForm();
-    form.setFieldsValue({
-      maDichVu: dichVuOptions[0]?.maDichVu,
-      danhGia: 4.5,
-      gia: 1500000,
-      phongTrong: 10,
-      LoaiPhong: "Deluxe",
-    });
+    if (dichVuOptions.length > 0) {
+      form.setFieldsValue({ maDichVu: dichVuOptions[0].maDichVu });
+    }
     setModalOpen(true);
   };
 
@@ -310,32 +255,19 @@ export default function AdminKhachSan() {
     setEditingItem(item);
     form.setFieldsValue({
       maDichVu: item.maDichVu,
-      ten: item.ten,
+      ten: item.tenKhachSan,
       viTri: item.viTri,
-      danhGia: item.danhGia,
-      gia: item.gia,
-      phongTrong: item.phongTrong,
-      moTa: item.moTa,
-      LoaiPhong: item.LoaiPhong,
     });
     setModalOpen(true);
   };
 
   const handleDelete = async (item: HotelItem) => {
-    const previous = data;
-    setData((current) => current.filter((entry) => entry.maKhachSan !== item.maKhachSan));
-
-    if (isUsingMockData) {
-      message.success(`Đã xoá khách sạn ${item.ten} trên dữ liệu mẫu.`);
-      return;
-    }
-
     try {
       await deleteHotel(item.maKhachSan);
-      message.success(`Đã xoá khách sạn ${item.ten}.`);
+      setData((current) => current.filter((entry) => entry.maKhachSan !== item.maKhachSan));
+      message.success(`Đã xoá khách sạn ${item.tenKhachSan}.`);
     } catch {
-      setData(previous);
-      message.error("Xoá không thành công, dữ liệu đã được hoàn lại.");
+      message.error("Xoá không thành công.");
     }
   };
 
@@ -344,66 +276,129 @@ export default function AdminKhachSan() {
       const values = await form.validateFields();
       setSubmitting(true);
 
-      const payload: HotelItem = {
-        maKhachSan: editingItem?.maKhachSan ?? Date.now(),
-        maDichVu: values.maDichVu,
-        ten: values.ten.trim(),
-        viTri: values.viTri.trim(),
-        danhGia: values.danhGia,
-        gia: values.gia,
-        phongTrong: values.phongTrong,
-        moTa: values.moTa.trim(),
-        LoaiPhong: values.LoaiPhong,
-      };
-
-      if (isUsingMockData) {
-        setData((current) =>
-          editingItem
-            ? current.map((item) => (item.maKhachSan === editingItem.maKhachSan ? payload : item))
-            : [payload, ...current],
-        );
-        message.success(editingItem ? "Đã cập nhật khách sạn trên dữ liệu mẫu." : "Đã thêm khách sạn trên dữ liệu mẫu.");
-        setModalOpen(false);
-        resetForm();
-        return;
-      }
-
       if (editingItem) {
-        const updated = await updateHotel(payload);
-        setData((current) =>
-          current.map((item) => (item.maKhachSan === editingItem.maKhachSan ? updated : item)),
-        );
+        await updateHotel(editingItem.maKhachSan, values);
         message.success("Cập nhật khách sạn thành công.");
+        void loadHotels();
       } else {
-        const created = await createHotel(payload);
-        setData((current) => [created, ...current]);
+        await createHotel(values);
         message.success("Thêm khách sạn thành công.");
+        void loadHotels();
       }
 
       setModalOpen(false);
-      resetForm();
     } catch (error) {
-      if (!axios.isAxiosError(error) && !(error instanceof Error)) {
-        return;
-      }
       if (axios.isAxiosError(error)) {
-        message.error("Không lưu được dữ liệu lên API. Kiểm tra endpoint hoặc backend rồi thử lại.");
+        message.error("Không lưu được dữ liệu lên API.");
       }
     } finally {
       setSubmitting(false);
     }
   };
 
+  // ROOM ACTIONS
+  const handleManageRooms = async (hotel: HotelItem) => {
+    setSelectedHotelForRooms(hotel);
+    setRoomModalOpen(true);
+    setRoomFormVisible(false);
+    setLoadingRooms(true);
+
+    try {
+      const rooms = await fetchRooms(hotel.maKhachSan);
+      setRoomsData(rooms);
+    } catch {
+      message.error("Không tải được dữ liệu phòng.");
+      setRoomsData([]);
+    } finally {
+      setLoadingRooms(false);
+    }
+  };
+
+  const openCreateRoom = () => {
+    setEditingRoom(null);
+    roomForm.resetFields();
+    roomForm.setFieldsValue({
+      giaPhong: 1000000,
+      soLuongPhongTrong: 5,
+      sucChua: "2 người lớn"
+    });
+    setRoomFormVisible(true);
+  };
+
+  const openEditRoom = (room: RoomItem) => {
+    setEditingRoom(room);
+    roomForm.setFieldsValue({
+      tenLoaiPhong: room.tenLoaiPhong,
+      giaPhong: room.giaPhong,
+      sucChua: room.sucChua,
+      soLuongPhongTrong: room.soLuongPhongTrong,
+    });
+    setRoomFormVisible(true);
+  };
+
+  const handleDeleteRoom = async (room: RoomItem) => {
+    if (!selectedHotelForRooms) return;
+
+    try {
+      await deleteRoom(selectedHotelForRooms.maKhachSan, room.maLoaiPhong);
+      setRoomsData((curr) => curr.filter((r) => r.maLoaiPhong !== room.maLoaiPhong));
+      message.success("Đã xoá loại phòng.");
+    } catch {
+      message.error("Xoá loại phòng thất bại.");
+    }
+  };
+
+  const handleSubmitRoom = async () => {
+    if (!selectedHotelForRooms) return;
+
+    try {
+      const values = await roomForm.validateFields();
+      setSubmittingRoom(true);
+
+      if (editingRoom) {
+        await updateRoom(selectedHotelForRooms.maKhachSan, editingRoom.maLoaiPhong, values);
+        message.success("Cập nhật loại phòng thành công.");
+      } else {
+        await createRoom(selectedHotelForRooms.maKhachSan, values);
+        message.success("Thêm loại phòng thành công.");
+      }
+      
+      const rooms = await fetchRooms(selectedHotelForRooms.maKhachSan);
+      setRoomsData(rooms);
+      setRoomFormVisible(false);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        message.error("Không lưu được dữ liệu lên API.");
+      }
+    } finally {
+      setSubmittingRoom(false);
+    }
+  };
+
+  // COLUMNS
   const columns: TableProps<HotelItem>["columns"] = [
     {
       title: "Khách sạn",
-      key: "hotel",
+      key: "khachsan",
       render: (_value, record) => (
         <div>
-          <div style={{ fontWeight: 700, color: "#1f2a44" }}>{record.ten}</div>
+          <div style={{ fontWeight: 700, color: "#1f2a44" }}>{record.tenKhachSan}</div>
           <Text style={{ color: "#7d869c", fontSize: 13 }}>Mã KS: {record.maKhachSan}</Text>
         </div>
       ),
+    },
+    {
+      title: "Dịch vụ",
+      key: "dichvu",
+      render: (_value, record) => {
+        const tenDV = record.tenDichVu || dichVuMap.get(record.maDichVu) || `Dịch vụ #${record.maDichVu}`;
+        return (
+          <div>
+            <div style={{ fontWeight: 700, color: "#1f2a44" }}>{tenDV}</div>
+            <Text style={{ color: "#7d869c", fontSize: 13 }}>Mã DV: {record.maDichVu}</Text>
+          </div>
+        );
+      },
     },
     {
       title: "Vị trí",
@@ -416,47 +411,13 @@ export default function AdminKhachSan() {
       ),
     },
     {
-      title: "Loại phòng",
-      dataIndex: "LoaiPhong",
-      key: "LoaiPhong",
-      render: (value: string) => (
-        <Space size={6}>
-          <BedDouble size={15} color="#7c3aed" />
-          <Text>{value}</Text>
-        </Space>
-      ),
-    },
-    {
-      title: "Giá",
-      dataIndex: "gia",
+      title: "Giá từ khoảng",
       key: "gia",
-      render: (value: number) => <Text strong>{formatCurrency(value)}</Text>,
-    },
-    {
-      title: "Phòng trống",
-      dataIndex: "phongTrong",
-      key: "phongTrong",
-      render: (value: number) => <Tag color={value > 0 ? "cyan" : "red"}>{value}</Tag>,
-    },
-    {
-      title: "Dịch vụ",
-      dataIndex: "maDichVu",
-      key: "maDichVu",
-      render: (value: number) => dichVuMap.get(value) ?? `Dịch vụ #${value}`,
-    },
-    {
-      title: "Đánh giá",
-      dataIndex: "danhGia",
-      key: "danhGia",
-      render: (value: number) => <Tag color="gold">{value.toFixed(1)} / 5</Tag>,
-    },
-    {
-      title: "Trạng thái",
-      key: "status",
-      render: (_value, record) => {
-        const meta = getStatusMeta(inferStatus(record));
-        return <Tag color={meta.color}>{meta.label}</Tag>;
-      },
+      render: (_value, record) => (
+        <Text strong color="#16a34a">
+          {record.giaTuKhoang > 0 ? formatCurrency(record.giaTuKhoang) : "Chưa có phòng"}
+        </Text>
+      ),
     },
     {
       title: "Thao tác",
@@ -464,13 +425,41 @@ export default function AdminKhachSan() {
       align: "center",
       render: (_value, record) => (
         <Space size="middle">
+          <Button 
+            type="primary" 
+            ghost 
+            icon={<Home size={16} />} 
+            onClick={() => void handleManageRooms(record)}
+          >
+            Quản lý phòng
+          </Button>
           <Button type="text" icon={<PencilLine size={16} color="#7c3aed" />} onClick={() => openEditModal(record)} />
-          <Popconfirm title="Xoá khách sạn?" description={`Bạn có chắc muốn xoá ${record.ten}?`} okText="Xoá" cancelText="Huỷ" onConfirm={() => void handleDelete(record)}>
+          <Popconfirm title="Xoá khách sạn?" description={`Bạn có chắc muốn xoá khách sạn này?`} okText="Xoá" cancelText="Huỷ" onConfirm={() => void handleDelete(record)}>
             <Button type="text" danger icon={<Trash2 size={16} color="#ef4444" />} />
           </Popconfirm>
         </Space>
       ),
     },
+  ];
+
+  const roomColumns: TableProps<RoomItem>["columns"] = [
+    { title: "Tên loại phòng", dataIndex: "tenLoaiPhong", key: "tenLoaiPhong", render: (val: string) => <Text strong>{val}</Text> },
+    { title: "Sức chứa", dataIndex: "sucChua", key: "sucChua" },
+    { title: "Giá phòng", dataIndex: "giaPhong", key: "giaPhong", render: (val: number) => <Text style={{ color: "#7c3aed" }}>{formatCurrency(val)}</Text> },
+    { title: "Phòng trống", dataIndex: "soLuongPhongTrong", key: "soLuongPhongTrong", render: (val: number) => <Tag color={val > 0 ? "green" : "red"}>{val} phòng</Tag> },
+    {
+      title: "Thao tác",
+      key: "action",
+      align: "center",
+      render: (_: unknown, record: RoomItem) => (
+        <Space>
+          <Button type="text" icon={<PencilLine size={16} color="#2563eb" />} onClick={() => openEditRoom(record)} />
+          <Popconfirm title="Xoá phòng này?" okText="Xoá" cancelText="Huỷ" onConfirm={() => void handleDeleteRoom(record)}>
+            <Button type="text" danger icon={<Trash2 size={16} />} />
+          </Popconfirm>
+        </Space>
+      )
+    }
   ];
 
   return (
@@ -480,13 +469,13 @@ export default function AdminKhachSan() {
           <div>
             <Title level={3} style={{ margin: 0, color: "#182338" }}>Quản lý khách sạn</Title>
             <Text style={{ color: "#7d869c" }}>
-              Quản lý khách sạn, giá phòng, loại phòng, số lượng phòng trống và đánh giá.
+              Quản lý danh sách khách sạn và các loại phòng, giá phòng.
             </Text>
           </div>
 
           <Space wrap>
-            <Tag color={isUsingMockData ? "gold" : "green"} style={{ padding: "6px 10px" }}>
-              {isUsingMockData ? "Đang hiển thị dữ liệu mẫu" : `API: ${API_BASE_URL}/api/admin/khach-san`}
+            <Tag color="green" style={{ padding: "6px 10px" }}>
+              {`API: ${API_BASE_URL}/api/admin/khach-san`}
             </Tag>
             <Button icon={<RefreshCw size={16} />} onClick={() => void loadHotels()}>Tải lại</Button>
           </Space>
@@ -494,9 +483,9 @@ export default function AdminKhachSan() {
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
           <Card style={statCardStyle}><Space align="start"><Badge color="#7c3aed" /><div><Text style={{ color: "#7d869c" }}>Tổng khách sạn</Text><Title level={3} style={{ margin: "4px 0 0", color: "#182338" }}>{stats.total}</Title></div></Space></Card>
-          <Card style={statCardStyle}><Space align="start"><Badge color="#16a34a" /><div><Text style={{ color: "#7d869c" }}>Còn phòng</Text><Title level={3} style={{ margin: "4px 0 0", color: "#182338" }}>{stats.available}</Title></div></Space></Card>
+          <Card style={statCardStyle}><Space align="start"><Badge color="#16a34a" /><div><Text style={{ color: "#7d869c" }}>Có phòng</Text><Title level={3} style={{ margin: "4px 0 0", color: "#182338" }}>{stats.available}</Title></div></Space></Card>
           <Card style={statCardStyle}><Space align="start"><Badge color="#eab308" /><div><Text style={{ color: "#7d869c" }}>Sắp hết phòng</Text><Title level={3} style={{ margin: "4px 0 0", color: "#182338" }}>{stats.limited}</Title></div></Space></Card>
-          <Card style={statCardStyle}><Space align="start"><Badge color="#ef4444" /><div><Text style={{ color: "#7d869c" }}>Hết phòng</Text><Title level={3} style={{ margin: "4px 0 0", color: "#182338" }}>{stats.full}</Title></div></Space></Card>
+          <Card style={statCardStyle}><Space align="start"><Badge color="#ef4444" /><div><Text style={{ color: "#7d869c" }}>Chưa có phòng</Text><Title level={3} style={{ margin: "4px 0 0", color: "#182338" }}>{stats.full}</Title></div></Space></Card>
         </div>
 
         <Card style={cardStyle} styles={{ body: { padding: 20 } }}>
@@ -504,37 +493,17 @@ export default function AdminKhachSan() {
             <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
               <div>
                 <Title level={4} style={{ margin: 0, color: "#1f2a44" }}>Danh sách khách sạn</Title>
-                <Text style={{ color: "#7d869c" }}>Có {filteredData.length} khách sạn đang hiển thị trong bảng.</Text>
+                <Text style={{ color: "#7d869c" }}>Có {filteredData.length} khách sạn đang hiển thị.</Text>
               </div>
 
               <Space wrap>
                 <Input
                   allowClear
                   prefix={<Search size={16} color="#94a3b8" />}
-                  placeholder="Tìm tên, vị trí, mô tả..."
+                  placeholder="Tìm tên, vị trí..."
                   value={searchText}
                   onChange={(event) => setSearchText(event.target.value)}
                   style={{ width: 260 }}
-                />
-                <Select
-                  value={filterRoomType}
-                  style={{ width: 170 }}
-                  onChange={(value) => setFilterRoomType(value)}
-                  options={roomTypeOptions.map((item) => ({
-                    label: item === "all" ? "Tất cả loại phòng" : item,
-                    value: item,
-                  }))}
-                />
-                <Select
-                  value={filterStatus}
-                  style={{ width: 170 }}
-                  onChange={(value) => setFilterStatus(value)}
-                  options={[
-                    { label: "Tất cả trạng thái", value: "all" },
-                    { label: "Còn phòng", value: "available" },
-                    { label: "Sắp hết phòng", value: "limited" },
-                    { label: "Hết phòng", value: "full" },
-                  ]}
                 />
                 <Button
                   type="primary"
@@ -542,7 +511,7 @@ export default function AdminKhachSan() {
                   style={{ background: "linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)", borderColor: "#7c3aed" }}
                   onClick={openCreateModal}
                 >
-                  Thêm mới
+                  Thêm khách sạn
                 </Button>
               </Space>
             </div>
@@ -553,44 +522,84 @@ export default function AdminKhachSan() {
               dataSource={filteredData}
               loading={loading}
               pagination={{
-                pageSize: 6,
+                pageSize: 8,
                 showSizeChanger: false,
-                showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} khách sạn`,
               }}
-              scroll={{ x: 1280 }}
+              scroll={{ x: 1000 }}
             />
           </Space>
         </Card>
       </Space>
 
+      {/* Modal Quản lý Khách sạn */}
       <Modal
-        title={editingItem ? "Cập nhật khách sạn" : "Thêm khách sạn"}
+        title={editingItem ? "Sửa thông tin Khách sạn" : "Thêm Khách sạn mới"}
         open={modalOpen}
         onOk={() => void handleSubmit()}
-        onCancel={() => {
-          setModalOpen(false);
-          resetForm();
-        }}
+        onCancel={() => setModalOpen(false)}
         okText={editingItem ? "Lưu thay đổi" : "Tạo mới"}
         cancelText="Huỷ"
         confirmLoading={submitting}
+        destroyOnClose
       >
-        <Form<HotelFormValues> form={form} layout="vertical">
+        <Form<HotelFormValues> form={form} layout="vertical" style={{ marginTop: 16 }}>
           <Form.Item label="Dịch vụ" name="maDichVu" rules={[{ required: true, message: "Chọn dịch vụ." }]}>
-            <Select options={dichVuOptions.map((item) => ({ label: `${item.ten} (#${item.maDichVu})`, value: item.maDichVu }))} />
+            <Select 
+              showSearch 
+              filterOption={(input, option) => (option?.label ?? '').toString().toLowerCase().includes(input.toLowerCase())}
+              options={dichVuOptions.map((item) => ({ label: `${item.ten} (#${item.maDichVu})`, value: item.maDichVu }))} 
+            />
           </Form.Item>
-          <Form.Item label="Tên khách sạn" name="ten" rules={[{ required: true, message: "Nhập tên khách sạn." }]}><Input /></Form.Item>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
-            <Form.Item label="Vị trí" name="viTri" rules={[{ required: true, message: "Nhập vị trí." }]}><Input /></Form.Item>
-            <Form.Item label="Loại phòng" name="LoaiPhong" rules={[{ required: true, message: "Chọn loại phòng." }]}>
-              <Select options={[{ label: "Standard", value: "Standard" }, { label: "Superior", value: "Superior" }, { label: "Deluxe", value: "Deluxe" }, { label: "Suite", value: "Suite" }, { label: "Villa", value: "Villa" }]} />
-            </Form.Item>
-            <Form.Item label="Giá" name="gia" rules={[{ required: true, message: "Nhập giá." }]}><InputNumber min={0} style={{ width: "100%" }} /></Form.Item>
-            <Form.Item label="Phòng trống" name="phongTrong" rules={[{ required: true, message: "Nhập số phòng trống." }]}><InputNumber min={0} style={{ width: "100%" }} /></Form.Item>
-            <Form.Item label="Đánh giá" name="danhGia" rules={[{ required: true, message: "Nhập đánh giá." }]}><InputNumber min={0} max={5} step={0.1} style={{ width: "100%" }} /></Form.Item>
-          </div>
-          <Form.Item label="Mô tả" name="moTa" rules={[{ required: true, message: "Nhập mô tả." }]}><TextArea rows={4} /></Form.Item>
+          <Form.Item label="Tên khách sạn" name="ten" rules={[{ required: true, message: "Nhập tên khách sạn." }]}><Input placeholder="VD: Khách sạn Mường Thanh" /></Form.Item>
+          <Form.Item label="Vị trí (Địa chỉ)" name="viTri" rules={[{ required: true, message: "Nhập vị trí." }]}><Input placeholder="VD: 123 Đường ABC, Quận 1, TP.HCM" /></Form.Item>
         </Form>
+      </Modal>
+
+      {/* Modal Quản lý Phòng */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <BedDouble size={20} color="#7c3aed" />
+            <span>Quản lý phòng - {selectedHotelForRooms?.tenKhachSan}</span>
+          </div>
+        }
+        open={roomModalOpen}
+        onCancel={() => setRoomModalOpen(false)}
+        width={800}
+        footer={null}
+        destroyOnClose
+      >
+        {!roomFormVisible ? (
+          <Space orientation="vertical" size={16} style={{ width: "100%", marginTop: 16 }}>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <Button type="primary" icon={<Plus size={16} />} onClick={openCreateRoom}>Thêm loại phòng</Button>
+            </div>
+            <Table<RoomItem>
+              rowKey="maLoaiPhong"
+              columns={roomColumns}
+              dataSource={roomsData}
+              loading={loadingRooms}
+              pagination={false}
+              bordered
+            />
+          </Space>
+        ) : (
+          <div style={{ marginTop: 16 }}>
+            <Title level={5} style={{ marginBottom: 16 }}>{editingRoom ? "Sửa loại phòng" : "Thêm loại phòng mới"}</Title>
+            <Form<RoomFormValues> form={roomForm} layout="vertical">
+              <Form.Item label="Tên loại phòng" name="tenLoaiPhong" rules={[{ required: true, message: "Nhập tên loại phòng." }]}><Input placeholder="VD: Standard, Deluxe" /></Form.Item>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
+                <Form.Item label="Giá phòng (VNĐ)" name="giaPhong" rules={[{ required: true, message: "Nhập giá phòng." }]}><InputNumber min={0} style={{ width: "100%" }} formatter={(val) => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")} /></Form.Item>
+                <Form.Item label="Sức chứa" name="sucChua" rules={[{ required: true, message: "Nhập sức chứa." }]}><Input placeholder="VD: 2 người lớn, 1 trẻ em" /></Form.Item>
+                <Form.Item label="Số lượng phòng trống" name="soLuongPhongTrong" rules={[{ required: true, message: "Nhập số lượng phòng trống." }]}><InputNumber min={0} style={{ width: "100%" }} /></Form.Item>
+              </div>
+              <Space style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
+                <Button onClick={() => setRoomFormVisible(false)}>Huỷ</Button>
+                <Button type="primary" loading={submittingRoom} onClick={() => void handleSubmitRoom()}>Lưu phòng</Button>
+              </Space>
+            </Form>
+          </div>
+        )}
       </Modal>
     </div>
   );

@@ -24,9 +24,9 @@ class KhachSanController {
 
     static async adminCreate(req, res) {
         try {
-            const { maDichVu, viTri } = req.body;
+            const { maDichVu, viTri, ten } = req.body;
             if (!maDichVu) return res.status(400).json({ status: 'error', data: null, message: 'maDichVu là bắt buộc!' });
-            const newKS = await KhachSanModel.create({ maDichVu, viTri });
+            const newKS = await KhachSanModel.create({ maDichVu, viTri, ten });
             return res.status(201).json({ status: 'success', data: newKS, message: 'Tạo khách sạn thành công!' });
         } catch (error) {
             return res.status(500).json({ status: 'error', data: null, message: error.message });
@@ -35,8 +35,8 @@ class KhachSanController {
 
     static async adminUpdate(req, res) {
         try {
-            const { viTri } = req.body;
-            const isUpdated = await KhachSanModel.update(req.params.id, { viTri });
+            const { viTri, ten } = req.body;
+            const isUpdated = await KhachSanModel.update(req.params.id, { viTri, ten });
             if (!isUpdated) return res.status(404).json({ status: 'error', data: null, message: 'Không tìm thấy khách sạn!' });
             return res.status(200).json({ status: 'success', data: null, message: 'Cập nhật khách sạn thành công!' });
         } catch (error) {
