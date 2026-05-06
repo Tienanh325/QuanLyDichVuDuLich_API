@@ -129,23 +129,28 @@ class DichVuModel {
      * Tạo dịch vụ mới
      */
     static async create(data) {
-        const { ten, moTa, loaiDichVu, maNhaCungCap } = data;
+        const { ten, moTa, loaiDichVu, maNhaCungCap, trangThai } = data;
+        const statusValue = trangThai !== undefined ? trangThai : true;
         const [result] = await pool.query(
-            `INSERT INTO DichVu (ten, moTa, loaiDichVu, maNhaCungCap, trangThai) VALUES (?, ?, ?, ?, true)`,
-            [ten, moTa, loaiDichVu, maNhaCungCap || null]
+            `INSERT INTO DichVu (ten, moTa, loaiDichVu, maNhaCungCap, trangThai) VALUES (?, ?, ?, ?, ?)`,
+            [ten, moTa, loaiDichVu, maNhaCungCap || null, statusValue]
         );
-        return { maDichVu: result.insertId, ...data, trangThai: true };
+        return { maDichVu: result.insertId, ...data, trangThai: statusValue };
     }
 
     /**
      * Cập nhật dịch vụ
      */
     static async update(id, data) {
-        const { ten, moTa, loaiDichVu, maNhaCungCap } = data;
+        const { ten, moTa, loaiDichVu, maNhaCungCap, trangThai } = data;
+        const statusValue = (trangThai !== undefined && trangThai !== null) ? trangThai : 1;
+        const params = [ten, moTa, loaiDichVu, maNhaCungCap || null, statusValue, id];
+        console.log('[DichVuModel.update] id:', id, '| trangThai received:', trangThai, '| statusValue:', statusValue, '| all params:', JSON.stringify(params));
         const [result] = await pool.query(
-            `UPDATE DichVu SET ten = ?, moTa = ?, loaiDichVu = ?, maNhaCungCap = ? WHERE maDichVu = ?`,
-            [ten, moTa, loaiDichVu, maNhaCungCap || null, id]
+            `UPDATE DichVu SET ten = ?, moTa = ?, loaiDichVu = ?, maNhaCungCap = ?, trangThai = ? WHERE maDichVu = ?`,
+            params
         );
+        console.log('[DichVuModel.update] result:', JSON.stringify({ affectedRows: result.affectedRows, changedRows: result.changedRows }));
         return result.affectedRows > 0;
     }
 

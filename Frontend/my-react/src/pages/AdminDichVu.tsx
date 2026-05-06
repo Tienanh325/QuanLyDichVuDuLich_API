@@ -8,7 +8,6 @@ import {
   Card,
   Form,
   Input,
-  InputNumber,
   Modal,
   Popconfirm,
   Select,
@@ -35,7 +34,6 @@ interface ServiceItem {
   maDichVu: number;
   ten: string;
   moTa: string;
-  gia: number;
   loaiDichVu: string;
   maNhaCungCap: number;
   trangThai: ServiceStatus;
@@ -44,7 +42,6 @@ interface ServiceItem {
 interface ServiceFormValues {
   ten: string;
   moTa: string;
-  gia: number;
   loaiDichVu: string;
   maNhaCungCap: number;
   trangThai: ServiceStatus;
@@ -61,16 +58,11 @@ const mockSuppliers: SupplierOption[] = [
 ];
 
 const mockServices: ServiceItem[] = [
-  { maDichVu: 101, ten: "Tour Đà Lạt 3N2Đ", moTa: "Tour nghỉ dưỡng cuối tuần dành cho nhóm gia đình.", gia: 2890000, loaiDichVu: "TOUR", maNhaCungCap: 2, trangThai: "active" },
-  { maDichVu: 102, ten: "Phòng Deluxe biển", moTa: "Phòng 2 khách, bao gồm buffet sáng.", gia: 1590000, loaiDichVu: "KHACH_SAN", maNhaCungCap: 3, trangThai: "active" },
-  { maDichVu: 103, ten: "Vé máy bay Hà Nội - Đà Nẵng", moTa: "Hạng phổ thông linh hoạt.", gia: 1290000, loaiDichVu: "VE", maNhaCungCap: 1, trangThai: "inactive" },
+  { maDichVu: 101, ten: "Tour Đà Lạt 3N2Đ", moTa: "Tour nghỉ dưỡng cuối tuần dành cho nhóm gia đình.", loaiDichVu: "TOUR", maNhaCungCap: 2, trangThai: "active" },
+  { maDichVu: 102, ten: "Phòng Deluxe biển", moTa: "Phòng 2 khách, bao gồm buffet sáng.", loaiDichVu: "KHACH_SAN", maNhaCungCap: 3, trangThai: "active" },
+  { maDichVu: 103, ten: "Vé máy bay Hà Nội - Đà Nẵng", moTa: "Hạng phổ thông linh hoạt.", loaiDichVu: "VE", maNhaCungCap: 1, trangThai: "inactive" },
 ];
 
-const currencyFormatter = new Intl.NumberFormat("vi-VN");
-
-function formatCurrency(value: number): string {
-  return `${currencyFormatter.format(value)} đ`;
-}
 
 function normalizeStatus(value: unknown): ServiceStatus {
   // Backend stores trangThai as 0/1 integer or string
@@ -85,7 +77,6 @@ function normalizeService(input: unknown, index: number): ServiceItem {
     maDichVu: Number(raw.maDichVu ?? raw.id ?? index + 1),
     ten: String(raw.ten ?? raw.name ?? `Dịch vụ ${index + 1}`),
     moTa: String(raw.moTa ?? raw.description ?? ""),
-    gia: Number(raw.gia ?? raw.price ?? 0),
     loaiDichVu: String(raw.loaiDichVu ?? raw.type ?? "Khác"),
     maNhaCungCap: Number(raw.maNhaCungCap ?? raw.supplierId ?? 0),
     trangThai: normalizeStatus(raw.trangThai ?? raw.status),
@@ -127,14 +118,14 @@ async function fetchSuppliers(): Promise<SupplierOption[]> {
   return extractArray(response.data).map(normalizeSupplier);
 }
 
-async function createService(item: ServiceItem): Promise<ServiceItem> {
-  const response = await api.post(SERVICE_API_PATH, item);
-  return normalizeService(response.data?.data ?? response.data, 0);
+async function createService(item: ServiceItem): Promise<void> {
+  const payload = { ...item, trangThai: item.trangThai === "active" ? 1 : 0 };
+  await api.post(SERVICE_API_PATH, payload);
 }
 
-async function updateService(item: ServiceItem): Promise<ServiceItem> {
-  const response = await api.put(`${SERVICE_API_PATH}/${item.maDichVu}`, item);
-  return normalizeService(response.data?.data ?? response.data, 0);
+async function updateService(item: ServiceItem): Promise<void> {
+  const payload = { ...item, trangThai: item.trangThai === "active" ? 1 : 0 };
+  await api.put(`${SERVICE_API_PATH}/${item.maDichVu}`, payload);
 }
 
 async function deleteService(id: number): Promise<void> {
@@ -220,13 +211,13 @@ export default function AdminDichVu() {
 
   const openCreateModal = () => {
     resetForm();
-    form.setFieldsValue({ loaiDichVu: "TOUR", maNhaCungCap: suppliers[0]?.maNhaCungCap, trangThai: "active", gia: 1000000 });
+    form.setFieldsValue({ loaiDichVu: "TOUR", maNhaCungCap: suppliers[0]?.maNhaCungCap, trangThai: "active" });
     setModalOpen(true);
   };
 
   const openEditModal = (item: ServiceItem) => {
     setEditingItem(item);
-    form.setFieldsValue({ ten: item.ten, moTa: item.moTa, gia: item.gia, loaiDichVu: item.loaiDichVu, maNhaCungCap: item.maNhaCungCap, trangThai: item.trangThai });
+    form.setFieldsValue({ ten: item.ten, moTa: item.moTa, loaiDichVu: item.loaiDichVu, maNhaCungCap: item.maNhaCungCap, trangThai: item.trangThai });
     setModalOpen(true);
   };
 
@@ -254,7 +245,6 @@ export default function AdminDichVu() {
         maDichVu: editingItem?.maDichVu ?? Date.now(),
         ten: values.ten.trim(),
         moTa: values.moTa.trim(),
-        gia: values.gia,
         loaiDichVu: values.loaiDichVu,
         maNhaCungCap: values.maNhaCungCap,
         trangThai: values.trangThai,
@@ -267,16 +257,15 @@ export default function AdminDichVu() {
         return;
       }
       if (editingItem) {
-        const updated = await updateService(payload);
-        setData((current) => current.map((item) => (item.maDichVu === editingItem.maDichVu ? updated : item)));
+        await updateService(payload);
         message.success("Cập nhật dịch vụ thành công.");
       } else {
-        const created = await createService(payload);
-        setData((current) => [created, ...current]);
+        await createService(payload);
         message.success("Thêm dịch vụ thành công.");
       }
       setModalOpen(false);
       resetForm();
+      void loadServices();
     } catch (error) {
       if (!axios.isAxiosError(error) && !(error instanceof Error)) return;
       if (axios.isAxiosError(error)) {
@@ -290,7 +279,6 @@ export default function AdminDichVu() {
   const columns: TableProps<ServiceItem>["columns"] = [
     { title: "Dịch vụ", key: "ten", render: (_value, record) => <div><div style={{ fontWeight: 700, color: "#1f2a44" }}>{record.ten}</div><Text style={{ color: "#7d869c", fontSize: 13 }}>Mã DV: {record.maDichVu}</Text></div> },
     { title: "Mô tả", dataIndex: "moTa", key: "moTa", render: (value: string) => <Text style={{ color: "#55607a" }}>{value}</Text> },
-    { title: "Giá", dataIndex: "gia", key: "gia", render: (value: number) => <Text strong>{formatCurrency(value)}</Text> },
     { title: "Loại dịch vụ", dataIndex: "loaiDichVu", key: "loaiDichVu", render: (value: string) => <Tag color="blue">{value}</Tag> },
     { title: "Nhà cung cấp", dataIndex: "maNhaCungCap", key: "maNhaCungCap", render: (value: number) => supplierMap.get(value) ?? `NCC #${value}` },
     { title: "Trạng thái", dataIndex: "trangThai", key: "trangThai", render: (status: ServiceStatus) => { const meta = getStatusMeta(status); return <Tag color={meta.color}>{meta.label}</Tag>; } },
@@ -354,7 +342,6 @@ export default function AdminDichVu() {
           <Form.Item label="Tên dịch vụ" name="ten" rules={[{ required: true, message: "Nhập tên dịch vụ." }]}><Input /></Form.Item>
           <Form.Item label="Mô tả" name="moTa" rules={[{ required: true, message: "Nhập mô tả." }]}><TextArea rows={3} /></Form.Item>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
-            <Form.Item label="Giá" name="gia" rules={[{ required: true, message: "Nhập giá." }]}><InputNumber min={0} style={{ width: "100%" }} /></Form.Item>
             <Form.Item label="Loại dịch vụ" name="loaiDichVu" rules={[{ required: true, message: "Chọn loại dịch vụ." }]}><Select options={[{ label: "Tour", value: "TOUR" }, { label: "Khách sạn", value: "KHACH_SAN" }, { label: "Vé", value: "VE" }]} /></Form.Item>
             <Form.Item label="Nhà cung cấp" name="maNhaCungCap" rules={[{ required: true, message: "Chọn nhà cung cấp." }]}><Select options={suppliers.map((item) => ({ label: `${item.ten} (#${item.maNhaCungCap})`, value: item.maNhaCungCap }))} /></Form.Item>
             <Form.Item label="Trạng thái" name="trangThai" rules={[{ required: true, message: "Chọn trạng thái." }]}><Select options={[{ label: "Đang mở bán", value: "active" }, { label: "Tạm ngưng", value: "inactive" }]} /></Form.Item>

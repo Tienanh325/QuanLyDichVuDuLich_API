@@ -25,7 +25,7 @@ class DichVuController {
 
     static async adminCreate(req, res) {
         try {
-            const { ten, moTa, loaiDichVu, maNhaCungCap } = req.body;
+            const { ten, moTa, loaiDichVu, maNhaCungCap, trangThai } = req.body;
             if (!ten || !loaiDichVu) {
                 return res.status(400).json({ status: 'error', data: null, message: 'Tên và loại dịch vụ là bắt buộc!' });
             }
@@ -33,7 +33,7 @@ class DichVuController {
             if (!validTypes.includes(loaiDichVu.toUpperCase())) {
                 return res.status(400).json({ status: 'error', data: null, message: 'Loại dịch vụ không hợp lệ! Chỉ chấp nhận: TOUR, KHACH_SAN, VE' });
             }
-            const newDichVu = await DichVuModel.create({ ten, moTa, loaiDichVu: loaiDichVu.toUpperCase(), maNhaCungCap });
+            const newDichVu = await DichVuModel.create({ ten, moTa, loaiDichVu: loaiDichVu.toUpperCase(), maNhaCungCap, trangThai });
             return res.status(201).json({ status: 'success', data: newDichVu, message: 'Tạo dịch vụ mới thành công!' });
         } catch (error) {
             return res.status(500).json({ status: 'error', data: null, message: error.message });
@@ -42,11 +42,13 @@ class DichVuController {
 
     static async adminUpdate(req, res) {
         try {
-            const { ten, moTa, loaiDichVu, maNhaCungCap } = req.body;
+            const { ten, moTa, loaiDichVu, maNhaCungCap, trangThai } = req.body;
             if (!ten || !loaiDichVu) {
                 return res.status(400).json({ status: 'error', data: null, message: 'Tên và loại dịch vụ là bắt buộc!' });
             }
-            const isUpdated = await DichVuModel.update(req.params.id, { ten, moTa, loaiDichVu, maNhaCungCap });
+            // Luôn chuyển đổi trangThai sang 0/1
+            const statusValue = (trangThai === 1 || trangThai === '1' || trangThai === true || trangThai === 'active') ? 1 : 0;
+            const isUpdated = await DichVuModel.update(req.params.id, { ten, moTa, loaiDichVu, maNhaCungCap, trangThai: statusValue });
             if (!isUpdated) return res.status(404).json({ status: 'error', data: null, message: 'Không tìm thấy dịch vụ!' });
             return res.status(200).json({ status: 'success', data: null, message: 'Cập nhật dịch vụ thành công!' });
         } catch (error) {
