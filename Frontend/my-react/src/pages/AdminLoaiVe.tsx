@@ -31,7 +31,6 @@ interface LoaiVeItem {
 }
 
 interface LoaiVeFormValues {
-  LoaiVeID: string;
   TenLoaiVe: string;
   trangthai: LoaiVeStatus;
 }
@@ -49,16 +48,23 @@ const mockLoaiVe: LoaiVeItem[] = [
 
 function normalizeLoaiVe(input: unknown, index: number): LoaiVeItem {
   const raw = (typeof input === "object" && input !== null ? input : {}) as Record<string, unknown>;
-  const rawStatus = String(raw.trangthai ?? raw.status ?? "active").toLowerCase();
+  const rawTrangThai = raw.trangThai ?? raw.trangthai ?? raw.status ?? "active";
+
+  // MySQL stores trangThai as tinyint(1): 1 = active, 0 = inactive
+  let trangthai: LoaiVeStatus = "active";
+  if (rawTrangThai === 0 || rawTrangThai === "0" || rawTrangThai === false) {
+    trangthai = "inactive";
+  } else if (typeof rawTrangThai === "string") {
+    const lower = rawTrangThai.toLowerCase();
+    if (lower === "inactive" || lower.includes("ngung")) {
+      trangthai = "inactive";
+    }
+  }
 
   return {
-    // Backend: maLoaiVe (number), tenLoaiVe (string), no trangthai column
     LoaiVeID: String(raw.maLoaiVe ?? raw.LoaiVeID ?? raw.loaiVeID ?? raw.id ?? `LV${index + 1}`),
     TenLoaiVe: String(raw.tenLoaiVe ?? raw.TenLoaiVe ?? raw.name ?? `Loại vé ${index + 1}`),
-    trangthai:
-      rawStatus === "inactive" || rawStatus.includes("ngung") || rawStatus.includes("inactive")
-        ? "inactive"
-        : "active",
+    trangthai,
   };
 }
 
@@ -85,12 +91,12 @@ async function fetchLoaiVe(): Promise<LoaiVeItem[]> {
 
 async function createLoaiVe(item: LoaiVeItem): Promise<LoaiVeItem> {
   const response = await api.post(LOAI_VE_API_PATH, item);
-  return normalizeLoaiVe(response.data, 0);
+  return normalizeLoaiVe(response.data?.data ?? response.data, 0);
 }
 
 async function updateLoaiVe(item: LoaiVeItem): Promise<LoaiVeItem> {
   const response = await api.put(`${LOAI_VE_API_PATH}/${item.LoaiVeID}`, item);
-  return normalizeLoaiVe(response.data, 0);
+  return normalizeLoaiVe(response.data?.data ?? response.data, 0);
 }
 
 async function deleteLoaiVe(id: string): Promise<void> {
@@ -101,7 +107,6 @@ function getStatusMeta(status: LoaiVeStatus): { label: string; color: string } {
   if (status === "active") {
     return { label: "Đang hoạt động", color: "green" };
   }
-
   return { label: "Ngừng hoạt động", color: "red" };
 }
 
@@ -230,9 +235,10 @@ export default function AdminLoaiVe() {
       const values = await form.validateFields();
       setSubmitting(true);
 
-      const payload: LoaiVeItem = {
-        LoaiVeID: values.LoaiVeID.trim().toUpperCase(),
+      const payload: LoaiVeItem & { tenLoaiVe?: string } = {
+        LoaiVeID: editingItem?.LoaiVeID ?? `LV${Math.floor(Math.random() * 10000)}`,
         TenLoaiVe: values.TenLoaiVe.trim(),
+        tenLoaiVe: values.TenLoaiVe.trim(), // sent to backend
         trangthai: values.trangthai,
       };
 
@@ -277,19 +283,17 @@ export default function AdminLoaiVe() {
 
   const columns: TableProps<LoaiVeItem>["columns"] = [
     {
-      title: "LoaiVeID",
-      dataIndex: "LoaiVeID",
-      key: "LoaiVeID",
-      render: (value: string) => <Text strong style={{ color: "#1f2a44" }}>{value}</Text>,
-    },
-    {
-      title: "TenLoaiVe",
-      dataIndex: "TenLoaiVe",
+      title: "Tên loại vé",
       key: "TenLoaiVe",
-      render: (value: string) => <Text style={{ color: "#55607a" }}>{value}</Text>,
+      render: (_value, record) => (
+        <div>
+          <div style={{ fontWeight: 700, color: "#1f2a44" }}>{record.TenLoaiVe}</div>
+          <Text style={{ color: "#7d869c", fontSize: 13 }}>Mã: {record.LoaiVeID}</Text>
+        </div>
+      ),
     },
     {
-      title: "trangthai",
+      title: "Trạng thái",
       dataIndex: "trangthai",
       key: "trangthai",
       render: (status: LoaiVeStatus) => {
@@ -297,6 +301,7 @@ export default function AdminLoaiVe() {
         return <Tag color={meta.color}>{meta.label}</Tag>;
       },
     },
+
     {
       title: "Thao tác",
       key: "actions",
@@ -330,14 +335,14 @@ export default function AdminLoaiVe() {
 
   return (
     <div style={pageContainerStyle}>
-      <Space direction="vertical" size={20} style={{ width: "100%" }}>
+      <Space orientation="vertical" size={20} style={{ width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
           <div>
             <Title level={3} style={{ margin: 0, color: "#182338" }}>
               Quản lý loại vé
             </Title>
             <Text style={{ color: "#7d869c" }}>
-              Danh sách loại vé với 3 trường: LoaiVeID, TenLoaiVe, trangthai.
+              Danh sách loại vé
             </Text>
           </div>
 
@@ -394,7 +399,7 @@ export default function AdminLoaiVe() {
         </div>
 
         <Card style={cardStyle} styles={{ body: { padding: 20 } }}>
-          <Space direction="vertical" size={16} style={{ width: "100%" }}>
+          <Space orientation="vertical" size={16} style={{ width: "100%" }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
               <div>
                 <Title level={4} style={{ margin: 0, color: "#1f2a44" }}>
@@ -424,6 +429,7 @@ export default function AdminLoaiVe() {
                     { label: "Ngừng hoạt động", value: "inactive" },
                   ]}
                 />
+
                 <Button
                   type="primary"
                   icon={<Plus size={16} />}
@@ -468,26 +474,15 @@ export default function AdminLoaiVe() {
       >
         <Form<LoaiVeFormValues> form={form} layout="vertical">
           <Form.Item
-            label="LoaiVeID"
-            name="LoaiVeID"
-            rules={[
-              { required: true, message: "Nhập LoaiVeID." },
-              { min: 3, message: "LoaiVeID nên có ít nhất 3 ký tự." },
-            ]}
-          >
-            <Input placeholder="Ví dụ: LV001" disabled={!!editingItem} />
-          </Form.Item>
-
-          <Form.Item
-            label="TenLoaiVe"
+            label="Tên loại vé"
             name="TenLoaiVe"
-            rules={[{ required: true, message: "Nhập TenLoaiVe." }]}
+            rules={[{ required: true, message: "Nhập tên loại vé." }]}
           >
             <Input placeholder="Ví dụ: Vé người lớn" />
           </Form.Item>
 
           <Form.Item
-            label="trangthai"
+            label="Trạng thái"
             name="trangthai"
             rules={[{ required: true, message: "Chọn trạng thái." }]}
           >
@@ -498,6 +493,8 @@ export default function AdminLoaiVe() {
               ]}
             />
           </Form.Item>
+
+
         </Form>
       </Modal>
     </div>

@@ -61,9 +61,9 @@ const mockSuppliers: SupplierOption[] = [
 ];
 
 const mockServices: ServiceItem[] = [
-  { maDichVu: 101, ten: "Tour Đà Lạt 3N2Đ", moTa: "Tour nghỉ dưỡng cuối tuần dành cho nhóm gia đình.", gia: 2890000, loaiDichVu: "Tour", maNhaCungCap: 2, trangThai: "active" },
-  { maDichVu: 102, ten: "Phòng Deluxe biển", moTa: "Phòng 2 khách, bao gồm buffet sáng.", gia: 1590000, loaiDichVu: "Khách sạn", maNhaCungCap: 3, trangThai: "active" },
-  { maDichVu: 103, ten: "Vé máy bay Hà Nội - Đà Nẵng", moTa: "Hạng phổ thông linh hoạt.", gia: 1290000, loaiDichVu: "Vé máy bay", maNhaCungCap: 1, trangThai: "inactive" },
+  { maDichVu: 101, ten: "Tour Đà Lạt 3N2Đ", moTa: "Tour nghỉ dưỡng cuối tuần dành cho nhóm gia đình.", gia: 2890000, loaiDichVu: "TOUR", maNhaCungCap: 2, trangThai: "active" },
+  { maDichVu: 102, ten: "Phòng Deluxe biển", moTa: "Phòng 2 khách, bao gồm buffet sáng.", gia: 1590000, loaiDichVu: "KHACH_SAN", maNhaCungCap: 3, trangThai: "active" },
+  { maDichVu: 103, ten: "Vé máy bay Hà Nội - Đà Nẵng", moTa: "Hạng phổ thông linh hoạt.", gia: 1290000, loaiDichVu: "VE", maNhaCungCap: 1, trangThai: "inactive" },
 ];
 
 const currencyFormatter = new Intl.NumberFormat("vi-VN");
@@ -129,12 +129,12 @@ async function fetchSuppliers(): Promise<SupplierOption[]> {
 
 async function createService(item: ServiceItem): Promise<ServiceItem> {
   const response = await api.post(SERVICE_API_PATH, item);
-  return normalizeService(response.data, 0);
+  return normalizeService(response.data?.data ?? response.data, 0);
 }
 
 async function updateService(item: ServiceItem): Promise<ServiceItem> {
   const response = await api.put(`${SERVICE_API_PATH}/${item.maDichVu}`, item);
-  return normalizeService(response.data, 0);
+  return normalizeService(response.data?.data ?? response.data, 0);
 }
 
 async function deleteService(id: number): Promise<void> {
@@ -220,7 +220,7 @@ export default function AdminDichVu() {
 
   const openCreateModal = () => {
     resetForm();
-    form.setFieldsValue({ loaiDichVu: "Tour", maNhaCungCap: suppliers[0]?.maNhaCungCap, trangThai: "active", gia: 1000000 });
+    form.setFieldsValue({ loaiDichVu: "TOUR", maNhaCungCap: suppliers[0]?.maNhaCungCap, trangThai: "active", gia: 1000000 });
     setModalOpen(true);
   };
 
@@ -311,7 +311,7 @@ export default function AdminDichVu() {
 
   return (
     <div style={pageContainerStyle}>
-      <Space direction="vertical" size={20} style={{ width: "100%" }}>
+      <Space orientation="vertical" size={20} style={{ width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
           <div>
             <Title level={3} style={{ margin: 0, color: "#182338" }}>Quản lý dịch vụ</Title>
@@ -331,7 +331,7 @@ export default function AdminDichVu() {
         </div>
 
         <Card style={cardStyle} styles={{ body: { padding: 20 } }}>
-          <Space direction="vertical" size={16} style={{ width: "100%" }}>
+          <Space orientation="vertical" size={16} style={{ width: "100%" }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
               <div>
                 <Title level={4} style={{ margin: 0, color: "#1f2a44" }}>Danh sách dịch vụ</Title>
@@ -355,7 +355,7 @@ export default function AdminDichVu() {
           <Form.Item label="Mô tả" name="moTa" rules={[{ required: true, message: "Nhập mô tả." }]}><TextArea rows={3} /></Form.Item>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
             <Form.Item label="Giá" name="gia" rules={[{ required: true, message: "Nhập giá." }]}><InputNumber min={0} style={{ width: "100%" }} /></Form.Item>
-            <Form.Item label="Loại dịch vụ" name="loaiDichVu" rules={[{ required: true, message: "Chọn loại dịch vụ." }]}><Select options={[{ label: "Tour", value: "Tour" }, { label: "Khách sạn", value: "Khách sạn" }, { label: "Vé máy bay", value: "Vé máy bay" }, { label: "Vé tàu", value: "Vé tàu" }, { label: "Vé vui chơi", value: "Vé vui chơi" }]} /></Form.Item>
+            <Form.Item label="Loại dịch vụ" name="loaiDichVu" rules={[{ required: true, message: "Chọn loại dịch vụ." }]}><Select options={[{ label: "Tour", value: "TOUR" }, { label: "Khách sạn", value: "KHACH_SAN" }, { label: "Vé", value: "VE" }]} /></Form.Item>
             <Form.Item label="Nhà cung cấp" name="maNhaCungCap" rules={[{ required: true, message: "Chọn nhà cung cấp." }]}><Select options={suppliers.map((item) => ({ label: `${item.ten} (#${item.maNhaCungCap})`, value: item.maNhaCungCap }))} /></Form.Item>
             <Form.Item label="Trạng thái" name="trangThai" rules={[{ required: true, message: "Chọn trạng thái." }]}><Select options={[{ label: "Đang mở bán", value: "active" }, { label: "Tạm ngưng", value: "inactive" }]} /></Form.Item>
           </div>

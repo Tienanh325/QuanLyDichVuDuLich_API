@@ -14,6 +14,7 @@ const DonDatController = require('../controllers/dondat.controller');
 const ThanhToanController = require('../controllers/thanhtoan.controller');
 const DanhGiaController = require('../controllers/danhgia.controller');
 const UserController = require('../controllers/user.controller');
+const LoaiVeController = require('../controllers/loaive.controller');
 
 // ==========================================
 // BẢO VỆ TOÀN BỘ ROUTES ADMIN
@@ -100,9 +101,10 @@ router.get('/ve/:id/gia', VeController.getGiaVe);
 router.post('/ve/:id/gia', VeController.adminUpsertGiaVe);
 router.delete('/ve/:id/gia/:giaVeId', VeController.adminRemoveGiaVe);
 // Loại vé
-router.get('/loai-ve', VeController.getAllLoaiVe);
-router.post('/loai-ve', VeController.adminCreateLoaiVe);
-router.delete('/loai-ve/:id', VeController.adminRemoveLoaiVe);
+router.get('/loai-ve', LoaiVeController.getAllLoaiVe);
+router.post('/loai-ve', LoaiVeController.adminCreateLoaiVe);
+router.put('/loai-ve/:id', LoaiVeController.adminUpdateLoaiVe);
+router.delete('/loai-ve/:id', LoaiVeController.adminRemoveLoaiVe);
 
 // ==========================================
 // 8. KHUYẾN MÃI

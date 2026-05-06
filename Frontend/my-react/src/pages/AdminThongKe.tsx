@@ -319,7 +319,7 @@ export default function AdminThongKe() {
             </div>
 
             <div style={{ width: "100%", height: 340 }}>
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <AreaChart data={revenueTrend} margin={{ top: 10, right: 8, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
@@ -357,7 +357,7 @@ export default function AdminThongKe() {
               </div>
             </div>
             <div style={{ width: "100%", height: 250 }}>
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <PieChart>
                   <Pie
                     data={categoryMix}
@@ -420,7 +420,7 @@ export default function AdminThongKe() {
             </div>
 
             <div style={{ width: "100%", height: 340 }}>
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <BarChart data={servicePerformance} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e9edf5" />
                   <XAxis dataKey="name" tickLine={false} axisLine={false} />

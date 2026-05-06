@@ -40,11 +40,23 @@ class VeModel {
                 -- Giá vé (lấy mức thấp nhất)
                 MIN(gv.gia) AS gia,
                 SUM(gv.soChoTrong) AS soChoTrong
-            ${baseQuery}
+            FROM Ve v
+            LEFT JOIN DichVu dv ON v.maDichVu = dv.maDichVu
+            LEFT JOIN NhaCungCap ncc ON dv.maNhaCungCap = ncc.maNhaCungCap
             LEFT JOIN VeMayBay mb ON v.maVe = mb.maVe AND v.loaiVeCon = 'MAY_BAY'
             LEFT JOIN VeTauHoa th ON v.maVe = th.maVe AND v.loaiVeCon = 'TAU_HOA'
             LEFT JOIN VeKhuVuiChoi kvc ON v.maVe = kvc.maVe AND v.loaiVeCon = 'VUI_CHOI'
             LEFT JOIN GiaVe gv ON v.maVe = gv.maVe
+            WHERE 1=1
+        `;
+
+        if (loaiVeCon) { dataQuery += ` AND v.loaiVeCon = ?`; }
+        if (trangThai) { dataQuery += ` AND v.trangThai = ?`; }
+        if (search) {
+            dataQuery += ` AND (dv.ten LIKE ? OR ncc.ten LIKE ?)`;
+        }
+
+        dataQuery += `
             GROUP BY v.maVe
             ORDER BY v.maVe DESC LIMIT ? OFFSET ?
         `;
@@ -184,20 +196,7 @@ class VeModel {
 
     // =================== LOẠI VÉ & GIÁ VÉ ===================
 
-    static async getAllLoaiVe() {
-        const [rows] = await pool.query(`SELECT * FROM LoaiVe ORDER BY maLoaiVe ASC`);
-        return rows;
-    }
 
-    static async createLoaiVe(tenLoaiVe) {
-        const [result] = await pool.query(`INSERT INTO LoaiVe (tenLoaiVe) VALUES (?)`, [tenLoaiVe]);
-        return { maLoaiVe: result.insertId, tenLoaiVe };
-    }
-
-    static async removeLoaiVe(id) {
-        const [result] = await pool.query(`DELETE FROM LoaiVe WHERE maLoaiVe = ?`, [id]);
-        return result.affectedRows > 0;
-    }
 
     static async getGiaVeByVe(maVe) {
         const [rows] = await pool.query(

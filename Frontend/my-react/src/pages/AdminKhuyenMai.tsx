@@ -233,7 +233,7 @@ async function createVoucher(voucher: VoucherItem): Promise<VoucherItem> {
     ngayKetThuc: voucher.endDate,
   };
   const response = await api.post(VOUCHER_API_PATH, payload);
-  return normalizeVoucher(response.data, 0);
+  return normalizeVoucher(response.data?.data ?? response.data, 0);
 }
 
 async function updateVoucher(voucher: VoucherItem): Promise<VoucherItem> {
@@ -244,7 +244,7 @@ async function updateVoucher(voucher: VoucherItem): Promise<VoucherItem> {
     ngayKetThuc: voucher.endDate,
   };
   const response = await api.put(`${VOUCHER_API_PATH}/${voucher.id}`, payload);
-  return normalizeVoucher(response.data, 0);
+  return normalizeVoucher(response.data?.data ?? response.data, 0);
 }
 
 async function deleteVoucher(id: string): Promise<void> {
@@ -584,7 +584,7 @@ export default function AdminKhuyenMai() {
 
   return (
     <div style={pageContainerStyle}>
-      <Space direction="vertical" size={20} style={{ width: "100%" }}>
+      <Space orientation="vertical" size={20} style={{ width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
           <div>
             <Title level={3} style={{ margin: 0, color: "#182338" }}>

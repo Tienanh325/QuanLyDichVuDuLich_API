@@ -18,7 +18,7 @@ const requireAdminAuth = (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'travel_secret_key');
 
         // 3. Kiểm tra quyền ADMIN
-        if (decoded.vaiTro !== 'ADMIN') {
+        if (!decoded.vaiTro || decoded.vaiTro.toUpperCase() !== 'ADMIN') {
             return res.status(403).json({
                 status: 'error',
                 data: null,

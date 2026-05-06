@@ -119,12 +119,12 @@ async function fetchSuppliers(): Promise<SupplierItem[]> {
 
 async function createSupplier(item: SupplierItem): Promise<SupplierItem> {
   const response = await api.post(SUPPLIER_API_PATH, item);
-  return normalizeSupplier(response.data, 0);
+  return normalizeSupplier(response.data?.data ?? response.data, 0);
 }
 
 async function updateSupplier(item: SupplierItem): Promise<SupplierItem> {
   const response = await api.put(`${SUPPLIER_API_PATH}/${item.maNhaCungCap}`, item);
-  return normalizeSupplier(response.data, 0);
+  return normalizeSupplier(response.data?.data ?? response.data, 0);
 }
 
 async function deleteSupplier(id: number): Promise<void> {
@@ -369,7 +369,7 @@ export default function AdminNhaCungCap() {
 
   return (
     <div style={pageContainerStyle}>
-      <Space direction="vertical" size={20} style={{ width: "100%" }}>
+      <Space orientation="vertical" size={20} style={{ width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
           <div>
             <Title level={3} style={{ margin: 0, color: "#182338" }}>
@@ -437,7 +437,7 @@ export default function AdminNhaCungCap() {
         </div>
 
         <Card style={cardStyle} styles={{ body: { padding: 20 } }}>
-          <Space direction="vertical" size={16} style={{ width: "100%" }}>
+          <Space orientation="vertical" size={16} style={{ width: "100%" }}>
             {apiError ? (
               <Alert
                 type="error"

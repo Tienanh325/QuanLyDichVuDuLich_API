@@ -142,37 +142,7 @@ class VeController {
         }
     }
 
-    // =========== LOẠI VÉ ===========
 
-    static async getAllLoaiVe(req, res) {
-        try {
-            const loaiVe = await VeModel.getAllLoaiVe();
-            return res.status(200).json({ status: 'success', data: loaiVe, message: 'Lấy danh sách loại vé thành công!' });
-        } catch (error) {
-            return res.status(500).json({ status: 'error', data: null, message: error.message });
-        }
-    }
-
-    static async adminCreateLoaiVe(req, res) {
-        try {
-            const { tenLoaiVe } = req.body;
-            if (!tenLoaiVe) return res.status(400).json({ status: 'error', data: null, message: 'Tên loại vé là bắt buộc!' });
-            const newLoaiVe = await VeModel.createLoaiVe(tenLoaiVe);
-            return res.status(201).json({ status: 'success', data: newLoaiVe, message: 'Tạo loại vé thành công!' });
-        } catch (error) {
-            return res.status(500).json({ status: 'error', data: null, message: error.message });
-        }
-    }
-
-    static async adminRemoveLoaiVe(req, res) {
-        try {
-            const isDeleted = await VeModel.removeLoaiVe(req.params.id);
-            if (!isDeleted) return res.status(404).json({ status: 'error', data: null, message: 'Không tìm thấy loại vé!' });
-            return res.status(200).json({ status: 'success', data: null, message: 'Đã xóa loại vé!' });
-        } catch (error) {
-            return res.status(500).json({ status: 'error', data: null, message: error.message });
-        }
-    }
 
     // =========== GIÁ VÉ ===========
 

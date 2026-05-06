@@ -273,7 +273,7 @@ async function createTicket(item: TicketItem): Promise<TicketItem> {
   };
 
   const response = await api.post(endpoint, payload);
-  return normalizeTicket(response.data, 0);
+  return normalizeTicket(response.data?.data ?? response.data, 0);
 }
 
 async function updateTicket(item: TicketItem): Promise<TicketItem> {
@@ -300,7 +300,7 @@ async function updateTicket(item: TicketItem): Promise<TicketItem> {
   };
 
   const response = await api.put(`${VE_API_PATH}/${item.maVe}`, payload);
-  return normalizeTicket(response.data, 0);
+  return normalizeTicket(response.data?.data ?? response.data, 0);
 }
 
 async function deleteTicket(id: number): Promise<void> {

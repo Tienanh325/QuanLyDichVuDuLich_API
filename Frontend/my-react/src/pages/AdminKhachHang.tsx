@@ -87,12 +87,12 @@ async function fetchUsers(): Promise<UserItem[]> {
 
 async function createUser(item: UserItem): Promise<UserItem> {
   const response = await api.post(USER_API_PATH, item);
-  return normalizeUser(response.data, 0);
+  return normalizeUser(response.data?.data ?? response.data, 0);
 }
 
 async function updateUser(item: UserItem): Promise<UserItem> {
   const response = await api.put(`${USER_API_PATH}/${item.maNguoiDung}`, item);
-  return normalizeUser(response.data, 0);
+  return normalizeUser(response.data?.data ?? response.data, 0);
 }
 
 async function deleteUser(id: number): Promise<void> {
@@ -356,7 +356,7 @@ export default function AdminKhachHang() {
 
   return (
     <div style={pageContainerStyle}>
-      <Space direction="vertical" size={20} style={{ width: "100%" }}>
+      <Space orientation="vertical" size={20} style={{ width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
           <div>
             <Title level={3} style={{ margin: 0, color: "#182338" }}>Quan ly nguoi dung</Title>
@@ -413,7 +413,7 @@ export default function AdminKhachHang() {
         </div>
 
         <Card style={cardStyle} styles={{ body: { padding: 20 } }}>
-          <Space direction="vertical" size={16} style={{ width: "100%" }}>
+          <Space orientation="vertical" size={16} style={{ width: "100%" }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
               <div>
                 <Space size={8}>

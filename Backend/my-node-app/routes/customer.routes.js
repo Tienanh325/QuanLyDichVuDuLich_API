@@ -12,6 +12,7 @@ const KhuyenMaiController = require('../controllers/khuyenmai.controller');
 const DonDatController = require('../controllers/dondat.controller');
 const ThanhToanController = require('../controllers/thanhtoan.controller');
 const DanhGiaController = require('../controllers/danhgia.controller');
+const LoaiVeController = require('../controllers/loaive.controller');
 
 // ==========================================
 // 1. PUBLIC ROUTES (Không cần đăng nhập)
@@ -36,7 +37,7 @@ router.get('/ve/tau-hoa/tim-kiem', VeController.searchTauHoa);
 router.get('/ve/:id', VeController.getById);
 
 // Loại vé (public, để hiển thị filter)
-router.get('/loai-ve', VeController.getAllLoaiVe);
+router.get('/loai-ve', LoaiVeController.getAllLoaiVe);
 
 // Đánh giá (public)
 router.get('/danh-gia', DanhGiaController.publicGetAll);

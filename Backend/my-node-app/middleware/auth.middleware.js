@@ -39,7 +39,7 @@ const requireAuth = (req, res, next) => {
  */
 const requireAdmin = (req, res, next) => {
     requireAuth(req, res, () => {
-        if (req.user.vaiTro !== 'ADMIN') {
+        if (!req.user.vaiTro || req.user.vaiTro.toUpperCase() !== 'ADMIN') {
             return res.status(403).json({
                 status: 'error',
                 data: null,
