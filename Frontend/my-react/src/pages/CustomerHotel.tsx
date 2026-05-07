@@ -29,7 +29,6 @@ import {
 
 type IconType = typeof Search;
 type HotelPopover = "destination" | "stay" | "guests" | null;
-type HotelGuestKey = "adults" | "children" | "rooms";
 
 type HotelFormState = {
   destination: PopularHotelDestination;
@@ -133,7 +132,7 @@ const massonryDestinations = [
     image: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
     size: "small",
   },
-    {
+  {
     id: 5,
     name: "TP HCM",
     subtitle: "Thành phố sôi động",
@@ -160,49 +159,6 @@ const whyBookWithTraveloka = [
     description: "Đội ngũ khách hàng chuyên nghiệp luôn sẵn sàng hỗ trợ bạn mọi lúc.",
   },
 ] as const;
-
-const discoverColumns = [
-  {
-    title: "Khách sạn theo điểm đến nổi bật",
-    links: [
-      "Khách sạn tại Đà Nẵng",
-      "Khách sạn tại Đà Lạt",
-      "Khách sạn tại Phú Quốc",
-      "Khách sạn tại Vũng Tàu",
-      "Khách sạn tại Nha Trang",
-      "Khách sạn tại Hà Nội",
-      "Khách sạn tại TP HCM",
-      "Khách sạn tại Hạ Long",
-    ],
-  },
-  {
-    title: "Khám phá theo nhu cầu lưu trú",
-    links: [
-      "Khách sạn gần biển",
-      "Khách sạn cho gia đình",
-      "Khách sạn có hồ bơi",
-      "Khách sạn gần sân bay",
-      "Căn hộ cho nhóm bạn",
-      "Biệt thự nghỉ dưỡng",
-      "Khách sạn công tác",
-      "Khách sạn trung tâm thành phố",
-    ],
-  },
-  {
-    title: "Kinh nghiệm đặt phòng",
-    links: [
-      "Cách săn deal khách sạn",
-      "Mẹo chọn khu vực lưu trú",
-      "Cách đọc đánh giá khách sạn",
-      "Những tiện nghi nên ưu tiên",
-      "Khi nào nên đặt sớm",
-      "Mẹo đặt phòng cuối tuần",
-      "Cách dùng mã giảm giá",
-      "Lưu ý khi đặt phòng quốc tế",
-    ],
-  },
-] as const;
-
 const hotelWeekdays = ["Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7", "CN"];
 const hotelCalendarMonths = [
   { year: 2026, monthIndex: 3 },
@@ -354,15 +310,15 @@ function HotelFieldButton({
             value={value}
             placeholder={placeholder}
             onChange={(e) => onChange?.(e.target.value)}
-            style={{ 
-              border: "none", 
-              background: "transparent", 
-              outline: "none", 
-              width: "100%", 
-              fontSize: 15, 
-              fontWeight: 600, 
-              color: "#242628", 
-              padding: 0 
+            style={{
+              border: "none",
+              background: "transparent",
+              outline: "none",
+              width: "100%",
+              fontSize: 15,
+              fontWeight: 600,
+              color: "#242628",
+              padding: 0
             }}
           />
         ) : (
@@ -469,20 +425,7 @@ export default function CustomerHotel() {
     };
   }, [openHotelPopover]);
 
-  function handleHotelGuestChange(field: HotelGuestKey, delta: number) {
-    setHotelForm((currentValue) => {
-      const minimumValue = field === "children" ? 0 : 1;
-      const nextValue = Math.max(minimumValue, currentValue.guests[field] + delta);
 
-      return {
-        ...currentValue,
-        guests: {
-          ...currentValue.guests,
-          [field]: nextValue,
-        },
-      };
-    });
-  }
 
   function handleHotelDateSelect(date: Date) {
     if (hotelDateFocus === "checkIn") {
@@ -824,9 +767,8 @@ export default function CustomerHotel() {
             {massonryDestinations.map((destination) => (
               <article
                 key={destination.id}
-                className={`hotel-customer__masonry-card ${
-                  destination.size === "large" ? "is-large" : "is-small"
-                }`}
+                className={`hotel-customer__masonry-card ${destination.size === "large" ? "is-large" : "is-small"
+                  }`}
                 style={{ backgroundImage: destination.image }}
               >
                 <div className="hotel-customer__masonry-overlay">
@@ -880,32 +822,6 @@ export default function CustomerHotel() {
                 }}
               />
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="hotel-customer__section hotel-customer__section--plain hotel-customer__section--discover">
-        <div className="customer-shell__container">
-          <div className="hotel-customer__section-head hotel-customer__section-head--stacked">
-            <div>
-              <span>Khám phá thêm</span>
-              <h2>Khám phá các khách sạn phổ biến và điểm đến du lịch hàng đầu</h2>
-            </div>
-          </div>
-
-          <div className="hotel-customer__discover-grid">
-            {discoverColumns.map((group) => (
-              <div key={group.title} className="hotel-customer__discover-column">
-                <h3>{group.title}</h3>
-                <ul>
-                  {group.links.map((item) => (
-                    <li key={item}>
-                      <a href="#tim-kiem">{item}</a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
           </div>
         </div>
       </section>

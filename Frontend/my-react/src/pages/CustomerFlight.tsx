@@ -1,22 +1,18 @@
 import { useMemo, useState } from "react";
-import type { CSSProperties } from "react";
+import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-  ArrowLeftRight,
   ArrowRight,
   BellRing,
   CalendarDays,
   ChevronDown,
-  CircleDollarSign,
   Copy,
   CreditCard,
-  PlaneLanding,
   PlaneTakeoff,
   QrCode,
   Search,
   ShieldCheck,
   Sparkles,
-  Users,
 } from "lucide-react";
 import baibienImage from "../assets/images/baibien.jpg";
 import thuongHieuImage from "../assets/images/thuonghieu.jpg";
@@ -27,7 +23,6 @@ import CustomerFlightSearchResults from "./CustomerFlightSearchResults";
 import { buildFlightSearchQuery, formatFlightDateLabel, parseFlightSearchParams } from "../utils/flightSearch";
 import type { FlightSearchState } from "../utils/flightSearch";
 
-type IconType = typeof Search;
 type TripType = "oneWay" | "roundTrip" | "multiCity";
 
 type RouteValues = {
@@ -37,54 +32,18 @@ type RouteValues = {
   toSubtitle?: string;
 };
 
-type FieldCardProps = {
-  label?: string;
-  title: string;
-  subtitle?: string;
-  icon?: IconType;
-  muted?: boolean;
-  placeholder?: boolean;
-  style?: CSSProperties;
+type HotelFieldButtonProps = {
+  label: string;
+  value?: string;
+  placeholder?: string;
+  icon: React.ElementType;
+  isOpen?: boolean;
+  onClick?: () => void;
+  className?: string;
+  children?: ReactNode;
+  isTypable?: boolean;
+  onChange?: (val: string) => void;
 };
-
-type RouteGroupProps = {
-  fromLabel: string;
-  toLabel: string;
-  fromIcon: IconType;
-  toIcon: IconType;
-  values: RouteValues;
-  onSwap: () => void;
-};
-
-const tripTabs: Array<{ id: TripType; label: string }> = [
-  { id: "roundTrip", label: "Khứ hồi" },
-  { id: "oneWay", label: "Một chiều" },
-  { id: "multiCity", label: "Nhiều thành phố" },
-];
-
-const heroHighlights = [
-  {
-    title: "Săn giá vé nhanh",
-    body: "Theo dõi chặng yêu thích và nhận gợi ý giá tốt mỗi ngày.",
-    icon: CircleDollarSign,
-  },
-  {
-    title: "Bay nội địa và quốc tế",
-    body: "So sánh hãng bay, giờ khởi hành và mức giá dễ dàng hơn.",
-    icon: PlaneTakeoff,
-  },
-  {
-    title: "Hỗ trợ 24/7",
-    body: "Đồng hành khi bạn cần đổi lịch hoặc kiểm tra hành trình.",
-    icon: Sparkles,
-  },
-  {
-    title: "Thanh toán linh hoạt",
-    body: "Hỗ trợ thẻ, ví điện tử và chuyển khoản quen thuộc.",
-    icon: CreditCard,
-  },
-] as const;
-
 const couponCards = [
   {
     tag: "Mới hôm nay",
@@ -244,50 +203,53 @@ const discoverColumns = [
   },
 ];
 
-function FieldCard({
+function HotelFieldButton({
   label,
-  title,
-  subtitle,
+  value = "",
+  placeholder = "",
   icon: Icon,
-  muted = false,
-  placeholder = false,
-  style,
-}: FieldCardProps) {
-  const className = ["travel-field-card", muted ? "is-muted" : "", placeholder ? "is-placeholder" : ""]
+  isOpen = false,
+  onClick,
+  className,
+  children,
+  isTypable = false,
+  onChange,
+}: HotelFieldButtonProps) {
+  const wrapperClassName = ["travel-hotel-field-wrap", className, isOpen ? "is-open" : ""]
     .filter(Boolean)
     .join(" ");
+  const fieldClassName = ["travel-hotel-field", isOpen ? "is-open" : ""].filter(Boolean).join(" ");
 
   return (
-    <div className={className} style={style}>
-      {label ? <div className="travel-field-card__label">{label}</div> : null}
-      <div className="travel-field-card__body">
-        {Icon ? (
-          <span className="travel-field-card__icon">
-            <Icon size={22} />
-          </span>
-        ) : null}
-        <div className="travel-field-card__copy">
-          <strong>{title}</strong>
-          {subtitle ? <small>{subtitle}</small> : null}
-        </div>
+    <div className={wrapperClassName}>
+      <div className="travel-hotel-field__label">{label}</div>
+      <div className={fieldClassName} onClick={onClick}>
+        <span className="travel-hotel-field__icon">
+          <Icon size={22} />
+        </span>
+        {isTypable ? (
+          <input
+            type="text"
+            className="travel-hotel-field__input"
+            value={value}
+            placeholder={placeholder}
+            onChange={(e) => onChange?.(e.target.value)}
+            style={{
+              border: "none",
+              background: "transparent",
+              outline: "none",
+              width: "100%",
+              fontSize: 15,
+              fontWeight: 600,
+              color: "#242628",
+              padding: 0
+            }}
+          />
+        ) : (
+          <span className="travel-hotel-field__value">{value || placeholder}</span>
+        )}
       </div>
-    </div>
-  );
-}
-
-function RouteGroup({ fromLabel, toLabel, fromIcon, toIcon, values, onSwap }: RouteGroupProps) {
-  return (
-    <div className="travel-route-group">
-      <FieldCard label={fromLabel} title={values.fromTitle} subtitle={values.fromSubtitle} icon={fromIcon} />
-      <button
-        type="button"
-        className="travel-field-switch"
-        aria-label="Đổi chiều nơi đi và nơi đến"
-        onClick={onSwap}
-      >
-        <ArrowLeftRight size={18} />
-      </button>
-      <FieldCard label={toLabel} title={values.toTitle} subtitle={values.toSubtitle} icon={toIcon} />
+      {children}
     </div>
   );
 }
@@ -332,7 +294,7 @@ export default function CustomerFlight() {
     () => parseFlightSearchParams(new URLSearchParams(location.search)),
     [location.search]
   );
-  const [tripType, setTripType] = useState<TripType>(parsedSearch.tripType);
+  const [tripType] = useState<TripType>(parsedSearch.tripType);
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
   const [flightRoute, setFlightRoute] = useState<RouteValues>({
     fromTitle: parsedSearch.fromTitle,
@@ -344,12 +306,6 @@ export default function CustomerFlight() {
   const [returnDate] = useState(parsedSearch.returnDate);
 
   const isResultsView = parsedSearch.view === "results";
-  const returnDateTitle =
-    tripType === "oneWay"
-      ? "Th\u00eam chi\u1ec1u v\u1ec1"
-      : tripType === "multiCity"
-        ? "Ch\u1eb7ng k\u1ebf ti\u1ebfp"
-        : formatFlightDateLabel(returnDate);
 
   const activeSearchState: FlightSearchState = {
     ...parsedSearch,
@@ -362,15 +318,6 @@ export default function CustomerFlight() {
     departDate,
     returnDate: tripType === "oneWay" ? "" : returnDate,
   };
-
-  function swapRoute() {
-    setFlightRoute((currentValue) => ({
-      fromTitle: currentValue.toTitle,
-      fromSubtitle: currentValue.toSubtitle,
-      toTitle: currentValue.fromTitle,
-      toSubtitle: currentValue.fromSubtitle,
-    }));
-  }
 
   function handleFlightSearch() {
     navigate(
@@ -394,105 +341,52 @@ export default function CustomerFlight() {
   }
 
   return (
-    <div className="flight-customer">
-      <section
-        className="flight-customer__hero"
-        style={{
-          backgroundImage: `linear-gradient(180deg, rgba(6, 21, 42, 0.22) 0%, rgba(6, 21, 42, 0.78) 100%), linear-gradient(90deg, rgba(6, 21, 42, 0.2) 0%, rgba(6, 21, 42, 0.06) 100%), url(${baibienImage})`,
-        }}
-      >
+    <div className="hotel-customer flight-customer">
+      <section className="hotel-customer__hero">
         <div className="customer-shell__container">
-          <div className="flight-customer__hero-copy">
-            <span>Vé máy bay • Giá tốt mỗi ngày • Linh hoạt lịch bay</span>
-            <h1>Tìm và đặt vé máy bay giá hời cho chuyến đi tiếp theo của bạn</h1>
-            <p>So sánh nhanh giờ bay, hãng bay, mức giá và ưu đãi nổi bật để chốt hành trình dễ dàng hơn.</p>
+          <div
+            className="hotel-customer__hero-image-wrapper"
+            style={{
+              backgroundImage: `linear-gradient(to bottom, rgba(8, 24, 45, 0) 20%, rgba(8, 24, 45, 0.85) 100%), url(${baibienImage})`,
+            }}
+          >
+            <div className="hotel-customer__hero-copy">
+              <h1>Tìm và đặt vé máy bay giá hời cho chuyến đi tiếp theo của bạn</h1>
+              <p>So sánh nhanh giờ bay, hãng bay, mức giá và ưu đãi nổi bật để chốt hành trình dễ dàng hơn.</p>
+            </div>
           </div>
 
-          <section className="travel-search flight-customer__search" id="tim-kiem">
-            <div className="flight-customer__trip-switch">
-              {tripTabs.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={tripType === item.id ? "flight-customer__trip-button is-active" : "flight-customer__trip-button"}
-                  onClick={() => setTripType(item.id)}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="travel-panel travel-panel--flight">
+          <section className="travel-search hotel-customer__search" id="tim-kiem">
+            <div className="travel-panel travel-panel--flight" style={{ position: 'relative', zIndex: 5 }}>
               <div className="travel-form">
-                <div className="travel-form__layout travel-form__layout--flight flight-customer__search-grid">
-                  <RouteGroup
-                    fromLabel="Từ"
-                    toLabel="Đến"
-                    fromIcon={PlaneTakeoff}
-                    toIcon={PlaneLanding}
-                    values={flightRoute}
-                    onSwap={swapRoute}
+                <div className="travel-form__layout travel-form__layout--hotel">
+                  <HotelFieldButton
+                    label="Từ"
+                    value={flightRoute.fromTitle}
+                    placeholder="Chọn sân bay khởi hành"
+                    icon={PlaneTakeoff}
+                    isTypable
+                    onChange={(val) => setFlightRoute(prev => ({ ...prev, fromTitle: val }))}
                   />
-                  <FieldCard label="Kh\u1edfi h\u00e0nh" title={formatFlightDateLabel(departDate)} icon={CalendarDays} />
-                  <FieldCard
-                    label="Khứ hồi"
-                    title={returnDateTitle}
+                  <HotelFieldButton
+                    label="Đến"
+                    value={flightRoute.toTitle}
+                    placeholder="Chọn sân bay đến"
+                    icon={PlaneTakeoff}
+                    isTypable
+                    onChange={(val) => setFlightRoute(prev => ({ ...prev, toTitle: val }))}
+                  />
+                  <HotelFieldButton
+                    label="Ngày khởi hành"
+                    value={formatFlightDateLabel(departDate)}
                     icon={CalendarDays}
-                    muted={tripType === "oneWay"}
-                    placeholder={tripType === "oneWay"}
                   />
-                  <FieldCard
-                    label="Hành khách & hạng ghế"
-                    title={`${activeSearchState.passengers}, ${activeSearchState.cabinClass}`}
-                    subtitle="Có thể thêm trẻ em sau"
-                    icon={Users}
-                    style={{
-                      borderRight: "1px solid #cfd6df",
-                      borderTopRightRadius: "24px",
-                      borderBottomRightRadius: "24px",
-                    }}
-                  />
-                  <SearchButton onClick={handleFlightSearch} />
-                </div>
-              </div>
-
-              <div className="travel-search__footer">
-                <div className="travel-search__footer-title">Nổi bật</div>
-                <div className="travel-search__footer-links">
-                  <a href="#uu-dai">
-                    <BellRing size={16} />
-                    Cảnh báo giá vé
-                  </a>
-                  <a href="#gia-re">
-                    <CircleDollarSign size={16} />
-                    Chặng bay đang rẻ
-                  </a>
-                  <a href="#faq">
-                    <Sparkles size={16} />
-                    Hỗ trợ chuyến đi
-                  </a>
+                  <SearchButton ariaLabel="Tìm chuyến bay" onClick={handleFlightSearch} />
                 </div>
               </div>
             </div>
           </section>
 
-          <div className="flight-customer__hero-highlights">
-            {heroHighlights.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <article key={item.title} className="flight-customer__highlight-card">
-                  <span className="flight-customer__highlight-icon">
-                    <Icon size={18} />
-                  </span>
-                  <div>
-                    <strong>{item.title}</strong>
-                    <p>{item.body}</p>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
         </div>
       </section>
 

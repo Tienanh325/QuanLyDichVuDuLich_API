@@ -1,46 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 import {
   CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-  CircleDollarSign,
   Copy,
-  Info,
   MapPinned,
-  Minus,
-  Plus,
   Search,
-  ShieldCheck,
-  Sparkles,
-  Ticket,
-  Users,
 } from "lucide-react";
 import baibienImage from "../assets/images/baibien.jpg";
 import "../assets/css/CustomerHome.css";
 import "../assets/css/CustomerBusTicket.css";
-
-type IconType = typeof Search;
-type BusPopover = "departure" | "destination" | "date" | "passengers" | null;
-type BusGuestKey = "adults" | "children";
-
-const heroHighlights = [
-  {
-    title: "Giá vé rẻ nhất",
-    body: "So sánh giá vé từ các hãng xe lớn và chọn chuyến đi phù hợp nhất với ngân sách.",
-    icon: CircleDollarSign,
-  },
-  {
-    title: "An toàn và thoải mái",
-    body: "Xe khách hiện đại với đủ tiện nghi, chuyến đi an toàn với các nhà xe uy tín.",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Hỗ trợ 24/7",
-    body: "Đội ngũ hỗ trợ nhanh chóng sẵn sàng giải đáp mọi thắc mắc về chuyến đi.",
-    icon: Sparkles,
-  },
-] as const;
 
 const promoCards = [
   {
@@ -190,448 +158,138 @@ const discoverColumns = [
   },
 ] as const;
 
-const busWeekdays = ["Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7", "CN"];
-const busCalendarMonths = [
-  { year: 2026, monthIndex: 3 },
-  { year: 2026, monthIndex: 4 },
-];
-
-type BusFieldButtonProps = {
+type HotelFieldButtonProps = {
   label: string;
-  value: string;
-  icon: IconType;
+  value?: string;
+  placeholder?: string;
+  icon: any;
   isOpen?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
   className?: string;
   children?: ReactNode;
+  isTypable?: boolean;
+  onChange?: (val: string) => void;
 };
 
-function addDays(date: Date, amount: number) {
-  const nextDate = new Date(date);
-  nextDate.setDate(nextDate.getDate() + amount);
-  return nextDate;
-}
-
-function isSameDay(leftDate: Date, rightDate: Date) {
-  return (
-    leftDate.getFullYear() === rightDate.getFullYear() &&
-    leftDate.getMonth() === rightDate.getMonth() &&
-    leftDate.getDate() === rightDate.getDate()
-  );
-}
-
-function formatBusSearchDate(date: Date) {
-  return `${String(date.getDate()).padStart(2, "0")} thg ${date.getMonth() + 1}`;
-}
-
-function getCalendarDays(year: number, monthIndex: number) {
-  const firstDay = new Date(year, monthIndex, 1);
-  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-  const leadingEmptyDays = (firstDay.getDay() + 6) % 7;
-  const days: Array<Date | null> = Array.from({ length: leadingEmptyDays }, () => null);
-
-  for (let dayNumber = 1; dayNumber <= daysInMonth; dayNumber += 1) {
-    days.push(new Date(year, monthIndex, dayNumber));
-  }
-
-  while (days.length % 7 !== 0) {
-    days.push(null);
-  }
-
-  return days;
-}
-
-function BusFieldButton({
+function HotelFieldButton({
   label,
-  value,
+  value = "",
+  placeholder = "",
   icon: Icon,
-  isOpen,
+  isOpen = false,
   onClick,
   className,
   children,
-}: BusFieldButtonProps) {
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return undefined;
-    }
-
-    function handleClickOutside(event: MouseEvent) {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        onClick();
-      }
-    }
-
-    window.addEventListener("click", handleClickOutside);
-
-    return () => {
-      window.removeEventListener("click", handleClickOutside);
-    };
-  }, [isOpen, onClick]);
+  isTypable = false,
+  onChange,
+}: HotelFieldButtonProps) {
+  const wrapperClassName = ["travel-hotel-field-wrap", className, isOpen ? "is-open" : ""]
+    .filter(Boolean)
+    .join(" ");
+  const fieldClassName = ["travel-hotel-field", isOpen ? "is-open" : ""].filter(Boolean).join(" ");
 
   return (
-    <div
-      ref={ref}
-      className={["travel-bus-field-wrap", isOpen ? "is-open" : "", className].filter(Boolean).join(" ")}
-    >
-      <button
-        type="button"
-        className="travel-bus-field"
-        onClick={onClick}
-        aria-expanded={isOpen}
-      >
-        <span className="travel-bus-field__label">{label}</span>
-        <span className="travel-bus-field__value">{value}</span>
-        <Icon size={20} />
-      </button>
+    <div className={wrapperClassName}>
+      <div className="travel-hotel-field__label">{label}</div>
+      <div className={fieldClassName} onClick={onClick}>
+        <span className="travel-hotel-field__icon">
+          <Icon size={22} />
+        </span>
+        {isTypable ? (
+          <input
+            type="text"
+            className="travel-hotel-field__input"
+            value={value}
+            placeholder={placeholder}
+            onChange={(e) => onChange?.(e.target.value)}
+            style={{ 
+              border: "none", 
+              background: "transparent", 
+              outline: "none", 
+              width: "100%", 
+              fontSize: 15, 
+              fontWeight: 600, 
+              color: "#242628", 
+              padding: 0 
+            }}
+          />
+        ) : (
+          <span className="travel-hotel-field__value">{value || placeholder}</span>
+        )}
+      </div>
       {children}
     </div>
+  );
+}
+
+function SearchButton({ ariaLabel = "Tìm kiếm", onClick }: { ariaLabel?: string; onClick?: () => void }) {
+  return (
+    <button type="button" className="travel-search__submit" aria-label={ariaLabel} onClick={onClick}>
+      <Search size={24} />
+    </button>
   );
 }
 
 export default function CustomerTrainTicket() {
   const [busDeparture, setBusDeparture] = useState("Hà Nội");
   const [busDestination, setBusDestination] = useState("TP HCM");
-  const [busJourneyDate, setBusJourneyDate] = useState(() => addDays(new Date(), 1));
-  const [busPassengers, setBusPassengers] = useState({ adults: 1, children: 0 });
-  const [openBusPopover, setOpenBusPopover] = useState<BusPopover>(null);
+  const [busJourneyDate] = useState(() => {
+    const nextDate = new Date();
+    nextDate.setDate(nextDate.getDate() + 1);
+    return nextDate;
+  });
 
-  const busPassengerSummary = useMemo(() => {
-    const parts = [];
-    if (busPassengers.adults > 0) {
-      parts.push(`${busPassengers.adults} người lớn`);
-    }
-    if (busPassengers.children > 0) {
-      parts.push(`${busPassengers.children} trẻ em`);
-    }
-    return parts.join(", ");
-  }, [busPassengers]);
-
-  function handleBusDateSelect(date: Date) {
-    setBusJourneyDate(date);
-    setOpenBusPopover(null);
-  }
-
-  function handleBusPassengerChange(key: BusGuestKey, amount: number) {
-    setBusPassengers((currentValue) => ({
-      ...currentValue,
-      [key]: Math.max(0, currentValue[key] + amount),
-    }));
-  }
-
-  function swapLocations() {
-    const temp = busDeparture;
-    setBusDeparture(busDestination);
-    setBusDestination(temp);
+  function formatBusSearchDate(date: Date) {
+    return `${String(date.getDate()).padStart(2, "0")} thg ${date.getMonth() + 1}`;
   }
 
   return (
-    <main className="bus-customer">
-      <section 
-        className="bus-customer__hero"
-        style={{
-          backgroundImage: `url(${baibienImage})`,
-        }}
-      >
+    <main className="hotel-customer bus-customer">
+      <section className="hotel-customer__hero">
         <div className="customer-shell__container">
-          <div className="bus-customer__hero-head">
-            <h1>Đặt vé tàu giá rẻ, chất lượng tốt</h1>
-            <p>
-              Tìm và so sánh vé tàu từ hàng trăm tuyến đường trên toàn quốc
-            </p>
+          <div
+            className="hotel-customer__hero-image-wrapper"
+            style={{
+              backgroundImage: `linear-gradient(to bottom, rgba(8, 24, 45, 0) 20%, rgba(8, 24, 45, 0.85) 100%), url(${baibienImage})`,
+            }}
+          >
+            <div className="hotel-customer__hero-copy">
+              <h1>Đặt vé tàu giá rẻ, chất lượng tốt</h1>
+              <p>Tìm và so sánh vé tàu từ hàng trăm tuyến đường trên toàn quốc</p>
+            </div>
           </div>
 
-          <section className="travel-search bus-customer__search" id="tim-kiem">
-            <div className="travel-search__inner">
-              <div className="travel-bus-search-bar">
-                <BusFieldButton
-                  label="Nơi khởi hành"
-                  value={busDeparture}
-                  icon={MapPinned}
-                  isOpen={openBusPopover === "departure"}
-                  onClick={() =>
-                    setOpenBusPopover((currentValue) =>
-                      currentValue === "departure" ? null : "departure"
-                    )
-                  }
-                  className="travel-bus-field-wrap--departure"
-                >
-                  {openBusPopover === "departure" ? (
-                    <div className="travel-bus-panel travel-bus-panel--departure">
-                      <input
-                        type="text"
-                        placeholder="Nhập thành phố hoặc tuyến đường..."
-                        className="travel-bus-panel__input"
-                      />
-                      <div className="travel-bus-panel__list">
-                        {["Hà Nội", "TP HCM", "Đà Nẵng", "Hải Phòng", "Cần Thơ"].map((city) => (
-                          <button
-                            key={city}
-                            type="button"
-                            className="travel-bus-panel__item"
-                            onClick={() => {
-                              setBusDeparture(city);
-                              setOpenBusPopover(null);
-                            }}
-                          >
-                            <MapPinned size={16} />
-                            {city}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-                </BusFieldButton>
-
-                <button
-                  type="button"
-                  className="travel-bus-swap"
-                  onClick={swapLocations}
-                  aria-label="Hoán đổi điểm khởi hành và điểm đến"
-                >
-                  <ChevronRight size={20} />
-                </button>
-
-                <BusFieldButton
-                  label="Nơi đến"
-                  value={busDestination}
-                  icon={MapPinned}
-                  isOpen={openBusPopover === "destination"}
-                  onClick={() =>
-                    setOpenBusPopover((currentValue) =>
-                      currentValue === "destination" ? null : "destination"
-                    )
-                  }
-                  className="travel-bus-field-wrap--destination"
-                >
-                  {openBusPopover === "destination" ? (
-                    <div className="travel-bus-panel travel-bus-panel--destination">
-                      <input
-                        type="text"
-                        placeholder="Nhập thành phố hoặc tuyến đường..."
-                        className="travel-bus-panel__input"
-                      />
-                      <div className="travel-bus-panel__list">
-                        {["TP HCM", "Đà Lạt", "Nha Trang", "Hạ Long", "Vũng Tàu"].map((city) => (
-                          <button
-                            key={city}
-                            type="button"
-                            className="travel-bus-panel__item"
-                            onClick={() => {
-                              setBusDestination(city);
-                              setOpenBusPopover(null);
-                            }}
-                          >
-                            <MapPinned size={16} />
-                            {city}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-                </BusFieldButton>
-
-                <BusFieldButton
-                  label="Ngày khởi hành"
-                  value={formatBusSearchDate(busJourneyDate)}
-                  icon={CalendarDays}
-                  isOpen={openBusPopover === "date"}
-                  onClick={() =>
-                    setOpenBusPopover((currentValue) =>
-                      currentValue === "date" ? null : "date"
-                    )
-                  }
-                  className="travel-bus-field-wrap--date"
-                >
-                  {openBusPopover === "date" ? (
-                    <div className="travel-bus-panel travel-bus-panel--date">
-                      <div className="travel-bus-calendar">
-                        {busCalendarMonths.map((item) => (
-                          <div key={`${item.year}-${item.monthIndex}`} className="travel-bus-calendar__month">
-                            <div className="travel-bus-calendar__header">
-                              <button type="button">
-                                <ChevronLeft size={20} />
-                              </button>
-                              <span className="travel-bus-calendar__title">
-                                Tháng {item.monthIndex + 1} năm {item.year}
-                              </span>
-                              <button type="button">
-                                <ChevronRight size={20} />
-                              </button>
-                            </div>
-
-                            <div className="travel-bus-calendar__weekdays">
-                              {busWeekdays.map((weekday) => (
-                                <span key={weekday} className="travel-bus-calendar__weekday">
-                                  {weekday}
-                                </span>
-                              ))}
-                            </div>
-
-                            <div className="travel-bus-calendar__days">
-                              {getCalendarDays(item.year, item.monthIndex).map((date, dayIndex) => {
-                                if (!date) {
-                                  return (
-                                    <span
-                                      key={`blank-${dayIndex}`}
-                                      className="travel-bus-calendar__blank"
-                                    />
-                                  );
-                                }
-
-                                const isSelected = isSameDay(date, busJourneyDate);
-                                const isPast = date < new Date();
-                                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-
-                                const className = [
-                                  "travel-bus-calendar__day",
-                                  isWeekend ? "is-weekend" : "",
-                                  isSelected ? "is-selected" : "",
-                                  isPast ? "is-past" : "",
-                                ]
-                                  .filter(Boolean)
-                                  .join(" ");
-
-                                return (
-                                  <button
-                                    key={date.toISOString()}
-                                    type="button"
-                                    className={className}
-                                    onClick={() => handleBusDateSelect(date)}
-                                    disabled={isPast}
-                                  >
-                                    {date.getDate()}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-                </BusFieldButton>
-
-                <BusFieldButton
-                  label="Hành khách"
-                  value={busPassengerSummary}
-                  icon={Users}
-                  isOpen={openBusPopover === "passengers"}
-                  onClick={() =>
-                    setOpenBusPopover((currentValue) =>
-                      currentValue === "passengers" ? null : "passengers"
-                    )
-                  }
-                  className="travel-bus-field-wrap--passengers"
-                >
-                  {openBusPopover === "passengers" ? (
-                    <div className="travel-bus-panel travel-bus-panel--passengers">
-                      <div className="travel-bus-guest-list">
-                        <div className="travel-bus-guest-row">
-                          <div className="travel-bus-guest-copy">
-                            <strong>Người lớn</strong>
-                            <span>Từ 12 tuổi trở lên</span>
-                          </div>
-                          <div className="travel-bus-guest-counter">
-                            <button
-                              type="button"
-                              onClick={() => handleBusPassengerChange("adults", -1)}
-                              disabled={busPassengers.adults <= 1}
-                            >
-                              <Minus size={16} />
-                            </button>
-                            <span>{busPassengers.adults}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleBusPassengerChange("adults", 1)}
-                              disabled={busPassengers.adults >= 9}
-                            >
-                              <Plus size={16} />
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="travel-bus-guest-row">
-                          <div className="travel-bus-guest-copy">
-                            <strong>Trẻ em</strong>
-                            <span>Dưới 12 tuổi</span>
-                          </div>
-                          <div className="travel-bus-guest-counter">
-                            <button
-                              type="button"
-                              onClick={() => handleBusPassengerChange("children", -1)}
-                              disabled={busPassengers.children <= 0}
-                            >
-                              <Minus size={16} />
-                            </button>
-                            <span>{busPassengers.children}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleBusPassengerChange("children", 1)}
-                              disabled={busPassengers.children >= 9}
-                            >
-                              <Plus size={16} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="travel-bus-panel__actions">
-                        <button
-                          type="button"
-                          className="travel-bus-done"
-                          onClick={() => setOpenBusPopover(null)}
-                        >
-                          Xong
-                        </button>
-                      </div>
-                    </div>
-                  ) : null}
-                </BusFieldButton>
-
-                <button type="button" className="travel-search__submit" aria-label="Tìm vé tàu">
-                  <Search size={24} />
-                </button>
-              </div>
-            </div>
-
-            <div className="travel-search__footer">
-              <div className="travel-search__footer-title">Tìm kiếm nổi bật</div>
-              <div className="travel-search__footer-links">
-                <a href="#uu-dai">
-                  <CircleDollarSign size={16} />
-                  Mã giảm giá hôm nay
-                </a>
-                <a href="#pho-bien">
-                  <Ticket size={16} />
-                  Tuyến đường phổ biến
-                </a>
-                <a href="#faq">
-                  <Info size={16} />
-                  Câu hỏi thường gặp
-                </a>
+          <section className="travel-search hotel-customer__search" id="tim-kiem">
+            <div className="travel-panel travel-panel--train" style={{ position: 'relative', zIndex: 5 }}>
+              <div className="travel-form">
+                <div className="travel-form__layout travel-form__layout--hotel">
+                  <HotelFieldButton
+                    label="Từ"
+                    value={busDeparture}
+                    placeholder="Nhập thành phố hoặc ga"
+                    icon={MapPinned}
+                    isTypable
+                    onChange={(val) => setBusDeparture(val)}
+                  />
+                  <HotelFieldButton
+                    label="Đến"
+                    value={busDestination}
+                    placeholder="Nhập thành phố hoặc ga"
+                    icon={MapPinned}
+                    isTypable
+                    onChange={(val) => setBusDestination(val)}
+                  />
+                  <HotelFieldButton
+                    label="Ngày khởi hành"
+                    value={formatBusSearchDate(busJourneyDate)}
+                    icon={CalendarDays}
+                  />
+                  <SearchButton ariaLabel="Tìm vé tàu" onClick={() => {}} />
+                </div>
               </div>
             </div>
           </section>
 
-          <div className="bus-customer__hero-highlights">
-            {heroHighlights.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <article key={item.title} className="bus-customer__highlight-card">
-                  <span className="bus-customer__highlight-icon">
-                    <Icon size={18} />
-                  </span>
-                  <div>
-                    <strong>{item.title}</strong>
-                    <p>{item.body}</p>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
         </div>
       </section>
 
