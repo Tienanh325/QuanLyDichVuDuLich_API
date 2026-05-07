@@ -1,20 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Dispatch, ReactNode, SetStateAction } from "react";
+import type { ReactNode } from "react";
 import baibienImage from "../assets/images/baibien.jpg";
 import {
-  ArrowLeftRight,
+
   ArrowRight,
   BedDouble,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
-  CircleDollarSign,
-  Crosshair,
   MapPinned,
-  Minus,
   PlaneTakeoff,
-  Plus,
   Search,
   ShieldCheck,
   Ticket,
@@ -45,18 +41,6 @@ const serviceTabs: Array<{
   { id: "train", label: "Vé tàu", icon: Train },
   { id: "activity", label: "Hoạt động & Vui chơi", icon: Ticket },
 ];
-
-const activityTags = [
-  "Điểm tham quan",
-  "Spa & Thư giãn",
-  "Tour",
-  "Thể thao giải trí",
-  "Trò chơi & Hoạt động",
-  "Phương tiện di chuyển",
-  "Cần thiết cho du lịch",
-  "Trải nghiệm ẩm thực",
-];
-
 const reasonCards = [
   {
     title: "Hơn 1 triệu đánh giá thật từ du khách",
@@ -122,73 +106,18 @@ const destinationColumns = [
     ],
   },
 ];
-
-const hotelTrustedBrands = ["MILLENNIUM", "ALL", "ARCHIPELAGO", "ASCOTT"];
 const hotelWeekdays = ["Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7", "CN"];
 const hotelCalendarMonths = [
   { year: 2026, monthIndex: 3 },
   { year: 2026, monthIndex: 4 },
 ];
-const popularHotelDestinations = [
-  {
-    name: "Đà Lạt",
-    subtitle: "Tỉnh Lâm Đồng, Lam Dong, Việt Nam",
-    type: "Thành Phố",
-    count: "1.811 khách sạn",
-  },
-  {
-    name: "Thành phố Vũng Tàu",
-    subtitle: "Bà Rịa - Vũng Tàu, Thành phố Hồ Chí Minh, Việt Nam",
-    type: "Thành Phố",
-    count: "1.024 khách sạn",
-  },
-  {
-    name: "Nha Trang",
-    subtitle: "Khánh Hòa, Tỉnh Khánh Hòa, Việt Nam",
-    type: "Thành Phố",
-    count: "1.355 khách sạn",
-  },
-  {
-    name: "Kuala Lumpur",
-    subtitle: "Malaysia",
-    type: "Thành Phố",
-    count: "5.998 khách sạn",
-  },
-  {
-    name: "Pattaya",
-    subtitle: "Chon Buri, Thái Lan",
-    type: "Thành Phố",
-    count: "4.719 khách sạn",
-  },
-];
 
 type HotelPopover = "destination" | "stay" | "guests" | null;
-type HotelGuestKey = "adults" | "children" | "rooms";
-
-type FieldCardProps = {
-  label?: string;
-  title: string;
-  subtitle?: string;
-  icon?: IconType;
-  muted?: boolean;
-  placeholder?: boolean;
-  style?: React.CSSProperties;
-};
-
-type RouteGroupProps = {
-  fromLabel: string;
-  toLabel: string;
-  fromIcon: IconType;
-  toIcon: IconType;
-  values: RouteValues;
-  onSwap: () => void;
-  placeholder?: boolean;
-  mutedTo?: boolean;
-};
 
 type HotelFieldButtonProps = {
   label: string;
-  value: string;
+  value?: string;
+  placeholder?: string;
   icon: IconType;
   isOpen?: boolean;
   onClick?: () => void;
@@ -245,82 +174,6 @@ function getCalendarDays(year: number, monthIndex: number) {
   return days;
 }
 
-function FieldCard({
-  label,
-  title,
-  subtitle,
-  icon: Icon,
-  muted = false,
-  placeholder = false,
-  style,
-}: FieldCardProps) {
-  const className = [
-    "travel-field-card",
-    muted ? "is-muted" : "",
-    placeholder ? "is-placeholder" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  return (
-    <div className={className} style={style}>
-      {label ? <div className="travel-field-card__label">{label}</div> : null}
-
-      <div className="travel-field-card__body">
-        {Icon ? (
-          <span className="travel-field-card__icon">
-            <Icon size={22} />
-          </span>
-        ) : null}
-
-        <div className="travel-field-card__copy">
-          <strong>{title}</strong>
-          {subtitle ? <small>{subtitle}</small> : null}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function RouteGroup({
-  fromLabel,
-  toLabel,
-  fromIcon,
-  toIcon,
-  values,
-  onSwap,
-  placeholder = false,
-  mutedTo = false,
-}: RouteGroupProps) {
-  return (
-    <div className="travel-route-group">
-      <FieldCard
-        label={fromLabel}
-        title={values.fromTitle}
-        subtitle={values.fromSubtitle}
-        icon={fromIcon}
-        placeholder={placeholder}
-      />
-      <button
-        type="button"
-        className="travel-field-switch"
-        aria-label="Đổi chiều nơi đi và nơi đến"
-        onClick={onSwap}
-      >
-        <ArrowLeftRight size={18} />
-      </button>
-      <FieldCard
-        label={toLabel}
-        title={values.toTitle}
-        subtitle={values.toSubtitle}
-        icon={toIcon}
-        placeholder={placeholder}
-        muted={mutedTo}
-      />
-    </div>
-  );
-}
-
 type SearchButtonProps = {
   ariaLabel?: string;
   onClick?: () => void;
@@ -336,7 +189,8 @@ function SearchButton({ ariaLabel = "Tìm kiếm", onClick }: SearchButtonProps)
 
 function HotelFieldButton({
   label,
-  value,
+  value = "",
+  placeholder = "",
   icon: Icon,
   isOpen = false,
   onClick,
@@ -362,6 +216,7 @@ function HotelFieldButton({
             type="text"
             className="travel-hotel-field__input"
             value={value}
+            placeholder={placeholder}
             onChange={(e) => onChange?.(e.target.value)}
             style={{ 
               border: "none", 
@@ -375,7 +230,7 @@ function HotelFieldButton({
             }}
           />
         ) : (
-          <span className="travel-hotel-field__value">{value}</span>
+          <span className="travel-hotel-field__value">{value || placeholder}</span>
         )}
       </div>
       {children}
@@ -383,33 +238,40 @@ function HotelFieldButton({
   );
 }
 
+
+
 export default function CustomerHome() {
   const navigate = useNavigate();
   const hotelSearchRef = useRef<HTMLDivElement | null>(null);
   const [activeTab, setActiveTab] = useState<ServiceId>("hotel");
   const [openHotelPopover, setOpenHotelPopover] = useState<HotelPopover>(null);
   const [hotelDateFocus, setHotelDateFocus] = useState<"checkIn" | "checkOut">("checkIn");
-  const [hotelDestination, setHotelDestination] = useState(popularHotelDestinations[0]);
+ const [hotelDestination, setHotelDestination] = useState({
+  name: "",
+  subtitle: "",
+  type: "",
+  count: "",
+});
   const [hotelStay, setHotelStay] = useState({
     checkIn: new Date(2026, 3, 9),
     checkOut: new Date(2026, 3, 10),
   });
-  const [hotelGuests, setHotelGuests] = useState({
+  const [hotelGuests] = useState({
     adults: 2,
     children: 0,
     rooms: 1,
   });
   const [flightRoute, setFlightRoute] = useState<RouteValues>({
-    fromTitle: "TP HCM (SGN)",
-    fromSubtitle: "Sân bay Tân Sơn Nhất",
-    toTitle: "Bangkok (BKKA)",
-    toSubtitle: "Tất cả sân bay",
+    fromTitle: "",
+    fromSubtitle: "",
+    toTitle: "",
+    toSubtitle: "",
   });
   const [trainRoute, setTrainRoute] = useState<RouteValues>({
-    fromTitle: "Nhập thành phố hoặc ga",
-    toTitle: "Nhập thành phố hoặc ga",
+    fromTitle: "",
+    toTitle: "",
   });
-  const [activitySearch, setActivitySearch] = useState("Bạn có ý tưởng gì cho chuyến đi tiếp theo không?");
+  const [activitySearch, setActivitySearch] = useState("");
 
   useEffect(() => {
     if (!openHotelPopover) {
@@ -436,27 +298,6 @@ export default function CustomerHome() {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [openHotelPopover]);
-
-  function swapRoute(setter: Dispatch<SetStateAction<RouteValues>>) {
-    setter((currentValue) => ({
-      fromTitle: currentValue.toTitle,
-      fromSubtitle: currentValue.toSubtitle,
-      toTitle: currentValue.fromTitle,
-      toSubtitle: currentValue.fromSubtitle,
-    }));
-  }
-
-  function handleHotelGuestChange(field: HotelGuestKey, delta: number) {
-    setHotelGuests((currentValue) => {
-      const minimumValue = field === "children" ? 0 : 1;
-      const nextValue = Math.max(minimumValue, currentValue[field] + delta);
-
-      return {
-        ...currentValue,
-        [field]: nextValue,
-      };
-    });
-  }
 
   function handleHotelDateSelect(date: Date) {
     if (hotelDateFocus === "checkIn") {
@@ -534,54 +375,16 @@ export default function CustomerHome() {
               <HotelFieldButton
                 label="Thành phố, địa điểm hoặc tên khách sạn"
                 value={hotelDestination.name}
+                placeholder="Nhập địa điểm"
                 icon={MapPinned}
-                isOpen={openHotelPopover === "destination"}
                 isTypable
-                onChange={(val) => setHotelDestination(prev => ({ ...prev, name: val, subtitle: "", type: "", count: "" }))}
-                onClick={() =>
-                  setOpenHotelPopover((currentValue) =>
-                    currentValue === "destination" ? null : "destination",
-                  )
-                }
-                className="travel-hotel-field-wrap--destination"
+                  onChange={(val) =>
+                    setHotelDestination((prev) => ({
+                      ...prev,
+                      name: val,
+                    }))
+                  }
               >
-                {openHotelPopover === "destination" ? (
-                  <div className="travel-hotel-panel travel-hotel-panel--destination">
-                    <button type="button" className="travel-hotel-nearby">
-                      <Crosshair size={18} />
-                      <span>Gần tôi</span>
-                    </button>
-
-                    <div className="travel-hotel-panel__title">Điểm đến phổ biến</div>
-
-                    <div className="travel-hotel-destination-list">
-                      {popularHotelDestinations.map((item) => (
-                        <button
-                          key={item.name}
-                          type="button"
-                          className={
-                            hotelDestination.name === item.name
-                              ? "travel-hotel-destination-item is-selected"
-                              : "travel-hotel-destination-item"
-                          }
-                          onClick={() => {
-                            setHotelDestination(item);
-                            setOpenHotelPopover(null);
-                          }}
-                        >
-                          <span className="travel-hotel-destination-item__copy">
-                            <strong>{item.name}</strong>
-                            <small>{item.subtitle}</small>
-                          </span>
-                          <span className="travel-hotel-destination-item__meta">
-                            <span className="travel-hotel-destination-item__tag">{item.type}</span>
-                            <span className="travel-hotel-destination-item__count">{item.count}</span>
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
               </HotelFieldButton>
               <HotelFieldButton
                 label="Ngày nhận phòng và trả phòng"
@@ -691,111 +494,10 @@ export default function CustomerHome() {
                 label="Khách và Phòng"
                 value={hotelGuestSummary}
                 icon={Users}
-                isOpen={openHotelPopover === "guests"}
-                onClick={() =>
-                  setOpenHotelPopover((currentValue) => (currentValue === "guests" ? null : "guests"))
-                }
-                className="travel-hotel-field-wrap--guests"
               >
-                {openHotelPopover === "guests" ? (
-                  <div className="travel-hotel-panel travel-hotel-panel--guests">
-                    <div className="travel-hotel-guest-list">
-                      <div className="travel-hotel-guest-row">
-                        <div className="travel-hotel-guest-copy">
-                          <strong>Người lớn</strong>
-                        </div>
-                        <div className="travel-hotel-guest-counter">
-                          <button
-                            type="button"
-                            aria-label="Giảm số người lớn"
-                            onClick={() => handleHotelGuestChange("adults", -1)}
-                            disabled={hotelGuests.adults <= 1}
-                          >
-                            <Minus size={16} />
-                          </button>
-                          <span>{hotelGuests.adults}</span>
-                          <button
-                            type="button"
-                            aria-label="Tăng số người lớn"
-                            onClick={() => handleHotelGuestChange("adults", 1)}
-                          >
-                            <Plus size={16} />
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="travel-hotel-guest-row">
-                        <div className="travel-hotel-guest-copy">
-                          <strong>Trẻ em</strong>
-                        </div>
-                        <div className="travel-hotel-guest-counter">
-                          <button
-                            type="button"
-                            aria-label="Giảm số trẻ em"
-                            onClick={() => handleHotelGuestChange("children", -1)}
-                            disabled={hotelGuests.children <= 0}
-                          >
-                            <Minus size={16} />
-                          </button>
-                          <span>{hotelGuests.children}</span>
-                          <button
-                            type="button"
-                            aria-label="Tăng số trẻ em"
-                            onClick={() => handleHotelGuestChange("children", 1)}
-                          >
-                            <Plus size={16} />
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="travel-hotel-guest-row">
-                        <div className="travel-hotel-guest-copy">
-                          <strong>Phòng</strong>
-                        </div>
-                        <div className="travel-hotel-guest-counter">
-                          <button
-                            type="button"
-                            aria-label="Giảm số phòng"
-                            onClick={() => handleHotelGuestChange("rooms", -1)}
-                            disabled={hotelGuests.rooms <= 1}
-                          >
-                            <Minus size={16} />
-                          </button>
-                          <span>{hotelGuests.rooms}</span>
-                          <button
-                            type="button"
-                            aria-label="Tăng số phòng"
-                            onClick={() => handleHotelGuestChange("rooms", 1)}
-                          >
-                            <Plus size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="travel-hotel-panel__actions">
-                      <button
-                        type="button"
-                        className="travel-hotel-done"
-                        onClick={() => setOpenHotelPopover(null)}
-                      >
-                        Xong
-                      </button>
-                    </div>
-                  </div>
-                ) : null}
               </HotelFieldButton>
               <SearchButton ariaLabel="Tìm khách sạn" onClick={handleHotelSearch} />
             </div>
-          </div>
-
-          <div className="travel-hotel-trusted">
-            <span>Trusted by</span>
-            <ul>
-              {hotelTrustedBrands.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
           </div>
         </div>
       );
@@ -809,6 +511,7 @@ export default function CustomerHome() {
               <HotelFieldButton
                 label="Từ"
                 value={flightRoute.fromTitle}
+                placeholder="Chọn sân bay khởi hành"
                 icon={PlaneTakeoff}
                 isTypable
                 onChange={(val) => setFlightRoute(prev => ({ ...prev, fromTitle: val }))}
@@ -816,6 +519,7 @@ export default function CustomerHome() {
               <HotelFieldButton
                 label="Đến"
                 value={flightRoute.toTitle}
+                placeholder="Chọn sân bay đến"
                 icon={PlaneTakeoff}
                 isTypable
                 onChange={(val) => setFlightRoute(prev => ({ ...prev, toTitle: val }))}
@@ -826,20 +530,6 @@ export default function CustomerHome() {
                 icon={CalendarDays}
               />
               <SearchButton ariaLabel="Tìm chuyến bay" onClick={handleFlightSearch} />
-            </div>
-          </div>
-
-          <div className="travel-search__footer">
-            <div className="travel-search__footer-title">Tìm kiếm</div>
-            <div className="travel-search__footer-links">
-              <a href="#uu-dai">
-                <CircleDollarSign size={16} />
-                Khám phá ý tưởng chuyến bay
-              </a>
-              <a href="#uu-dai">
-                <CircleDollarSign size={16} />
-                Cảnh báo giá
-              </a>
             </div>
           </div>
         </div>
@@ -854,6 +544,7 @@ export default function CustomerHome() {
               <HotelFieldButton
                 label="Từ"
                 value={trainRoute.fromTitle}
+                placeholder="Nhập thành phố hoặc ga"
                 icon={Train}
                 isTypable
                 onChange={(val) => setTrainRoute(prev => ({ ...prev, fromTitle: val }))}
@@ -861,6 +552,7 @@ export default function CustomerHome() {
               <HotelFieldButton
                 label="Đến"
                 value={trainRoute.toTitle}
+                placeholder="Nhập thành phố hoặc ga"
                 icon={Train}
                 isTypable
                 onChange={(val) => setTrainRoute(prev => ({ ...prev, toTitle: val }))}
@@ -884,24 +576,13 @@ export default function CustomerHome() {
             <HotelFieldButton
               label="Tìm kiếm hoạt động"
               value={activitySearch}
+              placeholder="Bạn có ý tưởng gì cho chuyến đi tiếp theo không?"
               icon={Search}
               isTypable
               onChange={setActivitySearch}
             />
             <SearchButton ariaLabel="Tìm ý tưởng" onClick={() => {}} />
           </div>
-        </div>
-
-        <div className="travel-activity-caption">
-          Hoặc chọn một danh mục để mở khóa trải nghiệm tiếp theo của bạn
-        </div>
-
-        <div className="travel-activity-tags">
-          {activityTags.map((item) => (
-            <button key={item} type="button" className="travel-activity-tag">
-              {item}
-            </button>
-          ))}
         </div>
       </div>
     );

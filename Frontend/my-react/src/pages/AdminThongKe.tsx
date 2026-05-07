@@ -15,11 +15,9 @@ import {
   YAxis,
 } from "recharts";
 import {
-  AlertTriangle,
   BedDouble,
   CircleDollarSign,
   Loader2,
-  MessageSquareText,
   Package,
   Plane,
   Star,
@@ -138,8 +136,6 @@ export default function AdminThongKe() {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    setLoading(true);
-    setErrorMessage("");
     adminGetDashboardStats()
       .then((data) => {
         setDashboard(data);
@@ -152,7 +148,6 @@ export default function AdminThongKe() {
   }, []);
 
   const overview = dashboard?.overview ?? null;
-  const doanhThu = dashboard?.doanhThuTheoThang ?? [];
 
   const kpiCards = overview
     ? [
@@ -192,6 +187,7 @@ export default function AdminThongKe() {
     : [];
 
   const revenueTrend = useMemo(() => {
+    const doanhThu = dashboard?.doanhThuTheoThang ?? [];
     if (doanhThu.length === 0) {
       return [
         { label: "T1", revenue: 0, orders: 0 },
@@ -205,7 +201,7 @@ export default function AdminThongKe() {
         revenue: Number(item.tongDoanhThu) || 0,
         orders: Number(item.soGiaoDich) || 0,
       }));
-  }, [doanhThu]);
+  }, [dashboard?.doanhThuTheoThang]);
 
   const totalRevenueByType = useMemo(
     () => (dashboard?.dichVuTheLoai ?? []).reduce((sum, item) => sum + Number(item.doanhThu || 0), 0),
@@ -238,8 +234,6 @@ export default function AdminThongKe() {
     });
   }, [dashboard?.dichVuTheLoai]);
 
-  const operationalAlerts = dashboard?.canhBaoVanHanh ?? [];
-
   const topProducts = useMemo(() => {
     return (dashboard?.topDichVu ?? []).map((item, index) => {
       const meta = getServiceMeta(item.loaiDichVu);
@@ -259,18 +253,6 @@ export default function AdminThongKe() {
     { label: "Đơn hàng hôm nay", value: numberFormatter.format(overview?.donHomNay ?? 0), note: "Đơn mới trong ngày" },
     { label: "Đơn đang chờ xử lý", value: numberFormatter.format(overview?.donDangCho ?? 0), note: "Cần xác nhận" },
   ];
-
-  const serviceInsights = useMemo(() => {
-    return (dashboard?.dichVuTheLoai ?? []).map((item) => {
-      const meta = getServiceMeta(item.loaiDichVu);
-      return {
-        label: meta.label,
-        icon: meta.icon,
-        color: meta.color,
-        detail: `${numberFormatter.format(Number(item.soLuong || 0))} dịch vụ đang hoạt động, ${numberFormatter.format(Number(item.soLuotDat || 0))} lượt đặt, doanh thu ${formatMoney(Number(item.doanhThu || 0))}.`,
-      };
-    });
-  }, [dashboard?.dichVuTheLoai]);
 
   const revenueChangeLabel = useMemo(() => {
     const nonZeroRows = revenueTrend.filter((item) => item.revenue > 0);
@@ -497,48 +479,6 @@ export default function AdminThongKe() {
             </div>
           </div>
 
-          <div style={{ ...sectionCardStyle, display: "flex", flexDirection: "column", gap: 16 }}>
-            <div>
-              <div style={{ fontWeight: 800, fontSize: 20, color: "#16233b" }}>
-                Canh bao van hanh
-              </div>
-            </div>
-            {operationalAlerts.map((alert) => (
-              <div
-                key={alert.title}
-                style={{
-                  padding: 16,
-                  borderRadius: 18,
-                  border: "1px solid #edf1f7",
-                  background: "#fbfcfe",
-                }}
-              >
-                <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                  <div
-                    style={{
-                      width: 38,
-                      height: 38,
-                      borderRadius: 12,
-                      background: `${alert.tone}16`,
-                      display: "grid",
-                      placeItems: "center",
-                    }}
-                  >
-                    <AlertTriangle size={18} color={alert.tone} />
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 700, color: "#16233b" }}>{alert.title}</div>
-                    <div style={{ color: "#70809b", marginTop: 6, lineHeight: 1.6 }}>
-                      {alert.detail}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section style={twoColumnSectionStyle}>
           <div style={sectionCardStyle}>
             <div style={{ fontWeight: 800, fontSize: 20, color: "#16233b", marginBottom: 16 }}>
               San pham / dich vu dang keo tang truong
@@ -572,7 +512,9 @@ export default function AdminThongKe() {
               ))}
             </div>
           </div>
+        </section>
 
+        <section style={twoColumnSectionStyle}>
           <div style={sectionCardStyle}>
             <div style={{ fontWeight: 800, fontSize: 20, color: "#16233b", marginBottom: 16 }}>
               Chi so hanh vi nguoi dung
@@ -603,36 +545,6 @@ export default function AdminThongKe() {
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
-        </section>
-
-        <section
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: 16,
-          }}
-        >
-          {serviceInsights.map((item) => (
-            <div key={item.label} style={sectionCardStyle}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                {item.icon}
-                <div style={{ fontWeight: 800, color: "#16233b" }}>{item.label}</div>
-              </div>
-              <div style={{ color: "#70809b", lineHeight: 1.65 }}>
-                {item.detail}
-              </div>
-            </div>
-          ))}
-
-          <div style={sectionCardStyle}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <MessageSquareText size={18} color="#f59e0b" />
-              <div style={{ fontWeight: 800, color: "#16233b" }}>Danh gia</div>
-            </div>
-            <div style={{ color: "#70809b", lineHeight: 1.65 }}>
-              Dữ liệu cảnh báo đánh giá được lấy từ API thống kê theo các review 2 sao trở xuống trong 30 ngày gần nhất.
             </div>
           </div>
         </section>

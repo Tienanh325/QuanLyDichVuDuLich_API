@@ -27,40 +27,6 @@ const TITLE_MAP: Record<string, string> = {
   '/KhachHang': 'khách hàng',
 };
 
-const INITIAL_NOTIFICATIONS = [
-  {
-    id: 1,
-    avatar: 'https://i.pravatar.cc/150?img=11',
-    title: 'Hệ thống',
-    content: 'Dịch vụ máy chủ đang được bảo trì',
-    time: '13 giờ trước',
-    isRead: false,
-  },
-  {
-    id: 2,
-    avatar: 'https://i.pravatar.cc/150?img=12',
-    title: 'Cảnh báo',
-    content: 'Có 5 đơn hàng đang chờ xử lý quá hạn',
-    time: '16 giờ trước',
-    isRead: false,
-  },
-  {
-    id: 3,
-    avatar: 'https://i.pravatar.cc/150?img=13',
-    title: 'Khách hàng',
-    content: 'Nguyễn Văn A vừa đánh giá 1 sao',
-    time: '18 giờ trước',
-    isRead: false,
-  },
-  {
-    id: 4,
-    avatar: 'https://i.pravatar.cc/150?img=14',
-    title: 'Hệ thống',
-    content: 'Đã hoàn tất sao lưu dữ liệu ngày hôm nay',
-    time: '22 giờ trước',
-    isRead: true,
-  }
-];
 
 export default function HeaderBar() {
   const { pathname } = useLocation();
@@ -243,7 +209,18 @@ export default function HeaderBar() {
         <div style={{ fontWeight: 700, fontSize: 18, whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{title}</div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-          <Popover content={popoverContent} trigger="click" placement="bottomRight" arrow={false} styles={{ body: { padding: 0, borderRadius: 12, overflow: 'hidden' } }}>
+         <Popover
+            content={popoverContent}
+            trigger="click"
+            placement="bottomRight"
+            arrow={false}
+            styles={{
+              root: {
+                borderRadius: 12,
+                overflow: 'hidden'
+              }
+            }}
+          >
             <Tooltip title="Thông báo hệ thống">
               <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 8, borderRadius: '50%', transition: 'background 0.2s' }} 
                    onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}

@@ -644,58 +644,6 @@
   font-weight: 900;
   cursor: pointer;
 }
-
-.travel-hotel-trusted {
-  width: fit-content;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin: 16px auto 0;
-  padding: 12px 18px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 14px 28px rgba(14, 27, 46, 0.14);
-}
-
-.travel-hotel-trusted>span {
-  color: #17324d;
-  font-size: 14px;
-  font-style: italic;
-  font-weight: 700;
-}
-
-.travel-hotel-trusted ul {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.travel-hotel-trusted li {
-  color: #bcc5d0;
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-}
-
-.travel-hotel-trusted li:nth-child(1) {
-  color: #ff3d6e;
-}
-
-.travel-hotel-trusted li:nth-child(2) {
-  color: #d5c5ab;
-}
-
-.travel-hotel-trusted li:nth-child(3) {
-  color: #a7b3c5;
-}
-
-.travel-hotel-trusted li:nth-child(4) {
-  color: #9bb0c7;
-}
-
 .travel-search__footer {
   display: flex;
   align-items: center;
@@ -704,33 +652,6 @@
   padding: 0 12px;
   flex-wrap: wrap;
 }
-
-.travel-search__footer-title {
-  font-size: 16px;
-  font-weight: 900;
-  color: #fff;
-}
-
-.travel-search__footer-links {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.travel-search__footer-links a {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 38px;
-  padding: 0 14px;
-  border-radius: 10px;
-  text-decoration: none;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 800;
-  background: rgba(129, 139, 156, 0.34);
-}
-
 .travel-activity-search {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 68px 252px;
@@ -786,35 +707,6 @@
   font-weight: 800;
   cursor: pointer;
 }
-
-.travel-activity-caption {
-  margin: 16px 0 12px;
-  text-align: center;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 800;
-}
-
-.travel-activity-tags {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  padding: 0 12px;
-}
-
-.travel-activity-tag {
-  min-height: 40px;
-  padding: 0 16px;
-  border: 0;
-  border-radius: 10px;
-  background: rgba(122, 135, 154, 0.56);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
 .home-customer__section {
   padding: 16px 0 0;
 }
@@ -1516,16 +1408,6 @@
     grid-template-columns: 1fr;
   }
 
-  .travel-hotel-trusted {
-    width: 100%;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .travel-hotel-trusted ul {
-    flex-wrap: wrap;
-  }
-
   .travel-field-switch {
     display: none;
   }
@@ -1556,21 +1438,6 @@
     border-radius: 28px;
     padding-bottom: 16px;
   }
-
-  .travel-search__services,
-  .travel-subtabs,
-  .travel-search__footer-links {
-    width: 100%;
-  }
-
-  .travel-service,
-  .travel-chip,
-  .travel-search__footer-links a {
-    width: 100%;
-    justify-content: center;
-    text-align: center;
-  }
-
   .travel-search__services,
   .travel-subtabs {
     display: grid;

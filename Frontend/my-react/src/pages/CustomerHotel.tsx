@@ -3,17 +3,18 @@ import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   CalendarDays,
+  CheckCircle,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  CreditCard,
+  Clock,
   Crosshair,
+  Heart,
   MapPinned,
   Minus,
   Plus,
   Search,
-  ShieldCheck,
-  Sparkles,
+  Star,
   Users,
 } from "lucide-react";
 import baibienImage from "../assets/images/baibien.jpg";
@@ -39,101 +40,127 @@ type HotelFormState = {
   guests: { adults: number; children: number; rooms: number };
 };
 
-const heroHighlights = [
+const exclusiveOffers = [
   {
-    title: "Hủy miễn phí linh hoạt",
-    body: "Nhiều lựa chọn phòng cho phép thay đổi kế hoạch dễ hơn.",
-    icon: ShieldCheck,
+    id: 1,
+    name: "Melia Bali - Nusa Dua",
+    location: "Nusa Dua, Bali, Indonesia",
+    rating: 4.8,
+    reviews: 1245,
+    oldPrice: 2500000,
+    newPrice: 1850000,
+    discount: 26,
+    image: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
   },
   {
-    title: "Thanh toán an toàn",
-    body: "Thẻ quốc tế, ví điện tử và chuyển khoản đều sẵn sàng.",
-    icon: CreditCard,
+    id: 2,
+    name: "Pan Pacific Hanoi",
+    location: "Ba Đình, Hà Nội, Việt Nam",
+    rating: 4.7,
+    reviews: 892,
+    oldPrice: 1800000,
+    newPrice: 1280000,
+    discount: 29,
+    image: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
   },
   {
+    id: 3,
+    name: "Furama Resort Danang",
+    location: "Bãi Bắc, Đà Nẵng, Việt Nam",
+    rating: 4.9,
+    reviews: 2103,
+    oldPrice: 2100000,
+    newPrice: 1450000,
+    discount: 31,
+    image: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+  },
+] as const;
+
+const accommodationTypes = [
+  {
+    id: 1,
+    title: "Khu nghỉ dưỡng",
+    subtitle: "Resort & Spa Luxury",
+    image: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+  },
+  {
+    id: 2,
+    title: "Biệt thự",
+    subtitle: "Private Villa Escape",
+    image: "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
+  },
+  {
+    id: 3,
+    title: "Căn hộ",
+    subtitle: "Modern Apartment",
+    image: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+  },
+  {
+    id: 4,
+    title: "Boutique Hotel",
+    subtitle: "Unique Stay Experience",
+    image: "linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%)",
+  },
+] as const;
+
+const massonryDestinations = [
+  {
+    id: 1,
+    name: "Đà Nẵng",
+    subtitle: "Thành phố biển xinh đẹp",
+    hotels: "2.320 khách sạn",
+    image: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    size: "large",
+  },
+  {
+    id: 2,
+    name: "Hạ Long",
+    subtitle: "Di sản thế giới",
+    hotels: "1.540 khách sạn",
+    image: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+    size: "small",
+  },
+  {
+    id: 3,
+    name: "Hội An",
+    subtitle: "Phố cổ yên bình",
+    hotels: "980 khách sạn",
+    image: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+    size: "small",
+  },
+  {
+    id: 4,
+    name: "TP HCM",
+    subtitle: "Thành phố sôi động",
+    hotels: "2.876 khách sạn",
+    image: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+    size: "small",
+  },
+    {
+    id: 5,
+    name: "TP HCM",
+    subtitle: "Thành phố sôi động",
+    hotels: "2.876 khách sạn",
+    image: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+    size: "small",
+  },
+] as const;
+
+const whyBookWithTraveloka = [
+  {
+    icon: CheckCircle,
+    title: "Giá tốt nhất thị trường",
+    description: "So sánh giá tức thì, đảm bảo bạn luôn nhận mức giá tốt nhất.",
+  },
+  {
+    icon: Heart,
+    title: "Hủy phòng linh hoạt",
+    description: "Hủy miễn phí đến 24 giờ trước nhận phòng cho hầu hết các lựa chọn.",
+  },
+  {
+    icon: Clock,
     title: "Hỗ trợ 24/7",
-    body: "Đội ngũ hỗ trợ nhanh cho các vấn đề trước và trong chuyến đi.",
-    icon: Sparkles,
-  },
-] as const;
-
-const destinationCards = [
-  { title: "Khách sạn ở Bali", meta: "3.120 chỗ ở", accent: "tropical" },
-  { title: "Khách sạn ở Bangkok", meta: "5.410 chỗ ở", accent: "night" },
-  { title: "Khách sạn ở Singapore", meta: "980 chỗ ở", accent: "city" },
-  { title: "Khách sạn ở TP HCM", meta: "2.876 chỗ ở", accent: "urban" },
-  { title: "Khách sạn ở Sydney", meta: "1.650 chỗ ở", accent: "harbor" },
-  { title: "Khách sạn ở Melbourne", meta: "1.240 chỗ ở", accent: "sunrise" },
-  { title: "Khách sạn ở Vũng Tàu", meta: "1.080 chỗ ở", accent: "ocean" },
-  { title: "Khách sạn ở Đà Lạt", meta: "1.830 chỗ ở", accent: "forest" },
-  { title: "Khách sạn ở Hà Nội", meta: "2.040 chỗ ở", accent: "oldtown" },
-  { title: "Khách sạn ở Đà Nẵng", meta: "2.320 chỗ ở", accent: "coast" },
-  { title: "Khách sạn ở Nha Trang", meta: "1.760 chỗ ở", accent: "beach" },
-  { title: "Khách sạn ở Phan Thiết", meta: "960 chỗ ở", accent: "sand" },
-] as const;
-
-const partnerLogos = [
-  "Accor",
-  "Ascott",
-  "Best Western",
-  "Furama",
-  "Marriott",
-  "Meliá",
-  "Pan Pacific",
-  "Vinpearl",
-];
-
-const paymentLogos = [
-  "MoMo",
-  "Visa",
-  "Mastercard",
-  "VietQR",
-  "JCB",
-  "ZaloPay",
-  "VNPAY",
-  "BIDV",
-  "Vietcombank",
-  "OnePay",
-];
-
-const infoCards = [
-  {
-    title: "Đặt phòng khách sạn tại Việt Nam trên Traveloka",
-    body:
-      "Traveloka có hàng nghìn khách sạn, resort, villa và căn hộ tại các điểm đến nổi bật ở Việt Nam. Bạn có thể lọc theo ngân sách, khu vực, tiện nghi hoặc đánh giá để tìm đúng chỗ ở cho chuyến đi gia đình, công tác hay nghỉ dưỡng cuối tuần.",
-  },
-  {
-    title: "Thông tin về chỗ ở trên Traveloka",
-    body:
-      "Từ khách sạn gần sân bay đến khu nghỉ dưỡng ven biển, Traveloka tổng hợp đa dạng loại hình lưu trú với mức giá cập nhật liên tục. Nhiều lựa chọn còn có chính sách hủy linh hoạt, thanh toán tiện lợi và xác nhận nhanh.",
-  },
-] as const;
-
-const faqItems = [
-  {
-    question: "Cách đặt khách sạn trên Traveloka?",
-    answer:
-      "Chọn điểm đến, ngày nhận và trả phòng, số khách rồi bấm Tìm kiếm. Sau đó bạn có thể lọc theo giá, khu vực và tiện nghi trước khi đặt phòng.",
-  },
-  {
-    question: "Làm thế nào để nhận ưu đãi cho khách sạn trên Traveloka?",
-    answer:
-      "Bạn có thể theo dõi mục ưu đãi, nhập mã giảm giá đủ điều kiện và đặt phòng trong thời gian diễn ra chương trình để nhận mức giá tốt hơn.",
-  },
-  {
-    question: "Traveloka có hỗ trợ thanh toán linh hoạt không?",
-    answer:
-      "Có. Bạn có thể thanh toán bằng thẻ quốc tế, thẻ nội địa, ví điện tử hoặc chuyển khoản qua nhiều đối tác thanh toán phổ biến.",
-  },
-  {
-    question: "Tôi có thể xem đánh giá thực tế từ khách trước không?",
-    answer:
-      "Có. Mỗi chỗ ở đều hiển thị điểm đánh giá và nhận xét từ khách đã lưu trú để bạn dễ so sánh trước khi đặt.",
-  },
-  {
-    question: "Có thể hủy hoặc đổi ngày lưu trú không?",
-    answer:
-      "Tùy chính sách của từng khách sạn. Bạn nên kiểm tra phần điều kiện đặt phòng để biết chi tiết về hủy miễn phí hoặc đổi ngày.",
+    description: "Đội ngũ khách hàng chuyên nghiệp luôn sẵn sàng hỗ trợ bạn mọi lúc.",
   },
 ] as const;
 
@@ -238,14 +265,17 @@ function findHotelDestination(destination: string, subtitle: string) {
 
 type HotelFieldButtonProps = {
   label: string;
-  value: string;
+  value?: string;
+  placeholder?: string;
   icon: IconType;
   isOpen?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
   className?: string;
   helperText?: string;
   hasChevron?: boolean;
   children?: ReactNode;
+  isTypable?: boolean;
+  onChange?: (val: string) => void;
 };
 
 function addDays(date: Date, amount: number) {
@@ -296,7 +326,8 @@ function getCalendarDays(year: number, monthIndex: number) {
 
 function HotelFieldButton({
   label,
-  value,
+  value = "",
+  placeholder = "",
   icon: Icon,
   isOpen = false,
   onClick,
@@ -304,6 +335,8 @@ function HotelFieldButton({
   helperText,
   hasChevron = false,
   children,
+  isTypable = false,
+  onChange,
 }: HotelFieldButtonProps) {
   const wrapperClassName = ["travel-hotel-field-wrap", className, isOpen ? "is-open" : ""]
     .filter(Boolean)
@@ -313,17 +346,37 @@ function HotelFieldButton({
   return (
     <div className={wrapperClassName}>
       <div className="travel-hotel-field__label">{label}</div>
-      <button type="button" className={fieldClassName} onClick={onClick}>
+      <div className={fieldClassName} onClick={onClick}>
         <span className="travel-hotel-field__icon">
           <Icon size={22} />
         </span>
-        <span className="travel-hotel-field__value">{value}</span>
+        {isTypable ? (
+          <input
+            type="text"
+            className="travel-hotel-field__input"
+            value={value}
+            placeholder={placeholder}
+            onChange={(e) => onChange?.(e.target.value)}
+            style={{ 
+              border: "none", 
+              background: "transparent", 
+              outline: "none", 
+              width: "100%", 
+              fontSize: 15, 
+              fontWeight: 600, 
+              color: "#242628", 
+              padding: 0 
+            }}
+          />
+        ) : (
+          <span className="travel-hotel-field__value">{value || placeholder}</span>
+        )}
         {hasChevron ? (
           <span className="travel-hotel-field__chevron">
             <ChevronDown size={18} />
           </span>
         ) : null}
-      </button>
+      </div>
       {helperText ? <div className="travel-hotel-field__helper">{helperText}</div> : null}
       {children}
     </div>
@@ -340,6 +393,12 @@ export default function CustomerHotel() {
   const hotelSearchRef = useRef<HTMLDivElement | null>(null);
   const [openHotelPopover, setOpenHotelPopover] = useState<HotelPopover>(null);
   const [hotelDateFocus, setHotelDateFocus] = useState<"checkIn" | "checkOut">("checkIn");
+  const [hotelDestination, setHotelDestination] = useState({
+    name: parsedSearch.destination,
+    subtitle: parsedSearch.destinationSubtitle,
+    type: "Thành phố",
+    count: "Nhiều khách sạn",
+  });
   const [hotelForm, setHotelForm] = useState<HotelFormState>(() => ({
     destination: findHotelDestination(parsedSearch.destination, parsedSearch.destinationSubtitle),
     stay: {
@@ -352,11 +411,16 @@ export default function CustomerHotel() {
       rooms: parsedSearch.rooms,
     },
   }));
-  const [activeFaqIndex, setActiveFaqIndex] = useState(0);
-
   // Synchronize form state with parsed search params from URL
   // This is a valid pattern for deriving component state from route parameters
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setHotelDestination({
+      name: parsedSearch.destination,
+      subtitle: parsedSearch.destinationSubtitle,
+      type: "Thành phố",
+      count: "Nhiều khách sạn",
+    });
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setHotelForm({
       destination: findHotelDestination(parsedSearch.destination, parsedSearch.destinationSubtitle),
@@ -465,47 +529,14 @@ export default function CustomerHotel() {
   const activeSearchState: HotelSearchState = {
     ...parsedSearch,
     view: isResultsView ? "results" : "landing",
-    destination: hotelForm.destination.name,
-    destinationSubtitle: hotelForm.destination.subtitle,
+    destination: hotelDestination.name,
+    destinationSubtitle: hotelDestination.subtitle,
     checkInDate: toHotelQueryDate(hotelForm.stay.checkIn),
     checkOutDate: toHotelQueryDate(hotelForm.stay.checkOut),
     adults: hotelForm.guests.adults,
     children: hotelForm.guests.children,
     rooms: hotelForm.guests.rooms,
   };
-
-  const destinationThemes = useMemo(
-    () => ({
-      tropical:
-        "linear-gradient(180deg, rgba(8, 25, 44, 0.18) 0%, rgba(8, 25, 44, 0.74) 100%), linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%)",
-      night:
-        "linear-gradient(180deg, rgba(5, 18, 36, 0.14) 0%, rgba(5, 18, 36, 0.82) 100%), linear-gradient(135deg, #4338ca 0%, #f59e0b 100%)",
-      city:
-        "linear-gradient(180deg, rgba(6, 22, 43, 0.2) 0%, rgba(6, 22, 43, 0.8) 100%), linear-gradient(135deg, #1d4ed8 0%, #38bdf8 100%)",
-      urban:
-        "linear-gradient(180deg, rgba(12, 21, 39, 0.16) 0%, rgba(12, 21, 39, 0.78) 100%), linear-gradient(135deg, #111827 0%, #0ea5e9 100%)",
-      harbor:
-        "linear-gradient(180deg, rgba(9, 24, 43, 0.18) 0%, rgba(9, 24, 43, 0.78) 100%), linear-gradient(135deg, #0284c7 0%, #22d3ee 100%)",
-      sunrise:
-        "linear-gradient(180deg, rgba(41, 16, 20, 0.1) 0%, rgba(41, 16, 20, 0.74) 100%), linear-gradient(135deg, #f97316 0%, #fb7185 100%)",
-      ocean:
-        "linear-gradient(180deg, rgba(5, 21, 42, 0.16) 0%, rgba(5, 21, 42, 0.82) 100%), linear-gradient(135deg, #0284c7 0%, #2dd4bf 100%)",
-      forest:
-        "linear-gradient(180deg, rgba(8, 28, 26, 0.16) 0%, rgba(8, 28, 26, 0.82) 100%), linear-gradient(135deg, #16a34a 0%, #84cc16 100%)",
-      oldtown:
-        "linear-gradient(180deg, rgba(39, 19, 10, 0.14) 0%, rgba(39, 19, 10, 0.82) 100%), linear-gradient(135deg, #92400e 0%, #f59e0b 100%)",
-      coast:
-        "linear-gradient(180deg, rgba(6, 25, 43, 0.14) 0%, rgba(6, 25, 43, 0.78) 100%), linear-gradient(135deg, #2563eb 0%, #22c55e 100%)",
-      beach:
-        "linear-gradient(180deg, rgba(8, 24, 45, 0.16) 0%, rgba(8, 24, 45, 0.82) 100%), linear-gradient(135deg, #0ea5e9 0%, #facc15 100%)",
-      sand:
-        "linear-gradient(180deg, rgba(46, 27, 13, 0.14) 0%, rgba(46, 27, 13, 0.8) 100%), linear-gradient(135deg, #d97706 0%, #fde68a 100%)",
-      villa:
-        "linear-gradient(180deg, rgba(18, 27, 42, 0.18) 0%, rgba(18, 27, 42, 0.78) 100%), linear-gradient(135deg, #b45309 0%, #10b981 100%)",
-    }),
-    [],
-  );
-
   function handleHotelSearch() {
     navigate(
       `/mua-sam/khach-san?${buildHotelSearchQuery({
@@ -554,56 +585,17 @@ export default function CustomerHotel() {
                 <div className="travel-form__layout travel-form__layout--hotel">
                   <HotelFieldButton
                     label="Thành phố, địa điểm hoặc tên khách sạn:"
-                    value={hotelForm.destination.name}
+                    value={hotelDestination.name}
+                    placeholder="Nhập địa điểm"
                     icon={MapPinned}
-                    isOpen={openHotelPopover === "destination"}
-                    onClick={() =>
-                      setOpenHotelPopover((currentValue) =>
-                        currentValue === "destination" ? null : "destination",
-                      )
+                    isTypable
+                    onChange={(val) =>
+                      setHotelDestination((prev) => ({
+                        ...prev,
+                        name: val,
+                      }))
                     }
-                    className="travel-hotel-field-wrap--destination"
                   >
-                    {openHotelPopover === "destination" ? (
-                      <div className="travel-hotel-panel travel-hotel-panel--destination">
-                        <button type="button" className="travel-hotel-nearby">
-                          <Crosshair size={18} />
-                          Sử dụng vị trí hiện tại của bạn
-                        </button>
-
-                        <div className="travel-hotel-panel__title">Điểm đến phổ biến</div>
-
-                        <div className="travel-hotel-destination-list">
-                          {popularHotelDestinations.map((item) => (
-                            <button
-                              key={item.name}
-                              type="button"
-                              className={
-                                hotelForm.destination.name === item.name
-                                  ? "travel-hotel-destination-item is-selected"
-                                  : "travel-hotel-destination-item"
-                              }
-                              onClick={() => {
-                                setHotelForm((currentValue) => ({
-                                  ...currentValue,
-                                  destination: item,
-                                }));
-                                setOpenHotelPopover(null);
-                              }}
-                            >
-                              <span className="travel-hotel-destination-item__copy">
-                                <strong>{item.name}</strong>
-                                <small>{item.subtitle}</small>
-                              </span>
-                              <span className="travel-hotel-destination-item__meta">
-                                <span className="travel-hotel-destination-item__tag">{item.type}</span>
-                                <span className="travel-hotel-destination-item__count">{item.count}</span>
-                              </span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
                   </HotelFieldButton>
 
                   <HotelFieldButton
@@ -614,8 +606,6 @@ export default function CustomerHotel() {
                     onClick={() =>
                       setOpenHotelPopover((currentValue) => (currentValue === "stay" ? null : "stay"))
                     }
-                    className="travel-hotel-field-wrap--stay"
-                    helperText="Thời gian: 1 Đêm"
                   >
                     {openHotelPopover === "stay" ? (
                       <div className="travel-hotel-panel travel-hotel-panel--stay">
@@ -802,57 +792,67 @@ export default function CustomerHotel() {
                   </button>
                 </div>
               </div>
-
-              <div className="travel-search__footer" style={{ padding: "16px 4px 0", marginTop: "12px", borderTop: "none" }}>
-                <a href="#history" className="travel-search__history-link">
-                  <strong>Khách sạn xem gần đây</strong>
-                  <div className="travel-search__history-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" /></svg>
-                  </div>
-                </a>
-              </div>
             </div>
           </section>
-
-          <div className="hotel-customer__hero-highlights">
-            {heroHighlights.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <article key={item.title} className="hotel-customer__highlight-card">
-                  <span className="hotel-customer__highlight-icon">
-                    <Icon size={18} />
-                  </span>
-                  <div>
-                    <strong>{item.title}</strong>
-                    <p>{item.body}</p>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
         </div>
       </section>
 
-      <section className="hotel-customer__section" id="pho-bien">
+      <section className="hotel-customer__section hotel-customer__section--exclusive">
         <div className="customer-shell__container">
           <div className="hotel-customer__section-head">
             <div>
-              <span>Khách sạn phổ biến</span>
-              <h2>Ưu đãi khách sạn tốt nhất tại các điểm đến phổ biến</h2>
+              <span>Đặc quyền</span>
+              <h2>Ưu đãi khách sạn độc quyền</h2>
             </div>
+            <a href="#pho-bien" className="hotel-customer__see-all">
+              Xem tất cả
+              <ChevronRight size={18} />
+            </a>
           </div>
 
-          <div className="hotel-customer__destination-grid">
-            {destinationCards.map((item) => (
-              <article
-                key={item.title}
-                className="hotel-customer__destination-card"
-                style={{ backgroundImage: destinationThemes[item.accent] }}
-              >
-                <div className="hotel-customer__destination-overlay">
-                  <strong>{item.title}</strong>
-                  <span>{item.meta}</span>
+          <div className="hotel-customer__exclusive-grid">
+            {exclusiveOffers.map((offer) => (
+              <article key={offer.id} className="hotel-customer__exclusive-card">
+                <div
+                  className="hotel-customer__exclusive-image"
+                  style={{ backgroundImage: offer.image }}
+                >
+                  <span className="hotel-customer__discount-badge">{offer.discount}%</span>
+                  <button
+                    type="button"
+                    className="hotel-customer__favorite-btn"
+                    aria-label="Thêm vào yêu thích"
+                  >
+                    <Heart size={20} />
+                  </button>
+                </div>
+                <div className="hotel-customer__exclusive-info">
+                  <h3>{offer.name}</h3>
+                  <p className="hotel-customer__location">{offer.location}</p>
+                  <div className="hotel-customer__rating">
+                    <div className="hotel-customer__stars">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          size={14}
+                          className={i < Math.floor(offer.rating) ? "is-filled" : ""}
+                          fill={i < Math.floor(offer.rating) ? "#fbbf24" : "none"}
+                          color={i < Math.floor(offer.rating) ? "#fbbf24" : "#d1d5db"}
+                        />
+                      ))}
+                    </div>
+                    <span className="hotel-customer__reviews">
+                      {offer.rating} ({offer.reviews} đánh giá)
+                    </span>
+                  </div>
+                  <div className="hotel-customer__price">
+                    <span className="hotel-customer__old-price">
+                      {new Intl.NumberFormat("vi-VN").format(offer.oldPrice)}đ
+                    </span>
+                    <span className="hotel-customer__new-price">
+                      {new Intl.NumberFormat("vi-VN").format(offer.newPrice)}đ
+                    </span>
+                  </div>
                 </div>
               </article>
             ))}
@@ -860,89 +860,101 @@ export default function CustomerHotel() {
         </div>
       </section>
 
-      <section className="hotel-customer__section hotel-customer__section--plain">
+      <section className="hotel-customer__section hotel-customer__section--accommodation">
         <div className="customer-shell__container">
-          <div className="hotel-customer__section-head hotel-customer__section-head--stacked">
+          <div className="hotel-customer__section-head">
             <div>
-              <span>Được tin cậy</span>
-              <h2>Đối tác khách sạn</h2>
-              <p>
-                Các chuỗi lưu trú nổi bật trong nước và quốc tế đã có mặt để bạn dễ dàng so sánh,
-                đặt phòng và thanh toán trên cùng một nền tảng.
-              </p>
+              <span>Khám phá</span>
+              <h2>Các loại hình lưu trú đa dạng</h2>
             </div>
           </div>
 
-          <div className="hotel-customer__logo-grid">
-            {partnerLogos.map((item) => (
-              <div key={item} className="hotel-customer__logo-card">
-                {item}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="hotel-customer__section hotel-customer__section--plain">
-        <div className="customer-shell__container">
-          <div className="hotel-customer__section-head hotel-customer__section-head--stacked">
-            <div>
-              <span>Thanh toán</span>
-              <h2>Đặt lẻ thanh toán</h2>
-              <p>Nhiều phương thức thanh toán quen thuộc giúp quá trình đặt phòng diễn ra nhanh và an toàn hơn.</p>
-            </div>
-          </div>
-
-          <div className="hotel-customer__payment-grid">
-            {paymentLogos.map((item) => (
-              <div key={item} className="hotel-customer__payment-card">
-                {item}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="hotel-customer__section hotel-customer__section--plain">
-        <div className="customer-shell__container">
-          <div className="hotel-customer__info-grid">
-            {infoCards.map((item) => (
-              <article key={item.title} className="hotel-customer__info-card">
-                <h3>{item.title}</h3>
-                <p>{item.body}</p>
+          <div className="hotel-customer__accommodation-grid">
+            {accommodationTypes.map((type) => (
+              <article
+                key={type.id}
+                className="hotel-customer__accommodation-card"
+                style={{ backgroundImage: type.image }}
+              >
+                <div className="hotel-customer__accommodation-overlay">
+                  <h3>{type.title}</h3>
+                  <p>{type.subtitle}</p>
+                </div>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="hotel-customer__section hotel-customer__section--plain" id="faq">
+      <section className="hotel-customer__section hotel-customer__section--masonry">
         <div className="customer-shell__container">
-          <div className="hotel-customer__section-head hotel-customer__section-head--stacked">
+          <div className="hotel-customer__section-head">
             <div>
-              <span>Hỗ trợ</span>
-              <h2>Câu hỏi thường gặp</h2>
+              <span>Kỳ nghỉ tiếp theo</span>
+              <h2>Điểm đến phổ biến cho kỳ nghỉ tiếp theo</h2>
             </div>
           </div>
 
-          <div className="hotel-customer__faq">
-            {faqItems.map((item, index) => {
-              const isOpen = index === activeFaqIndex;
+          <div className="hotel-customer__masonry-grid">
+            {massonryDestinations.map((destination) => (
+              <article
+                key={destination.id}
+                className={`hotel-customer__masonry-card ${
+                  destination.size === "large" ? "is-large" : "is-small"
+                }`}
+                style={{ backgroundImage: destination.image }}
+              >
+                <div className="hotel-customer__masonry-overlay">
+                  <h3>{destination.name}</h3>
+                  <p>{destination.subtitle}</p>
+                  <span className="hotel-customer__hotels-count">{destination.hotels}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
 
-              return (
-                <article key={item.question} className={isOpen ? "hotel-customer__faq-item is-open" : "hotel-customer__faq-item"}>
-                  <button
-                    type="button"
-                    className="hotel-customer__faq-question"
-                    onClick={() => setActiveFaqIndex((currentValue) => (currentValue === index ? -1 : index))}
-                  >
-                    <span>{item.question}</span>
-                    <ChevronDown size={18} />
-                  </button>
-                  {isOpen ? <p className="hotel-customer__faq-answer">{item.answer}</p> : null}
-                </article>
-              );
-            })}
+      <section className="hotel-customer__section hotel-customer__section--why-us">
+        <div className="customer-shell__container">
+          <div className="hotel-customer__why-us-wrapper">
+            <div className="hotel-customer__why-us-content">
+              <div className="hotel-customer__why-us-header">
+                <span>Tại sao nên chọn</span>
+                <h2>Tại sao nên đặt phòng với Traveloka</h2>
+                <p>
+                  Chúng tôi mang đến trải nghiệm đặt phòng tuyệt vời với dịch vụ hỗ trợ tốt
+                  nhất, giá cả cạnh tranh và chính sách linh hoạt.
+                </p>
+              </div>
+
+              <div className="hotel-customer__why-us-benefits">
+                {whyBookWithTraveloka.map((benefit) => {
+                  const Icon = benefit.icon;
+                  return (
+                    <div key={benefit.title} className="hotel-customer__benefit-item">
+                      <div className="hotel-customer__benefit-icon">
+                        <Icon size={24} />
+                      </div>
+                      <div>
+                        <h4>{benefit.title}</h4>
+                        <p>{benefit.description}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="hotel-customer__why-us-image">
+              <div
+                className="hotel-customer__receptionist-image"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(135deg, rgba(100, 200, 200, 0.3) 0%, rgba(150, 100, 200, 0.3) 100%)",
+                }}
+              />
+            </div>
           </div>
         </div>
       </section>
