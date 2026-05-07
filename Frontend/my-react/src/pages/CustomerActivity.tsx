@@ -1,7 +1,6 @@
 import { 
   MapPin, 
   Search, 
-  ChevronDown, 
   Heart, 
   Flame, 
   Users, 
@@ -90,31 +89,31 @@ export default function CustomerActivity() {
               </p>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* SEARCH PANEL FLOATING */}
-      <section className="ca-search">
-        <div className="customer-shell__container">
-          <div className="ca-search__panel">
-            <div className="ca-search__field">
-              <MapPin className="ca-search__field-icon" />
-              <div className="ca-search__field-body">
-                <label className="ca-search__label">Chọn địa điểm du lịch :</label>
-                <input 
-                  type="text" 
-                  placeholder="Tìm kiếm địa điểm hoặc hoạt động" 
-                  className="ca-search__input"
-                />
+          {/* SEARCH PANEL FLOATING */}
+          <section className="ca-search">
+            <div className="ca-search__container">
+              <div className="ca-search__fields">
+                {/* Địa điểm */}
+                <div className="ca-search__field-wrapper">
+                  <label className="ca-search__field-label">CHỌN ĐỊA ĐIỂM DU LỊCH :</label>
+                  <div className="ca-search__field">
+                    <MapPin className="ca-search__field-icon" />
+                    <input 
+                      type="text" 
+                      placeholder="Tìm kiếm địa điểm hoặc hoạt động" 
+                      className="ca-search__field-input"
+                    />
+                  </div>
+                </div>
+
+                {/* Nút tìm kiếm */}
+                <button className="ca-search__submit-btn">
+                  <Search size={24} strokeWidth={2.5} />
+                </button>
               </div>
-              <ChevronDown className="ca-search__chevron" />
             </div>
-            
-            <button className="ca-search__btn">
-              <Search />
-              <span>Tìm kiếm</span>
-            </button>
-          </div>
+          </section>
         </div>
       </section>
 

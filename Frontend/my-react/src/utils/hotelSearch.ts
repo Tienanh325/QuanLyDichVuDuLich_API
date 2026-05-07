@@ -36,8 +36,8 @@ export type HotelCheckoutState = HotelSelectionState & {
 
 export const defaultHotelSearchState: HotelSearchState = {
   view: "landing",
-  destination: "Đà Lạt",
-  destinationSubtitle: "Lâm Đồng, Việt Nam",
+  destination: "",
+  destinationSubtitle: "",
   checkInDate: "2026-04-14",
   checkOutDate: "2026-04-15",
   adults: 2,

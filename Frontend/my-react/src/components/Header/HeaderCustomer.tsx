@@ -54,9 +54,16 @@ export default function HeaderCustomer() {
   const location = useLocation();
   const session = getCurrentSession();
   const isCustomerSession = session?.role === "customer";
-  const isHotelPage = location.pathname === "/mua-sam/khach-san";
+  const isHotelPage =
+  location.pathname === "/mua-sam/khach-san" ||
+  location.pathname === "/mua-sam/hoat-dong-vui-choi" ||
+  location.pathname === "/mua-sam/ve-may-bay" ||
+  location.pathname === "/mua-sam/ve-tau";
   const isHotelDetailPage = 
-    location.pathname.startsWith("/mua-sam/khach-san/") || 
+    location.pathname.startsWith("/mua-sam/khach-san/") ||
+    location.pathname.startsWith("/mua-sam/hoat-dong-vui-choi/") ||
+    location.pathname.startsWith("/mua-sam/ve-may-bay/") ||
+    location.pathname.startsWith("/mua-sam/ve-tau/") ||
     location.pathname === "/mua-sam/thanh-toan-khach-san" || 
     location.pathname === "/mua-sam/thanh-toan-dat-cho" ||
     location.pathname === "/mua-sam/thanh-toan-thanh-cong" ||

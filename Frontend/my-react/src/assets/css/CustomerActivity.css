@@ -39,18 +39,6 @@
   align-items: flex-end;
   padding: 40px 40px 90px 40px;
   overflow: hidden;
-  transition: transform 0.7s ease;
-}
-
-.customer-shell__container:hover .ca-hero__inner {
-  transform: scale(1.05);
-}
-
-.ca-hero__bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
 }
 
 .ca-hero__copy {
@@ -76,143 +64,205 @@
 }
 
 /* ============================================================
-   SEARCH PANEL (floating)
+   SEARCH PANEL (floating) - Traveloka Premium Style
    ============================================================ */
 .ca-search {
   position: relative;
-  margin: -65px 24px 0 24px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   z-index: 10;
-  padding: 20px 24px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.12),
+    0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 20px 24px; 
+  margin: -65px 24px 0 24px;
+  transition: box-shadow 0.3s ease;
 }
 
-.ca-search__panel {
+
+.ca-search__container:hover {
+  box-shadow: 
+    0 24px 70px rgba(0, 0, 0, 0.15),
+    0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.ca-search__fields {
+  padding-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  width: 100%;
+  align-items: flex-end;
+}
+
+/* Field Wrapper */
+.ca-search__field-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 16px;
+  gap: 8px;
 }
 
-@media (min-width: 768px) {
-  .ca-search__panel {
-    flex-direction: row;
-  }
+.ca-search__field-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #647b92;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding-left: 4px;
 }
 
+/* Input Field */
 .ca-search__field {
-  flex: 1;
-  width: 100%;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 14px 18px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  transition: all 0.2s ease;
-  background: #fff;
+  gap: 14px;
+  padding: 16px 20px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 64px;
 }
 
 .ca-search__field:hover {
-  border-color: #0b7eff;
-  box-shadow: 0 2px 8px rgba(11, 126, 255, 0.1);
+  border-color: #fb923c;
+  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.12);
 }
 
 .ca-search__field:focus-within {
-  border-color: #0b7eff;
-  box-shadow: 0 4px 12px rgba(11, 126, 255, 0.15);
+  border-color: #fb923c;
+  box-shadow: 0 6px 20px rgba(251, 146, 60, 0.2);
+  transform: translateY(-2px);
 }
 
 .ca-search__field-icon {
-  color: #0b7eff;
+  color: #fb923c;
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
 }
 
-.ca-search__field-body {
+.ca-search__field-input {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.ca-search__label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #647b92;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.ca-search__input {
-  width: 100%;
   border: none;
   outline: none;
   background: transparent;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
-  color: #17324d;
+  color: #1e293b;
+  font-family: inherit;
 }
 
-.ca-search__input::placeholder {
+.ca-search__field-input::placeholder {
   color: #94a3b8;
-  font-weight: 400;
+  font-weight: 500;
 }
 
-.ca-search__chevron {
-  color: #94a3b8;
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: color 0.2s ease;
-}
-
-.ca-search__field:hover .ca-search__chevron {
-  color: #0b7eff;
-}
-
-.ca-search__btn {
-  width: 100%;
-  min-height: 54px;
-  padding: 0 32px;
-  background: #0b7eff;
-  color: #ffffff;
+/* Submit Button - Gradient Cam Hồng */
+.ca-search__submit-btn {
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ef4444 100%);
   border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 900;
+  border-radius: 20px;
+  color: #ffffff;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(11, 126, 255, 0.3);
-  transition: all 0.2s ease;
+  box-shadow: 
+    0 8px 24px rgba(251, 146, 60, 0.35),
+    0 4px 12px rgba(239, 68, 68, 0.25);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
 }
 
-@media (min-width: 768px) {
-  .ca-search__btn {
-    width: auto;
-    min-width: 140px;
+.ca-search__submit-btn:hover {
+  background: linear-gradient(135deg, #f97316 0%, #ef4444 50%, #dc2626 100%);
+  box-shadow: 
+    0 12px 32px rgba(251, 146, 60, 0.45),
+    0 6px 16px rgba(239, 68, 68, 0.35);
+  transform: translateY(-4px) scale(1.05);
+}
+
+.ca-search__submit-btn:active {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    0 6px 20px rgba(251, 146, 60, 0.4),
+    0 3px 10px rgba(239, 68, 68, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .ca-search {
+    padding: 0 20px;
+  }
+
+  .ca-search__container {
+    padding: 28px 32px;
+    min-height: 120px;
+  }
+
+  .ca-search__submit-btn {
+    width: 64px;
+    height: 64px;
   }
 }
 
-.ca-search__btn:hover {
-  background: #0969da;
-  box-shadow: 0 6px 20px rgba(11, 126, 255, 0.4);
-  transform: translateY(-1px);
+@media (max-width: 768px) {
+  .ca-search {
+    padding: 0 16px;
+  }
+
+  .ca-search__container {
+    padding: 24px;
+    border-radius: 24px;
+    min-height: auto;
+  }
+
+  .ca-search__fields {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .ca-search__field {
+    min-height: 58px;
+    padding: 14px 18px;
+  }
+
+  .ca-search__submit-btn {
+    width: 100%;
+    height: 58px;
+    border-radius: 16px;
+  }
 }
 
-.ca-search__btn:active {
-  transform: translateY(0);
-}
+@media (max-width: 480px) {
+  .ca-search {
+    padding: 0 12px;
+  }
 
-.ca-search__btn svg {
-  width: 20px;
-  height: 20px;
+  .ca-search__container {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .ca-search__field-label {
+    font-size: 10px;
+  }
+
+  .ca-search__field {
+    min-height: 54px;
+    padding: 12px 16px;
+  }
+
+  .ca-search__field-input {
+    font-size: 15px;
+  }
+
+  .ca-search__submit-btn {
+    height: 54px;
+  }
 }
 
 /* ============================================================

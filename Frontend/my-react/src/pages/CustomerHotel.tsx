@@ -8,11 +8,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  Crosshair,
   Heart,
   MapPinned,
-  Minus,
-  Plus,
   Search,
   Star,
   Users,
@@ -394,13 +391,13 @@ export default function CustomerHotel() {
   const [openHotelPopover, setOpenHotelPopover] = useState<HotelPopover>(null);
   const [hotelDateFocus, setHotelDateFocus] = useState<"checkIn" | "checkOut">("checkIn");
   const [hotelDestination, setHotelDestination] = useState({
-    name: parsedSearch.destination,
-    subtitle: parsedSearch.destinationSubtitle,
+    name: "",
+    subtitle: "",
     type: "Thành phố",
     count: "Nhiều khách sạn",
   });
   const [hotelForm, setHotelForm] = useState<HotelFormState>(() => ({
-    destination: findHotelDestination(parsedSearch.destination, parsedSearch.destinationSubtitle),
+    destination: findHotelDestination("", ""),
     stay: {
       checkIn: hotelQueryDateToDate(parsedSearch.checkInDate),
       checkOut: hotelQueryDateToDate(parsedSearch.checkOutDate),
@@ -414,13 +411,15 @@ export default function CustomerHotel() {
   // Synchronize form state with parsed search params from URL
   // This is a valid pattern for deriving component state from route parameters
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setHotelDestination({
-      name: parsedSearch.destination,
-      subtitle: parsedSearch.destinationSubtitle,
-      type: "Thành phố",
-      count: "Nhiều khách sạn",
-    });
+    if (parsedSearch.destination) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setHotelDestination({
+        name: parsedSearch.destination,
+        subtitle: parsedSearch.destinationSubtitle,
+        type: "Thành phố",
+        count: "Nhiều khách sạn",
+      });
+    }
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setHotelForm({
       destination: findHotelDestination(parsedSearch.destination, parsedSearch.destinationSubtitle),
@@ -710,81 +709,7 @@ export default function CustomerHotel() {
                     label="Khách và Phòng"
                     value={hotelGuestSummary}
                     icon={Users}
-                    isOpen={openHotelPopover === "guests"}
-                    onClick={() =>
-                      setOpenHotelPopover((currentValue) => (currentValue === "guests" ? null : "guests"))
-                    }
-                    className="travel-hotel-field-wrap--guests"
-                    hasChevron
                   >
-                    {openHotelPopover === "guests" ? (
-                      <div className="travel-hotel-panel travel-hotel-panel--guests">
-                        <div className="travel-hotel-guest-list">
-                          <div className="travel-hotel-guest-row">
-                            <div className="travel-hotel-guest-copy">
-                              <strong>Người lớn</strong>
-                            </div>
-                            <div className="travel-hotel-guest-counter">
-                              <button
-                                type="button"
-                                onClick={() => handleHotelGuestChange("adults", -1)}
-                                disabled={hotelForm.guests.adults <= 1}
-                              >
-                                <Minus size={16} />
-                              </button>
-                              <span>{hotelForm.guests.adults}</span>
-                              <button type="button" onClick={() => handleHotelGuestChange("adults", 1)}>
-                                <Plus size={16} />
-                              </button>
-                            </div>
-                          </div>
-
-                          <div className="travel-hotel-guest-row">
-                            <div className="travel-hotel-guest-copy">
-                              <strong>Trẻ em</strong>
-                            </div>
-                            <div className="travel-hotel-guest-counter">
-                              <button
-                                type="button"
-                                onClick={() => handleHotelGuestChange("children", -1)}
-                                disabled={hotelForm.guests.children <= 0}
-                              >
-                                <Minus size={16} />
-                              </button>
-                              <span>{hotelForm.guests.children}</span>
-                              <button type="button" onClick={() => handleHotelGuestChange("children", 1)}>
-                                <Plus size={16} />
-                              </button>
-                            </div>
-                          </div>
-
-                          <div className="travel-hotel-guest-row">
-                            <div className="travel-hotel-guest-copy">
-                              <strong>Số phòng</strong>
-                            </div>
-                            <div className="travel-hotel-guest-counter">
-                              <button
-                                type="button"
-                                onClick={() => handleHotelGuestChange("rooms", -1)}
-                                disabled={hotelForm.guests.rooms <= 1}
-                              >
-                                <Minus size={16} />
-                              </button>
-                              <span>{hotelForm.guests.rooms}</span>
-                              <button type="button" onClick={() => handleHotelGuestChange("rooms", 1)}>
-                                <Plus size={16} />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="travel-hotel-panel__actions">
-                          <button type="button" className="travel-hotel-done" onClick={() => setOpenHotelPopover(null)}>
-                            Xong
-                          </button>
-                        </div>
-                      </div>
-                    ) : null}
                   </HotelFieldButton>
 
                   <button type="button" className="travel-search__submit" aria-label="Tìm khách sạn" onClick={handleHotelSearch}>
