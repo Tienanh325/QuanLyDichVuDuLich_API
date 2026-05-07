@@ -35,6 +35,46 @@ export interface DoanhThuThang {
   tongDoanhThu: number;
 }
 
+export interface DashboardLoaiDichVu {
+  loaiDichVu: string;
+  soLuong: number;
+  soLuotDat: number;
+  doanhThu: number;
+}
+
+export interface DashboardTopDichVu {
+  maDichVu: number;
+  ten: string;
+  loaiDichVu: string;
+  soLuotDat: number;
+  doanhThu: number;
+}
+
+export interface DashboardCanhBao {
+  title: string;
+  detail: string;
+  tone: string;
+  value: number;
+}
+
+export interface DashboardDonGanDay {
+  maDon: number;
+  tongGia: number;
+  trangThai: string;
+  ngayTao: string;
+  tenUser: string | null;
+  emailUser: string | null;
+}
+
+export interface DashboardStats {
+  overview: ThongKeOverview;
+  doanhThuTheoThang: DoanhThuThang[];
+  donGanDay: DashboardDonGanDay[];
+  dichVuTheLoai: DashboardLoaiDichVu[];
+  topDichVu: DashboardTopDichVu[];
+  canhBaoVanHanh: DashboardCanhBao[];
+}
+
 export interface DonDatItem {
   maDon: number;
   maUser: number;
@@ -58,15 +98,14 @@ export interface PaginatedResponse<T> {
 // ─── Dashboard & Thống kê ────────────────────────────────────────────────────
 
 /** Admin: Thống kê tổng quan — API trả về { data: { overview, doanhThuTheoThang, ... } } */
+export async function adminGetDashboardStats(): Promise<DashboardStats> {
+  const response = await api.get<{ status: string; data: DashboardStats }>('/api/admin/thong-ke');
+  return response.data.data;
+}
+
 export async function adminGetThongKe(): Promise<ThongKeOverview> {
-  const response = await api.get<{
-    status: string;
-    data: {
-      overview: ThongKeOverview;
-      doanhThuTheoThang: DoanhThuThang[];
-    };
-  }>('/api/admin/thong-ke');
-  return response.data.data.overview;
+  const data = await adminGetDashboardStats();
+  return data.overview;
 }
 
 /** Admin: Thống kê tổng quan thanh toán */

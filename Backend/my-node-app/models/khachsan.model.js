@@ -8,7 +8,7 @@ class KhachSanModel {
 
         if (viTri) { whereClause += ` AND ks.viTri LIKE ?`; whereParams.push(`%${viTri}%`); }
         if (search) {
-            whereClause += ` AND (dv.ten LIKE ? OR ks.viTri LIKE ? OR ks.ten LIKE ?)`;
+            whereClause += ` AND (dv.ten LIKE ? OR ks.viTri LIKE ? OR ks.tenkhachsan LIKE ?)`;
             const s = `%${search}%`; whereParams.push(s, s, s);
         }
 
@@ -25,7 +25,9 @@ class KhachSanModel {
 
         const dataParams = [...whereParams, parseInt(limit), parseInt(offset)];
         const [rows] = await pool.query(
-            `SELECT ks.maKhachSan, ks.maDichVu, ks.viTri, ks.ten AS tenKhachSan,
+            `SELECT ks.maKhachSan, ks.maDichVu, ks.viTri,
+                    COALESCE(ks.tenkhachsan, dv.ten) AS ten,
+                    COALESCE(ks.tenkhachsan, dv.ten) AS tenKhachSan,
                     dv.ten AS tenDichVu, dv.moTa,
                     ncc.ten AS tenNhaCungCap,
                     ha.urlAnh AS avatar,
@@ -36,7 +38,7 @@ class KhachSanModel {
              LEFT JOIN HinhAnh ha ON dv.maDichVu = ha.maDichVu AND ha.isAvatar = 1
              LEFT JOIN LoaiPhong lp ON ks.maKhachSan = lp.maKhachSan AND lp.soLuongPhongTrong > 0
              ${whereClause}
-             GROUP BY ks.maKhachSan, ks.maDichVu, ks.viTri, ks.ten, dv.ten, dv.moTa, ncc.ten, ha.urlAnh
+             GROUP BY ks.maKhachSan, ks.maDichVu, ks.viTri, ks.tenkhachsan, dv.ten, dv.moTa, ncc.ten, ha.urlAnh
              ORDER BY ks.maKhachSan DESC
              LIMIT ? OFFSET ?`,
             dataParams
@@ -47,7 +49,9 @@ class KhachSanModel {
 
     static async getById(id) {
         const [rows] = await pool.query(
-            `SELECT ks.*, ks.ten AS tenKhachSan, dv.ten AS tenDichVu, dv.moTa, dv.trangThai, ncc.ten AS tenNhaCungCap
+            `SELECT ks.*, COALESCE(ks.tenkhachsan, dv.ten) AS ten,
+                    COALESCE(ks.tenkhachsan, dv.ten) AS tenKhachSan,
+                    dv.ten AS tenDichVu, dv.moTa, dv.trangThai, ncc.ten AS tenNhaCungCap
              FROM KhachSan ks
              LEFT JOIN DichVu dv ON ks.maDichVu = dv.maDichVu
              LEFT JOIN NhaCungCap ncc ON dv.maNhaCungCap = ncc.maNhaCungCap
@@ -68,7 +72,7 @@ class KhachSanModel {
     static async create(data) {
         const { maDichVu, viTri, ten } = data;
         const [result] = await pool.query(
-            `INSERT INTO KhachSan (maDichVu, viTri, ten) VALUES (?, ?, ?)`,
+            `INSERT INTO KhachSan (maDichVu, viTri, tenkhachsan) VALUES (?, ?, ?)`,
             [maDichVu, viTri, ten]
         );
         return { maKhachSan: result.insertId, ...data };
@@ -76,7 +80,7 @@ class KhachSanModel {
 
     static async update(id, data) {
         const { viTri, ten } = data;
-        const [result] = await pool.query(`UPDATE KhachSan SET viTri=?, ten=? WHERE maKhachSan=?`, [viTri, ten, id]);
+        const [result] = await pool.query(`UPDATE KhachSan SET viTri=?, tenkhachsan=? WHERE maKhachSan=?`, [viTri, ten, id]);
         return result.affectedRows > 0;
     }
 

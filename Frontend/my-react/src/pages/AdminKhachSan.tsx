@@ -75,7 +75,7 @@ function normalizeHotel(input: unknown): HotelItem {
   return {
     maKhachSan: Number(raw.maKhachSan ?? raw.id ?? 0),
     maDichVu: Number(raw.maDichVu ?? raw.serviceId ?? 0),
-    tenKhachSan: String(raw.tenKhachSan ?? raw.ten ?? ""),
+    tenKhachSan: String(raw.tenKhachSan ?? raw.ten ?? raw.tenDichVu ?? ""),
     tenDichVu: String(raw.tenDichVu ?? ""),
     viTri: String(raw.viTri ?? raw.location ?? ""),
     moTa: String(raw.moTa ?? raw.description ?? ""),
@@ -103,19 +103,56 @@ function normalizeDichVu(input: unknown, index: number): DichVuOption {
   };
 }
 
+function extractArray(payload: unknown): unknown[] {
+  if (Array.isArray(payload)) return payload;
+
+  if (typeof payload !== "object" || payload === null) return [];
+
+  const outer = payload as Record<string, unknown>;
+  const data = outer.data;
+  if (Array.isArray(data)) return data;
+
+  if (typeof data === "object" && data !== null) {
+    const nested = data as Record<string, unknown>;
+    if (Array.isArray(nested.data)) return nested.data;
+    if (Array.isArray(nested.items)) return nested.items;
+  }
+
+  if (Array.isArray(outer.items)) return outer.items;
+
+  return [];
+}
+
+function getApiErrorMessage(error: unknown, action: string): string {
+  if (!axios.isAxiosError(error)) {
+    return `Có lỗi khi ${action}.`;
+  }
+
+  const status = error.response?.status;
+  const serverMessage = (error.response?.data as { message?: string } | undefined)?.message;
+
+  if (status === 401) {
+    return "Phiên đăng nhập đã hết hạn hoặc chưa có token admin. Vui lòng đăng nhập lại bằng tài khoản admin trong database.";
+  }
+  if (status === 403) {
+    return "Tài khoản hiện tại không có quyền ADMIN để truy cập API này.";
+  }
+  if (status) {
+    return serverMessage ? `API trả về lỗi ${status}: ${serverMessage}` : `API trả về lỗi ${status} khi ${action}.`;
+  }
+
+  return `Không kết nối được API khi ${action}. Kiểm tra backend ${API_BASE_URL} đã chạy chưa.`;
+}
+
 // APIs
 async function fetchHotels(): Promise<HotelItem[]> {
-  const response = await api.get<{ status: string; data: { data?: unknown[]; items?: unknown[] } | unknown[] }>(HOTEL_API_PATH);
-  const raw = response.data.data;
-  const arr = Array.isArray(raw) ? raw : (raw as { data?: unknown[] }).data ?? [];
-  return arr.map(h => normalizeHotel(h));
+  const response = await api.get(HOTEL_API_PATH, { params: { limit: 1000 } });
+  return extractArray(response.data).map((hotel) => normalizeHotel(hotel));
 }
 
 async function fetchDichVuOptions(): Promise<DichVuOption[]> {
-  const response = await api.get<{ status: string; data: { data?: unknown[]; items?: unknown[] } | unknown[] }>(DICH_VU_API_PATH);
-  const raw = response.data.data;
-  const arr = Array.isArray(raw) ? raw : (raw as { data?: unknown[] }).data ?? [];
-  return arr.map(normalizeDichVu);
+  const response = await api.get(DICH_VU_API_PATH, { params: { limit: 1000 } });
+  return extractArray(response.data).map(normalizeDichVu);
 }
 
 async function createHotel(item: HotelFormValues): Promise<HotelItem> {
@@ -132,8 +169,8 @@ async function deleteHotel(id: number): Promise<void> {
 }
 
 async function fetchRooms(maKhachSan: number): Promise<RoomItem[]> {
-  const response = await api.get<{ status: string; data: unknown[] }>(`${HOTEL_API_PATH}/${maKhachSan}/loai-phong`);
-  return (response.data.data || []).map(normalizeRoom);
+  const response = await api.get(`${HOTEL_API_PATH}/${maKhachSan}/loai-phong`);
+  return extractArray(response.data).map(normalizeRoom);
 }
 
 async function createRoom(maKhachSan: number, item: RoomFormValues): Promise<RoomItem> {
@@ -198,11 +235,7 @@ export default function AdminKhachSan() {
       setDichVuOptions(services);
       setData(hotels);
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        message.warning(`Không kết nối được API lấy danh sách khách sạn.`);
-      } else {
-        message.warning("Có lỗi khi tải dữ liệu khách sạn.");
-      }
+      message.warning(getApiErrorMessage(error, "lấy danh sách khách sạn"));
     } finally {
       setLoading(false);
     }

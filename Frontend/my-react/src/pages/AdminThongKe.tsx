@@ -1,5 +1,5 @@
-import type { CSSProperties } from "react";
-import { useEffect, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -24,51 +24,24 @@ import {
   Plane,
   Star,
   Ticket,
-  TrainFront,
   Users,
 } from "lucide-react";
-import { adminGetThongKe, adminGetDoanhThu } from "../services/adminService";
-import type { ThongKeOverview, DoanhThuThang } from "../services/adminService";
+import { adminGetDashboardStats } from "../services/adminService";
+import type { DashboardStats } from "../services/adminService";
 
 const moneyFormatter = new Intl.NumberFormat("vi-VN");
 const numberFormatter = new Intl.NumberFormat("vi-VN");
 type ChartValue = number | string | ReadonlyArray<number | string> | undefined;
 type ChartName = number | string | undefined;
 
-
-const categoryMix = [
-  { name: "Tour", value: 31, color: "#2563eb" },
-  { name: "Khach san", value: 24, color: "#7c3aed" },
-  { name: "Ve may bay", value: 21, color: "#0f766e" },
-  { name: "Ve tau hoa", value: 11, color: "#f59e0b" },
-  { name: "Khu vui choi", value: 13, color: "#ef4444" },
-];
-
-const servicePerformance = [
-  { name: "Tour", revenue: 1520000000, margin: 28 },
-  { name: "Khach san", revenue: 1180000000, margin: 22 },
-  { name: "Ve may bay", revenue: 980000000, margin: 14 },
-  { name: "Ve tau hoa", revenue: 410000000, margin: 12 },
-  { name: "Khu vui choi", revenue: 730000000, margin: 19 },
-];
-
-const operationalAlerts = [
-  {
-    title: "Kiểm tra đánh giá tiêu cực",
-    detail: "Theo dõi và xử lý review không tốt kịp thời để giữ uy tín.",
-    tone: "#ef4444",
-  },
-  {
-    title: "Theo dõi công suất dịch vụ",
-    detail: "Kiểm tra các tour và khách sạn sắp hết chỗ trong tuần tới.",
-    tone: "#f59e0b",
-  },
-  {
-    title: "Tối ưu tỉ lệ chuyển đổi",
-    detail: "Cải thiện trải nghiệm thanh toán để giảm tỉ lệ bỏ giỏ hàng.",
-    tone: "#7c3aed",
-  },
-];
+const serviceTypeMeta: Record<string, { label: string; color: string; icon: ReactNode }> = {
+  TOUR: { label: "Tour", color: "#2563eb", icon: <Package size={18} color="#2563eb" /> },
+  KHACH_SAN: { label: "Khách sạn", color: "#16a34a", icon: <BedDouble size={18} color="#16a34a" /> },
+  VE: { label: "Vé", color: "#ef4444", icon: <Ticket size={18} color="#ef4444" /> },
+  MAY_BAY: { label: "Vé máy bay", color: "#0f766e", icon: <Plane size={18} color="#0f766e" /> },
+  TAU_HOA: { label: "Vé tàu hỏa", color: "#f59e0b", icon: <Ticket size={18} color="#f59e0b" /> },
+  VUI_CHOI: { label: "Khu vui chơi", color: "#7c3aed", icon: <Ticket size={18} color="#7c3aed" /> },
+};
 
 function dashboardCardStyle(accent: string): CSSProperties {
   return {
@@ -109,6 +82,14 @@ function formatMoney(value: number): string {
   return `${moneyFormatter.format(value)} đ`;
 }
 
+function getServiceMeta(type: string) {
+  return serviceTypeMeta[type] ?? {
+    label: type || "Dịch vụ khác",
+    color: "#64748b",
+    icon: <Star size={18} color="#64748b" />,
+  };
+}
+
 function toNumber(value: ChartValue): number {
   if (typeof value === "number") {
     return value;
@@ -146,26 +127,32 @@ function formatPerformanceTooltip(value: ChartValue, name: ChartName): [string, 
   const numericValue = toNumber(value);
 
   return [
-    name === "revenue" ? formatMoney(numericValue) : `${numericValue}%`,
-    name === "revenue" ? "Doanh thu" : "Bien loi nhuan",
+    name === "revenue" ? formatMoney(numericValue) : numberFormatter.format(numericValue),
+    name === "revenue" ? "Doanh thu" : "Lượt đặt",
   ];
 }
 
 export default function AdminThongKe() {
-  const [overview, setOverview] = useState<ThongKeOverview | null>(null);
-  const [doanhThu, setDoanhThu] = useState<DoanhThuThang[]>([]);
+  const [dashboard, setDashboard] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([adminGetThongKe(), adminGetDoanhThu(new Date().getFullYear())])
-      .then(([ov, dt]) => {
-        setOverview(ov);
-        setDoanhThu(dt);
+    setErrorMessage("");
+    adminGetDashboardStats()
+      .then((data) => {
+        setDashboard(data);
       })
-      .catch((err) => console.error("Lỗi tải thống kê:", err))
+      .catch((err) => {
+        console.error("Lỗi tải thống kê:", err);
+        setErrorMessage("Không tải được dữ liệu thống kê từ API backend.");
+      })
       .finally(() => setLoading(false));
   }, []);
+
+  const overview = dashboard?.overview ?? null;
+  const doanhThu = dashboard?.doanhThuTheoThang ?? [];
 
   const kpiCards = overview
     ? [
@@ -204,33 +191,99 @@ export default function AdminThongKe() {
       ]
     : [];
 
-  const revenueTrend = doanhThu.length > 0
-    ? doanhThu.map((item) => ({
-        label: `T${item.thang}/${String(item.nam).slice(-2)}`,
-        revenue: Number(item.tongDoanhThu) || 0,
-        orders: item.soGiaoDich,
-      }))
-    : [
+  const revenueTrend = useMemo(() => {
+    if (doanhThu.length === 0) {
+      return [
         { label: "T1", revenue: 0, orders: 0 },
         { label: "T2", revenue: 0, orders: 0 },
         { label: "T3", revenue: 0, orders: 0 },
       ];
+    }
 
-  // Dữ liệu top sản phẩm (minh họa — có thể thay bằng API /api/admin/thong-ke topDichVu)
-  const topProducts = [
-    { name: "Tour Đà Lạt 3N2D", category: "Tour", revenue: 382000000, bookings: 114, growth: "+21%" },
-    { name: "Combo Phú Quốc Resort", category: "Khách sạn", revenue: 341000000, bookings: 78, growth: "+16%" },
-    { name: "Vé máy bay HN-SGN", category: "Vé máy bay", revenue: 296000000, bookings: 162, growth: "+11%" },
-    { name: "Vé Sun World", category: "Khu vui chơi", revenue: 214000000, bookings: 205, growth: "+9%" },
-  ];
+    return doanhThu.map((item) => ({
+        label: `T${item.thang}/${String(item.nam).slice(-2)}`,
+        revenue: Number(item.tongDoanhThu) || 0,
+        orders: Number(item.soGiaoDich) || 0,
+      }));
+  }, [doanhThu]);
 
-  // Chỉ số hành vi người dùng (minh họa)
+  const totalRevenueByType = useMemo(
+    () => (dashboard?.dichVuTheLoai ?? []).reduce((sum, item) => sum + Number(item.doanhThu || 0), 0),
+    [dashboard?.dichVuTheLoai],
+  );
+
+  const categoryMix = useMemo(() => {
+    const rows = dashboard?.dichVuTheLoai ?? [];
+    return rows.map((item) => {
+      const meta = getServiceMeta(item.loaiDichVu);
+      const revenue = Number(item.doanhThu || 0);
+      return {
+        name: meta.label,
+        value: totalRevenueByType > 0 ? Math.round((revenue / totalRevenueByType) * 100) : 0,
+        color: meta.color,
+        revenue,
+        bookings: Number(item.soLuotDat || 0),
+      };
+    });
+  }, [dashboard?.dichVuTheLoai, totalRevenueByType]);
+
+  const servicePerformance = useMemo(() => {
+    return (dashboard?.dichVuTheLoai ?? []).map((item) => {
+      const meta = getServiceMeta(item.loaiDichVu);
+      return {
+        name: meta.label,
+        revenue: Number(item.doanhThu || 0),
+        margin: Number(item.soLuotDat || 0),
+      };
+    });
+  }, [dashboard?.dichVuTheLoai]);
+
+  const operationalAlerts = dashboard?.canhBaoVanHanh ?? [];
+
+  const topProducts = useMemo(() => {
+    return (dashboard?.topDichVu ?? []).map((item, index) => {
+      const meta = getServiceMeta(item.loaiDichVu);
+      return {
+        name: item.ten,
+        category: meta.label,
+        revenue: Number(item.doanhThu || 0),
+        bookings: Number(item.soLuotDat || 0),
+        growth: index === 0 ? "Top 1" : `Top ${index + 1}`,
+      };
+    });
+  }, [dashboard?.topDichVu]);
+
   const audienceInsights = [
     { label: "Tổng khách hàng", value: numberFormatter.format(overview?.tongKhachHang ?? 0), note: "Tài khoản đã đăng ký" },
     { label: "Nhà cung cấp", value: numberFormatter.format(overview?.tongNhaCungCap ?? 0), note: "Đang hợp tác" },
     { label: "Đơn hàng hôm nay", value: numberFormatter.format(overview?.donHomNay ?? 0), note: "Đơn mới trong ngày" },
     { label: "Đơn đang chờ xử lý", value: numberFormatter.format(overview?.donDangCho ?? 0), note: "Cần xác nhận" },
   ];
+
+  const serviceInsights = useMemo(() => {
+    return (dashboard?.dichVuTheLoai ?? []).map((item) => {
+      const meta = getServiceMeta(item.loaiDichVu);
+      return {
+        label: meta.label,
+        icon: meta.icon,
+        color: meta.color,
+        detail: `${numberFormatter.format(Number(item.soLuong || 0))} dịch vụ đang hoạt động, ${numberFormatter.format(Number(item.soLuotDat || 0))} lượt đặt, doanh thu ${formatMoney(Number(item.doanhThu || 0))}.`,
+      };
+    });
+  }, [dashboard?.dichVuTheLoai]);
+
+  const revenueChangeLabel = useMemo(() => {
+    const nonZeroRows = revenueTrend.filter((item) => item.revenue > 0);
+    if (nonZeroRows.length < 2) return "Chưa đủ dữ liệu kỳ trước";
+
+    const current = nonZeroRows[nonZeroRows.length - 1].revenue;
+    const previous = nonZeroRows[nonZeroRows.length - 2].revenue;
+    if (previous === 0) return "Chưa đủ dữ liệu kỳ trước";
+
+    const percent = ((current - previous) / previous) * 100;
+    const prefix = percent >= 0 ? "Tăng" : "Giảm";
+    return `${prefix} ${Math.abs(percent).toFixed(1)}% so với kỳ trước`;
+  }, [revenueTrend]);
 
   if (loading) {
     return (
@@ -243,6 +296,12 @@ export default function AdminThongKe() {
   return (
     <div style={pageStyle}>
       <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+        {errorMessage && (
+          <div style={{ ...sectionCardStyle, color: "#b91c1c", background: "#fff7f7" }}>
+            {errorMessage}
+          </div>
+        )}
+
         <section
           style={{
             display: "grid",
@@ -314,7 +373,7 @@ export default function AdminThongKe() {
                   fontSize: 13,
                 }}
               >
-                Tang 18.4% so voi ky truoc
+                {revenueChangeLabel}
               </div>
             </div>
 
@@ -555,45 +614,17 @@ export default function AdminThongKe() {
             gap: 16,
           }}
         >
-          <div style={sectionCardStyle}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <Plane size={18} color="#2563eb" />
-              <div style={{ fontWeight: 800, color: "#16233b" }}>Ve may bay</div>
+          {serviceInsights.map((item) => (
+            <div key={item.label} style={sectionCardStyle}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                {item.icon}
+                <div style={{ fontWeight: 800, color: "#16233b" }}>{item.label}</div>
+              </div>
+              <div style={{ color: "#70809b", lineHeight: 1.65 }}>
+                {item.detail}
+              </div>
             </div>
-            <div style={{ color: "#70809b", lineHeight: 1.65 }}>
-              Nhom nay co ty le dat cho cao, nhung bien loi nhuan thap. Nen tap trung upsell combo va bao hiem.
-            </div>
-          </div>
-
-          <div style={sectionCardStyle}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <TrainFront size={18} color="#7c3aed" />
-              <div style={{ fontWeight: 800, color: "#16233b" }}>Ve tau hoa</div>
-            </div>
-            <div style={{ color: "#70809b", lineHeight: 1.65 }}>
-              Review tieu cuc dang tap trung tai day. Can cai thien thong tin cho ngoi, thoi gian va quy trinh ho tro.
-            </div>
-          </div>
-
-          <div style={sectionCardStyle}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <BedDouble size={18} color="#16a34a" />
-              <div style={{ fontWeight: 800, color: "#16233b" }}>Khach san</div>
-            </div>
-            <div style={{ color: "#70809b", lineHeight: 1.65 }}>
-              Bien loi nhuan tot va gia tri don cao. Nen uu tien mo rong nha cung cap va bundle voi tour.
-            </div>
-          </div>
-
-          <div style={sectionCardStyle}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <Ticket size={18} color="#ef4444" />
-              <div style={{ fontWeight: 800, color: "#16233b" }}>Khu vui choi</div>
-            </div>
-            <div style={{ color: "#70809b", lineHeight: 1.65 }}>
-              Ty le dat cho on dinh, phu hop de chay chien dich gia dinh va combo dip cuoi tuan.
-            </div>
-          </div>
+          ))}
 
           <div style={sectionCardStyle}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
@@ -601,7 +632,7 @@ export default function AdminThongKe() {
               <div style={{ fontWeight: 800, color: "#16233b" }}>Danh gia</div>
             </div>
             <div style={{ color: "#70809b", lineHeight: 1.65 }}>
-              Muc nay giup admin biet noi dung nao dang keo trust xuong de uu tien cham soc khach hang va moderation.
+              Dữ liệu cảnh báo đánh giá được lấy từ API thống kê theo các review 2 sao trở xuống trong 30 ngày gần nhất.
             </div>
           </div>
         </section>
