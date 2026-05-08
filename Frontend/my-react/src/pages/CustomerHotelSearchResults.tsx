@@ -92,7 +92,7 @@ export default function CustomerHotelSearchResults({
                   KHÁCH & PHÒNG
                 </Text>
                 <div style={{ fontSize: 16, fontWeight: 500, color: "#17324d" }}>
-                  {formatHotelGuestSummary(searchState.adults, searchState.children, searchState.rooms)}
+                  {formatHotelGuestSummary(searchState.guests)}
                 </div>
               </div>
             </Space>
@@ -249,7 +249,7 @@ export default function CustomerHotelSearchResults({
                             </Text>
                             <Button
                               type="primary"
-                              onClick={() => navigate(`/mua-sam/khach-san/${hotel.maKhachSan}?checkIn=${searchState.checkInDate}&checkOut=${searchState.checkOutDate}&adults=${searchState.adults}&children=${searchState.children}&rooms=${searchState.rooms}`)}
+                              onClick={() => navigate(`/mua-sam/khach-san/${hotel.maKhachSan}?checkIn=${searchState.checkInDate}&checkOut=${searchState.checkOutDate}&guests=${searchState.guests}`)}
                               style={{
                                 marginTop: 16, height: 44, padding: "0 32px",
                                 borderRadius: 8, fontWeight: 700, fontSize: 16,

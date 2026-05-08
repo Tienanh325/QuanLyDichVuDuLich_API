@@ -3,25 +3,27 @@ import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
-  BellRing,
   CalendarDays,
   ChevronDown,
-  Copy,
   CreditCard,
+  Headset,
   PlaneTakeoff,
-  QrCode,
   Search,
-  ShieldCheck,
-  Sparkles,
+  Tag,
 } from "lucide-react";
 import baibienImage from "../assets/images/baibien.jpg";
-import thuongHieuImage from "../assets/images/thuonghieu.jpg";
 import "../assets/css/CustomerHome.css";
 import "../assets/css/CustomerHotel.css";
 import "../assets/css/CustomerFlight.css";
 import CustomerFlightSearchResults from "./CustomerFlightSearchResults";
-import { buildFlightSearchQuery, formatFlightDateLabel, parseFlightSearchParams } from "../utils/flightSearch";
+import { buildFlightSearchQuery, parseFlightSearchParams } from "../utils/flightSearch";
 import type { FlightSearchState } from "../utils/flightSearch";
+import { ConfigProvider, DatePicker } from "antd";
+import dayjs from "dayjs";
+import "dayjs/locale/vi";
+import viVN from "antd/locale/vi_VN";
+
+dayjs.locale("vi");
 
 type TripType = "oneWay" | "roundTrip" | "multiCity";
 
@@ -44,164 +46,147 @@ type HotelFieldButtonProps = {
   isTypable?: boolean;
   onChange?: (val: string) => void;
 };
-const couponCards = [
+
+/* ─── Data ─────────────────────────────────────────────────────────── */
+
+const flightPromotions = [
   {
-    tag: "Mới hôm nay",
-    title: "Giảm đến 12% cho lần đặt vé đầu tiên",
-    body: "Áp dụng cho khách hàng mới trên web và app, số lượng mã có hạn.",
-    code: "BAYMOINGAY",
+    id: 1,
+    route: "TP. Hồ Chí Minh → Đà Nẵng",
+    price: "890.000 VND",
+    badge: "Hot",
+    image: "https://images.unsplash.com/photo-1559628233-100c798642d4?auto=format&fit=crop&q=80&w=480",
   },
   {
-    tag: "Quốc tế",
-    title: "Giảm thêm 250.000 VND cho chặng Đông Bắc Á",
-    body: "Phù hợp với vé khứ hồi đến Seoul, Tokyo, Osaka hoặc Busan.",
-    code: "FLYKOREA250",
+    id: 2,
+    route: "Hà Nội → Phú Quốc",
+    price: "1.120.000 VND",
+    badge: "Phổ thông",
+    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=480",
   },
   {
-    tag: "Gia đình",
-    title: "Tặng mã giảm cho nhóm 3 khách trở lên",
-    body: "Dễ dùng cho chuyến đi gia đình hoặc đi cùng nhóm bạn.",
-    code: "TEAMFLY",
+    id: 3,
+    route: "Đà Nẵng → TP. Hồ Chí Minh",
+    price: "750.000 VND",
+    badge: "Hot",
+    image: "https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?auto=format&fit=crop&q=80&w=480",
+  },
+  {
+    id: 4,
+    route: "TP. Hồ Chí Minh → Nha Trang",
+    price: "680.000 VND",
+    badge: "Phổ thông",
+    image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=480",
+  },
+  {
+    id: 5,
+    route: "Hà Nội → Đà Lạt",
+    price: "950.000 VND",
+    badge: "Hot",
+    image: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&q=80&w=480",
+  },
+  {
+    id: 6,
+    route: "TP. Hồ Chí Minh → Hà Nội",
+    price: "1.280.000 VND",
+    badge: "Phổ thông",
+    image: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&q=80&w=480",
   },
 ] as const;
 
-const promoCards = [
+const valuePropositions = [
   {
-    title: "Mừng đại lễ, săn vé bay thảnh thơi",
-    subtitle: "Khởi hành linh hoạt cho biển đảo và city break",
-    description: "Nhiều chặng bay nội địa và quốc tế đang có giá đẹp trong tuần.",
+    icon: Tag,
+    title: "Giá rẻ mỗi ngày",
+    description: "So sánh giá vé từ nhiều hãng bay, đảm bảo bạn luôn nhận được mức giá tốt nhất thị trường.",
+    color: "#fff4eb",
+    iconColor: "#ff5e1f",
   },
   {
-    title: "Hàn Quốc đang có deal rất tốt",
-    subtitle: "Seoul, Busan và Jeju được tìm nhiều",
-    description: "Khám phá khung giờ đẹp, mức giá ổn và nhiều lựa chọn bay thẳng.",
+    icon: Headset,
+    title: "Hỗ trợ 24/7",
+    description: "Đội ngũ chăm sóc khách hàng chuyên nghiệp, luôn sẵn sàng giải đáp mọi thắc mắc của bạn.",
+    color: "#e8f4fd",
+    iconColor: "#0b7eff",
   },
   {
-    title: "Bay Singapore, Bangkok dễ chốt hơn",
-    subtitle: "Phù hợp cho lịch trình ngắn ngày",
-    description: "Một vài hành trình được quan tâm nhất để bạn tham khảo ngay.",
-  },
-] as const;
-
-const domesticFares = [
-  { origin: "TP. HCM", destination: "Phú Quốc", airline: "Vietnam Airlines", price: "1.214.000 VND" },
-  { origin: "Hà Nội", destination: "Đà Nẵng", airline: "VietJet Air", price: "978.000 VND" },
-  { origin: "TP. HCM", destination: "Đà Nẵng", airline: "Bamboo Airways", price: "1.096.000 VND" },
-  { origin: "Hà Nội", destination: "Nha Trang", airline: "Vietnam Airlines", price: "1.328.000 VND" },
-] as const;
-
-const internationalFares = [
-  { origin: "TP. HCM", destination: "Singapore", airline: "Scoot", price: "1.998.000 VND" },
-  { origin: "Hà Nội", destination: "Bangkok", airline: "Thai AirAsia", price: "2.126.000 VND" },
-  { origin: "Đà Nẵng", destination: "Seoul", airline: "T'way Air", price: "3.672.000 VND" },
-  { origin: "TP. HCM", destination: "Tokyo", airline: "ZIPAIR Tokyo", price: "5.486.000 VND" },
-] as const;
-
-const articleCards = [
-  "Bí kíp chọn giờ bay đẹp để tối ưu chi phí và thời gian nghỉ ngơi",
-  "Khi nào nên đặt vé quốc tế để có nhiều lựa chọn nhất?",
-  "Hành lý xách tay và ký gửi: những điều nên kiểm tra trước khi bay",
-  "Kết hợp vé máy bay và khách sạn như thế nào để tiết kiệm hơn",
-] as const;
-
-const routeColumns = [
-  {
-    title: "Các deal bay nổi bật từ Việt Nam",
-    routes: [
-      { label: "TP. HCM -> Bangkok", airline: "Thai AirAsia", price: "2.132.000 VND" },
-      { label: "Hà Nội -> Seoul", airline: "VietJet Air", price: "3.896.000 VND" },
-      { label: "Đà Nẵng -> Singapore", airline: "Singapore Airlines", price: "2.517.000 VND" },
-      { label: "TP. HCM -> Tokyo", airline: "ZIPAIR Tokyo", price: "5.184.000 VND" },
-    ],
-  },
-  {
-    title: "Chặng được khách hàng tìm nhiều",
-    routes: [
-      { label: "TP. HCM -> Đà Nẵng", airline: "VietJet Air", price: "1.024.000 VND" },
-      { label: "Hà Nội -> TP. HCM", airline: "Bamboo Airways", price: "1.486.000 VND" },
-      { label: "TP. HCM -> Singapore", airline: "Scoot", price: "1.998.000 VND" },
-      { label: "Hà Nội -> Bangkok", airline: "Thai Lion Air", price: "2.326.000 VND" },
-    ],
-  },
-] as const;
-
-const reasonCards = [
-  {
-    title: "Cảnh báo giá tiện lợi",
-    body: "Theo dõi chặng yêu thích để không bỏ lỡ mức giá tốt.",
-    icon: BellRing,
-  },
-  {
-    title: "Dễ so sánh lịch bay",
-    body: "Xem nhanh giờ cất cánh, hạ cánh và hãng bay trong một nơi.",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Thanh toán gọn gàng",
-    body: "Nhiều lựa chọn thanh toán quen thuộc để chốt vé nhanh hơn.",
     icon: CreditCard,
-  },
-  {
-    title: "Có hỗ trợ khi cần",
-    body: "Câu hỏi thường gặp và hướng dẫn giúp bạn yên tâm hơn trước chuyến đi.",
-    icon: Sparkles,
+    title: "Thanh toán linh hoạt",
+    description: "Đa dạng phương thức thanh toán: thẻ quốc tế, ví điện tử, chuyển khoản ngân hàng và trả góp.",
+    color: "#edf8ef",
+    iconColor: "#22a552",
   },
 ] as const;
 
-const airlineLogos = [
-  "Vietnam Airlines",
-  "VietJet Air",
-  "Bamboo Airways",
-  "Scoot",
-  "Thai AirAsia",
-  "Singapore Airlines",
-  "HK Express",
-  "ZIPAIR",
-];
-
-const paymentLogos = ["MoMo", "Visa", "Mastercard", "VietQR", "VNPAY", "ZaloPay"];
+const travelInspirations = [
+  {
+    id: 1,
+    title: "Sapa: Thành phố trong sương",
+    description: "Khám phá vẻ đẹp hùng vĩ của ruộng bậc thang và văn hóa bản địa đặc sắc.",
+    image: "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80&w=480",
+  },
+  {
+    id: 2,
+    title: "Đà Nẵng: Thành phố đáng sống",
+    description: "Biển xanh, cát trắng, cầu Vàng lung linh và ẩm thực miền Trung hấp dẫn.",
+    image: "https://images.unsplash.com/photo-1559628233-100c798642d4?auto=format&fit=crop&q=80&w=480",
+  },
+  {
+    id: 3,
+    title: "Phú Quốc: Đảo ngọc phương Nam",
+    description: "Thiên đường nghỉ dưỡng với bãi biển hoang sơ và hải sản tươi ngon.",
+    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=480",
+  },
+  {
+    id: 4,
+    title: "Đà Lạt: Thành phố ngàn hoa",
+    description: "Không khí se lạnh, đồi thông thơ mộng và những quán cà phê đẹp như mơ.",
+    image: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&q=80&w=480",
+  },
+] as const;
 
 const faqItems = [
   {
-    question: "Cần chuẩn bị gì khi đặt vé máy bay?",
-    answer: "Bạn nên kiểm tra đúng họ tên, ngày sinh, giấy tờ tuỳ thân, chặng bay và hành lý trước khi thanh toán.",
+    question: "Làm thế nào để đặt vé máy bay?",
+    answer:
+      "Bạn chỉ cần nhập điểm đi, điểm đến, ngày bay vào khung tìm kiếm, sau đó chọn chuyến bay phù hợp và tiến hành thanh toán. Vé điện tử sẽ được gửi đến email của bạn ngay lập tức.",
   },
   {
-    question: "Có thể theo dõi giá vé không?",
-    answer: "Có. Bạn có thể theo dõi chặng yêu thích để nhận thông báo khi giá thay đổi.",
+    question: "Tôi có thể hủy hoặc đổi vé không?",
+    answer:
+      "Có, bạn có thể hủy hoặc đổi vé tùy thuộc vào chính sách của từng hãng bay và hạng vé. Vui lòng kiểm tra điều kiện vé trước khi đặt hoặc liên hệ đội ngũ hỗ trợ 24/7 của chúng tôi.",
+  },
+  {
+    question: "Có những phương thức thanh toán nào?",
+    answer:
+      "Chúng tôi hỗ trợ đa dạng phương thức: thẻ tín dụng/ghi nợ Visa, Mastercard, JCB; ví điện tử MoMo, ZaloPay, VNPay; và chuyển khoản ngân hàng nội địa.",
   },
   {
     question: "Vé máy bay có bao gồm hành lý không?",
-    answer: "Điều này phụ thuộc từng hãng và từng hạng vé. Một số vé đã có hành lý xách tay, còn ký gửi có thể cần mua thêm.",
+    answer:
+      "Điều này phụ thuộc vào hạng vé và hãng bay. Hầu hết vé đều bao gồm hành lý xách tay, còn hành lý ký gửi có thể cần mua thêm tùy loại vé.",
   },
   {
-    question: "Có thể đổi ngày bay hoặc hoàn vé không?",
-    answer: "Có, nhưng điều kiện sẽ khác nhau theo từng hãng bay, từng hạng vé và thời điểm thay đổi.",
-  },
-  {
-    question: "Thanh toán vé máy bay bằng cách nào?",
-    answer: "Bạn có thể dùng thẻ nội địa, thẻ quốc tế, ví điện tử hoặc chuyển khoản qua các cổng đang được hỗ trợ.",
+    question: "Làm sao để nhận được giá vé tốt nhất?",
+    answer:
+      "Hãy đặt vé sớm, linh hoạt ngày bay, và theo dõi các chương trình khuyến mãi trên trang của chúng tôi. Bạn cũng có thể đăng ký nhận bản tin để cập nhật deal mới nhất.",
   },
 ] as const;
 
-const discoverColumns = [
-  {
-    title: "Chặng nội địa phổ biến",
-    links: ["TP. HCM đi Hà Nội", "Hà Nội đi Đà Nẵng", "TP. HCM đi Phú Quốc", "Hà Nội đi Nha Trang"],
-  },
-  {
-    title: "Chặng quốc tế được yêu thích",
-    links: ["TP. HCM đi Singapore", "Hà Nội đi Bangkok", "Đà Nẵng đi Seoul", "TP. HCM đi Tokyo"],
-  },
-  {
-    title: "Mẹo đặt vé hữu ích",
-    links: ["Kinh nghiệm săn vé bay giá rẻ", "Cách chọn giờ bay phù hợp", "Khi nào nên đặt vé sớm", "Mẹo tiết kiệm phí hành lý"],
-  },
-  {
-    title: "Kết hợp hành trình",
-    links: ["Khách sạn gần sân bay", "Combo vé máy bay và khách sạn", "Gợi ý lịch trình 3 ngày 2 đêm"],
-  },
+const strategicPartners = [
+  "Vietnam Airlines",
+  "VietJet Air",
+  "Bamboo Airways",
+  "Pacific Airlines",
+  "Vietravel Airlines",
+  "Singapore Airlines",
+  "Thai AirAsia",
+  "Korean Air",
+  "Japan Airlines",
+  "Cathay Pacific",
 ];
+
+/* ─── Shared subcomponents ─────────────────────────────────────────── */
 
 function HotelFieldButton({
   label,
@@ -227,7 +212,9 @@ function HotelFieldButton({
         <span className="travel-hotel-field__icon">
           <Icon size={22} />
         </span>
-        {isTypable ? (
+        {children ? (
+          <div style={{ flex: 1, minWidth: 0 }}>{children}</div>
+        ) : isTypable ? (
           <input
             type="text"
             className="travel-hotel-field__input"
@@ -249,7 +236,6 @@ function HotelFieldButton({
           <span className="travel-hotel-field__value">{value || placeholder}</span>
         )}
       </div>
-      {children}
     </div>
   );
 }
@@ -259,7 +245,7 @@ type SearchButtonProps = {
   ariaLabel?: string;
 };
 
-function SearchButton({ onClick, ariaLabel = "T\u00ecm chuy\u1ebfn bay" }: SearchButtonProps) {
+function SearchButton({ onClick, ariaLabel = "Tìm chuyến bay" }: SearchButtonProps) {
   return (
     <button type="button" className="travel-search__submit" aria-label={ariaLabel} onClick={onClick}>
       <Search size={24} />
@@ -271,21 +257,30 @@ function SectionHead({
   label,
   title,
   description,
+  seeAllHref,
 }: {
   label: string;
   title: string;
   description?: string;
+  seeAllHref?: string;
 }) {
   return (
-    <div className="hotel-customer__section-head hotel-customer__section-head--stacked">
+    <div className="flight-section__head">
       <div>
-        <span>{label}</span>
-        <h2>{title}</h2>
-        {description ? <p>{description}</p> : null}
+        <span className="flight-section__label">{label}</span>
+        <h2 className="flight-section__title">{title}</h2>
+        {description ? <p className="flight-section__desc">{description}</p> : null}
       </div>
+      {seeAllHref ? (
+        <a href={seeAllHref} className="flight-section__see-all">
+          Xem tất cả <ArrowRight size={16} />
+        </a>
+      ) : null}
     </div>
   );
 }
+
+/* ─── Main component ─────────────────────────────────────────────── */
 
 export default function CustomerFlight() {
   const location = useLocation();
@@ -296,14 +291,16 @@ export default function CustomerFlight() {
   );
   const [tripType] = useState<TripType>(parsedSearch.tripType);
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
   const [flightRoute, setFlightRoute] = useState<RouteValues>({
     fromTitle: parsedSearch.fromTitle,
     fromSubtitle: parsedSearch.fromSubtitle,
     toTitle: parsedSearch.toTitle,
     toSubtitle: parsedSearch.toSubtitle,
   });
-  const [departDate] = useState(parsedSearch.departDate);
-  const [returnDate] = useState(parsedSearch.returnDate);
+  const [departDate, setDepartDate] = useState<dayjs.Dayjs>(
+    parsedSearch.departDate ? dayjs(parsedSearch.departDate) : dayjs()
+  );
 
   const isResultsView = parsedSearch.view === "results";
 
@@ -315,8 +312,8 @@ export default function CustomerFlight() {
     fromSubtitle: flightRoute.fromSubtitle ?? "",
     toTitle: flightRoute.toTitle,
     toSubtitle: flightRoute.toSubtitle ?? "",
-    departDate,
-    returnDate: tripType === "oneWay" ? "" : returnDate,
+    departDate: departDate.format("YYYY-MM-DD"),
+    returnDate: tripType === "oneWay" ? "" : parsedSearch.returnDate,
   };
 
   function handleFlightSearch() {
@@ -342,6 +339,7 @@ export default function CustomerFlight() {
 
   return (
     <div className="hotel-customer flight-customer">
+      {/* ── Hero + Search ─────────────────────────────────────── */}
       <section className="hotel-customer__hero">
         <div className="customer-shell__container">
           <div
@@ -378,32 +376,49 @@ export default function CustomerFlight() {
                   />
                   <HotelFieldButton
                     label="Ngày khởi hành"
-                    value={formatFlightDateLabel(departDate)}
                     icon={CalendarDays}
-                  />
+                  >
+                    <ConfigProvider locale={viVN}>
+                      <DatePicker
+                        value={departDate}
+                        onChange={(date) => { if (date) setDepartDate(date); }}
+                        format="DD/MM/YYYY"
+                        variant="borderless"
+                        allowClear={false}
+                        style={{ padding: 0, width: "100%", fontWeight: 600, fontSize: 15 }}
+                      />
+                    </ConfigProvider>
+                  </HotelFieldButton>
                   <SearchButton ariaLabel="Tìm chuyến bay" onClick={handleFlightSearch} />
                 </div>
               </div>
             </div>
           </section>
-
         </div>
       </section>
 
-      <section className="hotel-customer__section" id="uu-dai">
+      {/* ── 3. Flight Promotions ──────────────────────────────── */}
+      <section className="flight-section" id="khuyen-mai">
         <div className="customer-shell__container">
-          <SectionHead label="Ưu đãi dành cho bạn" title="Đặt vé trên web, mở app dùng mã giảm ngay" />
-          <div className="flight-customer__coupon-grid">
-            {couponCards.map((item) => (
-              <article key={item.code} className="flight-customer__coupon-card">
-                <span className="flight-customer__coupon-tag">{item.tag}</span>
-                <strong>{item.title}</strong>
-                <p>{item.body}</p>
-                <div className="flight-customer__coupon-footer">
-                  <span>{item.code}</span>
-                  <button type="button">
-                    <Copy size={14} />
-                    Sao chép
+          <SectionHead
+            label="Khuyến mãi"
+            title="Khuyến mãi chuyến bay giá tốt"
+            seeAllHref="#khuyen-mai"
+          />
+          <div className="flight-promo__grid">
+            {flightPromotions.map((item) => (
+              <article key={item.id} className="flight-promo__card">
+                <div className="flight-promo__card-image">
+                  <img src={item.image} alt={item.route} />
+                  <span className={`flight-promo__badge ${item.badge === "Hot" ? "flight-promo__badge--hot" : ""}`}>
+                    {item.badge}
+                  </span>
+                </div>
+                <div className="flight-promo__card-body">
+                  <span className="flight-promo__route">{item.route}</span>
+                  <strong className="flight-promo__price">{item.price}</strong>
+                  <button type="button" className="flight-promo__arrow" aria-label="Xem chi tiết">
+                    <ArrowRight size={18} />
                   </button>
                 </div>
               </article>
@@ -412,215 +427,130 @@ export default function CustomerFlight() {
         </div>
       </section>
 
-      <section className="hotel-customer__section hotel-customer__section--plain">
+      {/* ── 4. Value Proposition ──────────────────────────────── */}
+      <section className="flight-section flight-section--light" id="tai-sao">
         <div className="customer-shell__container">
-          <SectionHead label="Ưu đãi vé máy bay" title="Những khối nội dung nổi bật dành cho khách hàng" />
-          <div className="hotel-customer__promo-grid">
-            {promoCards.map((item, index) => (
-              <article
-                key={item.title}
-                className="hotel-customer__promo-card"
-                style={{
-                  backgroundImage: `linear-gradient(180deg, rgba(8, 24, 45, 0.22) 0%, rgba(8, 24, 45, 0.82) 100%), url(${index % 2 === 0 ? baibienImage : thuongHieuImage})`,
-                }}
-              >
-                <span>Flight</span>
-                <strong>{item.title}</strong>
-                <em>{item.subtitle}</em>
-                <p>{item.description}</p>
-              </article>
-            ))}
+          <div className="flight-value__header">
+            <span className="flight-section__label">Ưu điểm nổi bật</span>
+            <h2 className="flight-section__title">Tại sao đặt vé máy bay với Traveloka?</h2>
           </div>
-        </div>
-      </section>
-
-      <section className="hotel-customer__section" id="gia-re">
-        <div className="customer-shell__container">
-          <SectionHead label="Vé máy bay nội địa giá tốt" title="Những chặng bay đang được quan tâm" />
-          <div className="flight-customer__fare-grid">
-            {domesticFares.map((item, index) => (
-              <article key={`${item.origin}-${item.destination}`} className="flight-customer__fare-card">
-                <div
-                  className="flight-customer__fare-thumb"
-                  style={{
-                    backgroundImage: `linear-gradient(180deg, rgba(8, 24, 45, 0.14) 0%, rgba(8, 24, 45, 0.76) 100%), url(${index % 2 === 0 ? baibienImage : thuongHieuImage})`,
-                  }}
-                />
-                <div className="flight-customer__fare-body">
-                  <span>{item.origin} {" -> "} {item.destination}</span>
-                  <strong>{item.airline}</strong>
-                  <p>{item.price}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="hotel-customer__section hotel-customer__section--plain">
-        <div className="customer-shell__container">
-          <SectionHead label="Vé máy bay quốc tế giá tốt" title="Một vài hành trình nổi bật để bạn tham khảo" />
-          <div className="flight-customer__fare-grid">
-            {internationalFares.map((item, index) => (
-              <article key={`${item.origin}-${item.destination}`} className="flight-customer__fare-card">
-                <div
-                  className="flight-customer__fare-thumb"
-                  style={{
-                    backgroundImage: `linear-gradient(180deg, rgba(8, 24, 45, 0.14) 0%, rgba(8, 24, 45, 0.76) 100%), url(${index % 2 === 0 ? thuongHieuImage : baibienImage})`,
-                  }}
-                />
-                <div className="flight-customer__fare-body">
-                  <span>{item.origin} {" -> "} {item.destination}</span>
-                  <strong>{item.airline}</strong>
-                  <p>{item.price}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="hotel-customer__section hotel-customer__section--plain">
-        <div className="customer-shell__container">
-          <SectionHead label="Bài viết mới nhất" title="Cập nhật mẹo đặt vé và chuẩn bị hành trình" />
-          <div className="flight-customer__article-grid">
-            {articleCards.map((item, index) => (
-              <article key={item} className="flight-customer__article-card">
-                <div
-                  className="flight-customer__article-thumb"
-                  style={{
-                    backgroundImage: `linear-gradient(180deg, rgba(9, 16, 31, 0.1) 0%, rgba(9, 16, 31, 0.64) 100%), url(${index % 2 === 0 ? baibienImage : thuongHieuImage})`,
-                  }}
-                />
-                <div className="flight-customer__article-body">
-                  <strong>{item}</strong>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="hotel-customer__section hotel-customer__section--plain">
-        <div className="customer-shell__container">
-          <SectionHead label="Tìm kiếm các deal bay từ Việt Nam" title="Giá tham khảo cho các chặng được quan tâm nhiều" />
-          <div className="flight-customer__route-board">
-            {routeColumns.map((column) => (
-              <div key={column.title} className="flight-customer__route-column">
-                <h3>{column.title}</h3>
-                {column.routes.map((item) => (
-                  <article key={`${item.label}-${item.price}`} className="flight-customer__route-row">
-                    <div>
-                      <strong>{item.label}</strong>
-                      <span>{item.airline}</span>
-                    </div>
-                    <span className="flight-customer__route-price">{item.price}</span>
-                    <ArrowRight size={16} />
-                  </article>
-                ))}
-              </div>
-            ))}
-          </div>
-
-          <article className="flight-customer__app-banner">
-            <div className="flight-customer__app-copy">
-              <span>Deal chỉ có trên app</span>
-              <strong>Mở ứng dụng để nhận thêm mã bay và thông báo giá theo chặng yêu thích</strong>
-            </div>
-            <div className="flight-customer__app-qr">
-              <QrCode size={58} />
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section className="hotel-customer__section hotel-customer__section--plain">
-        <div className="customer-shell__container">
-          <div className="flight-customer__reason-grid">
-            {reasonCards.map((item) => {
+          <div className="flight-value__grid">
+            {valuePropositions.map((item) => {
               const Icon = item.icon;
-
               return (
-                <article key={item.title} className="flight-customer__reason-card">
-                  <span className="flight-customer__reason-icon">
-                    <Icon size={18} />
-                  </span>
-                  <strong>{item.title}</strong>
-                  <p>{item.body}</p>
-                </article>
+                <div key={item.title} className="flight-value__card">
+                  <div className="flight-value__icon" style={{ backgroundColor: item.color }}>
+                    <Icon size={28} color={item.iconColor} />
+                  </div>
+                  <h3 className="flight-value__subtitle">{item.title}</h3>
+                  <p className="flight-value__desc">{item.description}</p>
+                </div>
               );
             })}
           </div>
         </div>
       </section>
 
-      <section className="hotel-customer__section hotel-customer__section--plain">
+      {/* ── 5. Travel Inspiration ────────────────────────────── */}
+      <section className="flight-section" id="cam-hung">
         <div className="customer-shell__container">
-          <SectionHead label="Đối tác hàng không" title="Đặt vé với nhiều hãng bay trong nước và quốc tế" />
-          <div className="hotel-customer__logo-grid">
-            {airlineLogos.map((item) => (
-              <div key={item} className="hotel-customer__logo-card">
-                {item}
-              </div>
+          <SectionHead
+            label="Khám phá"
+            title="Cảm hứng cho chuyến đi tiếp theo"
+          />
+          <div className="flight-inspire__grid">
+            {travelInspirations.map((item) => (
+              <article key={item.id} className="flight-inspire__card">
+                <div className="flight-inspire__card-image">
+                  <img src={item.image} alt={item.title} />
+                </div>
+                <div className="flight-inspire__card-body">
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                </div>
+              </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="hotel-customer__section hotel-customer__section--plain">
+      {/* ── 6. FAQ ────────────────────────────────────────────── */}
+      <section className="flight-section flight-section--light" id="faq">
         <div className="customer-shell__container">
-          <SectionHead label="Đối tác thanh toán" title="Nhiều lựa chọn thanh toán quen thuộc để chốt vé nhanh hơn" />
-          <div className="hotel-customer__payment-grid">
-            {paymentLogos.map((item) => (
-              <div key={item} className="hotel-customer__payment-card">
-                {item}
-              </div>
-            ))}
+          <div className="flight-faq__header">
+            <span className="flight-section__label">Hỗ trợ</span>
+            <h2 className="flight-section__title">Câu hỏi thường gặp</h2>
           </div>
-        </div>
-      </section>
-
-      <section className="hotel-customer__section hotel-customer__section--plain" id="faq">
-        <div className="customer-shell__container">
-          <SectionHead label="Hỗ trợ" title="Các câu hỏi thường gặp" />
-          <div className="hotel-customer__faq">
+          <div className="flight-faq__list">
             {faqItems.map((item, index) => {
               const isOpen = index === activeFaqIndex;
-
               return (
-                <article key={item.question} className={isOpen ? "hotel-customer__faq-item is-open" : "hotel-customer__faq-item"}>
+                <div key={item.question} className={`flight-faq__item ${isOpen ? "is-open" : ""}`}>
                   <button
                     type="button"
-                    className="hotel-customer__faq-question"
-                    onClick={() => setActiveFaqIndex((currentValue) => (currentValue === index ? -1 : index))}
+                    className="flight-faq__question"
+                    onClick={() => setActiveFaqIndex((cur) => (cur === index ? -1 : index))}
                   >
                     <span>{item.question}</span>
-                    <ChevronDown size={18} />
+                    <ChevronDown size={20} className={`flight-faq__chevron ${isOpen ? "is-rotated" : ""}`} />
                   </button>
-                  {isOpen ? <p className="hotel-customer__faq-answer">{item.answer}</p> : null}
-                </article>
+                  <div className={`flight-faq__answer ${isOpen ? "is-visible" : ""}`}>
+                    <p>{item.answer}</p>
+                  </div>
+                </div>
               );
             })}
           </div>
         </div>
       </section>
 
-      <section className="hotel-customer__section hotel-customer__section--plain hotel-customer__section--discover">
+      {/* ── 7. Strategic Partners ─────────────────────────────── */}
+      <section className="flight-section" id="doi-tac">
         <div className="customer-shell__container">
-          <SectionHead label="Khám phá thêm" title="Các lựa chọn du lịch độc đáo cho hành trình của bạn" />
-          <div className="hotel-customer__discover-grid">
-            {discoverColumns.map((column) => (
-              <div key={column.title} className="hotel-customer__discover-column">
-                <h3>{column.title}</h3>
-                <ul>
-                  {column.links.map((item) => (
-                    <li key={item}>
-                      <a href="#tim-kiem">{item}</a>
-                    </li>
-                  ))}
-                </ul>
+          <div className="flight-partners__header">
+            <span className="flight-section__label">Đối tác tin cậy</span>
+            <h2 className="flight-section__title">Đối tác hàng không chiến lược</h2>
+          </div>
+          <div className="flight-partners__grid">
+            {strategicPartners.map((name) => (
+              <div key={name} className="flight-partners__card">
+                {name}
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 8. Newsletter ────────────────────────────────────── */}
+      <section className="flight-newsletter" id="newsletter">
+        <div className="customer-shell__container">
+          <div className="flight-newsletter__inner">
+            <div className="flight-newsletter__copy">
+              <h2>Đăng ký nhận tin khuyến mãi</h2>
+              <p>Nhận ngay thông tin ưu đãi vé máy bay, deal hot và mã giảm giá độc quyền qua email.</p>
+            </div>
+            <form
+              className="flight-newsletter__form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (newsletterEmail.trim()) {
+                  alert("Đăng ký thành công! Cảm ơn bạn đã theo dõi.");
+                  setNewsletterEmail("");
+                }
+              }}
+            >
+              <input
+                type="email"
+                className="flight-newsletter__input"
+                placeholder="Nhập địa chỉ email của bạn"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                required
+              />
+              <button type="submit" className="flight-newsletter__submit">
+                ĐĂNG KÝ NGAY
+              </button>
+            </form>
           </div>
         </div>
       </section>

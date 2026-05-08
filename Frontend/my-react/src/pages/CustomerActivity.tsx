@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   MapPin, 
   Search, 
@@ -70,6 +72,13 @@ const recommended = [
 ];
 
 export default function CustomerActivity() {
+  const [activitySearch, setActivitySearch] = useState("");
+  const navigate = useNavigate();
+
+  function handleSearch() {
+    navigate(`/mua-sam/ket-qua-hoat-dong?q=${encodeURIComponent(activitySearch)}`);
+  }
+
   return (
     <div className="ca-page">
       <section className="ca-hero">
@@ -103,12 +112,17 @@ export default function CustomerActivity() {
                       type="text" 
                       placeholder="Tìm kiếm địa điểm hoặc hoạt động" 
                       className="ca-search__field-input"
+                      value={activitySearch}
+                      onChange={(e) => setActivitySearch(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSearch();
+                      }}
                     />
                   </div>
                 </div>
 
                 {/* Nút tìm kiếm */}
-                <button className="ca-search__submit-btn">
+                <button className="ca-search__submit-btn" onClick={handleSearch}>
                   <Search size={24} strokeWidth={2.5} />
                 </button>
               </div>

@@ -29,6 +29,8 @@ import SuccessKhachSan from '../pages/SuccessKhachSan';
 import CustomerTransactions from '../pages/CustomerTransactions';
 import CustomerProfile from '../pages/CustomerProfile';
 import CustomerBookings from '../pages/CustomerBookings';
+import CustomerTrainSearchResults from '../pages/CustomerTrainSearchResults';
+import CustomerActivitySearchResults from '../pages/CustomerActivitySearchResults';
 
 export default function RoutesIndex() {
   return (
@@ -48,6 +50,8 @@ export default function RoutesIndex() {
         <Route path="thanh-toan-khach-san" element={<CheckoutKhachSan />} />
         <Route path="thanh-toan-dat-cho" element={<PaymentKhachSan />} />
         <Route path="thanh-toan-thanh-cong" element={<SuccessKhachSan />} />
+        <Route path="ket-qua-tau" element={<CustomerTrainSearchResults />} />
+        <Route path="ket-qua-hoat-dong" element={<CustomerActivitySearchResults />} />
       </Route>
       <Route path="/" element={<AdminLayout />}>
         <Route index element={<Navigate to="/ThongKe" replace />} />

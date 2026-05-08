@@ -64,6 +64,11 @@
   padding: 20px 24px;
 }
 
+/* Đổi màu label để hiển thị rõ trên nền trắng của khung tìm kiếm */
+.hotel-customer__search .travel-hotel-field__label {
+  color: #000000;
+}
+
 
 /* Định dạng link lịch sử dưới cùng */
 .travel-search__history-link {

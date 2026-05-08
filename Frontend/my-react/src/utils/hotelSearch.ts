@@ -4,9 +4,7 @@ export type HotelSearchState = {
   destinationSubtitle: string;
   checkInDate: string;
   checkOutDate: string;
-  adults: number;
-  children: number;
-  rooms: number;
+  guests: number;
 };
 
 export type HotelSpecialRequestId = "nonSmoking" | "connectingRooms" | "highFloor";
@@ -40,9 +38,7 @@ export const defaultHotelSearchState: HotelSearchState = {
   destinationSubtitle: "",
   checkInDate: "2026-04-14",
   checkOutDate: "2026-04-15",
-  adults: 2,
-  children: 0,
-  rooms: 1,
+  guests: 0,
 };
 
 export const defaultHotelCheckoutState: HotelCheckoutState = {
@@ -60,10 +56,6 @@ export const defaultHotelCheckoutState: HotelCheckoutState = {
 };
 
 const weekdayLabels = ["CN", "Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7"] as const;
-
-function clampCount(value: number, minimum: number) {
-  return Number.isFinite(value) ? Math.max(minimum, Math.floor(value)) : minimum;
-}
 
 function isPaymentMethod(value: string | null): value is HotelPaymentMethod {
   return (
@@ -144,14 +136,11 @@ export function formatHotelDateRange(checkInDate: string, checkOutDate: string) 
   return `${formatHotelDateChip(checkInDate)} - ${formatHotelDateChip(checkOutDate)}, ${nights} đêm`;
 }
 
-export function formatHotelGuestSummary(adults: number, children: number, rooms: number) {
-  return `${adults} người lớn, ${children} trẻ em, ${rooms} phòng`;
+export function formatHotelGuestSummary(guests: number) {
+  return `${guests} khách`;
 }
 
 export function parseHotelSearchParams(searchParams: URLSearchParams): HotelSearchState {
-  const adults = clampCount(Number(searchParams.get("adults")), defaultHotelSearchState.adults);
-  const children = clampCount(Number(searchParams.get("children")), 0);
-  const rooms = clampCount(Number(searchParams.get("rooms")), defaultHotelSearchState.rooms);
 
   return {
     view: searchParams.get("view") === "results" ? "results" : "landing",
@@ -159,9 +148,7 @@ export function parseHotelSearchParams(searchParams: URLSearchParams): HotelSear
     destinationSubtitle: searchParams.get("destinationSub") || defaultHotelSearchState.destinationSubtitle,
     checkInDate: searchParams.get("checkIn") || defaultHotelSearchState.checkInDate,
     checkOutDate: searchParams.get("checkOut") || defaultHotelSearchState.checkOutDate,
-    adults,
-    children,
-    rooms,
+    guests: Number(searchParams.get("guests") ?? 0)
   };
 }
 
@@ -177,9 +164,7 @@ export function buildHotelSearchQuery(overrides: Partial<HotelSearchState>) {
   searchParams.set("destinationSub", nextState.destinationSubtitle);
   searchParams.set("checkIn", nextState.checkInDate);
   searchParams.set("checkOut", nextState.checkOutDate);
-  searchParams.set("adults", String(nextState.adults));
-  searchParams.set("children", String(nextState.children));
-  searchParams.set("rooms", String(nextState.rooms));
+  searchParams.set("guests", String(nextState.guests));
 
   return searchParams.toString();
 }

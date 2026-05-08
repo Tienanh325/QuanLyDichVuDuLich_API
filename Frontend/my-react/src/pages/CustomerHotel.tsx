@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   CalendarDays,
   CheckCircle,
   ChevronDown,
-  ChevronLeft,
   ChevronRight,
   Clock,
   Heart,
@@ -22,20 +21,22 @@ import {
   type HotelSearchState,
   buildHotelSearchQuery,
   defaultHotelSearchState,
-  hotelQueryDateToDate,
   parseHotelSearchParams,
-  toHotelQueryDate,
 } from "../utils/hotelSearch";
+import { ConfigProvider, DatePicker } from "antd";
+import dayjs from "dayjs";
+import "dayjs/locale/vi";
+import viVN from "antd/locale/vi_VN";
+
+dayjs.locale("vi");
 
 type IconType = typeof Search;
-type HotelPopover = "destination" | "stay" | "guests" | null;
 
 type HotelFormState = {
   destination: PopularHotelDestination;
-  stay: { checkIn: Date; checkOut: Date };
-  guests: { adults: number; children: number; rooms: number };
+  stay: [dayjs.Dayjs, dayjs.Dayjs];
+  guests: number;
 };
-
 const exclusiveOffers = [
   {
     id: 1,
@@ -159,11 +160,7 @@ const whyBookWithTraveloka = [
     description: "Đội ngũ khách hàng chuyên nghiệp luôn sẵn sàng hỗ trợ bạn mọi lúc.",
   },
 ] as const;
-const hotelWeekdays = ["Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7", "CN"];
-const hotelCalendarMonths = [
-  { year: 2026, monthIndex: 3 },
-  { year: 2026, monthIndex: 4 },
-];
+
 
 type PopularHotelDestination = {
   name: string;
@@ -231,51 +228,8 @@ type HotelFieldButtonProps = {
   onChange?: (val: string) => void;
 };
 
-function addDays(date: Date, amount: number) {
-  const nextDate = new Date(date);
-  nextDate.setDate(nextDate.getDate() + amount);
-  return nextDate;
-}
 
-function isSameDay(leftDate: Date, rightDate: Date) {
-  return (
-    leftDate.getFullYear() === rightDate.getFullYear() &&
-    leftDate.getMonth() === rightDate.getMonth() &&
-    leftDate.getDate() === rightDate.getDate()
-  );
-}
 
-function isDateBetween(date: Date, startDate: Date, endDate: Date) {
-  return date.getTime() > startDate.getTime() && date.getTime() < endDate.getTime();
-}
-
-function formatHotelSearchDate(date: Date) {
-  return `${String(date.getDate()).padStart(2, "0")} thg ${date.getMonth() + 1} ${date.getFullYear()}`;
-}
-
-function formatHotelPanelDate(date: Date) {
-  const weekdayNames = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
-
-  return `${weekdayNames[date.getDay()]}, ${String(date.getDate()).padStart(2, "0")} thg ${date.getMonth() + 1
-    } ${date.getFullYear()}`;
-}
-
-function getCalendarDays(year: number, monthIndex: number) {
-  const firstDay = new Date(year, monthIndex, 1);
-  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-  const leadingEmptyDays = (firstDay.getDay() + 6) % 7;
-  const days: Array<Date | null> = Array.from({ length: leadingEmptyDays }, () => null);
-
-  for (let dayNumber = 1; dayNumber <= daysInMonth; dayNumber += 1) {
-    days.push(new Date(year, monthIndex, dayNumber));
-  }
-
-  while (days.length % 7 !== 0) {
-    days.push(null);
-  }
-
-  return days;
-}
 
 function HotelFieldButton({
   label,
@@ -303,13 +257,16 @@ function HotelFieldButton({
         <span className="travel-hotel-field__icon">
           <Icon size={22} />
         </span>
-        {isTypable ? (
+        {children ? (
+          <div style={{ flex: 1, minWidth: 0 }}>{children}</div>
+        ) : isTypable ? (
           <input
             type="text"
             className="travel-hotel-field__input"
             value={value}
             placeholder={placeholder}
             onChange={(e) => onChange?.(e.target.value)}
+            onClick={(e) => e.stopPropagation()}
             style={{
               border: "none",
               background: "transparent",
@@ -318,7 +275,7 @@ function HotelFieldButton({
               fontSize: 15,
               fontWeight: 600,
               color: "#242628",
-              padding: 0
+              padding: 0,
             }}
           />
         ) : (
@@ -331,7 +288,6 @@ function HotelFieldButton({
         ) : null}
       </div>
       {helperText ? <div className="travel-hotel-field__helper">{helperText}</div> : null}
-      {children}
     </div>
   );
 }
@@ -344,140 +300,35 @@ export default function CustomerHotel() {
     [location.search],
   );
   const hotelSearchRef = useRef<HTMLDivElement | null>(null);
-  const [openHotelPopover, setOpenHotelPopover] = useState<HotelPopover>(null);
-  const [hotelDateFocus, setHotelDateFocus] = useState<"checkIn" | "checkOut">("checkIn");
   const [hotelDestination, setHotelDestination] = useState({
-    name: "",
-    subtitle: "",
+    name: parsedSearch.destination || "",
+    subtitle: parsedSearch.destinationSubtitle || "",
     type: "Thành phố",
     count: "Nhiều khách sạn",
   });
-  const [hotelForm, setHotelForm] = useState<HotelFormState>(() => ({
-    destination: findHotelDestination("", ""),
-    stay: {
-      checkIn: hotelQueryDateToDate(parsedSearch.checkInDate),
-      checkOut: hotelQueryDateToDate(parsedSearch.checkOutDate),
-    },
-    guests: {
-      adults: parsedSearch.adults,
-      children: parsedSearch.children,
-      rooms: parsedSearch.rooms,
-    },
-  }));
-  // Synchronize form state with parsed search params from URL
-  // This is a valid pattern for deriving component state from route parameters
-  useEffect(() => {
-    if (parsedSearch.destination) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setHotelDestination({
-        name: parsedSearch.destination,
-        subtitle: parsedSearch.destinationSubtitle,
-        type: "Thành phố",
-        count: "Nhiều khách sạn",
-      });
-    }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setHotelForm({
+  const [hotelForm, setHotelForm] = useState<HotelFormState>(() => {
+    const checkIn = parsedSearch.checkInDate
+      ? dayjs(parsedSearch.checkInDate)
+      : dayjs();
+    const checkOut = parsedSearch.checkOutDate
+      ? dayjs(parsedSearch.checkOutDate)
+      : dayjs().add(1, "day");
+    return {
       destination: findHotelDestination(parsedSearch.destination, parsedSearch.destinationSubtitle),
-      stay: {
-        checkIn: hotelQueryDateToDate(parsedSearch.checkInDate),
-        checkOut: hotelQueryDateToDate(parsedSearch.checkOutDate),
-      },
-      guests: {
-        adults: parsedSearch.adults,
-        children: parsedSearch.children,
-        rooms: parsedSearch.rooms,
-      },
-    });
-  }, [
-    parsedSearch.adults,
-    parsedSearch.checkInDate,
-    parsedSearch.checkOutDate,
-    parsedSearch.children,
-    parsedSearch.destination,
-    parsedSearch.destinationSubtitle,
-    parsedSearch.rooms,
-  ]);
-
-  useEffect(() => {
-    if (!openHotelPopover) {
-      return undefined;
-    }
-
-    function handlePointerDown(event: MouseEvent) {
-      if (!hotelSearchRef.current?.contains(event.target as Node)) {
-        setOpenHotelPopover(null);
-      }
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setOpenHotelPopover(null);
-      }
-    }
-
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
+      stay: [checkIn.isValid() ? checkIn : dayjs(), checkOut.isValid() ? checkOut : dayjs().add(1, "day")],
+      guests: parsedSearch.guests,
     };
-  }, [openHotelPopover]);
-
-
-
-  function handleHotelDateSelect(date: Date) {
-    if (hotelDateFocus === "checkIn") {
-      setHotelForm((currentValue) => ({
-        ...currentValue,
-        stay: {
-          checkIn: date,
-          checkOut:
-            currentValue.stay.checkOut.getTime() <= date.getTime() ? addDays(date, 1) : currentValue.stay.checkOut,
-        },
-      }));
-      setHotelDateFocus("checkOut");
-      return;
-    }
-
-    setHotelForm((currentValue) => {
-      if (date.getTime() <= currentValue.stay.checkIn.getTime()) {
-        return {
-          ...currentValue,
-          stay: {
-            checkIn: date,
-            checkOut: addDays(date, 1),
-          },
-        };
-      }
-
-      return {
-        ...currentValue,
-        stay: {
-          ...currentValue.stay,
-          checkOut: date,
-        },
-      };
-    });
-    setHotelDateFocus("checkIn");
-  }
-
-  const hotelStaySummary = `${formatHotelSearchDate(hotelForm.stay.checkIn)} - ${formatHotelSearchDate(
-    hotelForm.stay.checkOut,
-  )}`;
-  const hotelGuestSummary = `${hotelForm.guests.adults} người lớn, ${hotelForm.guests.children} Trẻ em, ${hotelForm.guests.rooms} phòng`;
+  });
+  const hotelGuestSummary = hotelForm.guests > 0 ? `${hotelForm.guests}` : "";
   const isResultsView = parsedSearch.view === "results";
   const activeSearchState: HotelSearchState = {
     ...parsedSearch,
     view: isResultsView ? "results" : "landing",
     destination: hotelDestination.name,
     destinationSubtitle: hotelDestination.subtitle,
-    checkInDate: toHotelQueryDate(hotelForm.stay.checkIn),
-    checkOutDate: toHotelQueryDate(hotelForm.stay.checkOut),
-    adults: hotelForm.guests.adults,
-    children: hotelForm.guests.children,
-    rooms: hotelForm.guests.rooms,
+    checkInDate: hotelForm.stay[0].format("YYYY-MM-DD"),
+    checkOutDate: hotelForm.stay[1].format("YYYY-MM-DD"),
+    guests: hotelForm.guests,
   };
   function handleHotelSearch() {
     navigate(
@@ -526,7 +377,7 @@ export default function CustomerHotel() {
               <div className="travel-form">
                 <div className="travel-form__layout travel-form__layout--hotel">
                   <HotelFieldButton
-                    label="Thành phố, địa điểm hoặc tên khách sạn:"
+                    label="Thành phố, địa điểm hoặc tên khách sạn"
                     value={hotelDestination.name}
                     placeholder="Nhập địa điểm"
                     icon={MapPinned}
@@ -537,123 +388,41 @@ export default function CustomerHotel() {
                         name: val,
                       }))
                     }
-                  >
-                  </HotelFieldButton>
-
+                  />
                   <HotelFieldButton
                     label="Ngày nhận phòng và trả phòng"
-                    value={hotelStaySummary}
                     icon={CalendarDays}
-                    isOpen={openHotelPopover === "stay"}
-                    onClick={() =>
-                      setOpenHotelPopover((currentValue) => (currentValue === "stay" ? null : "stay"))
-                    }
                   >
-                    {openHotelPopover === "stay" ? (
-                      <div className="travel-hotel-panel travel-hotel-panel--stay">
-                        <div className="travel-hotel-panel__heading">
-                          <h3>Chọn ngày lưu trú</h3>
-                        </div>
-
-                        <div className="travel-hotel-stay-summary">
-                          <button
-                            type="button"
-                            className={
-                              hotelDateFocus === "checkIn"
-                                ? "travel-hotel-stay-summary-card is-focus"
-                                : "travel-hotel-stay-summary-card"
-                            }
-                            onClick={() => setHotelDateFocus("checkIn")}
-                          >
-                            <span>Nhận phòng</span>
-                            <strong>{formatHotelPanelDate(hotelForm.stay.checkIn)}</strong>
-                          </button>
-
-                          <button
-                            type="button"
-                            className={
-                              hotelDateFocus === "checkOut"
-                                ? "travel-hotel-stay-summary-card is-focus"
-                                : "travel-hotel-stay-summary-card"
-                            }
-                            onClick={() => setHotelDateFocus("checkOut")}
-                          >
-                            <span>Trả phòng</span>
-                            <strong>{formatHotelPanelDate(hotelForm.stay.checkOut)}</strong>
-                          </button>
-                        </div>
-
-                        <div className="travel-hotel-calendars">
-                          {hotelCalendarMonths.map((item, index) => (
-                            <div key={`${item.year}-${item.monthIndex}`} className="travel-hotel-calendar">
-                              <div className="travel-hotel-calendar__header">
-                                <span className="travel-hotel-calendar__nav" aria-hidden="true">
-                                  {index === 0 ? <ChevronLeft size={18} /> : null}
-                                </span>
-                                <strong>
-                                  {new Date(item.year, item.monthIndex, 1).toLocaleDateString("vi-VN", {
-                                    month: "long",
-                                    year: "numeric",
-                                  })}
-                                </strong>
-                                <span className="travel-hotel-calendar__nav" aria-hidden="true">
-                                  {index === hotelCalendarMonths.length - 1 ? <ChevronRight size={18} /> : null}
-                                </span>
-                              </div>
-
-                              <div className="travel-hotel-calendar__weekdays">
-                                {hotelWeekdays.map((weekday) => (
-                                  <span key={weekday} className="travel-hotel-calendar__weekday">
-                                    {weekday}
-                                  </span>
-                                ))}
-                              </div>
-
-                              <div className="travel-hotel-calendar__days">
-                                {getCalendarDays(item.year, item.monthIndex).map((date, dayIndex) => {
-                                  if (!date) {
-                                    return <span key={`blank-${dayIndex}`} className="travel-hotel-calendar__blank" />;
-                                  }
-
-                                  const isSelected =
-                                    isSameDay(date, hotelForm.stay.checkIn) || isSameDay(date, hotelForm.stay.checkOut);
-                                  const isInRange = isDateBetween(date, hotelForm.stay.checkIn, hotelForm.stay.checkOut);
-                                  const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-
-                                  const className = [
-                                    "travel-hotel-calendar__day",
-                                    isWeekend ? "is-weekend" : "",
-                                    isInRange ? "is-in-range" : "",
-                                    isSelected ? "is-selected" : "",
-                                  ]
-                                    .filter(Boolean)
-                                    .join(" ");
-
-                                  return (
-                                    <button
-                                      key={date.toISOString()}
-                                      type="button"
-                                      className={className}
-                                      onClick={() => handleHotelDateSelect(date)}
-                                    >
-                                      {date.getDate()}
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
+                    <ConfigProvider locale={viVN}>
+                      <DatePicker.RangePicker
+                        value={hotelForm.stay}
+                        onChange={(dates) => {
+                          if (dates && dates[0] && dates[1]) {
+                            setHotelForm((prev) => ({ ...prev, stay: [dates[0]!, dates[1]!] }));
+                          }
+                        }}
+                        format="DD/MM/YYYY"
+                        variant="borderless"
+                        allowClear={false}
+                        style={{ padding: 0, width: "100%", fontWeight: 600, fontSize: 15 }}
+                      />
+                    </ConfigProvider>
                   </HotelFieldButton>
 
                   <HotelFieldButton
-                    label="Khách và Phòng"
+                    label="Số khách"
                     value={hotelGuestSummary}
+                    placeholder="Hãy nhập số người ở"
                     icon={Users}
-                  >
-                  </HotelFieldButton>
+                    isTypable
+                    onChange={(value) => {
+                      const onlyNumber = value.replace(/\D/g, "");
+                      setHotelForm((prev) => ({
+                        ...prev,
+                        guests: onlyNumber === "" ? 0 : Number(onlyNumber),
+                      }));
+                    }}
+                  />
 
                   <button type="button" className="travel-search__submit" aria-label="Tìm khách sạn" onClick={handleHotelSearch}>
                     <Search size={22} strokeWidth={2.5} />

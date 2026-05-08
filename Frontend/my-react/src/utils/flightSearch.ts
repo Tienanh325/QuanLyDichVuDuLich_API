@@ -1,4 +1,4 @@
-﻿export type FlightTripType = "oneWay" | "roundTrip" | "multiCity";
+export type FlightTripType = "oneWay" | "roundTrip" | "multiCity";
 
 export type FlightSearchState = {
   view: "landing" | "results";
@@ -13,15 +13,21 @@ export type FlightSearchState = {
   cabinClass: string;
 };
 
+const today = new Date();
+const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+const next3Days = new Date();
+next3Days.setDate(today.getDate() + 3);
+const next3DaysString = `${next3Days.getFullYear()}-${String(next3Days.getMonth() + 1).padStart(2, "0")}-${String(next3Days.getDate()).padStart(2, "0")}`;
+
 export const defaultFlightSearchState: FlightSearchState = {
   view: "landing",
   tripType: "roundTrip",
-  fromTitle: "TP. HCM (SGN)",
-  fromSubtitle: "Sân bay Tân Sơn Nhất",
-  toTitle: "Singapore (SIN)",
-  toSubtitle: "Sân bay Changi",
-  departDate: "2026-04-30",
-  returnDate: "2026-05-03",
+  fromTitle: "",
+  fromSubtitle: "",
+  toTitle: "",
+  toSubtitle: "",
+  departDate: todayString,
+  returnDate: next3DaysString,
   passengers: "1 hành khách",
   cabinClass: "Phổ thông",
 };

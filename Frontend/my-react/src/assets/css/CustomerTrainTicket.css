@@ -1,0 +1,265 @@
+.train-customer {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  color: #17324d;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+/* 1. Hero Section */
+.train-customer__hero {
+  position: relative;
+  padding: 100px 24px 80px;
+  background: #ffffff;
+}
+
+.train-customer__hero-container {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.train-customer__hero-content {
+  flex: 1;
+  max-width: 500px;
+}
+
+.train-customer__hero-title {
+  color: #01529d;
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+
+.train-customer__hero-subtitle {
+  color: #61788f;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.train-customer__hero-image {
+  flex: 1;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+.train-customer__hero-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Ghi đè margin cho search form để không bị âm lùi quá nhiều, đè nhẹ lên Hero hoặc nằm gọn gàng */
+.train-customer__search {
+  max-width: 1200px;
+  margin: -40px auto 40px;
+  position: relative;
+  z-index: 10;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* 2. Popular Routes */
+.train-customer__routes {
+  padding: 60px 24px;
+  background-color: #f8f9fa;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.train-customer__section-title {
+  color: #17324d;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.train-customer__section-subtitle {
+  color: #61788f;
+  font-size: 16px;
+  margin-bottom: 32px;
+}
+
+.train-customer__routes-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 20px;
+}
+
+.train-customer__route-card {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.3s;
+  min-height: 220px;
+}
+
+.train-customer__route-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+}
+
+.train-customer__route-card--large {
+  grid-column: span 3;
+}
+
+.train-customer__route-card--small {
+  grid-column: span 2;
+}
+
+.train-customer__route-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+}
+
+.train-customer__route-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: rgba(255,255,255,0.9);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #17324d;
+  text-transform: uppercase;
+}
+
+.train-customer__route-title {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.train-customer__route-meta {
+  color: rgba(255,255,255,0.9);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.train-customer__route-price {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  margin-top: auto;
+  align-self: flex-end;
+}
+
+/* 3. Why Traveloka */
+.train-customer__why {
+  padding: 60px 24px;
+  background-color: #f1f5f9;
+}
+
+.train-customer__why-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.train-customer__why-title-wrapper {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.train-customer__why-title-wrapper h2 {
+  display: inline-block;
+  color: #17324d;
+  font-size: 28px;
+  font-weight: 800;
+  position: relative;
+  padding-bottom: 8px;
+  margin: 0;
+}
+
+.train-customer__why-title-wrapper h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background-color: #01529d;
+  border-radius: 2px;
+}
+
+.train-customer__why-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.train-customer__why-card {
+  background: #fff;
+  padding: 32px 24px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+}
+
+.train-customer__why-icon {
+  width: 56px;
+  height: 56px;
+  background: #e8f4fd;
+  color: #01529d;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+.train-customer__why-card h3 {
+  color: #17324d;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  margin-top: 0;
+}
+
+.train-customer__why-card p {
+  color: #61788f;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .train-customer__hero-container,
+  .train-customer__how-container {
+    flex-direction: column;
+  }
+  .train-customer__routes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .train-customer__route-card--large,
+  .train-customer__route-card--small {
+    grid-column: span 1;
+  }
+  .train-customer__why-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .train-customer__routes-grid {
+    grid-template-columns: 1fr;
+  }
+  .train-customer__hero-title {
+    font-size: 36px;
+  }
+}
