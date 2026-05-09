@@ -1307,38 +1307,6 @@
   line-height: 1.65;
 }
 
-.home-customer__section--links {
-  padding-bottom: 60px;
-}
-
-.home-customer__links-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.home-customer__links-column h3 {
-  margin: 0 0 12px;
-  color: #163454;
-  font-size: 15px;
-  font-weight: 900;
-}
-
-.home-customer__links-column ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 10px;
-}
-
-.home-customer__links-column a {
-  color: #58728d;
-  text-decoration: none;
-  font-size: 13px;
-  line-height: 1.45;
-}
-
 @media (max-width: 1180px) {
 
   .home-customer__coupon-row,

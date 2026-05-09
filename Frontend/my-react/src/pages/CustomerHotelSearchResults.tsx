@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import "../assets/css/CustomerHotelSearchResults.css";
 import { useNavigate } from "react-router-dom";
 import { Card, Button, Slider, Pagination, Rate, Row, Col, Typography, Tag, Space, Spin, Empty } from "antd";
 import { Edit2, Map, MapPin, Star } from "lucide-react";
@@ -37,6 +38,7 @@ export default function CustomerHotelSearchResults({
   const [totalRecords, setTotalRecords] = useState(0);
   const [loading, setLoading] = useState(true);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 20_000_000]);
+  const [sortKey, setSortKey] = useState("price_desc");
   const pageSize = 5;
 
   const fetchHotels = useCallback(async () => {
@@ -62,6 +64,17 @@ export default function CustomerHotelSearchResults({
   useEffect(() => {
     void fetchHotels();
   }, [fetchHotels]);
+
+  const sortedHotels = useMemo(() => {
+    const result = [...hotels];
+    if (sortKey === "price_asc") {
+      result.sort((a, b) => (a.giaTuKhoang || 0) - (b.giaTuKhoang || 0));
+    } else if (sortKey === "price_desc") {
+      result.sort((a, b) => (b.giaTuKhoang || 0) - (a.giaTuKhoang || 0));
+    }
+    // "Điểm đánh giá" logic could be added here if rating data was available in ListItem
+    return result;
+  }, [hotels, sortKey]);
 
   return (
     <div style={{ backgroundColor: "#f5f7fa", padding: "170px 0", minHeight: "100vh" }}>
@@ -173,11 +186,15 @@ export default function CustomerHotelSearchResults({
               </Text>
               <Space align="center" size="middle">
                 <Text type="secondary" style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase" }}>Sắp xếp theo:</Text>
-                <Space>
-                  <Button type="primary" shape="round" style={{ fontWeight: 600, backgroundColor: "#e6f4ff", color: "#0194f3", border: "none" }}>Đề xuất</Button>
-                  <Button shape="round" style={{ fontWeight: 600, color: "#17324d" }}>Giá thấp nhất</Button>
-                  <Button shape="round" style={{ fontWeight: 600, color: "#17324d" }}>Điểm đánh giá</Button>
-                </Space>
+                <select
+                  value={sortKey}
+                  onChange={(e) => setSortKey(e.target.value)}
+                  className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-[#0194f3] font-semibold text-[#17324d]"
+                >
+                  <option value="price_desc">Giá: Cao → Thấp</option>
+                  <option value="price_asc">Giá: Thấp → Cao</option>
+                  <option value="rating_desc">Điểm đánh giá</option>
+                </select>
               </Space>
             </Row>
 
@@ -189,7 +206,7 @@ export default function CustomerHotelSearchResults({
               <Empty description={<span>Không tìm thấy khách sạn nào cho điểm đến <strong>{searchState.destination}</strong>.<br/>Thử tìm kiếm với từ khóa khác.</span>} />
             ) : (
               <>
-                {hotels.map((hotel, index) => (
+                {sortedHotels.map((hotel, index) => (
                   <Card
                     key={hotel.maKhachSan}
                     styles={{ body: { padding: 0 } }}

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import "../assets/css/CustomerActivityDetail.css";
 import { MapPin, Star, Share2, Heart, Check, X, Calendar, Users } from 'lucide-react';
 
 const CustomerActivityDetail = () => {

@@ -1,13 +1,16 @@
-import { useState } from "react";
-import { 
-  MapPin, 
-  Star, 
-  Grid, 
-  List, 
-  ChevronLeft, 
+import { useState, useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import "../assets/css/CustomerActivitySearchResults.css";
+import {
+  MapPin,
+  Star,
+  Grid,
+  List,
+  ChevronLeft,
   ChevronRight,
   Zap,
-  CheckCircle2
+  CheckCircle2,
+  Edit2
 } from "lucide-react";
 
 // --- Mock Data ---
@@ -71,77 +74,104 @@ const ACTIVITY_RESULTS = [
 ];
 
 export default function CustomerActivitySearchResults() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const searchParams = new URLSearchParams(location.search);
+  const searchQuery = searchParams.get("q") || "Phú Quốc";
+
   const [activeSort, setActiveSort] = useState("popular");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [priceRange, setPriceRange] = useState(2500000);
 
+  const sortedActivities = useMemo(() => {
+    const result = [...ACTIVITY_RESULTS];
+    if (activeSort === "price") {
+      result.sort((a, b) => a.price - b.price);
+    } else if (activeSort === "price_desc") {
+      result.sort((a, b) => b.price - a.price);
+    } else if (activeSort === "popular") {
+      result.sort((a, b) => Number(b.reviews) - Number(a.reviews));
+    }
+    return result;
+  }, [activeSort]);
+
   return (
-    <div className="min-h-screen bg-[#F5F7FA] font-sans pb-16 pt-[120px]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
-        
-        {/* STEP 1: Page Title Area */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-black text-[#003580] mb-2 tracking-tight">Hoạt động tại Phú Quốc</h1>
-          <div className="flex items-center text-gray-500 font-medium">
-            <MapPin size={16} className="mr-1.5" />
-            Kiên Giang, Việt Nam &bull; 142 hoạt động tìm thấy
+    <div className="casr-page">
+      <div className="casr-container">
+
+        {/* STEP 1: Search Summary Bar */}
+        <div className="casr-search-bar">
+          <div className="casr-search-bar__fields">
+            <div className="casr-search-bar__field">
+              <span className="casr-search-bar__label">Điểm đến</span>
+              <div className="casr-search-bar__value">
+                <MapPin size={20} className="casr-search-bar__icon" />
+                <span>{searchQuery}</span>
+              </div>
+            </div>
           </div>
+
+          <button
+            onClick={() => navigate("/mua-sam/hoat-dong-vui-choi")}
+            className="casr-search-bar__change-btn"
+          >
+            <Edit2 size={18} />
+            Thay đổi
+          </button>
         </div>
 
         {/* STEP 2: Main Layout Grid */}
-        <div className="flex flex-col lg:flex-row gap-6">
-          
+        <div className="casr-layout">
+
           {/* STEP 3: Left Sidebar (Filters) */}
-          <aside className="w-full lg:w-1/4 flex-shrink-0">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-              
+          <aside className="casr-sidebar">
+            <div className="casr-sidebar__inner">
+
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
-                <span className="font-bold text-gray-800 tracking-wide">BỘ LỌC</span>
-                <button className="text-sm font-semibold text-[#0194f3] hover:text-[#0052b3] transition-colors">
-                  Đặt lại
-                </button>
+              <div className="casr-sidebar__header">
+                <span className="casr-sidebar__title">BỘ LỌC</span>
+                <button className="casr-sidebar__reset">Đặt lại</button>
               </div>
 
               {/* Section 1 - Danh mục */}
-              <div className="mb-6">
-                <h3 className="font-bold text-gray-800 mb-3 text-sm">DANH MỤC</h3>
-                <div className="space-y-3 text-sm">
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" className="w-4 h-4 accent-[#0194f3] rounded border-gray-300" defaultChecked />
-                    <span className="text-[#0194f3] font-semibold">Tất cả</span>
+              <div className="casr-sidebar__section">
+                <h3 className="casr-sidebar__section-title">DANH MỤC</h3>
+                <div className="casr-sidebar__checkbox-list">
+                  <label className="casr-sidebar__checkbox-label">
+                    <input type="checkbox" className="casr-sidebar__checkbox" defaultChecked />
+                    <span className="casr-sidebar__checkbox-text--active">Tất cả</span>
                   </label>
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" className="w-4 h-4 accent-[#0194f3] rounded border-gray-300" />
-                    <span className="text-gray-600 group-hover:text-gray-800 transition-colors">Tour</span>
+                  <label className="casr-sidebar__checkbox-label">
+                    <input type="checkbox" className="casr-sidebar__checkbox" />
+                    <span className="casr-sidebar__checkbox-text">Tour</span>
                   </label>
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" className="w-4 h-4 accent-[#0194f3] rounded border-gray-300" />
-                    <span className="text-gray-600 group-hover:text-gray-800 transition-colors">Công viên giải trí</span>
+                  <label className="casr-sidebar__checkbox-label">
+                    <input type="checkbox" className="casr-sidebar__checkbox" />
+                    <span className="casr-sidebar__checkbox-text">Công viên giải trí</span>
                   </label>
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" className="w-4 h-4 accent-[#0194f3] rounded border-gray-300" />
-                    <span className="text-gray-600 group-hover:text-gray-800 transition-colors">Thể thao dưới nước</span>
+                  <label className="casr-sidebar__checkbox-label">
+                    <input type="checkbox" className="casr-sidebar__checkbox" />
+                    <span className="casr-sidebar__checkbox-text">Thể thao dưới nước</span>
                   </label>
                 </div>
               </div>
 
               {/* Section 2 - Khoảng giá */}
-              <div className="mb-6">
-                <h3 className="font-bold text-gray-800 mb-3 text-sm">KHOẢNG GIÁ</h3>
-                <div className="px-1">
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="5000000" 
+              <div className="casr-sidebar__section">
+                <h3 className="casr-sidebar__section-title">KHOẢNG GIÁ</h3>
+                <div className="casr-sidebar__slider-wrap">
+                  <input
+                    type="range"
+                    min="0"
+                    max="5000000"
                     step="100000"
                     value={priceRange}
                     onChange={(e) => setPriceRange(Number(e.target.value))}
-                    className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#0194f3]"
+                    className="casr-sidebar__slider"
                   />
-                  <div className="flex items-center justify-between mt-3 text-xs font-semibold text-gray-500">
+                  <div className="casr-sidebar__slider-labels">
                     <span>0đ</span>
-                    <span className="text-[#0194f3] font-bold">{priceRange.toLocaleString('vi-VN')}đ</span>
+                    <span className="casr-sidebar__slider-value">{priceRange.toLocaleString('vi-VN')}đ</span>
                     <span>5.000.000đ+</span>
                   </div>
                 </div>
@@ -149,16 +179,16 @@ export default function CustomerActivitySearchResults() {
 
               {/* Section 3 - Xếp hạng */}
               <div>
-                <h3 className="font-bold text-gray-800 mb-3 text-sm">XẾP HẠNG</h3>
-                <div className="flex items-center gap-1">
+                <h3 className="casr-sidebar__section-title">XẾP HẠNG</h3>
+                <div className="casr-sidebar__rating">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <Star 
-                      key={star} 
-                      size={22} 
-                      className={star <= 4 ? "fill-amber-400 text-amber-400" : "text-gray-300"} 
+                    <Star
+                      key={star}
+                      size={22}
+                      className={star <= 4 ? "casr-sidebar__rating-star--filled" : "casr-sidebar__rating-star--empty"}
                     />
                   ))}
-                  <span className="ml-2 font-bold text-gray-700 text-sm">4+</span>
+                  <span className="casr-sidebar__rating-text">4+</span>
                 </div>
               </div>
 
@@ -166,119 +196,121 @@ export default function CustomerActivitySearchResults() {
           </aside>
 
           {/* Right Column (Results Area) */}
-          <div className="w-full lg:w-3/4 flex flex-col">
-            
-            {/* STEP 4: Right Column - Top Controls */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => setActiveSort('popular')}
-                  className={`px-4 py-2 rounded-full text-sm font-bold transition-colors ${
-                    activeSort === 'popular' 
-                      ? 'bg-white border border-gray-200 text-gray-800 shadow-sm' 
-                      : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-                  }`}
-                >
-                  Phổ biến nhất
-                </button>
-                <button 
-                  onClick={() => setActiveSort('price')}
-                  className={`px-4 py-2 rounded-full text-sm font-bold transition-colors ${
-                    activeSort === 'price' 
-                      ? 'bg-white border border-gray-200 text-gray-800 shadow-sm' 
-                      : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-                  }`}
-                >
-                  Giá thấp nhất
-                </button>
-              </div>
+          <div className="casr-results">
 
-              <div className="flex items-center gap-1">
-                <button 
-                  onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-md transition-colors ${
-                    viewMode === 'grid' 
-                      ? 'bg-blue-50 text-[#0194f3]' 
-                      : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
-                  }`}
+            {/* STEP 4: Sort Bar & View Mode */}
+            <div className="casr-sort-bar">
+              <p className="casr-sort-bar__count">
+                Đang hiển thị <span className="casr-sort-bar__count-number">{sortedActivities.length}</span> hoạt động
+              </p>
+              
+              <div className="casr-sort-bar__controls">
+                <span className="casr-sort-bar__label">SẮP XẾP THEO:</span>
+                <select
+                  value={activeSort}
+                  onChange={(e) => setActiveSort(e.target.value)}
+                  className="casr-sort-bar__select"
                 >
-                  <Grid size={20} />
-                </button>
-                <button 
-                  onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-md transition-colors ${
-                    viewMode === 'list' 
-                      ? 'bg-blue-50 text-[#0194f3]' 
-                      : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <List size={20} />
-                </button>
+                  <option value="popular">Phổ biến nhất</option>
+                  <option value="price">Giá thấp nhất</option>
+                  <option value="price_desc">Giá cao nhất</option>
+                </select>
+
+                <div className="casr-sort-bar__view-toggle">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`casr-sort-bar__view-btn ${viewMode === 'grid' ? 'casr-sort-bar__view-btn--active' : ''}`}
+                  >
+                    <Grid size={20} />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`casr-sort-bar__view-btn ${viewMode === 'list' ? 'casr-sort-bar__view-btn--active' : ''}`}
+                  >
+                    <List size={20} />
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* STEP 5: Right Column - Activity Cards (List View) */}
-            <div className="space-y-5 mb-10 flex-1">
-              {ACTIVITY_RESULTS.map((activity) => {
+            {/* STEP 5: Activity Cards */}
+            <div className="casr-card-list">
+              {sortedActivities.map((activity) => {
                 const Icon = activity.highlightIcon;
                 return (
-                  <div key={activity.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col md:flex-row hover:shadow-md transition-shadow group h-auto md:h-56">
-                    
+                  <div key={activity.id} className="casr-card">
+
                     {/* Left Side (Image) */}
-                    <div className="w-full md:w-[35%] relative h-48 md:h-full flex-shrink-0">
-                      <img 
-                        src={activity.image} 
-                        alt={activity.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    <div className="casr-card__image-wrap">
+                      <img
+                        src={activity.image}
+                        alt={activity.title}
+                        className="casr-card__image"
                       />
-                      <div className="absolute top-3 left-3 bg-blue-50 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
+                      <div className="casr-card__badge">
                         {activity.category}
                       </div>
                       {activity.isBestSeller && (
-                        <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
+                        <div className="casr-card__badge--bestseller">
                           Bán chạy
                         </div>
                       )}
                     </div>
 
                     {/* Right Side (Content) */}
-                    <div className="flex-1 p-5 flex flex-col justify-between relative">
-                      
-                      {/* Top Content */}
+                    <div className="casr-card__content">
                       <div>
-                        <h2 className="text-lg md:text-xl font-bold text-gray-900 leading-tight mb-2 hover:text-[#0194f3] transition-colors cursor-pointer line-clamp-2">
-                          {activity.title}
-                        </h2>
-                        
-                        <div className="flex items-center gap-1.5 mb-3">
-                          <Star size={16} className="fill-amber-400 text-amber-400" />
-                          <span className="font-bold text-gray-800 text-sm">{activity.rating}</span>
-                          <span className="text-gray-400 text-sm">({activity.reviews} đánh giá)</span>
+                        <div className="casr-card__header">
+                          <div className="casr-card__header-left">
+                            <h2 className="casr-card__title">
+                              {activity.title}
+                            </h2>
+                            <div className="casr-card__location">
+                              <MapPin size={14} className="casr-card__location-icon" />
+                              {activity.location}, Việt Nam
+                            </div>
+
+                            <div className="casr-card__stars">
+                              <div className="casr-card__stars-icons">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Star 
+                                    key={star} 
+                                    size={14} 
+                                    className={star <= Math.floor(activity.rating) ? "casr-card__star--filled" : "casr-card__star--empty"} 
+                                  />
+                                ))}
+                              </div>
+                              <span className="casr-card__rating-value">{activity.rating}</span>
+                            </div>
+                          </div>
+
+                          <div>
+                            <span className="casr-card__review-link">Chưa có đánh giá</span>
+                          </div>
                         </div>
 
-                        <div className="flex items-center gap-1.5 text-sm text-gray-500 font-medium">
-                          <Icon size={16} className="text-[#0194f3]" />
+                        <div className="casr-card__highlight">
+                          <Icon size={16} className="casr-card__highlight-icon" />
                           {activity.highlight}
                         </div>
                       </div>
 
                       {/* Bottom Right Pricing */}
-                      <div className="mt-4 md:mt-0 flex flex-col md:items-end justify-end self-end w-full md:w-auto">
-                        <div className="text-right mb-3">
+                      <div className="casr-card__pricing">
+                        <div className="casr-card__price-wrap">
                           {activity.originalPrice && (
-                            <div className="text-sm text-gray-400 line-through mb-0.5">
+                            <div className="casr-card__old-price">
                               {activity.originalPrice.toLocaleString('vi-VN')} VND
                             </div>
                           )}
-                          <div className="text-2xl font-black text-[#0194f3]">
+                          <div className="casr-card__price">
                             {activity.price.toLocaleString('vi-VN')} VND
                           </div>
                         </div>
-                        <button className="w-full md:w-auto bg-[#0194f3] hover:bg-[#007ce8] text-white font-bold py-2.5 px-8 rounded-lg transition-colors">
+                        <button className="casr-card__book-btn">
                           Đặt ngay
                         </button>
                       </div>
-
                     </div>
                   </div>
                 );
@@ -286,28 +318,28 @@ export default function CustomerActivitySearchResults() {
             </div>
 
             {/* STEP 6: Pagination */}
-            <div className="flex items-center justify-center gap-1.5 mt-auto">
-              <button className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-gray-400 border border-gray-200 cursor-not-allowed hover:bg-gray-50 transition-colors">
+            <div className="casr-pagination">
+              <button className="casr-pagination__btn casr-pagination__btn--disabled">
                 <ChevronLeft size={20} />
               </button>
-              
-              <button className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white bg-[#0194f3] shadow-sm">
+
+              <button className="casr-pagination__btn casr-pagination__btn--active">
                 1
               </button>
-              <button className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
+              <button className="casr-pagination__btn">
                 2
               </button>
-              <button className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
+              <button className="casr-pagination__btn">
                 3
               </button>
-              
-              <span className="w-10 h-10 flex items-center justify-center text-gray-400 font-bold">...</span>
-              
-              <button className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
+
+              <span className="casr-pagination__dots">...</span>
+
+              <button className="casr-pagination__btn">
                 12
               </button>
-              
-              <button className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors">
+
+              <button className="casr-pagination__btn">
                 <ChevronRight size={20} />
               </button>
             </div>

@@ -1,10 +1,9 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
+import "../assets/css/CustomerFlightSearchResults.css";
 import {
   PlaneTakeoff,
   PlaneLanding,
   Calendar,
-  User,
   ArrowRightLeft,
   Search,
   Filter,
@@ -69,302 +68,271 @@ export default function CustomerFlightSearchResults({
   searchState,
   onStartNewSearch,
 }: CustomerFlightSearchResultsProps) {
-  const navigate = useNavigate();
   const [activeSort, setActiveSort] = useState("cheapest");
 
   const formattedDate = searchState.departDate 
     ? new Date(searchState.departDate).toLocaleDateString("vi-VN", { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
     : "Chưa chọn ngày";
 
+  const sortedFlights = useMemo(() => {
+    const result = [...FLIGHT_RESULTS];
+    if (activeSort === "cheapest") {
+      result.sort((a, b) => a.price - b.price);
+    } else if (activeSort === "price_desc") {
+      result.sort((a, b) => b.price - a.price);
+    } else if (activeSort === "duration_asc") {
+      result.sort((a, b) => {
+        const getMinutes = (d: string) => {
+          const parts = d.match(/(\d+)h\s*(\d+)m/);
+          if (!parts) return 0;
+          return parseInt(parts[1]) * 60 + parseInt(parts[2]);
+        };
+        return getMinutes(a.duration) - getMinutes(b.duration);
+      });
+    } else if (activeSort === "duration_desc") {
+      result.sort((a, b) => {
+        const getMinutes = (d: string) => {
+          const parts = d.match(/(\d+)h\s*(\d+)m/);
+          if (!parts) return 0;
+          return parseInt(parts[1]) * 60 + parseInt(parts[2]);
+        };
+        return getMinutes(b.duration) - getMinutes(a.duration);
+      });
+    }
+    return result;
+  }, [activeSort]);
+
   return (
-    <div className="min-h-screen bg-[#F5F7FA] font-sans pb-10 pt-[120px]">
-      <div className="bg-[#003580] pt-6 pb-20">
-        <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-2xl font-bold text-white mb-6">Kết quả tìm kiếm chuyến bay</h1>
+    <div className="cfsr-page">
+      <div className="cfsr-hero">
+        <div className="cfsr-hero__container">
+          <h1 className="cfsr-hero__title">Kết quả tìm kiếm chuyến bay</h1>
         </div>
       </div>
       
-      <div className="max-w-7xl mx-auto px-4 -mt-14 relative z-10">
-        <div className="bg-white rounded-xl shadow-md p-4 flex items-center justify-between mb-8">
-          <div className="flex flex-1 items-center gap-8">
-            {/* Section 1 */}
-            <div className="flex-1 relative">
-              <span className="text-xs text-gray-500 font-medium mb-1 block">TỪ</span>
-              <div className="flex items-center gap-2 font-bold text-gray-800">
-                <PlaneTakeoff size={18} className="text-[#003580]" />
+      <div className="cfsr-search-wrap">
+        <div className="cfsr-search-bar">
+          <div className="cfsr-search-bar__fields">
+            {/* From */}
+            <div className="cfsr-search-bar__field">
+              <span className="cfsr-search-bar__label">TỪ</span>
+              <div className="cfsr-search-bar__value">
+                <PlaneTakeoff size={18} className="cfsr-search-bar__icon" />
                 {searchState.fromTitle || "SGN - TP HCM"}
               </div>
-              
-              {/* Middle Icon */}
-              <button className="absolute -right-6 top-1/2 -translate-y-1/2 bg-gray-100 hover:bg-gray-200 transition-colors p-2 rounded-full border border-white z-10">
-                <ArrowRightLeft size={16} className="text-gray-600" />
+              <button className="cfsr-search-bar__swap-btn">
+                <ArrowRightLeft size={16} className="cfsr-search-bar__swap-icon" />
               </button>
             </div>
             
-            {/* Divider */}
-            <div className="w-[1px] h-10 bg-gray-200"></div>
+            <div className="cfsr-search-bar__divider"></div>
 
-            {/* Section 2 */}
-            <div className="flex-1 pl-4">
-              <span className="text-xs text-gray-500 font-medium mb-1 block">ĐẾN</span>
-              <div className="flex items-center gap-2 font-bold text-gray-800">
-                <PlaneLanding size={18} className="text-[#003580]" />
+            {/* To */}
+            <div className="cfsr-search-bar__field cfsr-search-bar__field--pl">
+              <span className="cfsr-search-bar__label">ĐẾN</span>
+              <div className="cfsr-search-bar__value">
+                <PlaneLanding size={18} className="cfsr-search-bar__icon" />
                 {searchState.toTitle || "HAN - Hà Nội"}
               </div>
             </div>
 
-            {/* Divider */}
-            <div className="w-[1px] h-10 bg-gray-200"></div>
+            <div className="cfsr-search-bar__divider"></div>
 
-            {/* Section 3 */}
-            <div className="flex-1">
-              <span className="text-xs text-gray-500 font-medium mb-1 block">NGÀY ĐI</span>
-              <div className="flex items-center gap-2 font-bold text-gray-800">
-                <Calendar size={18} className="text-[#003580]" />
+            {/* Date */}
+            <div className="cfsr-search-bar__field">
+              <span className="cfsr-search-bar__label">NGÀY ĐI</span>
+              <div className="cfsr-search-bar__value">
+                <Calendar size={18} className="cfsr-search-bar__icon" />
                 {formattedDate}
               </div>
             </div>
 
-            {/* Divider */}
-            <div className="w-[1px] h-10 bg-gray-200"></div>
-
-            {/* Section 4 */}
-            <div className="flex-1">
-              <span className="text-xs text-gray-500 font-medium mb-1 block">HÀNH KHÁCH</span>
-              <div className="flex items-center gap-2 font-bold text-gray-800">
-                <User size={18} className="text-[#003580]" />
-                {searchState.passengers} Hành khách
-              </div>
-            </div>
+            <div className="cfsr-search-bar__divider"></div>
           </div>
 
-          <div className="ml-8">
-            <button 
-              onClick={onStartNewSearch}
-              className="bg-[#0052b3] hover:bg-[#003580] text-white font-bold px-6 py-2.5 rounded-lg transition-colors flex items-center gap-2"
-            >
+          <div className="cfsr-search-bar__actions">
+            <button onClick={onStartNewSearch} className="cfsr-search-bar__search-btn">
               <Search size={16} />
               Đổi tìm kiếm
             </button>
           </div>
         </div>
 
-        {/* STEP 3: Main Layout & Left Sidebar */}
-        <div className="flex gap-6">
-          <aside className="w-1/4 hidden lg:block">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                <Filter size={20} className="text-[#003580]" />
+        {/* Main Layout */}
+        <div className="cfsr-layout">
+          <aside className="cfsr-sidebar">
+            <div className="cfsr-sidebar__header">
+              <h2 className="cfsr-sidebar__title">
+                <Filter size={20} className="cfsr-sidebar__title-icon" />
                 Bộ lọc
               </h2>
-              <button className="text-sm font-bold text-[#0194f3] hover:text-[#0052b3]">XÓA TẤT CẢ</button>
+              <button className="cfsr-sidebar__clear">XÓA TẤT CẢ</button>
             </div>
 
-            <div className="space-y-4">
-              {/* Filter 1: Số điểm dừng */}
-              <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <h3 className="font-bold text-gray-800 mb-3">Số điểm dừng</h3>
-                <div className="space-y-2 text-sm">
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className="w-5 h-5 rounded bg-[#0194f3] text-white flex items-center justify-center">
-                      <Check size={14} />
-                    </div>
-                    <span className="text-gray-700 font-medium">Bay thẳng</span>
+            <div className="cfsr-sidebar__filters">
+              {/* Filter 1 */}
+              <div className="cfsr-sidebar__filter-card">
+                <h3 className="cfsr-sidebar__filter-title">Số điểm dừng</h3>
+                <div className="cfsr-sidebar__checkbox-list">
+                  <label className="cfsr-sidebar__checkbox-label">
+                    <div className="cfsr-sidebar__check-icon"><Check size={14} /></div>
+                    <span className="cfsr-sidebar__checkbox-text">Bay thẳng</span>
                   </label>
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className="w-5 h-5 rounded border-2 border-gray-300 group-hover:border-[#0194f3]"></div>
-                    <span className="text-gray-700">1 Điểm dừng</span>
+                  <label className="cfsr-sidebar__checkbox-label">
+                    <div className="cfsr-sidebar__uncheck-icon"></div>
+                    <span className="cfsr-sidebar__checkbox-text">1 Điểm dừng</span>
                   </label>
                 </div>
               </div>
 
-              {/* Filter 2: Hãng hàng không */}
-              <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <h3 className="font-bold text-gray-800 mb-3">Hãng hàng không</h3>
-                <div className="space-y-3 text-sm">
-                  <label className="flex items-center justify-between cursor-pointer group">
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 rounded bg-[#0194f3] text-white flex items-center justify-center">
-                        <Check size={14} />
-                      </div>
-                      <span className="text-gray-700 font-medium">Vietnam Airlines</span>
+              {/* Filter 2 */}
+              <div className="cfsr-sidebar__filter-card">
+                <h3 className="cfsr-sidebar__filter-title">Hãng hàng không</h3>
+                <div className="cfsr-sidebar__checkbox-list">
+                  <label className="cfsr-sidebar__checkbox-label cfsr-sidebar__checkbox-label--between">
+                    <div className="cfsr-sidebar__checkbox-inner">
+                      <div className="cfsr-sidebar__check-icon"><Check size={14} /></div>
+                      <span className="cfsr-sidebar__checkbox-text">Vietnam Airlines</span>
                     </div>
-                    <span className="text-gray-500">Từ 1.2M</span>
+                    <span className="cfsr-sidebar__checkbox-price">Từ 1.2M</span>
                   </label>
-                  <label className="flex items-center justify-between cursor-pointer group">
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 rounded bg-[#0194f3] text-white flex items-center justify-center">
-                        <Check size={14} />
-                      </div>
-                      <span className="text-gray-700 font-medium">VietJet Air</span>
+                  <label className="cfsr-sidebar__checkbox-label cfsr-sidebar__checkbox-label--between">
+                    <div className="cfsr-sidebar__checkbox-inner">
+                      <div className="cfsr-sidebar__check-icon"><Check size={14} /></div>
+                      <span className="cfsr-sidebar__checkbox-text">VietJet Air</span>
                     </div>
-                    <span className="text-gray-500">Từ 800K</span>
+                    <span className="cfsr-sidebar__checkbox-price">Từ 800K</span>
                   </label>
-                  <label className="flex items-center justify-between cursor-pointer group">
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 rounded bg-[#0194f3] text-white flex items-center justify-center">
-                        <Check size={14} />
-                      </div>
-                      <span className="text-gray-700 font-medium">Bamboo Airways</span>
+                  <label className="cfsr-sidebar__checkbox-label cfsr-sidebar__checkbox-label--between">
+                    <div className="cfsr-sidebar__checkbox-inner">
+                      <div className="cfsr-sidebar__check-icon"><Check size={14} /></div>
+                      <span className="cfsr-sidebar__checkbox-text">Bamboo Airways</span>
                     </div>
-                    <span className="text-gray-500">Từ 1.1M</span>
+                    <span className="cfsr-sidebar__checkbox-price">Từ 1.1M</span>
                   </label>
                 </div>
               </div>
 
-              {/* Filter 3: Giờ khởi hành */}
-              <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <h3 className="font-bold text-gray-800 mb-3">Giờ khởi hành</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <button className="flex flex-col items-center justify-center py-2 px-1 rounded-lg border-2 border-gray-200 hover:border-gray-300 text-gray-600 transition-colors">
-                    <Moon size={16} className="mb-1" />
-                    <span className="text-xs font-medium">00:00 - 06:00</span>
+              {/* Filter 3 */}
+              <div className="cfsr-sidebar__filter-card">
+                <h3 className="cfsr-sidebar__filter-title">Giờ khởi hành</h3>
+                <div className="cfsr-sidebar__time-grid">
+                  <button className="cfsr-sidebar__time-btn">
+                    <Moon size={16} className="cfsr-sidebar__time-icon" />
+                    <span className="cfsr-sidebar__time-text">00:00 - 06:00</span>
                   </button>
-                  <button className="flex flex-col items-center justify-center py-2 px-1 rounded-lg border-2 border-[#0194f3] bg-[#e8f4fd] text-[#0194f3] transition-colors">
-                    <Sun size={16} className="mb-1" />
-                    <span className="text-xs font-bold">06:00 - 12:00</span>
+                  <button className="cfsr-sidebar__time-btn cfsr-sidebar__time-btn--active">
+                    <Sun size={16} className="cfsr-sidebar__time-icon" />
+                    <span className="cfsr-sidebar__time-text">06:00 - 12:00</span>
                   </button>
-                  <button className="flex flex-col items-center justify-center py-2 px-1 rounded-lg border-2 border-gray-200 hover:border-gray-300 text-gray-600 transition-colors">
-                    <Sun size={16} className="mb-1" />
-                    <span className="text-xs font-medium">12:00 - 18:00</span>
+                  <button className="cfsr-sidebar__time-btn">
+                    <Sun size={16} className="cfsr-sidebar__time-icon" />
+                    <span className="cfsr-sidebar__time-text">12:00 - 18:00</span>
                   </button>
-                  <button className="flex flex-col items-center justify-center py-2 px-1 rounded-lg border-2 border-gray-200 hover:border-gray-300 text-gray-600 transition-colors">
-                    <Moon size={16} className="mb-1" />
-                    <span className="text-xs font-medium">18:00 - 24:00</span>
+                  <button className="cfsr-sidebar__time-btn">
+                    <Moon size={16} className="cfsr-sidebar__time-icon" />
+                    <span className="cfsr-sidebar__time-text">18:00 - 24:00</span>
                   </button>
                 </div>
               </div>
             </div>
           </aside>
 
-          {/* STEP 4 & 5: Right Column Results */}
-          <div className="flex-1">
-            {/* STEP 4: Top Sort Tabs */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex overflow-hidden mb-6">
-              <button 
-                onClick={() => setActiveSort('cheapest')}
-                className={`flex-1 py-3 px-4 border-r border-gray-100 flex flex-col items-center justify-center transition-colors ${activeSort === 'cheapest' ? 'border-b-4 border-b-[#0194f3] bg-blue-50/50' : 'hover:bg-gray-50'}`}
-              >
-                <span className={`text-sm font-semibold mb-1 ${activeSort === 'cheapest' ? 'text-gray-800' : 'text-gray-600'}`}>Giá rẻ nhất</span>
-                <span className={`text-sm font-bold ${activeSort === 'cheapest' ? 'text-[#0194f3]' : 'text-gray-400'}`}>850.000 VND</span>
-              </button>
-              <button 
-                onClick={() => setActiveSort('shortest')}
-                className={`flex-1 py-3 px-4 border-r border-gray-100 flex flex-col items-center justify-center transition-colors ${activeSort === 'shortest' ? 'border-b-4 border-b-[#0194f3] bg-blue-50/50' : 'hover:bg-gray-50'}`}
-              >
-                <span className={`text-sm font-semibold mb-1 ${activeSort === 'shortest' ? 'text-gray-800' : 'text-gray-600'}`}>Thời gian ngắn nhất</span>
-                <span className={`text-sm font-bold ${activeSort === 'shortest' ? 'text-[#0194f3]' : 'text-gray-400'}`}>2h 05m</span>
-              </button>
-              <button 
-                onClick={() => setActiveSort('earliest')}
-                className={`flex-1 py-3 px-4 flex flex-col items-center justify-center transition-colors ${activeSort === 'earliest' ? 'border-b-4 border-b-[#0194f3] bg-blue-50/50' : 'hover:bg-gray-50'}`}
-              >
-                <span className={`text-sm font-semibold mb-1 ${activeSort === 'earliest' ? 'text-gray-800' : 'text-gray-600'}`}>Khởi hành sớm nhất</span>
-                <span className={`text-sm font-bold ${activeSort === 'earliest' ? 'text-[#0194f3]' : 'text-gray-400'}`}>05:45</span>
-              </button>
+          {/* Results */}
+          <div className="cfsr-results">
+            {/* Sort Bar */}
+            <div className="cfsr-sort-bar">
+              <p className="cfsr-sort-bar__count">
+                Đang hiển thị <span className="cfsr-sort-bar__count-number">{sortedFlights.length}</span> chuyến bay
+              </p>
+              <div className="cfsr-sort-bar__controls">
+                <span className="cfsr-sort-bar__label">SẮP XẾP THEO:</span>
+                <select
+                  value={activeSort}
+                  onChange={(e) => setActiveSort(e.target.value as any)}
+                  className="cfsr-sort-bar__select"
+                >
+                  <option value="price_desc">Giá: Cao → Thấp</option>
+                  <option value="cheapest">Giá: Thấp → Cao</option>
+                  <option value="duration_asc">Thời gian: Ngắn nhất</option>
+                  <option value="duration_desc">Thời gian: Dài nhất</option>
+                </select>
+              </div>
             </div>
 
-            {/* STEP 5: Flight Result Cards */}
-            <div className="space-y-4 mb-8">
-              {FLIGHT_RESULTS.map((flight) => (
-                <div key={flight.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow relative">
+            {/* Flight Cards */}
+            <div className="cfsr-card-list">
+              {sortedFlights.map((flight) => (
+                <div key={flight.id} className="cfsr-card">
                   {flight.promo && (
-                    <div className="absolute -top-3 right-4 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full border border-green-200">
-                      {flight.promo}
-                    </div>
+                    <div className="cfsr-card__promo">{flight.promo}</div>
                   )}
                   
-                  <div className="flex items-center">
-                    {/* Left: Airline */}
-                    <div className="w-1/4 flex flex-col items-start gap-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 flex items-center justify-center rounded-md border border-gray-100 bg-white p-1">
-                           <img src={flight.logo} alt={flight.airline} className="max-w-full max-h-full object-contain" />
+                  <div className="cfsr-card__row">
+                    {/* Airline */}
+                    <div className="cfsr-card__airline">
+                      <div className="cfsr-card__airline-info">
+                        <div className="cfsr-card__airline-logo">
+                           <img src={flight.logo} alt={flight.airline} />
                         </div>
-                        <span className="font-bold text-gray-800">{flight.airline}</span>
+                        <span className="cfsr-card__airline-name">{flight.airline}</span>
                       </div>
                     </div>
 
-                    {/* Center: Timeline */}
-                    <div className="w-2/5 flex items-center justify-center px-4">
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-gray-800">{flight.departTime}</div>
-                        <div className="text-sm font-semibold text-gray-500">{flight.departStation}</div>
+                    {/* Timeline */}
+                    <div className="cfsr-card__timeline">
+                      <div style={{ textAlign: 'right' }}>
+                        <div className="cfsr-card__time">{flight.departTime}</div>
+                        <div className="cfsr-card__station">{flight.departStation}</div>
                       </div>
                       
-                      <div className="flex-1 px-4 flex flex-col items-center relative">
-                        <span className="text-xs text-gray-500 font-medium mb-1">{flight.duration}</span>
-                        <div className="w-full border-t-2 border-gray-300 border-dashed relative">
-                          <PlaneTakeoff size={14} className="text-gray-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-1" />
+                      <div className="cfsr-card__duration-line">
+                        <span className="cfsr-card__duration-text">{flight.duration}</span>
+                        <div className="cfsr-card__duration-bar">
+                          <PlaneTakeoff size={14} className="cfsr-card__duration-icon" />
                         </div>
-                        <span className="text-xs text-gray-500 font-medium mt-1">{flight.stops}</span>
+                        <span className="cfsr-card__stops">{flight.stops}</span>
                       </div>
 
-                      <div className="text-left">
-                        <div className="text-lg font-bold text-gray-800">{flight.arriveTime}</div>
-                        <div className="text-sm font-semibold text-gray-500">{flight.arriveStation}</div>
+                      <div style={{ textAlign: 'left' }}>
+                        <div className="cfsr-card__time">{flight.arriveTime}</div>
+                        <div className="cfsr-card__station">{flight.arriveStation}</div>
                       </div>
                     </div>
 
-                    {/* Right: Pricing & CTA */}
-                    <div className="w-[35%] flex flex-col items-end justify-center pl-4 border-l border-gray-100">
+                    {/* Pricing */}
+                    <div className="cfsr-card__pricing">
                       {flight.originalPrice && (
-                        <span className="text-sm text-gray-400 line-through mb-1">
+                        <span className="cfsr-card__old-price">
                           {flight.originalPrice.toLocaleString('vi-VN')} VND
                         </span>
                       )}
-                      <span className="text-xl font-black text-[#ff5e1f] mb-3">
+                      <span className="cfsr-card__price">
                         {flight.price.toLocaleString('vi-VN')} VND
                       </span>
-                      <button className="bg-[#0194f3] hover:bg-[#007ce8] text-white font-bold py-2.5 px-8 rounded-lg transition-colors w-full">
-                        Chọn
-                      </button>
-                      <button className="text-sm font-semibold text-[#0194f3] mt-3 hover:underline">
-                        Chi tiết chuyến bay
-                      </button>
+                      <button className="cfsr-card__book-btn">Chọn</button>
+                      <button className="cfsr-card__detail-link">Chi tiết chuyến bay</button>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* STEP 6: Pagination */}
-            <div className="flex items-center justify-center gap-2 mb-10">
-              <button className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-gray-400 border border-gray-200 cursor-not-allowed">
+            {/* Pagination */}
+            <div className="cfsr-pagination">
+              <button className="cfsr-pagination__btn cfsr-pagination__btn--disabled">
                 <ChevronLeft size={18} />
               </button>
-              <button className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white bg-[#0194f3]">
-                1
-              </button>
-              <button className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50">
-                2
-              </button>
-              <button className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50">
-                3
-              </button>
-              <button className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50">
+              <button className="cfsr-pagination__btn cfsr-pagination__btn--active">1</button>
+              <button className="cfsr-pagination__btn">2</button>
+              <button className="cfsr-pagination__btn">3</button>
+              <button className="cfsr-pagination__btn">
                 <ChevronRight size={18} />
               </button>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Footer Minimal */}
-      <footer className="bg-white border-t border-gray-200 py-8 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
-          <div>
-             {/* Text-based logo to avoid relying on external assets */}
-            <div className="text-2xl font-black text-[#0194f3] tracking-tight mb-2">traveloka</div>
-            <p className="text-sm text-gray-500">© 2024 Traveloka. All rights reserved.</p>
-          </div>
-          <div className="flex items-center gap-6 text-sm font-semibold text-gray-600">
-            <a href="#" className="hover:text-[#0194f3]">Về Traveloka</a>
-            <a href="#" className="hover:text-[#0194f3]">Cách đặt chỗ</a>
-            <a href="#" className="hover:text-[#0194f3]">Trợ giúp</a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

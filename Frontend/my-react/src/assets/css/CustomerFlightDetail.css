@@ -1,0 +1,566 @@
+/* ============================================================
+   CustomerFlightDetail.css
+   Complete styles for Flight Detail page
+   ============================================================ */
+
+/* ── Page Shell ──────────────────────────────────────────────── */
+.cfd-page {
+  background-color: #F5F7FA;
+  min-height: 100vh;
+  font-family: inherit;
+  color: #1f2937;
+  display: flex;
+  flex-direction: column;
+  padding-top: 120px;
+}
+
+.cfd-main {
+  flex: 1;
+  max-width: 72rem;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 1rem 3rem;
+}
+
+@media (min-width: 768px) {
+  .cfd-main {
+    padding: 0 1.5rem 3rem;
+  }
+}
+
+/* ── Title Section ───────────────────────────────────────────── */
+.cfd-title-section {
+  padding: 1.5rem 0;
+}
+
+.cfd-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.cfd-subtitle {
+  display: flex;
+  align-items: center;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.cfd-subtitle__arrow {
+  width: 1rem;
+  height: 1rem;
+  margin: 0 0.5rem;
+}
+
+/* ── Two-Column Layout ───────────────────────────────────────── */
+.cfd-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .cfd-layout {
+    flex-direction: row;
+  }
+}
+
+.cfd-layout__left {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .cfd-layout__left {
+    width: 65%;
+  }
+}
+
+.cfd-layout__right {
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  .cfd-layout__right {
+    width: 35%;
+  }
+}
+
+/* ── Content Card ────────────────────────────────────────────── */
+.cfd-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3f4f6;
+  padding: 1.5rem;
+}
+
+/* Flight Card Header */
+.cfd-flight-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.cfd-flight-header__left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cfd-flight-header__icon-wrap {
+  width: 3rem;
+  height: 3rem;
+  background: #eff6ff;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cfd-flight-header__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #2563eb;
+  transform: rotate(-45deg);
+}
+
+.cfd-flight-header__airline {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: #111827;
+}
+
+.cfd-flight-header__code {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.cfd-flight-header__badge {
+  background: #eff6ff;
+  color: #0194F3;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid #dbeafe;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+/* Timeline */
+.cfd-timeline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cfd-timeline__point {
+  text-align: center;
+  width: 25%;
+}
+
+.cfd-timeline__time {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.cfd-timeline__code {
+  font-weight: 700;
+  color: #374151;
+  margin-top: 0.25rem;
+}
+
+.cfd-timeline__airport {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.cfd-timeline__line-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 1rem;
+  position: relative;
+}
+
+.cfd-timeline__duration {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+  background: #fff;
+  padding: 0 0.5rem;
+  z-index: 10;
+}
+
+.cfd-timeline__line {
+  width: 100%;
+  height: 2px;
+  background: #e5e7eb;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cfd-timeline__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #d1d5db;
+  position: absolute;
+}
+
+.cfd-timeline__dot--left {
+  left: 0;
+}
+
+.cfd-timeline__dot--right {
+  right: 0;
+}
+
+.cfd-timeline__plane-icon {
+  background: #fff;
+  padding: 0 0.5rem;
+  position: absolute;
+  z-index: 10;
+  color: #0194F3;
+}
+
+.cfd-timeline__type {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0194F3;
+  margin-top: 0.5rem;
+}
+
+/* ── Info Cards Grid ─────────────────────────────────────────── */
+.cfd-info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .cfd-info-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.cfd-info-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3f4f6;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.cfd-info-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.cfd-info-card__icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #4b5563;
+}
+
+.cfd-info-card__title {
+  font-weight: 700;
+  color: #111827;
+}
+
+.cfd-info-card__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+.cfd-info-card__row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.cfd-info-card__label {
+  color: #6b7280;
+}
+
+.cfd-info-card__value {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.cfd-info-card__value--primary {
+  font-weight: 600;
+  color: #0194F3;
+}
+
+/* Policy items */
+.cfd-info-card__policy {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+.cfd-info-card__policy-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.cfd-info-card__policy-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cfd-info-card__policy-icon--danger {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #ef4444;
+}
+
+.cfd-info-card__policy-icon--primary {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #0194F3;
+}
+
+.cfd-info-card__policy-title {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.cfd-info-card__policy-desc {
+  color: #6b7280;
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+/* Notice Box */
+.cfd-notice {
+  background: rgba(243, 244, 246, 0.5);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border: 1px solid #e5e7eb;
+}
+
+.cfd-notice__icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #0194F3;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cfd-notice__text {
+  font-size: 0.875rem;
+  color: #4b5563;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+/* ── Sticky Cost Summary ─────────────────────────────────────── */
+.cfd-cost-widget {
+  position: sticky;
+  top: 6rem;
+}
+
+.cfd-cost-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f3f4f6;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.cfd-cost-card__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 1.5rem;
+}
+
+.cfd-cost-card__breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.cfd-cost-card__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cfd-cost-card__label {
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.cfd-cost-card__value {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.cfd-cost-card__divider {
+  border-top: 1px solid #f3f4f6;
+  margin-bottom: 1.5rem;
+}
+
+.cfd-cost-card__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+}
+
+.cfd-cost-card__total-label {
+  font-weight: 700;
+  color: #111827;
+  font-size: 1.125rem;
+}
+
+.cfd-cost-card__total-sub {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.cfd-cost-card__total-price {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #C04A15;
+  letter-spacing: -0.025em;
+}
+
+.cfd-cost-card__cta {
+  width: 100%;
+  background: #0194F3;
+  color: #fff;
+  font-weight: 700;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(1, 148, 243, 0.3);
+  transition: all 0.2s;
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cfd-cost-card__cta:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+.cfd-cost-card__cta-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: 0.5rem;
+}
+
+/* ── Suggestions Section ─────────────────────────────────────── */
+.cfd-suggestions {
+  margin-top: 4rem;
+}
+
+.cfd-suggestions__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 1.5rem;
+}
+
+.cfd-suggestions__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .cfd-suggestions__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 768px) {
+  .cfd-suggestions__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.cfd-suggestion-card {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cfd-suggestion-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s;
+}
+
+.cfd-suggestion-card:hover .cfd-suggestion-card__image {
+  transform: scale(1.05);
+}
+
+.cfd-suggestion-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.2), transparent);
+}
+
+.cfd-suggestion-card__content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 1.25rem;
+  color: #fff;
+}
+
+.cfd-suggestion-card__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 0.25rem;
+}
+
+.cfd-suggestion-card__name {
+  font-size: 1.25rem;
+  font-weight: 700;
+}

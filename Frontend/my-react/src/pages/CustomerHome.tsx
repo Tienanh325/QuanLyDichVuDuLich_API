@@ -64,54 +64,6 @@ const reasonCards = [
   },
 ];
 
-const destinationColumns = [
-  {
-    title: "Các điểm bay trong nước",
-    links: [
-      "Vé máy bay Hà Nội đi Đà Nẵng",
-      "Vé máy bay TP HCM đi Hà Nội",
-      "Vé máy bay Hải Phòng đi Phú Quốc",
-      "Vé máy bay Huế đi Nha Trang",
-      "Vé máy bay Cần Thơ đi Đà Lạt",
-      "Vé máy bay Vinh đi TP HCM",
-    ],
-  },
-  {
-    title: "Khách sạn ưa chuộng",
-    links: [
-      "Khách sạn tại Đà Nẵng",
-      "Khách sạn tại Nha Trang",
-      "Khách sạn tại Hạ Long",
-      "Khách sạn tại Đà Lạt",
-      "Khách sạn tại Vũng Tàu",
-      "Khách sạn tại Phú Quốc",
-    ],
-  },
-  {
-    title: "Hoạt động nổi bật",
-    links: [
-      "VinWonders Nam Hội An",
-      "Sun World Hạ Long",
-      "Bà Nà Hills",
-      "Safari Phú Quốc",
-      "Suối khoáng nóng I-Resort",
-      "Tour city Sài Gòn",
-    ],
-  },
-  {
-    title: "Tuyến tàu phổ biến",
-    links: [
-      "Sài Gòn đi Đà Lạt",
-      "Sài Gòn đi Vũng Tàu",
-      "Đà Nẵng đi Huế",
-      "Hà Nội đi Sa Pa",
-      "Cần Thơ đi Rạch Giá",
-      "Nha Trang đi Đà Lạt",
-    ],
-  },
-];
-
-
 type SearchButtonProps = {
   ariaLabel?: string;
   onClick?: () => void;
@@ -640,29 +592,6 @@ export default function CustomerHome() {
                 <strong>{item.title}</strong>
                 <p>{item.body}</p>
               </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="home-customer__section home-customer__section--links">
-        <div className="customer-shell__container">
-          <div className="home-customer__title-row">
-            <h2>Bạn muốn khám phá điều gì?</h2>
-          </div>
-
-          <div className="home-customer__links-grid">
-            {destinationColumns.map((group) => (
-              <div key={group.title} className="home-customer__links-column">
-                <h3>{group.title}</h3>
-                <ul>
-                  {group.links.map((item) => (
-                    <li key={item}>
-                      <a href="#footer">{item}</a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
             ))}
           </div>
         </div>

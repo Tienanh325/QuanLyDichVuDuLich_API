@@ -1,0 +1,80 @@
+/* ============================================================
+   CustomerHotelSearchResults.css
+   Layout & Container styles for Hotel Search Results page
+   ============================================================ */
+
+/* ── Page Shell ──────────────────────────────────────────────── */
+.chsr-page {
+  background-color: #f5f7fa;
+  padding: 170px 0;
+  min-height: 100vh;
+}
+
+.chsr-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ── Search Bar ──────────────────────────────────────────────── */
+.chsr-search-bar {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* ── Sort Bar ────────────────────────────────────────────────── */
+.chsr-sort-bar {
+  margin-bottom: 16px;
+}
+
+.chsr-sort-bar__select {
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #fff;
+  font-weight: 700;
+  color: #17324d;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.chsr-sort-bar__select:hover {
+  border-color: #9ca3af;
+}
+
+.chsr-sort-bar__select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #0194f3;
+}
+
+/* ── Hotel Card ──────────────────────────────────────────────── */
+.chsr-card {
+  border-radius: 16px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: box-shadow 0.2s;
+}
+
+.chsr-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Sidebar Filter ──────────────────────────────────────────── */
+.chsr-filter-card {
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* ── Map Card ────────────────────────────────────────────────── */
+.chsr-map-card {
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}

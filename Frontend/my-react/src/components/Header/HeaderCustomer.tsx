@@ -58,12 +58,14 @@ export default function HeaderCustomer() {
   location.pathname === "/mua-sam/khach-san" ||
   location.pathname === "/mua-sam/hoat-dong-vui-choi" ||
   location.pathname === "/mua-sam/ve-may-bay" ||
-  location.pathname === "/mua-sam/ve-tau";
+  location.pathname === "/mua-sam/ve-tau" ||
+  location.pathname === "/mua-sam/ket-qua-tau" ||
+  location.pathname === "/mua-sam/ket-qua-hoat-dong";
   const isHotelDetailPage = 
     location.pathname.startsWith("/mua-sam/khach-san/") ||
     location.pathname.startsWith("/mua-sam/hoat-dong-vui-choi/") ||
-    location.pathname.startsWith("/mua-sam/ve-may-bay/") ||
-    location.pathname.startsWith("/mua-sam/ve-tau/") ||
+    location.pathname.startsWith("/mua-sam/chi-tiet-chuyen-bay/") ||
+    location.pathname.startsWith("/mua-sam/chi-tiet-tau/") ||
     location.pathname === "/mua-sam/thanh-toan-khach-san" || 
     location.pathname === "/mua-sam/thanh-toan-dat-cho" ||
     location.pathname === "/mua-sam/thanh-toan-thanh-cong" ||

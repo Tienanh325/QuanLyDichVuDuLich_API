@@ -1,0 +1,603 @@
+/* ============================================================
+   CustomerFlightSearchResults.css
+   Complete styles for Flight Search Results page
+   ============================================================ */
+
+/* ── Page Shell ──────────────────────────────────────────────── */
+.cfsr-page {
+  min-height: 100vh;
+  background-color: #F5F7FA;
+  font-family: inherit;
+  padding-bottom: 2.5rem;
+  padding-top: 120px;
+}
+
+/* ── Hero Header ─────────────────────────────────────────────── */
+.cfsr-hero {
+  background-color: #003580;
+  padding-top: 1.5rem;
+  padding-bottom: 5rem;
+}
+
+.cfsr-hero__container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.cfsr-hero__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Search Summary Bar ──────────────────────────────────────── */
+.cfsr-search-wrap {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+  margin-top: -3.5rem;
+  position: relative;
+  z-index: 10;
+}
+
+.cfsr-search-bar {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.cfsr-search-bar__fields {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 2rem;
+}
+
+.cfsr-search-bar__field {
+  flex: 1;
+  position: relative;
+}
+
+.cfsr-search-bar__field--pl {
+  padding-left: 1rem;
+}
+
+.cfsr-search-bar__label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.cfsr-search-bar__value {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.cfsr-search-bar__icon {
+  color: #003580;
+}
+
+.cfsr-search-bar__swap-btn {
+  position: absolute;
+  right: -1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #f3f4f6;
+  padding: 0.5rem;
+  border-radius: 9999px;
+  border: 2px solid #fff;
+  z-index: 10;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cfsr-search-bar__swap-btn:hover {
+  background: #e5e7eb;
+}
+
+.cfsr-search-bar__swap-icon {
+  color: #4b5563;
+}
+
+.cfsr-search-bar__divider {
+  width: 1px;
+  height: 2.5rem;
+  background-color: #e5e7eb;
+}
+
+.cfsr-search-bar__actions {
+  margin-left: 2rem;
+}
+
+.cfsr-search-bar__search-btn {
+  background: #0052b3;
+  color: #fff;
+  font-weight: 700;
+  padding: 0.625rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cfsr-search-bar__search-btn:hover {
+  background: #003580;
+}
+
+/* ── Main Layout ─────────────────────────────────────────────── */
+.cfsr-layout {
+  display: flex;
+  gap: 1.5rem;
+}
+
+/* ── Sidebar (Filters) ───────────────────────────────────────── */
+.cfsr-sidebar {
+  width: 25%;
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .cfsr-sidebar {
+    display: block;
+  }
+}
+
+.cfsr-sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.cfsr-sidebar__title {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cfsr-sidebar__title-icon {
+  color: #003580;
+}
+
+.cfsr-sidebar__clear {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #0194f3;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.cfsr-sidebar__clear:hover {
+  color: #0052b3;
+}
+
+.cfsr-sidebar__filters {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cfsr-sidebar__filter-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  border: 1px solid #f3f4f6;
+}
+
+.cfsr-sidebar__filter-title {
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+}
+
+.cfsr-sidebar__checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.cfsr-sidebar__checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.cfsr-sidebar__checkbox-label--between {
+  justify-content: space-between;
+}
+
+.cfsr-sidebar__checkbox-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cfsr-sidebar__check-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.25rem;
+  background: #0194f3;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cfsr-sidebar__uncheck-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.25rem;
+  border: 2px solid #d1d5db;
+  transition: border-color 0.15s;
+}
+
+.cfsr-sidebar__checkbox-label:hover .cfsr-sidebar__uncheck-icon {
+  border-color: #0194f3;
+}
+
+.cfsr-sidebar__checkbox-text {
+  color: #374151;
+  font-weight: 500;
+}
+
+.cfsr-sidebar__checkbox-price {
+  color: #6b7280;
+}
+
+/* Time slot grid */
+.cfsr-sidebar__time-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.cfsr-sidebar__time-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.25rem;
+  border-radius: 0.5rem;
+  border: 2px solid #e5e7eb;
+  color: #4b5563;
+  transition: border-color 0.15s;
+  background: transparent;
+  cursor: pointer;
+}
+
+.cfsr-sidebar__time-btn:hover {
+  border-color: #d1d5db;
+}
+
+.cfsr-sidebar__time-btn--active {
+  border-color: #0194f3;
+  background: #e8f4fd;
+  color: #0194f3;
+}
+
+.cfsr-sidebar__time-icon {
+  margin-bottom: 0.25rem;
+}
+
+.cfsr-sidebar__time-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.cfsr-sidebar__time-btn--active .cfsr-sidebar__time-text {
+  font-weight: 700;
+}
+
+/* ── Sort Bar ────────────────────────────────────────────────── */
+.cfsr-sort-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0 0.25rem;
+}
+
+.cfsr-sort-bar__count {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.cfsr-sort-bar__count-number {
+  color: #0194f3;
+  font-weight: 700;
+}
+
+.cfsr-sort-bar__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cfsr-sort-bar__label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.cfsr-sort-bar__select {
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #fff;
+  font-weight: 700;
+  color: #1f2937;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.cfsr-sort-bar__select:hover {
+  border-color: #9ca3af;
+}
+
+.cfsr-sort-bar__select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #0194f3;
+}
+
+/* ── Results Area ────────────────────────────────────────────── */
+.cfsr-results {
+  flex: 1;
+}
+
+.cfsr-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+/* ── Flight Card ─────────────────────────────────────────────── */
+.cfsr-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3f4f6;
+  padding: 1.25rem;
+  transition: box-shadow 0.2s;
+  position: relative;
+}
+
+.cfsr-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cfsr-card__promo {
+  position: absolute;
+  top: -0.75rem;
+  right: 1rem;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid #bbf7d0;
+}
+
+.cfsr-card__row {
+  display: flex;
+  align-items: center;
+}
+
+/* Airline section */
+.cfsr-card__airline {
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.cfsr-card__airline-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cfsr-card__airline-logo {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  border: 1px solid #f3f4f6;
+  background: #fff;
+  padding: 0.25rem;
+}
+
+.cfsr-card__airline-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.cfsr-card__airline-name {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+/* Timeline section */
+.cfsr-card__timeline {
+  width: 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+}
+
+.cfsr-card__time {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.cfsr-card__station {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.cfsr-card__duration-line {
+  flex: 1;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.cfsr-card__duration-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.cfsr-card__duration-bar {
+  width: 100%;
+  border-top: 2px dashed #d1d5db;
+  position: relative;
+}
+
+.cfsr-card__duration-icon {
+  color: #9ca3af;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  padding: 0 0.25rem;
+}
+
+.cfsr-card__stops {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+/* Pricing section */
+.cfsr-card__pricing {
+  width: 35%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  padding-left: 1rem;
+  border-left: 1px solid #f3f4f6;
+}
+
+.cfsr-card__old-price {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  text-decoration: line-through;
+  margin-bottom: 0.25rem;
+}
+
+.cfsr-card__price {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #ff5e1f;
+  margin-bottom: 0.75rem;
+}
+
+.cfsr-card__book-btn {
+  background: #0194f3;
+  color: #fff;
+  font-weight: 700;
+  padding: 0.625rem 2rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  width: 100%;
+}
+
+.cfsr-card__book-btn:hover {
+  background: #007ce8;
+}
+
+.cfsr-card__detail-link {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0194f3;
+  margin-top: 0.75rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.cfsr-card__detail-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Pagination ──────────────────────────────────────────────── */
+.cfsr-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.cfsr-pagination__btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.cfsr-pagination__btn:hover {
+  background-color: #f9fafb;
+}
+
+.cfsr-pagination__btn--active {
+  background-color: #0194f3;
+  color: #fff;
+  border-color: #0194f3;
+}
+
+.cfsr-pagination__btn--disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}

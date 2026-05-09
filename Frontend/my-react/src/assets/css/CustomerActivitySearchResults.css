@@ -1,0 +1,641 @@
+/* ============================================================
+   CustomerActivitySearchResults.css
+   Complete styles for Activity Search Results page
+   ============================================================ */
+
+/* ── Page Shell ──────────────────────────────────────────────── */
+.casr-page {
+  min-height: 100vh;
+  background-color: #F5F7FA;
+  font-family: inherit;
+  padding-bottom: 4rem;
+  padding-top: 120px;
+}
+
+.casr-container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 0;
+}
+
+@media (min-width: 640px) {
+  .casr-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+/* ── Search Summary Bar ──────────────────────────────────────── */
+.casr-search-bar {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3f4f6;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.casr-search-bar__fields {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.casr-search-bar__field {
+  display: flex;
+  flex-direction: column;
+}
+
+.casr-search-bar__label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.casr-search-bar__value {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #1f2937;
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.casr-search-bar__icon {
+  color: #0194f3;
+}
+
+.casr-search-bar__change-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #0194f3;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.casr-search-bar__change-btn:hover {
+  background-color: #eff6ff;
+}
+
+/* ── Main Layout Grid ────────────────────────────────────────── */
+.casr-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .casr-layout {
+    flex-direction: row;
+  }
+}
+
+/* ── Sidebar (Filters) ───────────────────────────────────────── */
+.casr-sidebar {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+@media (min-width: 1024px) {
+  .casr-sidebar {
+    width: 25%;
+  }
+}
+
+.casr-sidebar__inner {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3f4f6;
+  padding: 1.25rem;
+}
+
+.casr-sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f3f4f6;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.casr-sidebar__title {
+  font-weight: 700;
+  color: #1f2937;
+  letter-spacing: 0.025em;
+}
+
+.casr-sidebar__reset {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0194f3;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.casr-sidebar__reset:hover {
+  color: #0052b3;
+}
+
+.casr-sidebar__section {
+  margin-bottom: 1.5rem;
+}
+
+.casr-sidebar__section-title {
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.casr-sidebar__checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.casr-sidebar__checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.casr-sidebar__checkbox {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #0194f3;
+  border-radius: 0.25rem;
+  border: 1px solid #d1d5db;
+}
+
+.casr-sidebar__checkbox-text {
+  color: #4b5563;
+  transition: color 0.15s;
+}
+
+.casr-sidebar__checkbox-label:hover .casr-sidebar__checkbox-text {
+  color: #1f2937;
+}
+
+.casr-sidebar__checkbox-text--active {
+  color: #0194f3;
+  font-weight: 600;
+}
+
+/* Price Range Slider */
+.casr-sidebar__slider-wrap {
+  padding: 0 0.25rem;
+}
+
+.casr-sidebar__slider {
+  width: 100%;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 0.5rem;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  accent-color: #0194f3;
+}
+
+.casr-sidebar__slider-labels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.casr-sidebar__slider-value {
+  color: #0194f3;
+  font-weight: 700;
+}
+
+/* Rating Stars */
+.casr-sidebar__rating {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.casr-sidebar__rating-star--filled {
+  fill: #f59e0b;
+  color: #f59e0b;
+}
+
+.casr-sidebar__rating-star--empty {
+  color: #d1d5db;
+}
+
+.casr-sidebar__rating-text {
+  margin-left: 0.5rem;
+  font-weight: 700;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+/* ── Sort Bar ────────────────────────────────────────────────── */
+.casr-sort-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0 0.25rem;
+}
+
+.casr-sort-bar__count {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.casr-sort-bar__count-number {
+  color: #0194f3;
+  font-weight: 700;
+}
+
+.casr-sort-bar__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.casr-sort-bar__label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.casr-sort-bar__select {
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #fff;
+  font-weight: 700;
+  color: #1f2937;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.casr-sort-bar__select:hover {
+  border-color: #9ca3af;
+}
+
+.casr-sort-bar__select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #0194f3;
+}
+
+.casr-sort-bar__view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 1rem;
+  border-left: 1px solid #e5e7eb;
+  padding-left: 1rem;
+}
+
+.casr-sort-bar__view-btn {
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.15s;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: #9ca3af;
+}
+
+.casr-sort-bar__view-btn:hover {
+  color: #4b5563;
+  background: #f3f4f6;
+}
+
+.casr-sort-bar__view-btn--active {
+  background: #eff6ff;
+  color: #0194f3;
+}
+
+/* ── Results Area ────────────────────────────────────────────── */
+.casr-results {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 1024px) {
+  .casr-results {
+    width: 75%;
+  }
+}
+
+/* ── Activity Card ───────────────────────────────────────────── */
+.casr-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+  flex: 1;
+}
+
+.casr-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3f4f6;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s;
+}
+
+.casr-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+  .casr-card {
+    flex-direction: row;
+  }
+}
+
+/* Card Image */
+.casr-card__image-wrap {
+  width: 100%;
+  position: relative;
+  height: 12rem;
+  flex-shrink: 0;
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .casr-card__image-wrap {
+    width: 35%;
+    height: auto;
+  }
+}
+
+.casr-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  inset: 0;
+  transition: transform 0.5s;
+}
+
+.casr-card:hover .casr-card__image {
+  transform: scale(1.05);
+}
+
+.casr-card__badge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  z-index: 10;
+}
+
+.casr-card__badge--bestseller {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  left: auto;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  z-index: 10;
+}
+
+/* Card Content */
+.casr-card__content {
+  flex: 1;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.casr-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.casr-card__header-left {
+  flex: 1;
+}
+
+.casr-card__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.casr-card__title:hover {
+  color: #0194f3;
+}
+
+.casr-card__location {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+.casr-card__location-icon {
+  color: #0194f3;
+}
+
+.casr-card__stars {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.casr-card__stars-icons {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.casr-card__star--filled {
+  fill: #f59e0b;
+  color: #f59e0b;
+}
+
+.casr-card__star--empty {
+  color: #e5e7eb;
+}
+
+.casr-card__rating-value {
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 0.875rem;
+}
+
+.casr-card__review-link {
+  color: #0194f3;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.casr-card__highlight {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+
+.casr-card__highlight-icon {
+  color: #0194f3;
+}
+
+/* Card Pricing */
+.casr-card__pricing {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-self: flex-end;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .casr-card__pricing {
+    align-items: flex-end;
+    width: auto;
+    margin-top: 0;
+  }
+}
+
+.casr-card__price-wrap {
+  text-align: right;
+  margin-bottom: 0.75rem;
+}
+
+.casr-card__old-price {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  text-decoration: line-through;
+  margin-bottom: 2px;
+}
+
+.casr-card__price {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #0194f3;
+}
+
+.casr-card__book-btn {
+  width: 100%;
+  background: #0194f3;
+  color: #fff;
+  font-weight: 700;
+  padding: 0.625rem 2rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+  .casr-card__book-btn {
+    width: auto;
+  }
+}
+
+.casr-card__book-btn:hover {
+  background: #007ce8;
+}
+
+/* ── Pagination ──────────────────────────────────────────────── */
+.casr-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  margin-top: auto;
+}
+
+.casr-pagination__btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  transition: background-color 0.15s;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+}
+
+.casr-pagination__btn:hover {
+  background-color: #f9fafb;
+}
+
+.casr-pagination__btn--active {
+  background-color: #0194f3;
+  color: #fff;
+  border-color: #0194f3;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.casr-pagination__btn--disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.casr-pagination__dots {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-weight: 700;
+}

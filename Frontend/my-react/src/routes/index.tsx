@@ -38,6 +38,7 @@ import CustomerFlightDetail from '../pages/CustomerFlightDetail';
 export default function RoutesIndex() {
   return (
     <Routes>
+      <Route path="/" element={<Navigate to="/dang-nhap" replace />} />
       <Route path="/dang-nhap" element={<DangNhap />} />
       <Route path="/dang-ky" element={<DangKy />} />
       <Route path="/mua-sam" element={<CustomerLayout />}>
@@ -59,8 +60,8 @@ export default function RoutesIndex() {
         <Route path="ket-qua-hoat-dong" element={<CustomerActivitySearchResults />} />
         <Route path="hoat-dong-vui-choi/:id" element={<CustomerActivityDetail />} />
       </Route>
-      <Route path="/" element={<AdminLayout />}>
-        <Route index element={<Navigate to="/ThongKe" replace />} />
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<Navigate to="ThongKe" replace />} />
         <Route path="ThongKe" element={<AdminThongKe />} />
         <Route path="DichVu" element={<AdminDichVu />} />
         <Route path="LoaiVe" element={<AdminLoaiVe />} />

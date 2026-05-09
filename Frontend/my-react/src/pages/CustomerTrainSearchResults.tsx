@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import "../assets/css/CustomerTrainSearchResults.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, ChevronDown, ChevronUp, Clock, Filter, Wifi, Wind, Utensils, SlidersHorizontal } from "lucide-react";
 
@@ -83,7 +84,7 @@ const ALL_SEAT_CLASSES: SeatClass[] = ["Ngồi mềm", "Ngồi cứng", "Nằm m
 const ALL_OPERATORS: Operator[] = ["SE", "TN", "SN"];
 const ALL_TIME_SLOTS: TimeSlot[] = ["Sáng sớm", "Buổi sáng", "Buổi chiều", "Buổi tối"];
 
-type SortKey = "price_asc" | "price_desc" | "depart_asc";
+type SortKey = "price_asc" | "price_desc" | "depart_asc" | "duration_asc" | "duration_desc";
 
 function getTimeSlot(timeStr: string): TimeSlot {
   const [h] = timeStr.split(":").map(Number);
@@ -132,23 +133,23 @@ export default function CustomerTrainSearchResults() {
 
   const displayedTickets = useMemo(() => {
     let result = [...tickets];
-
-    if (filters.seatClasses.length > 0) {
-      result = result.filter((t) => filters.seatClasses.includes(t.seatClass));
-    }
-    if (filters.operators.length > 0) {
-      result = result.filter((t) => filters.operators.includes(t.operator));
-    }
-    if (filters.timeSlots.length > 0) {
-      result = result.filter((t) => filters.timeSlots.includes(getTimeSlot(t.departTime)));
-    }
+    if (filters.seatClasses.length > 0) result = result.filter((t) => filters.seatClasses.includes(t.seatClass));
+    if (filters.operators.length > 0) result = result.filter((t) => filters.operators.includes(t.operator));
+    if (filters.timeSlots.length > 0) result = result.filter((t) => filters.timeSlots.includes(getTimeSlot(t.departTime)));
 
     result.sort((a, b) => {
       if (sortKey === "price_asc") return a.price - b.price;
       if (sortKey === "price_desc") return b.price - a.price;
+      if (sortKey === "duration_asc" || sortKey === "duration_desc") {
+        const getMinutes = (d: string) => {
+          const parts = d.match(/(\d+)h\s*(\d+)m/);
+          if (!parts) return 0;
+          return parseInt(parts[1]) * 60 + parseInt(parts[2]);
+        };
+        return sortKey === "duration_asc" ? getMinutes(a.duration) - getMinutes(b.duration) : getMinutes(b.duration) - getMinutes(a.duration);
+      }
       return a.departTime.localeCompare(b.departTime);
     });
-
     return result;
   }, [tickets, filters, sortKey]);
 
@@ -161,57 +162,51 @@ export default function CustomerTrainSearchResults() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-[120px]">
-      {/* ── Top Summary Bar ──────────────────────────────────────── */}
-      <div className="bg-[#003580] text-white py-5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex flex-wrap items-center gap-4 justify-between">
+    <div className="ctsr-page">
+      {/* Summary Bar */}
+      <div className="ctsr-summary-bar">
+        <div className="ctsr-summary-bar__container">
+          <div className="ctsr-summary-bar__inner">
             <div>
-              <div className="flex items-center gap-3 text-xl font-bold">
+              <div className="ctsr-summary-bar__route">
                 <span>{fromCity}</span>
-                <ArrowRight size={20} className="text-orange-400" />
+                <ArrowRight size={20} className="ctsr-summary-bar__arrow" />
                 <span>{toCity}</span>
               </div>
-              <p className="text-blue-200 text-sm mt-1">{formattedDate} · {displayedTickets.length} chuyến tàu</p>
+              <p className="ctsr-summary-bar__meta">{formattedDate} · {displayedTickets.length} chuyến tàu</p>
             </div>
-            <button
-              onClick={() => navigate("/mua-sam/ve-tau")}
-              className="bg-orange-500 hover:bg-orange-600 transition-colors text-white font-semibold px-5 py-2.5 rounded-lg text-sm"
-            >
+            <button onClick={() => navigate("/mua-sam/ve-tau")} className="ctsr-summary-bar__change-btn">
               Đổi tìm kiếm
             </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="flex gap-6">
-          {/* ── Sidebar Filters ──────────────────────────────────── */}
-          <aside className="hidden lg:block w-64 flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
-                <SlidersHorizontal size={18} className="text-[#003580]" />
-                <span className="font-bold text-gray-800">Bộ lọc</span>
+      <div className="ctsr-main">
+        <div className="ctsr-layout">
+          {/* Sidebar */}
+          <aside className="ctsr-sidebar">
+            <div className="ctsr-sidebar__inner">
+              <div className="ctsr-sidebar__header">
+                <SlidersHorizontal size={18} className="ctsr-sidebar__header-icon" />
+                <span className="ctsr-sidebar__header-text">Bộ lọc</span>
               </div>
 
               {/* Seat Class */}
-              <div className="border-b border-gray-100">
-                <button
-                  onClick={() => toggleSection("seatClass")}
-                  className="w-full flex items-center justify-between px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-                >
+              <div className="ctsr-sidebar__section">
+                <button onClick={() => toggleSection("seatClass")} className="ctsr-sidebar__toggle">
                   Hạng ghế
                   {expandedFilters.seatClass ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
                 {expandedFilters.seatClass && (
-                  <div className="px-5 pb-4 space-y-2">
+                  <div className="ctsr-sidebar__filter-content">
                     {ALL_SEAT_CLASSES.map((cls) => (
-                      <label key={cls} className="flex items-center gap-2 cursor-pointer text-sm text-gray-600">
+                      <label key={cls} className="ctsr-sidebar__checkbox-label">
                         <input
                           type="checkbox"
                           checked={filters.seatClasses.includes(cls)}
                           onChange={() => toggleFilter<SeatClass>("seatClasses", cls)}
-                          className="accent-orange-500 w-4 h-4 rounded"
+                          className="ctsr-sidebar__checkbox"
                         />
                         {cls}
                       </label>
@@ -221,23 +216,20 @@ export default function CustomerTrainSearchResults() {
               </div>
 
               {/* Operator */}
-              <div className="border-b border-gray-100">
-                <button
-                  onClick={() => toggleSection("operator")}
-                  className="w-full flex items-center justify-between px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-                >
+              <div className="ctsr-sidebar__section">
+                <button onClick={() => toggleSection("operator")} className="ctsr-sidebar__toggle">
                   Đơn vị vận chuyển
                   {expandedFilters.operator ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
                 {expandedFilters.operator && (
-                  <div className="px-5 pb-4 space-y-2">
+                  <div className="ctsr-sidebar__filter-content">
                     {ALL_OPERATORS.map((op) => (
-                      <label key={op} className="flex items-center gap-2 cursor-pointer text-sm text-gray-600">
+                      <label key={op} className="ctsr-sidebar__checkbox-label">
                         <input
                           type="checkbox"
                           checked={filters.operators.includes(op)}
                           onChange={() => toggleFilter<Operator>("operators", op)}
-                          className="accent-orange-500 w-4 h-4 rounded"
+                          className="ctsr-sidebar__checkbox"
                         />
                         {op === "SE" ? "Tàu Thống Nhất (SE)" : op === "TN" ? "Tàu Nhanh (TN)" : "Tàu Chậm (SN)"}
                       </label>
@@ -247,25 +239,18 @@ export default function CustomerTrainSearchResults() {
               </div>
 
               {/* Time Slot */}
-              <div>
-                <button
-                  onClick={() => toggleSection("time")}
-                  className="w-full flex items-center justify-between px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-                >
+              <div className="ctsr-sidebar__section">
+                <button onClick={() => toggleSection("time")} className="ctsr-sidebar__toggle">
                   Giờ khởi hành
                   {expandedFilters.time ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
                 {expandedFilters.time && (
-                  <div className="px-5 pb-4 grid grid-cols-2 gap-2">
+                  <div className="ctsr-sidebar__time-grid">
                     {ALL_TIME_SLOTS.map((slot) => (
                       <button
                         key={slot}
                         onClick={() => toggleFilter<TimeSlot>("timeSlots", slot)}
-                        className={`text-xs px-2 py-2 rounded-lg border font-medium transition-all ${
-                          filters.timeSlots.includes(slot)
-                            ? "bg-orange-500 text-white border-orange-500"
-                            : "bg-gray-50 text-gray-600 border-gray-200 hover:border-orange-400"
-                        }`}
+                        className={`ctsr-sidebar__time-btn ${filters.timeSlots.includes(slot) ? "ctsr-sidebar__time-btn--active" : ""}`}
                       >
                         {slot}
                       </button>
@@ -276,47 +261,48 @@ export default function CustomerTrainSearchResults() {
             </div>
           </aside>
 
-          {/* ── Results List ─────────────────────────────────────── */}
-          <div className="flex-1 min-w-0">
+          {/* Results */}
+          <div className="ctsr-results">
             {/* Sort Bar */}
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-gray-500">
-                Hiển thị <strong className="text-gray-800">{displayedTickets.length}</strong> chuyến tàu
+            <div className="ctsr-sort-bar">
+              <p className="ctsr-sort-bar__count">
+                Đang hiển thị <span className="ctsr-sort-bar__count-number">{displayedTickets.length}</span> chuyến tàu
               </p>
-              <div className="flex items-center gap-2">
-                <Filter size={16} className="text-gray-400 lg:hidden" />
-                <label className="text-sm text-gray-500">Sắp xếp:</label>
+              <div className="ctsr-sort-bar__controls">
+                <Filter size={16} className="ctsr-sort-bar__filter-icon" />
+                <span className="ctsr-sort-bar__label">SẮP XẾP THEO:</span>
                 <select
                   value={sortKey}
-                  onChange={(e) => setSortKey(e.target.value as SortKey)}
-                  className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  onChange={(e) => setSortKey(e.target.value as any)}
+                  className="ctsr-sort-bar__select"
                 >
-                  <option value="price_asc">Giá: Thấp → Cao</option>
                   <option value="price_desc">Giá: Cao → Thấp</option>
-                  <option value="depart_asc">Giờ khởi hành sớm nhất</option>
+                  <option value="price_asc">Giá: Thấp → Cao</option>
+                  <option value="duration_asc">Thời gian: Ngắn nhất</option>
+                  <option value="duration_desc">Thời gian: Dài nhất</option>
                 </select>
               </div>
             </div>
 
             {/* Cards */}
             {loading ? (
-              <div className="space-y-4">
+              <div className="ctsr-card-list">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="bg-white rounded-2xl p-6 animate-pulse border border-gray-100">
-                    <div className="h-5 bg-gray-200 rounded w-1/3 mb-4" />
-                    <div className="h-4 bg-gray-200 rounded w-2/3 mb-2" />
-                    <div className="h-4 bg-gray-200 rounded w-1/2" />
+                  <div key={i} className="ctsr-skeleton">
+                    <div className="ctsr-skeleton__bar ctsr-skeleton__bar--w1-3" />
+                    <div className="ctsr-skeleton__bar ctsr-skeleton__bar--w2-3" />
+                    <div className="ctsr-skeleton__bar ctsr-skeleton__bar--w1-2" />
                   </div>
                 ))}
               </div>
             ) : displayedTickets.length === 0 ? (
-              <div className="bg-white rounded-2xl p-12 text-center border border-gray-100">
-                <p className="text-5xl mb-4">🚆</p>
-                <h3 className="font-bold text-gray-700 text-lg mb-2">Không tìm thấy chuyến tàu</h3>
-                <p className="text-gray-500 text-sm">Hãy thử thay đổi bộ lọc hoặc điều kiện tìm kiếm.</p>
+              <div className="ctsr-empty">
+                <p className="ctsr-empty__icon">🚆</p>
+                <h3 className="ctsr-empty__title">Không tìm thấy chuyến tàu</h3>
+                <p className="ctsr-empty__desc">Hãy thử thay đổi bộ lọc hoặc điều kiện tìm kiếm.</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="ctsr-card-list">
                 {displayedTickets.map((ticket) => (
                   <TrainCard key={ticket.id} ticket={ticket} />
                 ))}
@@ -332,73 +318,67 @@ export default function CustomerTrainSearchResults() {
 /* ─── TrainCard ──────────────────────────────────────────────── */
 function TrainCard({ ticket }: { ticket: TrainTicket }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-      <div className="p-5">
+    <div className="ctsr-card">
+      <div className="ctsr-card__body">
         {/* Top row */}
-        <div className="flex flex-wrap items-start gap-4 justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-[#003580] text-white font-bold text-lg px-4 py-2 rounded-xl">
-              {ticket.trainCode}
-            </div>
+        <div className="ctsr-card__top">
+          <div className="ctsr-card__top-left">
+            <div className="ctsr-card__train-code">{ticket.trainCode}</div>
             <div>
-              <span className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
-                {ticket.seatClass}
-              </span>
-              <p className="text-xs text-gray-400 mt-1">{ticket.seatsLeft} chỗ còn lại</p>
+              <span className="ctsr-card__seat-badge">{ticket.seatClass}</span>
+              <p className="ctsr-card__seats-left">{ticket.seatsLeft} chỗ còn lại</p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-2xl font-extrabold text-orange-500">{formatPrice(ticket.price)}</p>
-            <p className="text-xs text-gray-400">/ người</p>
+          <div style={{ textAlign: 'right' }}>
+            <p className="ctsr-card__price">{formatPrice(ticket.price)}</p>
+            <p className="ctsr-card__price-unit">/ người</p>
           </div>
         </div>
 
         {/* Timeline */}
-        <div className="flex items-center gap-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-gray-900">{ticket.departTime}</p>
-            <p className="text-sm text-gray-500 mt-0.5">{ticket.from}</p>
+        <div className="ctsr-card__timeline">
+          <div className="ctsr-card__time-point">
+            <p className="ctsr-card__time">{ticket.departTime}</p>
+            <p className="ctsr-card__station">{ticket.from}</p>
           </div>
 
-          <div className="flex-1 flex flex-col items-center">
-            <div className="flex items-center gap-1 text-xs text-gray-400 mb-1">
+          <div className="ctsr-card__duration-wrap">
+            <div className="ctsr-card__duration-info">
               <Clock size={12} />
               <span>{ticket.duration}</span>
             </div>
-            <div className="w-full flex items-center">
-              <div className="w-2 h-2 rounded-full bg-orange-500 flex-shrink-0" />
-              <div className="flex-1 h-px bg-gradient-to-r from-orange-400 to-blue-400 mx-1" />
-              <ArrowRight size={14} className="text-blue-500 flex-shrink-0" />
+            <div className="ctsr-card__duration-line">
+              <div className="ctsr-card__dot-start" />
+              <div className="ctsr-card__line" />
+              <ArrowRight size={14} className="ctsr-card__arrow-icon" />
             </div>
           </div>
 
-          <div className="text-center">
-            <p className="text-2xl font-bold text-gray-900">{ticket.arriveTime.replace(/(\d+):/, (_, h) => `${parseInt(h) % 24}:`)}</p>
-            <p className="text-sm text-gray-500 mt-0.5">{ticket.to}</p>
+          <div className="ctsr-card__time-point">
+            <p className="ctsr-card__time">{ticket.arriveTime.replace(/(\d+):/, (_, h) => `${parseInt(h) % 24}:`)}</p>
+            <p className="ctsr-card__station">{ticket.to}</p>
           </div>
         </div>
 
         {/* Bottom row */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-gray-100">
-          <div className="flex items-center gap-3">
+        <div className="ctsr-card__bottom">
+          <div className="ctsr-card__amenities">
             {ticket.amenities.map((key) => {
               const a = amenityIcons[key];
               if (!a) return null;
               const Icon = a.icon;
               return (
-                <span key={key} className="flex items-center gap-1 text-xs text-gray-500">
-                  <Icon size={14} className="text-blue-500" />
+                <span key={key} className="ctsr-card__amenity">
+                  <Icon size={14} className="ctsr-card__amenity-icon" />
                   {a.label}
                 </span>
               );
             })}
             {ticket.amenities.length === 0 && (
-              <span className="text-xs text-gray-400 italic">Không có tiện ích bổ sung</span>
+              <span className="ctsr-card__no-amenity">Không có tiện ích bổ sung</span>
             )}
           </div>
-          <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2.5 rounded-xl transition-colors text-sm">
-            Chọn vé
-          </button>
+          <button className="ctsr-card__book-btn">Chọn vé</button>
         </div>
       </div>
     </div>

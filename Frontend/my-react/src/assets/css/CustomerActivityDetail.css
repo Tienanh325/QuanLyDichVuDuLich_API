@@ -1,0 +1,109 @@
+/* ============================================================
+   CustomerActivityDetail.css
+   Layout & Container styles for Activity Detail page
+   ============================================================ */
+
+/* ── Page Shell ──────────────────────────────────────────────── */
+.cad-page {
+  background-color: #F5F7FA;
+  min-height: 100vh;
+  font-family: inherit;
+  color: #1f2937;
+  padding-top: 120px;
+}
+
+.cad-main {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+/* ── Breadcrumbs ─────────────────────────────────────────────── */
+.cad-breadcrumbs {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+/* ── Title Section ───────────────────────────────────────────── */
+.cad-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .cad-title-section {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}
+
+/* ── Image Gallery (Bento Grid) ──────────────────────────────── */
+.cad-gallery {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 0.5rem;
+  height: 300px;
+  border-radius: 1rem;
+  overflow: hidden;
+  margin-top: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+@media (min-width: 768px) {
+  .cad-gallery {
+    height: 400px;
+  }
+}
+
+/* ── Two-Column Layout ───────────────────────────────────────── */
+.cad-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .cad-layout {
+    flex-direction: row;
+  }
+}
+
+.cad-layout__left {
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .cad-layout__left {
+    width: 65%;
+  }
+}
+
+.cad-layout__right {
+  width: 100%;
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  .cad-layout__right {
+    width: 35%;
+  }
+}
+
+/* ── Content Card ────────────────────────────────────────────── */
+.cad-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3f4f6;
+  padding: 1.5rem;
+}
+
+/* ── Sticky Booking Widget ───────────────────────────────────── */
+.cad-booking-widget {
+  position: sticky;
+  top: 6rem;
+}

@@ -2,7 +2,7 @@ import type { CSSProperties, FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, LockKeyhole, ShieldCheck, ShoppingBag, User } from "lucide-react";
-import { getCurrentSession, loginWithAPI, loginWithEmail } from "../utils/auth";
+import { clearCurrentSession, loginWithAPI, loginWithEmail } from "../utils/auth";
 import "../assets/css/DangNhap.css";
 
 type RegisterState = {
@@ -98,7 +98,6 @@ export default function DangNhap() {
   const navigate = useNavigate();
   const location = useLocation();
   const registerState = location.state as RegisterState | null;
-  const currentSession = getCurrentSession();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -107,15 +106,9 @@ export default function DangNhap() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (currentSession?.role === "admin") {
-      navigate("/ThongKe", { replace: true });
-      return;
-    }
-    if (currentSession?.role === "customer") {
-      const from = (location.state as any)?.from || "/mua-sam";
-      navigate(from, { replace: true });
-    }
-  }, [currentSession, navigate, location.state]);
+    // Xóa session cũ khi vào trang đăng nhập để yêu cầu nhập lại tài khoản mật khẩu
+    clearCurrentSession();
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -129,7 +122,14 @@ export default function DangNhap() {
     const apiResult = await loginWithAPI(username, password);
     if (apiResult.ok && apiResult.session) {
       setIsLoading(false);
-      const dest = from || (apiResult.session.role === "admin" ? "/ThongKe" : "/mua-sam");
+      let dest = (apiResult.session.role === "admin" ? "/ThongKe" : "/mua-sam");
+      if (from) {
+        if (apiResult.session.role === "admin" && (from.toLowerCase().includes("admin") || from === "/ThongKe")) {
+           dest = from;
+        } else if (apiResult.session.role === "customer" && !from.toLowerCase().includes("admin") && from !== "/ThongKe") {
+           dest = from;
+        }
+      }
       navigate(dest, { replace: true });
       return;
     }
@@ -142,7 +142,10 @@ export default function DangNhap() {
         setErrorMessage("Vui lòng đăng nhập Admin bằng tài khoản thực trên Database để lấy Token thật.");
         return;
       }
-      const dest = from || "/mua-sam";
+      let dest = "/mua-sam";
+      if (from && !from.toLowerCase().includes("admin") && from !== "/ThongKe") {
+         dest = from;
+      }
       navigate(dest, { replace: true });
       return;
     }

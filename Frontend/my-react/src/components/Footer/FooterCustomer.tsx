@@ -1,12 +1,9 @@
 
 import {
-  ArrowRight,
   Facebook,
   Instagram,
   Music2,
-  QrCode,
   Send,
-  Smartphone,
   Youtube,
 } from "lucide-react";
 import "../../assets/css/CustomerFooter.css";
@@ -74,8 +71,6 @@ const paymentPartners = [
   "TPBank",
 ];
 
-const storeBadges = ["App Store", "Google Play", "AppGallery"];
-
 export default function FooterCustomer() {
  
 
@@ -84,10 +79,6 @@ export default function FooterCustomer() {
       <section className="customer-footer__main">
         <div className="customer-shell__container customer-footer__grid">
           <div className="customer-footer__column customer-footer__column--support">
-            <a href="#uu-dai" className="customer-footer__partner-button">
-              Hợp tác với Traveloka
-              <ArrowRight size={16} />
-            </a>
             <div className="customer-footer__payments">
               <h3>Đối tác thanh toán</h3>
               <div className="customer-footer__payment-grid">
@@ -149,23 +140,6 @@ export default function FooterCustomer() {
                 </li>
               ))}
             </ul>
-
-            <div className="customer-footer__download">
-              <h3>Tải ứng dụng Traveloka</h3>
-              <div className="customer-footer__download-panel">
-                <div className="customer-footer__download-qr">
-                  <QrCode size={42} />
-                </div>
-                <div className="customer-footer__download-stores">
-                  {storeBadges.map((item) => (
-                    <div key={item} className="customer-footer__store-badge">
-                      <Smartphone size={14} />
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
