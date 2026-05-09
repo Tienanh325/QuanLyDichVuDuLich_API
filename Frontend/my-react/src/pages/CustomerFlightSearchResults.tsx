@@ -77,7 +77,7 @@ export default function CustomerFlightSearchResults({
     : "Chưa chọn ngày";
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] font-sans pb-10">
+    <div className="min-h-screen bg-[#F5F7FA] font-sans pb-10 pt-[120px]">
       <div className="bg-[#003580] pt-6 pb-20">
         <div className="max-w-7xl mx-auto px-4">
           <h1 className="text-2xl font-bold text-white mb-6">Kết quả tìm kiếm chuyến bay</h1>

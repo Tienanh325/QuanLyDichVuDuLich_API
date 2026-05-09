@@ -161,7 +161,7 @@ export default function CustomerTrainSearchResults() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-[120px]">
       {/* ── Top Summary Bar ──────────────────────────────────────── */}
       <div className="bg-[#003580] text-white py-5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">

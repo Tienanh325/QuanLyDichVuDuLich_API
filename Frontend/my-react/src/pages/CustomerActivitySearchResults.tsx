@@ -76,7 +76,7 @@ export default function CustomerActivitySearchResults() {
   const [priceRange, setPriceRange] = useState(2500000);
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] font-sans pb-16">
+    <div className="min-h-screen bg-[#F5F7FA] font-sans pb-16 pt-[120px]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
         
         {/* STEP 1: Page Title Area */}
