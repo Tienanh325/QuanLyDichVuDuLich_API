@@ -46,7 +46,7 @@ const categoryLinks = [
   { id: "hotel", label: "Khách sạn", to: "/mua-sam/khach-san", activePaths: ["/mua-sam/khach-san", "/mua-sam/ket-qua-khach-san", "/mua-sam/thanh-toan-khach-san", "/mua-sam/thanh-toan-dat-cho", "/mua-sam/thanh-toan-thanh-cong"] },
   { id: "flight", label: "Vé máy bay", to: "/mua-sam/ve-may-bay", activePaths: ["/mua-sam/ve-may-bay", "/mua-sam/ket-qua-ve-may-bay", "/mua-sam/chi-tiet-chuyen-bay"] },
   { id: "train", label: "Vé tàu", to: "/mua-sam/ve-tau", activePaths: ["/mua-sam/ve-tau", "/mua-sam/ket-qua-tau", "/mua-sam/chi-tiet-tau"] },
-  { id: "activity", label: "Hoạt động & Vui chơi", to: "/mua-sam/hoat-dong-vui-choi", activePaths: ["/mua-sam/hoat-dong-vui-choi", "/mua-sam/ket-qua-hoat-dong", "/mua-sam/chi-tiet-hoat-dong"] },
+  { id: "activity", label: "Tour & Hoạt động", to: "/mua-sam/hoat-dong-vui-choi", activePaths: ["/mua-sam/hoat-dong-vui-choi", "/mua-sam/ket-qua-hoat-dong", "/mua-sam/chi-tiet-hoat-dong"] },
 ] as const;
 
 export default function HeaderCustomer() {

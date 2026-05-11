@@ -75,7 +75,7 @@ const DICH_VU_API_PATH = import.meta.env.VITE_DICH_VU_API_PATH ?? "/api/admin/di
 const mockDichVu: DichVuOption[] = [
   { maDichVu: 201, ten: "Vé máy bay nội địa" },
   { maDichVu: 202, ten: "Vé tàu hoả nhanh" },
-  { maDichVu: 203, ten: "Vé công viên giải trí" },
+  { maDichVu: 203, ten: "Tour & hoạt động" },
 ];
 
 const mockTickets: TicketItem[] = [
@@ -109,13 +109,13 @@ const mockTickets: TicketItem[] = [
     maVe: 999003,
     maDichVu: 203,
     diemKhoiHanh: "Cổng chính",
-    diemDen: "Khu trò chơi mạo hiểm",
+    diemDen: "Hoạt động trải nghiệm",
     ngayKhoiHanh: dayjs().add(1, "day").format("YYYY-MM-DD"),
     gia: 650000,
     soChoTrong: 120,
     hang: "Sun World",
     LoaiVeID: 3,
-    TenVe: "Vé khu vui chơi trọn gói",
+    TenVe: "Vé tour & hoạt động trọn gói",
     danhGia: 4.8,
   },
   {
@@ -330,10 +330,10 @@ function getPageDefaults(category: TicketCategory): {
       };
     case "park":
       return {
-        tenVe: "Vé khu vui chơi trọn gói",
+        tenVe: "Vé tour & hoạt động trọn gói",
         hang: "Sun World",
         diemKhoiHanh: "Cổng chính",
-        diemDen: "Khu trò chơi trung tâm",
+        diemDen: "Hoạt động trải nghiệm",
       };
     default:
       return {

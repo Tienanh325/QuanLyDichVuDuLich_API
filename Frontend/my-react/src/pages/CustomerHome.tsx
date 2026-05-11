@@ -43,7 +43,7 @@ const serviceTabs: Array<{
   { id: "hotel", label: "Khách sạn", icon: BedDouble },
   { id: "flight", label: "Vé máy bay", icon: PlaneTakeoff },
   { id: "train", label: "Vé tàu", icon: Train },
-  { id: "activity", label: "Hoạt động & Vui chơi", icon: Ticket },
+  { id: "activity", label: "Tour & Hoạt động", icon: Ticket },
 ];
 const reasonCards = [
   {
@@ -363,23 +363,27 @@ export default function CustomerHome() {
       );
     }
 
-    return (
-      <div className="travel-panel travel-panel--activity" style={{ position: 'relative', zIndex: 5 }}>
-        <div className="travel-form">
-          <div className="travel-form__layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 48px', alignItems: 'flex-end', gap: 12, padding: '0 12px' }}>
-            <HotelFieldButton
-              label="Tìm kiếm hoạt động"
-              value={activitySearch}
-              placeholder="Bạn có ý tưởng gì cho chuyến đi tiếp theo không?"
-              icon={Search}
-              isTypable
-              onChange={setActivitySearch}
-            />
-            <SearchButton ariaLabel="Tìm ý tưởng" onClick={handleActivitySearch} />
+    if (activeTab === "activity") {
+      return (
+        <div className="travel-panel travel-panel--activity" style={{ position: 'relative', zIndex: 5 }}>
+          <div className="travel-form">
+            <div className="travel-form__layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 48px', alignItems: 'flex-end', gap: 12, padding: '0 12px' }}>
+              <HotelFieldButton
+                label="Tìm kiếm tour & hoạt động"
+                value={activitySearch}
+                placeholder="Bạn có ý tưởng gì cho chuyến đi tiếp theo?"
+                icon={Search}
+                isTypable
+                onChange={setActivitySearch}
+              />
+              <SearchButton ariaLabel="Tìm tour & hoạt động" onClick={handleActivitySearch} />
+            </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -481,8 +485,8 @@ export default function CustomerHome() {
                 flexDirection: 'column', 
                 justifyContent: 'center' 
               }}>
-                <h3 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 8px 0' }}>Xperience Plus</h3>
-                <p style={{ fontSize: 16, margin: 0, color: '#475569' }}>Mua 2 tính tiền 1 tại các khu vui chơi giải trí.</p>
+                <h3 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 8px 0' }}>Tour & Hoạt động</h3>
+                <p style={{ fontSize: 16, margin: 0, color: '#475569' }}>Ưu đãi đặc biệt cho tour và hoạt động vui chơi.</p>
               </div>
             </div>
           </div>

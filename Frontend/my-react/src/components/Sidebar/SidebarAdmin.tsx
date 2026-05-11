@@ -194,7 +194,7 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
 
                 <NavLink to="/admin/VeKhuVuiChoi" style={({ isActive }) => linkStyle(isActive)}>
                   <FontAwesomeIcon icon={faGamepad} style={faStyle} />
-                  {!collapsed && <span>Vé khu vui chơi</span>}
+                  {!collapsed && <span>Tour & Hoạt động</span>}
                 </NavLink>
 
               </div>

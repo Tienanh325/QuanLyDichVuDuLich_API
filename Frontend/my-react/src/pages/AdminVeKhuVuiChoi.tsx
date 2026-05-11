@@ -4,8 +4,8 @@ export default function AdminVeKhuVuiChoi() {
   return (
     <AdminTicketPage
       category="park"
-      title="Quản lý vé khu vui chơi"
-      description="Quản lý vé vui chơi, cổng vào, khu trải nghiệm, giá vé và số chỗ phục vụ theo ngày."
+      title="Quản lý tour & hoạt động"
+      description="Quản lý vé vui chơi, hoạt động trải nghiệm, giá vé và số chỗ phục vụ theo ngày."
     />
   );
 }

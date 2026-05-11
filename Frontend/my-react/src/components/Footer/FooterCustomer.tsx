@@ -20,7 +20,7 @@ const productLinks = [
   "Khách sạn",
   "Vé máy bay",
   "Vé tàu",
-  "Hoạt động & Vui chơi",
+  "Tour & Hoạt động",
   "Du thuyền",
   "Biệt thự",
   "Căn hộ",

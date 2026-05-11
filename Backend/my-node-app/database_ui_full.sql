@@ -413,21 +413,6 @@ CREATE TABLE VeTauHoa (
   INDEX idx_vth_train_no (soHieuChuyenTau)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE VeKhuVuiChoi (
-  maVe INT PRIMARY KEY,
-  diaDiemSuDung VARCHAR(255) NOT NULL,
-  ngayHetHan DATETIME,
-  danhMuc VARCHAR(150) NULL,
-  highlight VARCHAR(150) NULL,
-  xacNhanTucThi TINYINT(1) NOT NULL DEFAULT 1,
-  chinhSachHuy VARCHAR(255) NULL,
-  CONSTRAINT fk_vekvc_ve FOREIGN KEY (maVe)
-    REFERENCES Ve(maVe) ON DELETE CASCADE ON UPDATE CASCADE,
-  INDEX idx_vkvc_location (diaDiemSuDung),
-  INDEX idx_vkvc_category (danhMuc),
-  INDEX idx_vkvc_expire (ngayHetHan)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 CREATE TABLE LoaiVe (
   maLoaiVe INT AUTO_INCREMENT PRIMARY KEY,
   tenLoaiVe VARCHAR(150) NOT NULL UNIQUE,
