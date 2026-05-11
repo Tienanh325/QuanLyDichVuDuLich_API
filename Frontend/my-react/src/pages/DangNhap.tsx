@@ -122,11 +122,11 @@ export default function DangNhap() {
     const apiResult = await loginWithAPI(username, password);
     if (apiResult.ok && apiResult.session) {
       setIsLoading(false);
-      let dest = (apiResult.session.role === "admin" ? "/ThongKe" : "/mua-sam");
+      let dest = (apiResult.session.role === "admin" ? "/admin/ThongKe" : "/mua-sam");
       if (from) {
-        if (apiResult.session.role === "admin" && (from.toLowerCase().includes("admin") || from === "/ThongKe")) {
+        if (apiResult.session.role === "admin" && from.toLowerCase().includes("admin")) {
            dest = from;
-        } else if (apiResult.session.role === "customer" && !from.toLowerCase().includes("admin") && from !== "/ThongKe") {
+        } else if (apiResult.session.role === "customer" && !from.toLowerCase().includes("admin")) {
            dest = from;
         }
       }
@@ -143,7 +143,7 @@ export default function DangNhap() {
         return;
       }
       let dest = "/mua-sam";
-      if (from && !from.toLowerCase().includes("admin") && from !== "/ThongKe") {
+      if (from && !from.toLowerCase().includes("admin")) {
          dest = from;
       }
       navigate(dest, { replace: true });
@@ -170,7 +170,7 @@ export default function DangNhap() {
         <div style={{ position: "relative", zIndex: 1 }}>
           <div style={badgeStyle}>
             <ShieldCheck size={18} color="#ea580c" />
-            Dang nhap cho admin va khach hang TravelHub
+            Đăng nhập cho admin và khách hàng TravelHub
           </div>
 
           <div style={{ marginTop: 28, maxWidth: 620 }}>
@@ -183,7 +183,7 @@ export default function DangNhap() {
                 fontWeight: 900,
               }}
             >
-              Mot trang dang nhap, hai luong dieu huong rieng cho quan tri va mua sam khach hang.
+              Một trang đăng nhập, hai luồng điều hướng riêng cho quản trị và mua sắm khách hàng.
             </h1>
             <p
               style={{
@@ -217,10 +217,10 @@ export default function DangNhap() {
                 fontWeight: 700,
               }}
             >
-              Dang nhap he thong
+              Đăng nhập hệ thống
             </div>
             <h2 style={{ fontSize: 34, margin: "16px 0 8px", color: "#10253b", fontWeight: 900 }}>
-              Chao mung quay lai
+              Chào mừng quay lại
             </h2>
           </div>
 
@@ -263,7 +263,7 @@ export default function DangNhap() {
                     display: "grid",
                     placeItems: "center",
                   }}
-                  aria-label={showPassword ? "An mat khau" : "Hien mat khau"}
+                  aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                 >
                   {showPassword ? <EyeOff size={18} color="#64748b" /> : <Eye size={18} color="#64748b" />}
                 </button>
@@ -312,7 +312,7 @@ export default function DangNhap() {
             >
               <label style={{ display: "flex", alignItems: "center", gap: 10, color: "#475569" }}>
                 <input type="checkbox" defaultChecked />
-                Ghi nho dang nhap
+                Ghi nhớ đăng nhập
               </label>
             </div>
 
@@ -334,9 +334,9 @@ export default function DangNhap() {
             }}
           >
             <div style={{ color: "#64748b", lineHeight: 1.6 }}>
-              Chua co tai khoan khach hang?
+              Chưa có tài khoản khách hàng?
               <div style={{ color: "#94a3b8", fontSize: 13 }}>
-                Link dang ky nay chi tao tai khoan user mua sam.
+                Link đăng ký này chỉ tạo tài khoản user mua sắm.
               </div>
             </div>
 
@@ -355,7 +355,7 @@ export default function DangNhap() {
               }}
             >
               <ShoppingBag size={16} />
-              Dang ky user
+              Đăng ký user
             </Link>
           </div>
         </div>

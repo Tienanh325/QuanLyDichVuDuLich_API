@@ -19,7 +19,8 @@ import {
   StarOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  InsertRowAboveOutlined 
+  InsertRowAboveOutlined,
+  SettingOutlined
 } from '@ant-design/icons';
 // removed import
 import UserDropdown from '../User/user';
@@ -36,7 +37,7 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
     setOpenVe(null);
   };
   // ✅ route state
-  const isVeRoute = location.pathname.includes('/Ve');
+  const isVeRoute = location.pathname.includes('/admin/Ve');
 
   // ✅ user control (null = chưa click)
   const [openVe, setOpenVe] = useState<boolean | null>(null);
@@ -105,27 +106,32 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingRight: 4 }}>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
-          <NavLink to="/Thongke" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/ThongKe" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
             <DashboardOutlined />
             {!collapsed && <span>Thống kê</span>}
           </NavLink>
 
-          <NavLink to="/DichVu" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/DichVu" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
             <InsertRowAboveOutlined />
             {!collapsed && <span>Dịch vụ</span>}
           </NavLink>
 
-          <NavLink to="/LoaiVe" onClick={handleCloseSubmenu}style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/LoaiVe" onClick={handleCloseSubmenu}style={({ isActive }) => linkStyle(isActive)}>
             <AppstoreOutlined />
             {!collapsed && <span>Loại vé</span>}
           </NavLink>
 
-          <NavLink to="/KhachSan" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/CauHinhHeThong" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
+            <SettingOutlined />
+            {!collapsed && <span>Cấu hình UI</span>}
+          </NavLink>
+
+          <NavLink to="/admin/KhachSan" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
             <HomeOutlined />
             {!collapsed && <span>Khách sạn</span>}
           </NavLink>
 
-          <NavLink to="/Tour" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/Tour" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
             <FontAwesomeIcon icon={faMapLocationDot} style={faStyle} />
             {!collapsed && <span>Tour</span>}
           </NavLink>
@@ -136,7 +142,7 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
                 setOpenVe(prev =>
                   prev === null ? !isVeRoute : !prev
                 );
-                navigate('/Ve');
+                navigate('/admin/Ve');
               }}
               style={{
                 ...linkStyle(isVeRoute),
@@ -176,17 +182,17 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6}}>
 
-                <NavLink to="/VeMayBay"  style={({ isActive }) => linkStyle(isActive)}>
+                <NavLink to="/admin/VeMayBay"  style={({ isActive }) => linkStyle(isActive)}>
                   <FontAwesomeIcon icon={faPlane} style={faStyle} />
                   {!collapsed && <span>Vé máy bay</span>}
                 </NavLink>
 
-                <NavLink to="/VeTauHoa" style={({ isActive }) => linkStyle(isActive)}>
+                <NavLink to="/admin/VeTauHoa" style={({ isActive }) => linkStyle(isActive)}>
                   <FontAwesomeIcon icon={faTrain} style={faStyle} />
                   {!collapsed && <span>Vé tàu hỏa</span>}
                 </NavLink>
 
-                <NavLink to="/VeKhuVuiChoi" style={({ isActive }) => linkStyle(isActive)}>
+                <NavLink to="/admin/VeKhuVuiChoi" style={({ isActive }) => linkStyle(isActive)}>
                   <FontAwesomeIcon icon={faGamepad} style={faStyle} />
                   {!collapsed && <span>Vé khu vui chơi</span>}
                 </NavLink>
@@ -195,27 +201,27 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
             </div>
           </div>
 
-          <NavLink to="/KhuyenMai" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/KhuyenMai" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
             <TagsOutlined />
             {!collapsed && <span>Khuyến mãi</span>}
           </NavLink>
 
-          <NavLink to="/DanhGia" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/DanhGia" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
             <StarOutlined />
             {!collapsed && <span>Đánh giá</span>}
           </NavLink>
 
-          <NavLink to="/DonHang" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/DonHang" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
             <ShoppingCartOutlined />
             {!collapsed && <span>Đơn hàng</span>}
           </NavLink>
 
-          <NavLink to="/NhaCungCap" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/NhaCungCap" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
             <BankOutlined />
             {!collapsed && <span>Nhà cung cấp</span>}
           </NavLink>
 
-          <NavLink to="/KhachHang" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/KhachHang" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
             <UserOutlined />
             {!collapsed && <span>Khách hàng</span>}
           </NavLink>

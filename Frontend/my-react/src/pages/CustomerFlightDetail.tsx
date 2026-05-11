@@ -1,6 +1,5 @@
-import React from 'react';
 import "../assets/css/CustomerFlightDetail.css";
-import { ArrowRight, Plane, Briefcase, Shield, XCircle, Calendar, Info, CheckCircle } from 'lucide-react';
+import { ArrowRight, Plane, Briefcase, Shield, XCircle, Calendar, Info } from 'lucide-react';
 
 const CustomerFlightDetail = () => {
   return (

@@ -40,10 +40,19 @@ interface TourItem {
   viTri: string;
   thoiGian: string;
   gia: number;
+  giaGoc?: number;
+  giaKhuyenMai?: number;
   ngayBatDau: string;
   soLuong: number;
   moTa: string;
   danhGia: number;
+  soLuotDanhGia?: number;
+  diaDiem?: string;
+  viTriKhoiHanh?: string;
+  highlight?: string;
+  chinhSachHuy?: string;
+  isBestSeller?: boolean;
+  xacNhanTucThi?: boolean;
 }
 
 interface TourFormValues {
@@ -52,10 +61,19 @@ interface TourFormValues {
   viTri: string;
   thoiGian: string;
   gia: number;
+  giaGoc?: number;
+  giaKhuyenMai?: number;
   ngayBatDau: Dayjs;
   soLuong: number;
   moTa: string;
   danhGia: number;
+  soLuotDanhGia?: number;
+  diaDiem?: string;
+  viTriKhoiHanh?: string;
+  highlight?: string;
+  chinhSachHuy?: string;
+  isBestSeller?: boolean;
+  xacNhanTucThi?: boolean;
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
@@ -149,12 +167,21 @@ function normalizeTour(input: unknown, index: number): TourItem {
     viTri: String(raw.viTri ?? raw.location ?? ""),
     thoiGian: String(raw.thoiGian ?? raw.duration ?? ""),
     // Backend: giaTour field
-    gia: Number(raw.gia ?? raw.giaTour ?? raw.price ?? 0),
+    gia: Number(raw.gia ?? raw.giaTour ?? raw.giaKhuyenMai ?? raw.price ?? 0),
+    giaGoc: Number(raw.giaGoc ?? raw.originalPrice ?? 0),
+    giaKhuyenMai: Number(raw.giaKhuyenMai ?? raw.gia ?? raw.giaTour ?? raw.price ?? 0),
     ngayBatDau: String(raw.ngayBatDau ?? raw.startDate ?? dayjs().format("YYYY-MM-DD")),
     // Backend: soLuongKhach field
     soLuong: Number(raw.soLuong ?? raw.soLuongKhach ?? raw.quantity ?? 0),
-    moTa: String(raw.moTa ?? raw.description ?? ""),
-    danhGia: Number(raw.danhGia ?? raw.rating ?? 0),
+    moTa: String(raw.moTa ?? raw.moTaHoatDong ?? raw.description ?? ""),
+    danhGia: Number(raw.danhGia ?? raw.diemDanhGia ?? raw.rating ?? 0),
+    soLuotDanhGia: Number(raw.soLuotDanhGia ?? raw.reviews ?? 0),
+    diaDiem: String(raw.diaDiem ?? raw.locationName ?? ""),
+    viTriKhoiHanh: String(raw.viTriKhoiHanh ?? raw.departureLocation ?? ""),
+    highlight: String(raw.highlight ?? ""),
+    chinhSachHuy: String(raw.chinhSachHuy ?? ""),
+    isBestSeller: Boolean(raw.isBestSeller ?? false),
+    xacNhanTucThi: Boolean(raw.xacNhanTucThi ?? false),
   };
 }
 
@@ -331,9 +358,14 @@ export default function AdminTour() {
     form.setFieldsValue({
       maDichVu: dichVuOptions[0]?.maDichVu,
       gia: 1000000,
+      giaGoc: 1200000,
+      giaKhuyenMai: 1000000,
       soLuong: 20,
       danhGia: 4.5,
+      soLuotDanhGia: 0,
       ngayBatDau: dayjs().add(7, "day"),
+      isBestSeller: false,
+      xacNhanTucThi: true,
     });
     setModalOpen(true);
   };
@@ -346,10 +378,19 @@ export default function AdminTour() {
       viTri: item.viTri,
       thoiGian: item.thoiGian,
       gia: item.gia,
+      giaGoc: item.giaGoc,
+      giaKhuyenMai: item.giaKhuyenMai,
       ngayBatDau: dayjs(item.ngayBatDau),
       soLuong: item.soLuong,
       moTa: item.moTa,
       danhGia: item.danhGia,
+      soLuotDanhGia: item.soLuotDanhGia,
+      diaDiem: item.diaDiem,
+      viTriKhoiHanh: item.viTriKhoiHanh,
+      highlight: item.highlight,
+      chinhSachHuy: item.chinhSachHuy,
+      isBestSeller: item.isBestSeller,
+      xacNhanTucThi: item.xacNhanTucThi,
     });
     setModalOpen(true);
   };

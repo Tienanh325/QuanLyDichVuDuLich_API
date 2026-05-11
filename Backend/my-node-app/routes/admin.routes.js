@@ -15,6 +15,7 @@ const ThanhToanController = require('../controllers/thanhtoan.controller');
 const DanhGiaController = require('../controllers/danhgia.controller');
 const UserController = require('../controllers/user.controller');
 const LoaiVeController = require('../controllers/loaive.controller');
+const AdminConfigController = require('../controllers/adminconfig.controller');
 
 // ==========================================
 // BẢO VỆ TOÀN BỘ ROUTES ADMIN
@@ -27,6 +28,21 @@ router.use(requireAdmin);
 router.get('/thong-ke', DashboardController.getOverviewAnalytics);
 router.get('/thanh-toan/thong-ke', ThanhToanController.adminThongKeTongQuan);
 router.get('/thanh-toan/doanh-thu', ThanhToanController.adminThongKeDoanhThu);
+
+// ==========================================
+// 1B. CẤU HÌNH UI
+// ==========================================
+router.get('/danh-muc-hoat-dong', AdminConfigController.getDanhMucHoatDong);
+router.post('/danh-muc-hoat-dong', AdminConfigController.createDanhMucHoatDong);
+router.put('/danh-muc-hoat-dong/:id', AdminConfigController.updateDanhMucHoatDong);
+router.delete('/danh-muc-hoat-dong/:id', AdminConfigController.removeDanhMucHoatDong);
+router.get('/tien-ich', AdminConfigController.getTienIch);
+router.post('/tien-ich', AdminConfigController.createTienIch);
+router.put('/tien-ich/:id', AdminConfigController.updateTienIch);
+router.delete('/tien-ich/:id', AdminConfigController.removeTienIch);
+router.get('/newsletter', AdminConfigController.getNewsletter);
+router.patch('/newsletter/:id/status', AdminConfigController.updateNewsletterStatus);
+router.delete('/newsletter/:id', AdminConfigController.removeNewsletter);
 
 // ==========================================
 // 2. QUẢN LÝ NGƯỜI DÙNG

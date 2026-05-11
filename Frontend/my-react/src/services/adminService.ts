@@ -88,11 +88,94 @@ export interface DonDatItem {
   giamGia: number | null;
 }
 
+export interface DanhMucHoatDongItem {
+  maDanhMuc: number;
+  tenDanhMuc: string;
+  icon?: string | null;
+  gradient?: string | null;
+  moTa?: string | null;
+  trangThai: number | boolean;
+  thuTu: number;
+}
+
+export interface TienIchItem {
+  maTienIch: number;
+  tenTienIch: string;
+  icon?: string | null;
+  loaiTienIch: 'KHACH_SAN' | 'PHONG' | 'VE' | 'TOUR';
+  trangThai: number | boolean;
+}
+
+export interface NewsletterItem {
+  maDangKy: number;
+  email: string;
+  source?: string | null;
+  trangThai: 'ACTIVE' | 'UNSUBSCRIBED';
+  ngayTao: string;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   totalRecords: number;
   totalPages: number;
   currentPage: number;
+}
+
+// ─── Cấu hình UI ─────────────────────────────────────────────────────────────
+
+export async function adminGetDanhMucHoatDong(): Promise<DanhMucHoatDongItem[]> {
+  const response = await api.get<{ status: string; data: DanhMucHoatDongItem[] }>('/api/admin/danh-muc-hoat-dong');
+  return response.data.data ?? [];
+}
+
+export async function adminCreateDanhMucHoatDong(payload: Partial<DanhMucHoatDongItem>) {
+  const response = await api.post('/api/admin/danh-muc-hoat-dong', payload);
+  return response.data;
+}
+
+export async function adminUpdateDanhMucHoatDong(id: number, payload: Partial<DanhMucHoatDongItem>) {
+  const response = await api.put(`/api/admin/danh-muc-hoat-dong/${id}`, payload);
+  return response.data;
+}
+
+export async function adminDeleteDanhMucHoatDong(id: number) {
+  const response = await api.delete(`/api/admin/danh-muc-hoat-dong/${id}`);
+  return response.data;
+}
+
+export async function adminGetTienIch(params?: { loaiTienIch?: string }): Promise<TienIchItem[]> {
+  const response = await api.get<{ status: string; data: TienIchItem[] }>('/api/admin/tien-ich', { params });
+  return response.data.data ?? [];
+}
+
+export async function adminCreateTienIch(payload: Partial<TienIchItem>) {
+  const response = await api.post('/api/admin/tien-ich', payload);
+  return response.data;
+}
+
+export async function adminUpdateTienIch(id: number, payload: Partial<TienIchItem>) {
+  const response = await api.put(`/api/admin/tien-ich/${id}`, payload);
+  return response.data;
+}
+
+export async function adminDeleteTienIch(id: number) {
+  const response = await api.delete(`/api/admin/tien-ich/${id}`);
+  return response.data;
+}
+
+export async function adminGetNewsletter(params?: { status?: string; source?: string }): Promise<NewsletterItem[]> {
+  const response = await api.get<{ status: string; data: NewsletterItem[] }>('/api/admin/newsletter', { params });
+  return response.data.data ?? [];
+}
+
+export async function adminUpdateNewsletterStatus(id: number, trangThai: 'ACTIVE' | 'UNSUBSCRIBED') {
+  const response = await api.patch(`/api/admin/newsletter/${id}/status`, { trangThai });
+  return response.data;
+}
+
+export async function adminDeleteNewsletter(id: number) {
+  const response = await api.delete(`/api/admin/newsletter/${id}`);
+  return response.data;
 }
 
 // ─── Dashboard & Thống kê ────────────────────────────────────────────────────

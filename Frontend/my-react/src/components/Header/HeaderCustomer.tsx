@@ -43,10 +43,10 @@ const customerMenuItems = [
 ] as const;
 
 const categoryLinks = [
-  { id: "hotel", label: "Khách sạn", to: "/mua-sam/khach-san" },
-  { id: "flight", label: "Vé máy bay", to: "/mua-sam/ve-may-bay" },
-  { id: "train", label: "Vé tàu", to: "/mua-sam/ve-tau" },
-  { id: "activity", label: "Hoạt động & Vui chơi", to: "/mua-sam/hoat-dong-vui-choi" },
+  { id: "hotel", label: "Khách sạn", to: "/mua-sam/khach-san", activePaths: ["/mua-sam/khach-san", "/mua-sam/ket-qua-khach-san", "/mua-sam/thanh-toan-khach-san", "/mua-sam/thanh-toan-dat-cho", "/mua-sam/thanh-toan-thanh-cong"] },
+  { id: "flight", label: "Vé máy bay", to: "/mua-sam/ve-may-bay", activePaths: ["/mua-sam/ve-may-bay", "/mua-sam/ket-qua-ve-may-bay", "/mua-sam/chi-tiet-chuyen-bay"] },
+  { id: "train", label: "Vé tàu", to: "/mua-sam/ve-tau", activePaths: ["/mua-sam/ve-tau", "/mua-sam/ket-qua-tau", "/mua-sam/chi-tiet-tau"] },
+  { id: "activity", label: "Hoạt động & Vui chơi", to: "/mua-sam/hoat-dong-vui-choi", activePaths: ["/mua-sam/hoat-dong-vui-choi", "/mua-sam/ket-qua-hoat-dong", "/mua-sam/chi-tiet-hoat-dong"] },
 ] as const;
 
 export default function HeaderCustomer() {
@@ -140,13 +140,6 @@ export default function HeaderCustomer() {
             </div>
 
             <div className="customer-header__group">
-              <nav className="customer-header__top-links">
-                <a href="#uu-dai">Khuyến mãi</a>
-                <a href="#uu-dai">Hợp tác với chúng tôi</a>
-                <a href="#faq">Hỗ trợ</a>
-                <a href="#tim-kiem">Đặt chỗ của tôi</a>
-              </nav>
-
               <div className="customer-header__auth">
                 {isCustomerSession ? (
                   <div className="customer-header__menu" ref={customerMenuRef}>
@@ -160,7 +153,6 @@ export default function HeaderCustomer() {
                       <span className="customer-header__menu-avatar">{customerInitials}</span>
                       <span className="customer-header__menu-identity">
                         <strong>{session.fullName}</strong>
-                        <small>0 điểm</small>
                       </span>
                       <ChevronDown
                         size={16}
@@ -226,19 +218,19 @@ export default function HeaderCustomer() {
           </div>
 
           <nav className="customer-header__categories">
-            {categoryLinks.map((item) => (
-              <NavLink
-                key={item.id}
-                to={item.to}
-                className={({ isActive }) =>
-                  isActive
-                    ? "customer-header__category-link is-active"
-                    : "customer-header__category-link"
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
+            {categoryLinks.map((item) => {
+              const isActive = item.activePaths.some((path) => location.pathname.startsWith(path));
+
+              return (
+                <NavLink
+                  key={item.id}
+                  to={item.to}
+                  className={isActive ? "customer-header__category-link is-active" : "customer-header__category-link"}
+                >
+                  {item.label}
+                </NavLink>
+              );
+            })}
           </nav>
         </div>
       </div>

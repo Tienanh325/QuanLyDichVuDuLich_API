@@ -109,43 +109,91 @@ class DonDatModel {
         try {
             await conn.beginTransaction();
 
-            // Tính tổng giá gốc
-            let tongGia = chiTietList.reduce((sum, ct) => sum + ct.soLuong * ct.giaTaiThoiDiemMua, 0);
+            // 1) Tính số đêm (nếu là khách sạn có ngày nhận/trả)
+            function calculateNights(start, end) {
+                if (!start || !end) return 1;
+                const s = new Date(start);
+                const e = new Date(end);
+                if (Number.isNaN(s.getTime()) || Number.isNaN(e.getTime())) return 1;
+                const diff = Math.round((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24));
+                return Math.max(1, diff);
+            }
 
-            // Áp dụng khuyến mãi nếu có
+            // 2) Tính breakdown từng chi tiết
+            let tongTruocThue = 0;
+            const enriched = chiTietList.map((ct) => {
+                const nights = calculateNights(ct.ngayBatDauSuDung, ct.ngayKetThucSuDung);
+                const sub = ct.soLuong * ct.giaTaiThoiDiemMua * nights;
+                const giaGoc = ct.giaTaiThoiDiemMua * nights;
+                return { ...ct, nights, sub, giaGoc };
+            });
+
+            tongTruocThue = enriched.reduce((sum, ct) => sum + ct.sub, 0);
+            const thuePhi = Math.round(tongTruocThue * 0.1);
+            let tongSauThue = tongTruocThue + thuePhi;
+
+            // 3) Áp dụng khuyến mãi nếu có
             let appliedKhuyenMai = null;
             if (maKhuyenMai) {
                 const km = await KhuyenMaiModel.validateKhuyenMai(maKhuyenMai);
                 if (km) {
                     appliedKhuyenMai = km;
-                    // Nếu giảm giá <= 100 -> coi là % giảm, ngược lại là tiền trực tiếp
                     if (km.giamGia <= 100) {
-                        tongGia = tongGia * (1 - km.giamGia / 100);
+                        tongSauThue = tongSauThue * (1 - km.giamGia / 100);
                     } else {
-                        tongGia = Math.max(0, tongGia - km.giamGia);
+                        tongSauThue = Math.max(0, tongSauThue - km.giamGia);
                     }
                 }
             }
 
+            const tongGia = Math.round(tongSauThue);
+
+            // 4) Tạo đơn đặt với các trường breakdown mới
             const [donResult] = await conn.query(
-                `INSERT INTO DonDat (maUser, maKhuyenMai, tongGia, trangThai) VALUES (?, ?, ?, 'PENDING')`,
-                [maUser, appliedKhuyenMai ? maKhuyenMai : null, tongGia]
+                `INSERT INTO DonDat (maUser, maKhuyenMai, tongGia, giaGoc, tongTruocThue, thuePhi, tongSauThue, vatRate, trangThai, loaiDon)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', ?)`,
+                [
+                    maUser,
+                    appliedKhuyenMai ? maKhuyenMai : null,
+                    tongGia,
+                    tongTruocThue,
+                    tongTruocThue,
+                    thuePhi,
+                    tongSauThue,
+                    10.00,
+                    'HOTEL' // có thể phát hiện từ chiTietList/context nếu cần đa loại
+                ]
             );
             const maDon = donResult.insertId;
 
-            // Tạo chi tiết đơn
-            for (const ct of chiTietList) {
+            // 5) Tạo chi tiết đơn có đủ nights và thanhTien
+            for (const ct of enriched) {
                 await conn.query(
-                    `INSERT INTO ChiTietDon (maDon, maDichVu, maPhanLoaiDichVu, soLuong, giaTaiThoiDiemMua, ngayBatDauSuDung, ngayKetThucSuDung)
-                     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                    [maDon, ct.maDichVu, ct.maPhanLoaiDichVu || null, ct.soLuong, ct.giaTaiThoiDiemMua,
-                     ct.ngayBatDauSuDung || null, ct.ngayKetThucSuDung || null]
+                    `INSERT INTO ChiTietDon (maDon, maDichVu, maPhanLoaiDichVu, soLuong, giaTaiThoiDiemMua, thanhTien, ngayBatDauSuDung, ngayKetThucSuDung, soDem)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [
+                        maDon,
+                        ct.maDichVu,
+                        ct.maPhanLoaiDichVu || null,
+                        ct.soLuong,
+                        ct.giaTaiThoiDiemMua,
+                        ct.sub,
+                        ct.ngayBatDauSuDung || null,
+                        ct.ngayKetThucSuDung || null,
+                        ct.nights
+                    ]
                 );
             }
 
             await conn.commit();
             conn.release();
-            return { maDon, maUser, tongGia, trangThai: 'PENDING', chiTietDon: chiTietList };
+            return {
+                maDon,
+                maUser,
+                tongGia,
+                trangThai: 'PENDING',
+                chiTietDon: enriched
+            };
         } catch (err) {
             await conn.rollback();
             conn.release();

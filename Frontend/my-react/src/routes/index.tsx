@@ -13,6 +13,7 @@ import AdminDanhGia from '../pages/AdminDanhGia';
 import AdminDonHang from '../pages/AdminDonHang';
 import AdminNhaCungCap from '../pages/AdminNhaCungCap';
 import AdminKhachHang from '../pages/AdminKhachHang';
+import AdminCauHinhHeThong from '../pages/AdminCauHinhHeThong';
 import AdminLayout from '../layouts/AdminLayout';
 import CustomerLayout from '../layouts/CustomerLayout';
 import DangNhap from '../pages/DangNhap';
@@ -76,6 +77,7 @@ export default function RoutesIndex() {
         <Route path="DonHang" element={<AdminDonHang />} />
         <Route path="NhaCungCap" element={<AdminNhaCungCap />} />
         <Route path="KhachHang" element={<AdminKhachHang />} />
+        <Route path="CauHinhHeThong" element={<AdminCauHinhHeThong />} />
       </Route>
       <Route path="*" element={<Navigate to="/dang-nhap" replace />} />
     </Routes>

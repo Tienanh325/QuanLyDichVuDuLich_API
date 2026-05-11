@@ -30,7 +30,7 @@ interface TrainFilters {
 }
 
 /* ─── Mock API ───────────────────────────────────────────────── */
-function fetchTrainResults(from: string, to: string, date: string): Promise<TrainTicket[]> {
+function fetchTrainResults(from: string, to: string, _date?: string): Promise<TrainTicket[]> {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve([
@@ -117,7 +117,7 @@ export default function CustomerTrainSearchResults() {
 
   useEffect(() => {
     setLoading(true);
-    fetchTrainResults(fromCity, toCity, date).then((data) => {
+    fetchTrainResults(fromCity, toCity).then((data) => {
       setTickets(data);
       setLoading(false);
     });

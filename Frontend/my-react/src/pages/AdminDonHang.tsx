@@ -66,8 +66,6 @@ interface InvoiceRow {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
 const DON_DAT_API_PATH = "/api/admin/don-dat";
-const CHI_TIET_DON_API_PATH = "/api/admin/chi-tiet-don";
-const THANH_TOAN_API_PATH = "/api/admin/thanh-toan";
 
 const mockDonDat: DonDatRow[] = [
   { maDon: 1001, maNguoiDung: 12, tongGia: 2450000, trangThai: "completed", ngayTao: "2026-03-18" },

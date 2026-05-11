@@ -1,8 +1,8 @@
 import type { CSSProperties, FormEvent } from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CircleUserRound, LockKeyhole, Mail, Phone, ShieldAlert, User } from "lucide-react";
-import thuongHieuImage from "../assets/images/thuonghieu.jpg";
+import { CircleUserRound, LockKeyhole, Mail, Phone, User } from "lucide-react";
+import thuongHieuImage from "../assets/images/baibien.jpg";
 import { registerWithAPI } from "../utils/auth";
 import "../assets/css/DangNhap.css";
 
@@ -140,13 +140,13 @@ export default function DangKy() {
                 fontWeight: 700,
               }}
             >
-              Dang ky tai khoan khach hang
+              Đăng ký tài khoản khách hàng
             </div>
             <h1 style={{ fontSize: 34, margin: "16px 0 8px", color: "#10253b", fontWeight: 900 }}>
-              Tao tai khoan mua sam
+              Tạo tài khoản mua sắm
             </h1>
             <p style={{ margin: 0, color: "#64748b", lineHeight: 1.7 }}>
-              Trang nay chi danh cho khach hang. Tai khoan admin se duoc them thu cong boi he thong.
+              Trang này chỉ dành cho khách hàng. Tài khoản admin sẽ được thêm thủ công bởi hệ thống.
             </p>
           </div>
 
@@ -209,21 +209,21 @@ export default function DangKy() {
             </label>
 
             <label style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <span style={{ fontWeight: 700, color: "#23374d" }}>Mat khau</span>
+              <span style={{ fontWeight: 700, color: "#23374d" }}>Mật khẩu</span>
               <div style={inputWrapStyle}>
                 <LockKeyhole size={18} color="#64748b" />
                 <input
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Nhap mat khau"
+                  placeholder="Nhập mật khẩu"
                   style={inputStyle}
                 />
               </div>
             </label>
 
             <label style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <span style={{ fontWeight: 700, color: "#23374d" }}>Xac nhan mat khau</span>
+              <span style={{ fontWeight: 700, color: "#23374d" }}>Xác nhận mật khẩu</span>
               <div style={inputWrapStyle}>
                 <LockKeyhole size={18} color="#64748b" />
                 <input
@@ -257,9 +257,9 @@ export default function DangKy() {
           </form>
 
           <div style={{ marginTop: 18, color: "#64748b", lineHeight: 1.7 }}>
-            Da co tai khoan?
+            Đã có tài khoản?
             <Link to="/dang-nhap" style={{ marginLeft: 6, color: "#2563eb", fontWeight: 700, textDecoration: "none" }}>
-              Quay lai dang nhap
+              Quay lại đăng nhập
             </Link>
           </div>
         </div>
@@ -293,11 +293,8 @@ export default function DangKy() {
           </div>
 
           <h2 style={{ margin: "22px 0 12px", fontSize: "clamp(34px, 5vw, 58px)", lineHeight: 1.06, color: "#10253b", fontWeight: 900 }}>
-            Mua tour, khach san va ve du lich bang tai khoan ca nhan cua ban.
+            Mua tour, khách sạn và vé du lịch bằng tài khoản cá nhân của bạn.
           </h2>
-          <p style={{ maxWidth: 560, margin: 0, color: "#486079", lineHeight: 1.8, fontSize: 17 }}>
-            Sau khi dang ky, nguoi dung se dang nhap vao khu mua sam rieng. He thong quan tri admin khong dang ky tai day de tranh mo rong quyen sai doi tuong.
-          </p>
         </div>
 
         <div
@@ -309,20 +306,6 @@ export default function DangKy() {
             gap: 16,
           }}
         >
-          <div
-            style={{
-              padding: 18,
-              borderRadius: 24,
-              background: "rgba(255,255,255,0.72)",
-              border: "1px solid rgba(15, 23, 42, 0.08)",
-            }}
-          >
-            <ShieldAlert size={20} color="#ea580c" />
-            <div style={{ marginTop: 12, fontWeight: 800, color: "#10253b" }}>Admin duoc cap thu cong</div>
-            <div style={{ marginTop: 8, color: "#597189", lineHeight: 1.7 }}>
-              Neu can them tai khoan quan tri, he thong se tao boi bo phan van hanh thay vi dang ky tu do.
-            </div>
-          </div>
 
           <div
             style={{
@@ -335,7 +318,7 @@ export default function DangKy() {
           >
             <img
               src={thuongHieuImage}
-              alt="Du lich TravelHub"
+              alt="Du lịch TravelHub"
               style={{ width: "100%", height: "100%", display: "block", objectFit: "cover" }}
             />
           </div>

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /d/kienthuc/NAM3/web-doan3/DOAN3 status)",
+      "Bash(git -C /d/kienthuc/NAM3/web-doan3/DOAN3 status --porcelain)",
+      "Bash(git -C /d/kienthuc/NAM3/web-doan3/DOAN3 log --oneline --all -10)",
+      "Bash(git -C /d/kienthuc/NAM3/web-doan3/DOAN3 diff --name-status HEAD~1 HEAD)",
+      "Bash(git -C /d/kienthuc/NAM3/web-doan3/DOAN3 log --oneline --all -- \"Frontend/my-react/src/components/Logo/*\")",
+      "Bash(npm --prefix \"Frontend/my-react\" run build)"
+    ]
+  }
+}
