@@ -18,7 +18,7 @@ import {
   message,
 } from "antd";
 import type { TableProps } from "antd";
-import { MessageSquareText, RefreshCw, Search, Star, Trash2 } from "lucide-react";
+import { MessageSquareText, Search, Star, Trash2 } from "lucide-react";
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -108,7 +108,7 @@ function normalizeReview(input: unknown, index: number): ReviewItem {
 }
 
 async function fetchReviews(): Promise<ReviewItem[]> {
-  const response = await api.get(REVIEW_API_PATH);
+  const response = await api.get(REVIEW_API_PATH, { params: { limit: 1000 } });
   return extractArray(response.data).map(normalizeReview);
 }
 
@@ -308,12 +308,6 @@ export default function AdminDanhGia() {
             </Text>
           </div>
 
-          <Space wrap>
-            <Tag color={isUsingMockData ? "gold" : "green"} style={{ padding: "6px 10px" }}>
-              {isUsingMockData ? "Dang hien thi du lieu mau" : `API: ${API_BASE_URL}${REVIEW_API_PATH}`}
-            </Tag>
-            <Button icon={<RefreshCw size={16} />} onClick={() => void loadReviews()}>Tai lai</Button>
-          </Space>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
@@ -367,9 +361,8 @@ export default function AdminDanhGia() {
               dataSource={filteredData}
               loading={loading}
               pagination={{
-                pageSize: 6,
-                showSizeChanger: false,
-                showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} danh gia`,
+                pageSize: 10,
+                showSizeChanger: false
               }}
               scroll={{ x: 1180 }}
             />

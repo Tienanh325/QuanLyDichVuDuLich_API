@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(node --check \"Backend/my-node-app/index.js\")",
+      "PowerShell(node --check \"Backend/my-node-app/routes/admin.routes.js\")",
+      "PowerShell(node --check \"Backend/my-node-app/controllers/hinhanhadmin.controller.js\")"
+    ]
+  }
+}

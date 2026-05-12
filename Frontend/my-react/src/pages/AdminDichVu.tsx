@@ -18,7 +18,7 @@ import {
   message,
 } from "antd";
 import type { TableProps } from "antd";
-import { PencilLine, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
+import { PencilLine, Plus, Search, Trash2 } from "lucide-react";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -109,12 +109,12 @@ function extractArray(payload: unknown): unknown[] {
 }
 
 async function fetchServices(): Promise<ServiceItem[]> {
-  const response = await api.get(SERVICE_API_PATH);
+  const response = await api.get(SERVICE_API_PATH, { params: { limit: 1000 } });
   return extractArray(response.data).map(normalizeService);
 }
 
 async function fetchSuppliers(): Promise<SupplierOption[]> {
-  const response = await api.get(SUPPLIER_API_PATH);
+  const response = await api.get(SUPPLIER_API_PATH, { params: { limit: 1000 } });
   return extractArray(response.data).map(normalizeSupplier);
 }
 
@@ -139,6 +139,9 @@ function getStatusMeta(status: ServiceStatus): { label: string; color: string } 
 const pageContainerStyle: CSSProperties = { padding: 24, background: "linear-gradient(180deg, #f7f8fc 0%, #f2f4f8 100%)", minHeight: "100%" };
 const cardStyle: CSSProperties = { borderRadius: 20, border: "1px solid #eceef5", boxShadow: "0 18px 45px rgba(15, 23, 42, 0.06)" };
 const statCardStyle: CSSProperties = { ...cardStyle, height: "100%", background: "#ffffff" };
+const ellipsisStyle: CSSProperties = { display: "block", maxWidth: 900, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" };
+const sanitizeTextInput = (value: string) => value.replace(/[^\p{L}\p{N}\s]/gu, "").replace(/^\s+/, "").replace(/\s{2,}/g, " ");
+const noBlankRule = { validator: (_: unknown, value?: string) => value && value.trim().length > 0 ? Promise.resolve() : Promise.reject(new Error("Không được để trống hoặc chỉ nhập dấu cách.")) };
 
 export default function AdminDichVu() {
   const [form] = Form.useForm<ServiceFormValues>();
@@ -277,11 +280,11 @@ export default function AdminDichVu() {
   };
 
   const columns: TableProps<ServiceItem>["columns"] = [
-    { title: "Dịch vụ", key: "ten", render: (_value, record) => <div><div style={{ fontWeight: 700, color: "#1f2a44" }}>{record.ten}</div><Text style={{ color: "#7d869c", fontSize: 13 }}>Mã DV: {record.maDichVu}</Text></div> },
-    { title: "Mô tả", dataIndex: "moTa", key: "moTa", render: (value: string) => <Text style={{ color: "#55607a" }}>{value}</Text> },
-    { title: "Loại dịch vụ", dataIndex: "loaiDichVu", key: "loaiDichVu", render: (value: string) => <Tag color="blue">{value}</Tag> },
-    { title: "Nhà cung cấp", dataIndex: "maNhaCungCap", key: "maNhaCungCap", render: (value: number) => supplierMap.get(value) ?? `NCC #${value}` },
-    { title: "Trạng thái", dataIndex: "trangThai", key: "trangThai", render: (status: ServiceStatus) => { const meta = getStatusMeta(status); return <Tag color={meta.color}>{meta.label}</Tag>; } },
+    { title: "Dịch vụ", key: "ten", width: 250, render: (_value, record) => <div><Text strong style={{ ...ellipsisStyle, maxWidth: 200, color: "#1f2a44" }} title={record.ten}>{record.ten}</Text><Text style={{ color: "#7d869c", fontSize: 13 }}>Mã DV: {record.maDichVu}</Text></div> },
+    { title: "Mô tả", dataIndex: "moTa", key: "moTa", width: 700, render: (value: string) => <Text style={{ ...ellipsisStyle, maxWidth: 520, color: "#55607a" }} title={value}>{value}</Text> },
+    { title: "Loại dịch vụ", dataIndex: "loaiDichVu", key: "loaiDichVu",width: 150, render: (value: string) => <Tag color="blue">{value}</Tag> },
+    { title: "Nhà cung cấp", dataIndex: "maNhaCungCap", key: "maNhaCungCap",width: 250, render: (value: number) => supplierMap.get(value) ?? `NCC #${value}` },
+    { title: "Trạng thái", dataIndex: "trangThai", key: "trangThai",width: 150, render: (status: ServiceStatus) => { const meta = getStatusMeta(status); return <Tag color={meta.color}>{meta.label}</Tag>; } },
     {
       title: "Thao tác",
       key: "actions",
@@ -305,10 +308,6 @@ export default function AdminDichVu() {
             <Title level={3} style={{ margin: 0, color: "#182338" }}>Quản lý dịch vụ</Title>
             <Text style={{ color: "#7d869c" }}>Quản lý danh mục dịch vụ, giá bán, loại dịch vụ và liên kết nhà cung cấp.</Text>
           </div>
-          <Space wrap>
-            <Tag color={isUsingMockData ? "gold" : "green"} style={{ padding: "6px 10px" }}>{isUsingMockData ? "Đang hiển thị dữ liệu mẫu" : `API: ${API_BASE_URL}${SERVICE_API_PATH}`}</Tag>
-            <Button icon={<RefreshCw size={16} />} onClick={() => void loadServices()}>Tải lại</Button>
-          </Space>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
@@ -326,21 +325,21 @@ export default function AdminDichVu() {
                 <Text style={{ color: "#7d869c" }}>Có {filteredData.length} dịch vụ đang hiển thị trong bảng.</Text>
               </div>
               <Space wrap>
-                <Input allowClear prefix={<Search size={16} color="#94a3b8" />} placeholder="Tìm tên, mô tả, nhà cung cấp..." value={searchText} onChange={(event) => setSearchText(event.target.value)} style={{ width: 260 }} />
+                <Input allowClear prefix={<Search size={16} color="#94a3b8" />} placeholder="Tìm tên, mô tả, nhà cung cấp..." value={searchText} onChange={(event) => setSearchText(sanitizeTextInput(event.target.value))} onBlur={() => setSearchText((value) => value.trim())} style={{ width: 260 }} />
                 <Select value={filterType} style={{ width: 170 }} onChange={(value) => setFilterType(value)} options={typeOptions.map((item) => ({ label: item === "all" ? "Tất cả loại dịch vụ" : item, value: item }))} />
                 <Select value={filterStatus} style={{ width: 150 }} onChange={(value) => setFilterStatus(value)} options={[{ label: "Tất cả trạng thái", value: "all" }, { label: "Đang mở bán", value: "active" }, { label: "Tạm ngưng", value: "inactive" }]} />
                 <Button type="primary" icon={<Plus size={16} />} style={{ background: "linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)", borderColor: "#7c3aed" }} onClick={openCreateModal}>Thêm mới</Button>
               </Space>
             </div>
-            <Table<ServiceItem> rowKey="maDichVu" columns={columns} dataSource={filteredData} loading={loading} pagination={{ pageSize: 6, showSizeChanger: false, showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} dịch vụ` }} scroll={{ x: 1200 }} />
+            <Table<ServiceItem> rowKey="maDichVu" columns={columns} dataSource={filteredData} loading={loading} pagination={{ pageSize: 10, showSizeChanger: false }} scroll={{ x: 1200 }} />
           </Space>
         </Card>
       </Space>
 
       <Modal title={editingItem ? "Cập nhật dịch vụ" : "Thêm dịch vụ"} open={modalOpen} onOk={() => void handleSubmit()} onCancel={() => { setModalOpen(false); resetForm(); }} okText={editingItem ? "Lưu thay đổi" : "Tạo mới"} cancelText="Huỷ" confirmLoading={submitting}>
         <Form<ServiceFormValues> form={form} layout="vertical">
-          <Form.Item label="Tên dịch vụ" name="ten" rules={[{ required: true, message: "Nhập tên dịch vụ." }]}><Input /></Form.Item>
-          <Form.Item label="Mô tả" name="moTa" rules={[{ required: true, message: "Nhập mô tả." }]}><TextArea rows={3} /></Form.Item>
+          <Form.Item label="Tên dịch vụ" name="ten" normalize={sanitizeTextInput} rules={[{ required: true, message: "Nhập tên dịch vụ." }, noBlankRule]}><Input onBlur={(event) => form.setFieldValue("ten", event.target.value.trim())} /></Form.Item>
+          <Form.Item label="Mô tả" name="moTa" normalize={sanitizeTextInput} rules={[{ required: true, message: "Nhập mô tả." }, noBlankRule]}><TextArea rows={3} onBlur={(event) => form.setFieldValue("moTa", event.target.value.trim())} /></Form.Item>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
             <Form.Item label="Loại dịch vụ" name="loaiDichVu" rules={[{ required: true, message: "Chọn loại dịch vụ." }]}><Select options={[{ label: "Tour", value: "TOUR" }, { label: "Khách sạn", value: "KHACH_SAN" }, { label: "Vé", value: "VE" }]} /></Form.Item>
             <Form.Item label="Nhà cung cấp" name="maNhaCungCap" rules={[{ required: true, message: "Chọn nhà cung cấp." }]}><Select options={suppliers.map((item) => ({ label: `${item.ten} (#${item.maNhaCungCap})`, value: item.maNhaCungCap }))} /></Form.Item>

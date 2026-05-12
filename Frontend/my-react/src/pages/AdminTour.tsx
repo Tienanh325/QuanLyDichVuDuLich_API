@@ -22,7 +22,7 @@ import {
   message,
 } from "antd";
 import type { TableProps } from "antd";
-import { MapPinned, PencilLine, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
+import { MapPinned, PencilLine, Plus, Search, Trash2 } from "lucide-react";
 import * as adminApi from "../services/adminService";
 
 const { Title, Text } = Typography;
@@ -243,7 +243,7 @@ function normalizeDichVu(input: unknown, index: number): DichVuOption {
 }
 
 async function fetchTours(): Promise<TourItem[]> {
-  const response = await api.get(TOUR_API_PATH);
+  const response = await api.get(TOUR_API_PATH, { params: { limit: 1000 } });
   return extractArray(response.data).map(normalizeTour);
 }
 
@@ -907,14 +907,6 @@ export default function AdminTour() {
             </Text>
           </div>
 
-          <Space wrap>
-            <Tag color={isUsingMockData ? "gold" : "green"} style={{ padding: "6px 10px" }}>
-              {isUsingMockData ? "Đang hiển thị dữ liệu mẫu" : `API: ${API_BASE_URL}${TOUR_API_PATH}`}
-            </Tag>
-            <Button icon={<RefreshCw size={16} />} onClick={() => void loadTours()}>
-              Tải lại
-            </Button>
-          </Space>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
@@ -1010,9 +1002,8 @@ export default function AdminTour() {
               dataSource={filteredData}
               loading={loading}
               pagination={{
-                pageSize: 6,
-                showSizeChanger: false,
-                showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} tour`,
+                pageSize: 10,
+                showSizeChanger: false
               }}
               scroll={{ x: 1280 }}
             />

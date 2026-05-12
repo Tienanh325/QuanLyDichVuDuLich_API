@@ -13,6 +13,7 @@ import AdminDonHang from '../pages/AdminDonHang';
 import AdminNhaCungCap from '../pages/AdminNhaCungCap';
 import AdminKhachHang from '../pages/AdminKhachHang';
 import AdminCauHinhHeThong from '../pages/AdminCauHinhHeThong';
+import ImageAdmin from '../pages/ImageAdmin';
 import AdminLayout from '../layouts/AdminLayout';
 import CustomerLayout from '../layouts/CustomerLayout';
 import DangNhap from '../pages/DangNhap';
@@ -64,6 +65,7 @@ export default function RoutesIndex() {
         <Route index element={<Navigate to="ThongKe" replace />} />
         <Route path="ThongKe" element={<AdminThongKe />} />
         <Route path="DichVu" element={<AdminDichVu />} />
+        <Route path="HinhAnh" element={<ImageAdmin />} />
         <Route path="LoaiVe" element={<AdminLoaiVe />} />
         <Route path="KhachSan" element={<AdminKhachSan />} />
         <Route path="Tour" element={<AdminTour />} />

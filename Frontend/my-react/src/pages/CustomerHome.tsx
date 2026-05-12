@@ -10,7 +10,6 @@ import {
   MapPinned,
   PlaneTakeoff,
   Search,
-  ShieldCheck,
   Ticket,
   Train,
   Users,
@@ -45,25 +44,6 @@ const serviceTabs: Array<{
   { id: "train", label: "Vé tàu", icon: Train },
   { id: "activity", label: "Tour & Hoạt động", icon: Ticket },
 ];
-const reasonCards = [
-  {
-    title: "Hơn 1 triệu đánh giá thật từ du khách",
-    body: "Xem phản hồi minh bạch để chọn khách sạn, vé xe và hoạt động phù hợp.",
-  },
-  {
-    title: "Nhiều lựa chọn cho mọi kế hoạch",
-    body: "Từ chuyến đi công tác đến kỳ nghỉ gia đình, Traveloka đều có lựa chọn nhanh.",
-  },
-  {
-    title: "Trợ giá hấp dẫn mỗi ngày",
-    body: "Ưu đãi theo tuyến, theo mùa và theo nhu cầu được cập nhật liên tục.",
-  },
-  {
-    title: "Thanh toán an toàn linh hoạt",
-    body: "Hỗ trợ nhiều hình thức thanh toán và lưu thông tin hành khách tiện hơn.",
-  },
-];
-
 type SearchButtonProps = {
   ariaLabel?: string;
   onClick?: () => void;
@@ -576,26 +556,6 @@ export default function CustomerHome() {
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="home-customer__section">
-        <div className="customer-shell__container">
-          <div className="home-customer__title-row">
-            <h2>Lý do nên đặt chỗ với Traveloka?</h2>
-          </div>
-
-          <div className="home-customer__reason-grid">
-            {reasonCards.map((item) => (
-              <article key={item.title} className="home-customer__reason-card">
-                <div className="home-customer__reason-icon">
-                  <ShieldCheck size={18} />
-                </div>
-                <strong>{item.title}</strong>
-                <p>{item.body}</p>
-              </article>
             ))}
           </div>
         </div>

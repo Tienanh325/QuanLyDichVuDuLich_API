@@ -18,7 +18,7 @@ import {
   message,
 } from "antd";
 import type { TableProps } from "antd";
-import { PencilLine, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
+import { PencilLine, Plus, Search, Trash2 } from "lucide-react";
 
 const { Title, Text } = Typography;
 
@@ -69,7 +69,7 @@ function normalizeLoaiVe(input: unknown, index: number): LoaiVeItem {
 }
 
 async function fetchLoaiVe(): Promise<LoaiVeItem[]> {
-  const response = await api.get(LOAI_VE_API_PATH);
+  const response = await api.get(LOAI_VE_API_PATH, { params: { limit: 1000 } });
   const payload = response.data as unknown;
 
   // Backend: { status, data: [...] } or { status, data: { data: [...] } }
@@ -346,14 +346,6 @@ export default function AdminLoaiVe() {
             </Text>
           </div>
 
-          <Space wrap>
-            <Tag color={isUsingMockData ? "gold" : "green"} style={{ padding: "6px 10px" }}>
-              {isUsingMockData ? "Đang hiển thị dữ liệu mẫu" : `API: ${API_BASE_URL}${LOAI_VE_API_PATH}`}
-            </Tag>
-            <Button icon={<RefreshCw size={16} />} onClick={() => void loadLoaiVe()}>
-              Tải lại
-            </Button>
-          </Space>
         </div>
 
         <div
@@ -450,9 +442,8 @@ export default function AdminLoaiVe() {
               dataSource={filteredData}
               loading={loading}
               pagination={{
-                pageSize: 6,
-                showSizeChanger: false,
-                showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} loại vé`,
+                pageSize: 10,
+                showSizeChanger: false
               }}
               scroll={{ x: 720 }}
             />

@@ -75,7 +75,7 @@ export default function HeaderBar() {
   const filteredNotifications = filter === 'unread' ? notifications.filter(n => !n.isRead) : notifications;
 
   const title =
-    Object.entries(TITLE_MAP).find(([p]) => pathname === p || pathname.startsWith(p + '/'))?.[1] ||
+    Object.entries(TITLE_MAP).find(([p]) => pathname === `/admin${p}` || pathname.startsWith(`/admin${p}/`))?.[1] ||
     'thống kê';
 
   const handleNotificationClick = (n: any) => {

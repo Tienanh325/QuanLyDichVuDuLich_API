@@ -24,7 +24,6 @@ import type { TableProps } from "antd";
 import {
   PencilLine,
   Plus,
-  RefreshCw,
   Search,
   Trash2,
 } from "lucide-react";
@@ -205,7 +204,7 @@ function normalizeVoucher(input: unknown, index: number): VoucherItem {
 }
 
 async function fetchVouchers(): Promise<VoucherItem[]> {
-  const response = await api.get(VOUCHER_API_PATH);
+  const response = await api.get(VOUCHER_API_PATH, { params: { limit: 1000 } });
   const payload = response.data as unknown;
 
   // Unwrap nested: { status, data: { data: [...] } } or { status, data: [...] }
@@ -595,16 +594,6 @@ export default function AdminKhuyenMai() {
             </Text>
           </div>
 
-          <Space wrap>
-            <Tag color={isUsingMockData ? "gold" : "green"} style={{ padding: "6px 10px" }}>
-              {isUsingMockData
-                ? "Đang hiển thị dữ liệu mẫu"
-                : `API: ${API_BASE_URL}${VOUCHER_API_PATH}`}
-            </Tag>
-            <Button icon={<RefreshCw size={16} />} onClick={() => void loadVouchers()}>
-              Tải lại
-            </Button>
-          </Space>
         </div>
 
         <div
@@ -726,9 +715,8 @@ export default function AdminKhuyenMai() {
               dataSource={filteredVouchers}
               loading={loading}
               pagination={{
-                pageSize: 6,
-                showSizeChanger: false,
-                showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} mã`,
+                pageSize: 10,
+                showSizeChanger: false
               }}
               scroll={{ x: 960 }}
             />

@@ -22,7 +22,7 @@ import {
   message,
 } from "antd";
 import type { TableProps } from "antd";
-import { MapPinned, PencilLine, Plane, Plus, RefreshCw, Search, Ticket, TrainFront, Trash2 } from "lucide-react";
+import { MapPinned, PencilLine, Plane, Plus, Search, Ticket, TrainFront, Trash2 } from "lucide-react";
 import * as veApi from "../services/veService";
 
 const { Title, Text } = Typography;
@@ -226,7 +226,7 @@ function normalizeDichVu(input: unknown, index: number): DichVuOption {
 }
 
 async function fetchTickets(): Promise<TicketItem[]> {
-  const response = await api.get(VE_API_PATH);
+  const response = await api.get(VE_API_PATH, { params: { limit: 1000 } });
   return extractArray(response.data).map(normalizeTicket);
 }
 
@@ -676,12 +676,6 @@ export default function AdminTicketPage({ category, title, description }: AdminT
             <Title level={3} style={{ margin: 0, color: "#182338" }}>{title}</Title>
             <Text style={{ color: "#7d869c" }}>{description}</Text>
           </div>
-          <Space wrap>
-            <Tag color={isUsingMockData ? "gold" : "green"} style={{ padding: "6px 10px" }}>
-              {isUsingMockData ? "Đang hiển thị dữ liệu mẫu" : `API: ${API_BASE_URL}${VE_API_PATH}`}
-            </Tag>
-            <Button icon={<RefreshCw size={16} />} onClick={() => void loadTickets()}>Tải lại</Button>
-          </Space>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
@@ -708,7 +702,7 @@ export default function AdminTicketPage({ category, title, description }: AdminT
               </Space>
             </div>
 
-            <Table<TicketItem> rowKey="maVe" columns={columns} dataSource={filteredData} loading={loading} pagination={{ pageSize: 6, showSizeChanger: false, showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} vé` }} scroll={{ x: 1280 }} />
+            <Table<TicketItem> rowKey="maVe" columns={columns} dataSource={filteredData} loading={loading} pagination={{ pageSize: 10, showSizeChanger: false }} scroll={{ x: 1280 }} />
           </div>
         </Card>
       </div>

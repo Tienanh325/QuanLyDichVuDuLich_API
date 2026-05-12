@@ -17,7 +17,7 @@ import {
   message,
 } from "antd";
 import type { TableProps } from "antd";
-import { Plus, RefreshCw, Search, Trash2, PencilLine } from "lucide-react";
+import { Plus, Search, Trash2, PencilLine } from "lucide-react";
 import {
   adminCreateDanhMucHoatDong,
   adminCreateTienIch,
@@ -336,7 +336,6 @@ export default function AdminCauHinhHeThong() {
           </div>
           <Space>
             <Tag color={isUsingMockData ? "gold" : "green"}>{isUsingMockData ? "Dữ liệu mẫu" : "API đang hoạt động"}</Tag>
-            <Button icon={<RefreshCw size={16} />} onClick={() => void loadData()}>Tải lại</Button>
           </Space>
         </div>
 
@@ -370,7 +369,7 @@ export default function AdminCauHinhHeThong() {
                       <div style={{ display: "flex", justifyContent: "flex-end" }}>
                         <Button type="primary" icon={<Plus size={16} />} onClick={() => openCategoryModal()}>Thêm danh mục</Button>
                       </div>
-                      <Table<DanhMucHoatDongItem> rowKey="maDanhMuc" columns={categoryColumns} dataSource={filteredCategories} loading={loading} pagination={{ pageSize: 6 }} scroll={{ x: 980 }} />
+                      <Table<DanhMucHoatDongItem> rowKey="maDanhMuc" columns={categoryColumns} dataSource={filteredCategories} loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 980 }} />
                     </Space>
                   ),
                 },
@@ -383,7 +382,7 @@ export default function AdminCauHinhHeThong() {
                         <Select value={amenityTypeFilter} onChange={setAmenityTypeFilter} style={{ width: 220 }} options={[{ label: "Tất cả loại tiện ích", value: "all" }, { label: "Khách sạn", value: "KHACH_SAN" }, { label: "Phòng", value: "PHONG" }, { label: "Vé", value: "VE" }, { label: "Tour", value: "TOUR" }]} />
                         <Button type="primary" icon={<Plus size={16} />} onClick={() => openAmenityModal()}>Thêm tiện ích</Button>
                       </div>
-                      <Table<TienIchItem> rowKey="maTienIch" columns={amenityColumns} dataSource={filteredAmenities} loading={loading} pagination={{ pageSize: 6 }} scroll={{ x: 760 }} />
+                      <Table<TienIchItem> rowKey="maTienIch" columns={amenityColumns} dataSource={filteredAmenities} loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 760 }} />
                     </Space>
                   ),
                 },
@@ -393,7 +392,7 @@ export default function AdminCauHinhHeThong() {
                   children: (
                     <Space direction="vertical" size={12} style={{ width: "100%" }}>
                       <Select value={newsletterStatusFilter} onChange={setNewsletterStatusFilter} style={{ width: 220 }} options={[{ label: "Tất cả trạng thái", value: "all" }, { label: "Đang nhận tin", value: "ACTIVE" }, { label: "Đã hủy", value: "UNSUBSCRIBED" }]} />
-                      <Table<NewsletterItem> rowKey="maDangKy" columns={newsletterColumns} dataSource={filteredNewsletter} loading={loading} pagination={{ pageSize: 6 }} scroll={{ x: 860 }} />
+                      <Table<NewsletterItem> rowKey="maDangKy" columns={newsletterColumns} dataSource={filteredNewsletter} loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 860 }} />
                     </Space>
                   ),
                 },

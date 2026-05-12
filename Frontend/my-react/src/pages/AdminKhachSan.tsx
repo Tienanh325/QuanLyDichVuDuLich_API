@@ -18,7 +18,7 @@ import {
   message,
 } from "antd";
 import type { TableProps } from "antd";
-import { BedDouble, MapPinned, PencilLine, Plus, RefreshCw, Search, Trash2, Home } from "lucide-react";
+import { BedDouble, MapPinned, PencilLine, Plus, Search, Trash2, Home } from "lucide-react";
 import api from "../services/api";
 import axios from "axios";
 import * as adminApi from "../services/adminService";
@@ -616,12 +616,6 @@ export default function AdminKhachSan() {
             </Text>
           </div>
 
-          <Space wrap>
-            <Tag color="green" style={{ padding: "6px 10px" }}>
-              {`API: ${API_BASE_URL}/api/admin/khach-san`}
-            </Tag>
-            <Button icon={<RefreshCw size={16} />} onClick={() => void loadHotels()}>Tải lại</Button>
-          </Space>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
@@ -665,7 +659,7 @@ export default function AdminKhachSan() {
               dataSource={filteredData}
               loading={loading}
               pagination={{
-                pageSize: 8,
+                pageSize: 10,
                 showSizeChanger: false,
               }}
               scroll={{ x: 1000 }}

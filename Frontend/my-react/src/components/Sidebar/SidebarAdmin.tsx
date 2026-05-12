@@ -19,7 +19,8 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   InsertRowAboveOutlined,
-  SettingOutlined
+  SettingOutlined,
+  PictureOutlined
 } from '@ant-design/icons';
 // removed import
 import UserDropdown from '../User/user';
@@ -113,6 +114,11 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
           <NavLink to="/admin/DichVu" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
             <InsertRowAboveOutlined />
             {!collapsed && <span>Dịch vụ</span>}
+          </NavLink>
+
+          <NavLink to="/admin/HinhAnh" onClick={handleCloseSubmenu} style={({ isActive }) => linkStyle(isActive)}>
+            <PictureOutlined />
+            {!collapsed && <span>Hình ảnh</span>}
           </NavLink>
 
           <NavLink to="/admin/LoaiVe" onClick={handleCloseSubmenu}style={({ isActive }) => linkStyle(isActive)}>

@@ -20,7 +20,7 @@ import {
   message,
 } from "antd";
 import type { TableProps } from "antd";
-import { PencilLine, Plus, RefreshCw, Search, Trash2, UserRound } from "lucide-react";
+import { PencilLine, Plus, Search, Trash2, UserRound } from "lucide-react";
 
 const { Title, Text } = Typography;
 
@@ -81,7 +81,7 @@ function normalizeUser(input: unknown, index: number): UserItem {
 }
 
 async function fetchUsers(): Promise<UserItem[]> {
-  const response = await api.get(USER_API_PATH);
+  const response = await api.get(USER_API_PATH, { params: { limit: 1000 } });
   return extractArray(response.data).map(normalizeUser);
 }
 
@@ -365,12 +365,6 @@ export default function AdminKhachHang() {
             </Text>
           </div>
 
-          <Space wrap>
-            <Tag color={isUsingMockData ? "gold" : "green"} style={{ padding: "6px 10px" }}>
-              {isUsingMockData ? "Dang hien thi du lieu mau" : `API: ${API_BASE_URL}${USER_API_PATH}`}
-            </Tag>
-            <Button icon={<RefreshCw size={16} />} onClick={() => void loadUsers()}>Tai lai</Button>
-          </Space>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
@@ -459,9 +453,8 @@ export default function AdminKhachHang() {
               dataSource={filteredData}
               loading={loading}
               pagination={{
-                pageSize: 6,
-                showSizeChanger: false,
-                showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} nguoi dung`,
+                pageSize: 10,
+                showSizeChanger: false
               }}
               scroll={{ x: 980 }}
             />

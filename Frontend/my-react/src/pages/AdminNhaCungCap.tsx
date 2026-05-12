@@ -19,7 +19,7 @@ import {
   message,
 } from "antd";
 import type { TableProps } from "antd";
-import { PencilLine, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
+import { PencilLine, Plus, Search, Trash2 } from "lucide-react";
 
 const { Title, Text } = Typography;
 
@@ -113,7 +113,7 @@ function getApiErrorMessage(error: unknown, fallback: string): string {
 }
 
 async function fetchSuppliers(): Promise<SupplierItem[]> {
-  const response = await api.get(SUPPLIER_API_PATH);
+  const response = await api.get(SUPPLIER_API_PATH, { params: { limit: 1000 } });
   return extractArray(response.data).map(normalizeSupplier);
 }
 
@@ -379,14 +379,6 @@ export default function AdminNhaCungCap() {
               Theo doi danh sach nha cung cap dich vu, trang thai hop tac va thong tin lien he.
             </Text>
           </div>
-          <Space wrap>
-            <Tag color={apiError ? "red" : "green"} style={{ padding: "6px 10px" }}>
-              {apiError ? "API dang loi" : `API: ${API_BASE_URL}${SUPPLIER_API_PATH}`}
-            </Tag>
-            <Button icon={<RefreshCw size={16} />} onClick={() => void loadSuppliers()}>
-              Tai lai
-            </Button>
-          </Space>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
@@ -509,9 +501,8 @@ export default function AdminNhaCungCap() {
               dataSource={filteredData}
               loading={loading}
               pagination={{
-                pageSize: 6,
-                showSizeChanger: false,
-                showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} nha cung cap`,
+                pageSize: 10,
+                showSizeChanger: false
               }}
               scroll={{ x: 1100 }}
               locale={{

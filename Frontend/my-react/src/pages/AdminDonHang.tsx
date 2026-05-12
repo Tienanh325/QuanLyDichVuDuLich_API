@@ -19,7 +19,7 @@ import {
   message,
 } from "antd";
 import type { TableProps } from "antd";
-import { Download, ReceiptText, RefreshCw, Search } from "lucide-react";
+import { Download, ReceiptText, Search } from "lucide-react";
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -340,7 +340,6 @@ export default function AdminDonHang() {
   const [orderStatusFilter, setOrderStatusFilter] = useState<OrderStatus | "all">("all");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState<PaymentStatus | "all">("all");
   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
-  const [isUsingMockData, setIsUsingMockData] = useState(false);
 
   const loadInvoices = async () => {
     setLoading(true);
@@ -350,15 +349,12 @@ export default function AdminDonHang() {
 
       if (invoices.length > 0) {
         setData(invoices);
-        setIsUsingMockData(false);
       } else {
         setData(mergeInvoices(mockDonDat, mockChiTietDon, mockThanhToan));
-        setIsUsingMockData(true);
         message.info("API chưa trả dữ liệu hóa đơn, đang hiển thị dữ liệu mẫu để bạn kiểm tra.");
       }
     } catch (error) {
       setData(mergeInvoices(mockDonDat, mockChiTietDon, mockThanhToan));
-      setIsUsingMockData(true);
 
       if (axios.isAxiosError(error)) {
         message.warning(
@@ -524,12 +520,6 @@ export default function AdminDonHang() {
           </div>
 
           <Space wrap>
-            <Tag color={isUsingMockData ? "gold" : "green"} style={{ padding: "6px 10px" }}>
-              {isUsingMockData ? "Đang hiển thị dữ liệu mẫu" : `API: ${API_BASE_URL}`}
-            </Tag>
-            <Button icon={<RefreshCw size={16} />} onClick={() => void loadInvoices()}>
-              Tải lại
-            </Button>
             <Button type="primary" icon={<Download size={16} />} onClick={handleExportExcel}>
               Xuất Excel
             </Button>
@@ -728,9 +718,8 @@ export default function AdminDonHang() {
                 ),
               }}
               pagination={{
-                pageSize: 6,
-                showSizeChanger: false,
-                showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} hóa đơn`,
+                pageSize: 10,
+                showSizeChanger: false
               }}
               scroll={{ x: 1200 }}
             />

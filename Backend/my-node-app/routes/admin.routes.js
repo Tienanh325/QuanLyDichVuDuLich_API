@@ -1,6 +1,17 @@
 const express = require('express');
+const multer = require('multer');
+const path = require('path');
 const router = express.Router();
 const { requireAdmin } = require('../middleware/auth.middleware');
+
+const storage = multer.diskStorage({
+    destination: path.join(__dirname, '..', 'uploads'),
+    filename: (_req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`);
+    }
+});
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 // Controllers
 const DashboardController = require('../controllers/dashboard.controller');
@@ -65,7 +76,7 @@ router.patch('/nha-cung-cap/:id/status', NhaCungCapController.updateStatus);
 router.delete('/nha-cung-cap/:id', NhaCungCapController.remove);
 
 // ==========================================
-// 4. DỊCH VỤ CHUNG + HÌNH ẢNH
+// 4. DỊCH VỤ CHUNG + HÌNH ẢNH (legacy theo dịch vụ)
 // ==========================================
 router.get('/dich-vu', DichVuController.adminGetAll);
 router.get('/dich-vu/:id', DichVuController.adminGetById);
@@ -73,10 +84,22 @@ router.post('/dich-vu', DichVuController.adminCreate);
 router.put('/dich-vu/:id', DichVuController.adminUpdate);
 router.patch('/dich-vu/:id/status', DichVuController.adminUpdateStatus);
 router.delete('/dich-vu/:id', DichVuController.adminRemove);
-// Hình ảnh
+// Hình ảnh theo dịch vụ (legacy)
 router.post('/dich-vu/:id/hinh-anh', DichVuController.addHinhAnh);
 router.patch('/dich-vu/:id/hinh-anh/:imageId/avatar', DichVuController.setAvatar);
 router.delete('/dich-vu/:id/hinh-anh/:imageId', DichVuController.removeHinhAnh);
+
+// ==========================================
+// 4B. QUẢN LÝ HÌNH ẢNH
+// ==========================================
+const HinhAnhAdminController = require('../controllers/hinhanhadmin.controller');
+router.get('/images', HinhAnhAdminController.getAllImages);
+router.get('/images/:id', HinhAnhAdminController.getImageById);
+router.post('/images', HinhAnhAdminController.createFromUrl);
+router.post('/images/upload', upload.single('file'), HinhAnhAdminController.uploadFile);
+router.put('/images/:id', HinhAnhAdminController.updateImage);
+router.delete('/images/bulk', HinhAnhAdminController.bulkDeleteImages);
+router.delete('/images/:id', HinhAnhAdminController.deleteImage);
 
 // ==========================================
 // 5. TOUR
