@@ -145,3 +145,79 @@ export function formatVnd(value: number | null | undefined): string {
   if (value == null) return 'Liên hệ';
   return new Intl.NumberFormat('vi-VN').format(value) + ' VND';
 }
+
+// ─── Admin child resources ────────────────────────────────────────────────────
+export interface VeTienIchItem {
+  maTienIch: number;
+  tenTienIch: string;
+  icon?: string | null;
+  loaiTienIch: string;
+}
+
+export interface VeTauKhoangItem {
+  maKhoang: number;
+  maVe: number;
+  tenKhoang: string;
+  toaSo?: string | null;
+  loaiCho: string;
+  thuTu: number;
+}
+
+export interface VeTauGheItem {
+  maGhe: number;
+  maKhoang: number;
+  soGhe: string;
+  trangThai: 'AVAILABLE' | 'BOOKED' | 'LOCKED';
+  tang?: number | null;
+  giaThem: number;
+}
+
+export async function adminGetVeTienIch(maVe: number): Promise<VeTienIchItem[]> {
+  const response = await api.get<{ status: string; data: VeTienIchItem[] }>(`/api/admin/ve/${maVe}/tien-ich`);
+  return response.data.data ?? [];
+}
+
+export async function adminUpdateVeTienIch(maVe: number, maTienIchList: number[]) {
+  const response = await api.put(`/api/admin/ve/${maVe}/tien-ich`, { maTienIchList });
+  return response.data;
+}
+
+export async function adminGetVeTauKhoang(maVe: number): Promise<VeTauKhoangItem[]> {
+  const response = await api.get<{ status: string; data: VeTauKhoangItem[] }>(`/api/admin/ve/${maVe}/khoang`);
+  return response.data.data ?? [];
+}
+
+export async function adminCreateVeTauKhoang(maVe: number, payload: Partial<VeTauKhoangItem>) {
+  const response = await api.post(`/api/admin/ve/${maVe}/khoang`, payload);
+  return response.data;
+}
+
+export async function adminUpdateVeTauKhoang(maVe: number, khoangId: number, payload: Partial<VeTauKhoangItem>) {
+  const response = await api.put(`/api/admin/ve/${maVe}/khoang/${khoangId}`, payload);
+  return response.data;
+}
+
+export async function adminDeleteVeTauKhoang(maVe: number, khoangId: number) {
+  const response = await api.delete(`/api/admin/ve/${maVe}/khoang/${khoangId}`);
+  return response.data;
+}
+
+export async function adminGetVeTauGhe(maVe: number, khoangId: number): Promise<VeTauGheItem[]> {
+  const response = await api.get<{ status: string; data: VeTauGheItem[] }>(`/api/admin/ve/${maVe}/khoang/${khoangId}/ghe`);
+  return response.data.data ?? [];
+}
+
+export async function adminCreateVeTauGhe(maVe: number, khoangId: number, payload: Partial<VeTauGheItem>) {
+  const response = await api.post(`/api/admin/ve/${maVe}/khoang/${khoangId}/ghe`, payload);
+  return response.data;
+}
+
+export async function adminUpdateVeTauGhe(maVe: number, khoangId: number, gheId: number, payload: Partial<VeTauGheItem>) {
+  const response = await api.put(`/api/admin/ve/${maVe}/khoang/${khoangId}/ghe/${gheId}`, payload);
+  return response.data;
+}
+
+export async function adminDeleteVeTauGhe(maVe: number, khoangId: number, gheId: number) {
+  const response = await api.delete(`/api/admin/ve/${maVe}/khoang/${khoangId}/ghe/${gheId}`);
+  return response.data;
+}

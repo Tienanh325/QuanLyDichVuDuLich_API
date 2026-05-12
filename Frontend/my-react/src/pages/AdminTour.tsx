@@ -17,11 +17,13 @@ import {
   Space,
   Table,
   Tag,
+  Tabs,
   Typography,
   message,
 } from "antd";
 import type { TableProps } from "antd";
 import { MapPinned, PencilLine, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
+import * as adminApi from "../services/adminService";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -75,6 +77,52 @@ interface TourFormValues {
   isBestSeller?: boolean;
   xacNhanTucThi?: boolean;
 }
+
+interface GoiDichVuItem {
+  maGoi: number;
+  tenGoi: string;
+  moTaGoi?: string;
+  giaGoi: number;
+  giaGoc?: number;
+  soKhachToiThieu: number;
+  soKhachToiDa?: number;
+  trangThai: number;
+  thuTu: number;
+}
+
+interface TourMucDichVuItem {
+  maMuc: number;
+  loaiMuc: adminApi.TourMucLoai;
+  noiDung: string;
+  thuTu: number;
+}
+
+interface LichTrinhTourItem {
+  maLichTrinh: number;
+  thoiGian: string;
+  tieuDe: string;
+  chiTiet?: string;
+  thuTu: number;
+}
+
+interface TourLichKhoiHanhItem {
+  maLichKhoiHanh: number;
+  ngayKhoiHanh: string;
+  gioKhoiHanh?: string;
+  soChoToiDa: number;
+  soChoConLai: number;
+  trangThai: 'OPEN' | 'FULL' | 'CANCELLED' | 'CLOSED';
+}
+
+interface TourReviewHienThiItem {
+  maReviewHienThi: number;
+  tenKhach: string;
+  avatar?: string;
+  soSao: number;
+  noiDung: string;
+  thuTu: number;
+}
+
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
 const TOUR_API_PATH = import.meta.env.VITE_TOUR_API_PATH ?? "/api/admin/tour";
@@ -270,6 +318,40 @@ export default function AdminTour() {
   const [filterLocation, setFilterLocation] = useState<string>("all");
   const [isUsingMockData, setIsUsingMockData] = useState(false);
 
+  // Child management modal
+  const [manageModalOpen, setManageModalOpen] = useState(false);
+  const [currentTour, setCurrentTour] = useState<TourItem | null>(null);
+  const [activeChildTab, setActiveChildTab] = useState<string>("goi");
+  const [childLoading, setChildLoading] = useState(false);
+  const [goiList, setGoiList] = useState<GoiDichVuItem[]>([]);
+  const [mucList, setMucList] = useState<TourMucDichVuItem[]>([]);
+  const [lichTrinhList, setLichTrinhList] = useState<LichTrinhTourItem[]>([]);
+  const [lichKhoiHanhList, setLichKhoiHanhList] = useState<TourLichKhoiHanhItem[]>([]);
+  const [reviewList, setReviewList] = useState<TourReviewHienThiItem[]>([]);
+
+  // Child CRUD state
+  const [goiFormVisible, setGoiFormVisible] = useState(false);
+  const [editingGoi, setEditingGoi] = useState<GoiDichVuItem | null>(null);
+  const [submittingGoi, setSubmittingGoi] = useState(false);
+  const [mucFormVisible, setMucFormVisible] = useState(false);
+  const [editingMuc, setEditingMuc] = useState<TourMucDichVuItem | null>(null);
+  const [submittingMuc, setSubmittingMuc] = useState(false);
+  const [lichTrinhFormVisible, setLichTrinhFormVisible] = useState(false);
+  const [editingLichTrinh, setEditingLichTrinh] = useState<LichTrinhTourItem | null>(null);
+  const [submittingLichTrinh, setSubmittingLichTrinh] = useState(false);
+  const [lichKhoiHanhFormVisible, setLichKhoiHanhFormVisible] = useState(false);
+  const [editingLichKhoiHanh, setEditingLichKhoiHanh] = useState<TourLichKhoiHanhItem | null>(null);
+  const [submittingLichKhoiHanh, setSubmittingLichKhoiHanh] = useState(false);
+  const [reviewFormVisible, setReviewFormVisible] = useState(false);
+  const [editingReview, setEditingReview] = useState<TourReviewHienThiItem | null>(null);
+  const [submittingReview, setSubmittingReview] = useState(false);
+
+  const [goiForm] = Form.useForm<Partial<GoiDichVuItem>>();
+  const [mucForm] = Form.useForm<Partial<TourMucDichVuItem>>();
+  const [lichTrinhForm] = Form.useForm<Partial<LichTrinhTourItem>>();
+  const [lichKhoiHanhForm] = Form.useForm<Omit<Partial<TourLichKhoiHanhItem>, "ngayKhoiHanh"> & { ngayKhoiHanh?: Dayjs }>();
+  const [reviewForm] = Form.useForm<Partial<TourReviewHienThiItem>>();
+
   const loadTours = async () => {
     setLoading(true);
 
@@ -347,6 +429,257 @@ export default function AdminTour() {
       soldout,
     };
   }, [data]);
+
+  const loadTourChildren = async (tour: TourItem) => {
+    setChildLoading(true);
+    try {
+      const [goi, muc, lichTrinh, lichKhoiHanh, reviews] = await Promise.all([
+        adminApi.adminGetTourChild<GoiDichVuItem>(tour.maTour, "goi-dich-vu"),
+        adminApi.adminGetTourChild<TourMucDichVuItem>(tour.maTour, "muc-dich-vu"),
+        adminApi.adminGetTourChild<LichTrinhTourItem>(tour.maTour, "lich-trinh"),
+        adminApi.adminGetTourChild<TourLichKhoiHanhItem>(tour.maTour, "lich-khoi-hanh"),
+        adminApi.adminGetTourChild<TourReviewHienThiItem>(tour.maTour, "review-hien-thi"),
+      ]);
+      setGoiList(goi);
+      setMucList(muc);
+      setLichTrinhList(lichTrinh);
+      setLichKhoiHanhList(lichKhoiHanh);
+      setReviewList(reviews);
+    } catch {
+      message.error("Không tải được dữ liệu chi tiết tour.");
+    } finally {
+      setChildLoading(false);
+    }
+  };
+
+  const openManageModal = (tour: TourItem) => {
+    setCurrentTour(tour);
+    setActiveChildTab("goi");
+    setManageModalOpen(true);
+    void loadTourChildren(tour);
+  };
+
+  const refreshChildren = async () => {
+    if (currentTour) {
+      await loadTourChildren(currentTour);
+    }
+  };
+
+  const openCreateGoi = () => {
+    setEditingGoi(null);
+    goiForm.setFieldsValue({ tenGoi: "", moTaGoi: "", giaGoi: 0, giaGoc: 0, soKhachToiThieu: 1, trangThai: 1, thuTu: goiList.length + 1 });
+    setGoiFormVisible(true);
+  };
+
+  const openEditGoi = (item: GoiDichVuItem) => {
+    setEditingGoi(item);
+    goiForm.setFieldsValue(item);
+    setGoiFormVisible(true);
+  };
+
+  const handleSubmitGoi = async () => {
+    if (!currentTour) return;
+    const values = await goiForm.validateFields();
+    setSubmittingGoi(true);
+    try {
+      if (editingGoi) {
+        await adminApi.adminUpdateTourChild<GoiDichVuItem>(currentTour.maTour, "goi-dich-vu", editingGoi.maGoi, values);
+      } else {
+        await adminApi.adminCreateTourChild<GoiDichVuItem>(currentTour.maTour, "goi-dich-vu", values);
+      }
+      message.success(editingGoi ? "Đã cập nhật gói dịch vụ." : "Đã thêm gói dịch vụ.");
+      setGoiFormVisible(false);
+      await refreshChildren();
+    } catch {
+      message.error("Không lưu được gói dịch vụ.");
+    } finally {
+      setSubmittingGoi(false);
+    }
+  };
+
+  const handleDeleteGoi = async (item: GoiDichVuItem) => {
+    if (!currentTour) return;
+    try {
+      await adminApi.adminDeleteTourChild(currentTour.maTour, "goi-dich-vu", item.maGoi);
+      setGoiList((current) => current.filter((entry) => entry.maGoi !== item.maGoi));
+      message.success("Đã xoá gói dịch vụ.");
+    } catch {
+      message.error("Xoá gói dịch vụ thất bại.");
+    }
+  };
+
+  const openCreateMuc = () => {
+    setEditingMuc(null);
+    mucForm.setFieldsValue({ loaiMuc: "BAO_GOM", noiDung: "", thuTu: mucList.length + 1 });
+    setMucFormVisible(true);
+  };
+
+  const openEditMuc = (item: TourMucDichVuItem) => {
+    setEditingMuc(item);
+    mucForm.setFieldsValue(item);
+    setMucFormVisible(true);
+  };
+
+  const handleSubmitMuc = async () => {
+    if (!currentTour) return;
+    const values = await mucForm.validateFields();
+    setSubmittingMuc(true);
+    try {
+      if (editingMuc) {
+        await adminApi.adminUpdateTourChild<TourMucDichVuItem>(currentTour.maTour, "muc-dich-vu", editingMuc.maMuc, values);
+      } else {
+        await adminApi.adminCreateTourChild<TourMucDichVuItem>(currentTour.maTour, "muc-dich-vu", values);
+      }
+      message.success(editingMuc ? "Đã cập nhật mục dịch vụ." : "Đã thêm mục dịch vụ.");
+      setMucFormVisible(false);
+      await refreshChildren();
+    } catch {
+      message.error("Không lưu được mục dịch vụ.");
+    } finally {
+      setSubmittingMuc(false);
+    }
+  };
+
+  const handleDeleteMuc = async (item: TourMucDichVuItem) => {
+    if (!currentTour) return;
+    try {
+      await adminApi.adminDeleteTourChild(currentTour.maTour, "muc-dich-vu", item.maMuc);
+      setMucList((current) => current.filter((entry) => entry.maMuc !== item.maMuc));
+      message.success("Đã xoá mục dịch vụ.");
+    } catch {
+      message.error("Xoá mục dịch vụ thất bại.");
+    }
+  };
+
+  const openCreateLichTrinh = () => {
+    setEditingLichTrinh(null);
+    lichTrinhForm.setFieldsValue({ thoiGian: "", tieuDe: "", chiTiet: "", thuTu: lichTrinhList.length + 1 });
+    setLichTrinhFormVisible(true);
+  };
+
+  const openEditLichTrinh = (item: LichTrinhTourItem) => {
+    setEditingLichTrinh(item);
+    lichTrinhForm.setFieldsValue(item);
+    setLichTrinhFormVisible(true);
+  };
+
+  const handleSubmitLichTrinh = async () => {
+    if (!currentTour) return;
+    const values = await lichTrinhForm.validateFields();
+    setSubmittingLichTrinh(true);
+    try {
+      if (editingLichTrinh) {
+        await adminApi.adminUpdateTourChild<LichTrinhTourItem>(currentTour.maTour, "lich-trinh", editingLichTrinh.maLichTrinh, values);
+      } else {
+        await adminApi.adminCreateTourChild<LichTrinhTourItem>(currentTour.maTour, "lich-trinh", values);
+      }
+      message.success(editingLichTrinh ? "Đã cập nhật lịch trình." : "Đã thêm lịch trình.");
+      setLichTrinhFormVisible(false);
+      await refreshChildren();
+    } catch {
+      message.error("Không lưu được lịch trình.");
+    } finally {
+      setSubmittingLichTrinh(false);
+    }
+  };
+
+  const handleDeleteLichTrinh = async (item: LichTrinhTourItem) => {
+    if (!currentTour) return;
+    try {
+      await adminApi.adminDeleteTourChild(currentTour.maTour, "lich-trinh", item.maLichTrinh);
+      setLichTrinhList((current) => current.filter((entry) => entry.maLichTrinh !== item.maLichTrinh));
+      message.success("Đã xoá lịch trình.");
+    } catch {
+      message.error("Xoá lịch trình thất bại.");
+    }
+  };
+
+  const openCreateLichKhoiHanh = () => {
+    setEditingLichKhoiHanh(null);
+    lichKhoiHanhForm.setFieldsValue({ ngayKhoiHanh: dayjs().add(7, "day"), gioKhoiHanh: "08:00", soChoToiDa: 20, soChoConLai: 20, trangThai: "OPEN" });
+    setLichKhoiHanhFormVisible(true);
+  };
+
+  const openEditLichKhoiHanh = (item: TourLichKhoiHanhItem) => {
+    setEditingLichKhoiHanh(item);
+    lichKhoiHanhForm.setFieldsValue({ ...item, ngayKhoiHanh: dayjs(item.ngayKhoiHanh) });
+    setLichKhoiHanhFormVisible(true);
+  };
+
+  const handleSubmitLichKhoiHanh = async () => {
+    if (!currentTour) return;
+    const values = await lichKhoiHanhForm.validateFields();
+    const payload = { ...values, ngayKhoiHanh: values.ngayKhoiHanh?.format("YYYY-MM-DD") };
+    setSubmittingLichKhoiHanh(true);
+    try {
+      if (editingLichKhoiHanh) {
+        await adminApi.adminUpdateTourChild<TourLichKhoiHanhItem>(currentTour.maTour, "lich-khoi-hanh", editingLichKhoiHanh.maLichKhoiHanh, payload);
+      } else {
+        await adminApi.adminCreateTourChild<TourLichKhoiHanhItem>(currentTour.maTour, "lich-khoi-hanh", payload);
+      }
+      message.success(editingLichKhoiHanh ? "Đã cập nhật lịch khởi hành." : "Đã thêm lịch khởi hành.");
+      setLichKhoiHanhFormVisible(false);
+      await refreshChildren();
+    } catch {
+      message.error("Không lưu được lịch khởi hành.");
+    } finally {
+      setSubmittingLichKhoiHanh(false);
+    }
+  };
+
+  const handleDeleteLichKhoiHanh = async (item: TourLichKhoiHanhItem) => {
+    if (!currentTour) return;
+    try {
+      await adminApi.adminDeleteTourChild(currentTour.maTour, "lich-khoi-hanh", item.maLichKhoiHanh);
+      setLichKhoiHanhList((current) => current.filter((entry) => entry.maLichKhoiHanh !== item.maLichKhoiHanh));
+      message.success("Đã xoá lịch khởi hành.");
+    } catch {
+      message.error("Xoá lịch khởi hành thất bại.");
+    }
+  };
+
+  const openCreateReview = () => {
+    setEditingReview(null);
+    reviewForm.setFieldsValue({ tenKhach: "", avatar: "", soSao: 5, noiDung: "", thuTu: reviewList.length + 1 });
+    setReviewFormVisible(true);
+  };
+
+  const openEditReview = (item: TourReviewHienThiItem) => {
+    setEditingReview(item);
+    reviewForm.setFieldsValue(item);
+    setReviewFormVisible(true);
+  };
+
+  const handleSubmitReview = async () => {
+    if (!currentTour) return;
+    const values = await reviewForm.validateFields();
+    setSubmittingReview(true);
+    try {
+      if (editingReview) {
+        await adminApi.adminUpdateTourChild<TourReviewHienThiItem>(currentTour.maTour, "review-hien-thi", editingReview.maReviewHienThi, values);
+      } else {
+        await adminApi.adminCreateTourChild<TourReviewHienThiItem>(currentTour.maTour, "review-hien-thi", values);
+      }
+      message.success(editingReview ? "Đã cập nhật review." : "Đã thêm review.");
+      setReviewFormVisible(false);
+      await refreshChildren();
+    } catch {
+      message.error("Không lưu được review.");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+  const handleDeleteReview = async (item: TourReviewHienThiItem) => {
+    if (!currentTour) return;
+    try {
+      await adminApi.adminDeleteTourChild(currentTour.maTour, "review-hien-thi", item.maReviewHienThi);
+      setReviewList((current) => current.filter((entry) => entry.maReviewHienThi !== item.maReviewHienThi));
+      message.success("Đã xoá review.");
+    } catch {
+      message.error("Xoá review thất bại.");
+    }
+  };
 
   const resetForm = () => {
     form.resetFields();
@@ -539,6 +872,9 @@ export default function AdminTour() {
       align: "center",
       render: (_value, record) => (
         <Space size="middle">
+          <Button size="small" onClick={() => openManageModal(record)}>
+            Quản lý
+          </Button>
           <Button
             type="text"
             icon={<PencilLine size={16} color="#7c3aed" />}
@@ -731,6 +1067,278 @@ export default function AdminTour() {
           <Form.Item label="Mô tả" name="moTa" rules={[{ required: true, message: "Nhập mô tả." }]}>
             <TextArea rows={4} />
           </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title={currentTour ? `Quản lý chi tiết: ${currentTour.ten}` : "Quản lý chi tiết tour"}
+        open={manageModalOpen}
+        onCancel={() => setManageModalOpen(false)}
+        footer={null}
+        width={1100}
+      >
+        <Tabs
+          activeKey={activeChildTab}
+          onChange={setActiveChildTab}
+          items={[
+            {
+              key: "goi",
+              label: "Gói dịch vụ",
+              children: (
+                <Space direction="vertical" size={16} style={{ width: "100%" }}>
+                  {goiFormVisible ? (
+                    <Card size="small" title={editingGoi ? "Sửa gói dịch vụ" : "Thêm gói dịch vụ"}>
+                      <Form form={goiForm} layout="vertical">
+                        <Form.Item name="tenGoi" label="Tên gói" rules={[{ required: true, message: "Nhập tên gói" }]}>
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="moTaGoi" label="Mô tả">
+                          <Input.TextArea rows={2} />
+                        </Form.Item>
+                        <Form.Item name="giaGoi" label="Giá gói" rules={[{ required: true, message: "Nhập giá" }]}>
+                          <InputNumber min={0} style={{ width: "100%" }} />
+                        </Form.Item>
+                        <Form.Item name="giaGoc" label="Giá gốc (tùy chọn)">
+                          <InputNumber min={0} style={{ width: "100%" }} />
+                        </Form.Item>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+                          <Form.Item name="soKhachToiThieu" label="Số khách tối thiểu" rules={[{ required: true, message: "Bắt buộc" }]}>
+                            <InputNumber min={1} style={{ width: "100%" }} />
+                          </Form.Item>
+                          <Form.Item name="soKhachToiDa" label="Số khách tối đa">
+                            <InputNumber min={0} style={{ width: "100%" }} />
+                          </Form.Item>
+                          <Form.Item name="thuTu" label="Thứ tự" rules={[{ required: true, message: "Bắt buộc" }]}>
+                            <InputNumber min={1} style={{ width: "100%" }} />
+                          </Form.Item>
+                        </div>
+                        <Form.Item name="trangThai" label="Trạng thái">
+                          <Select options={[{ label: "Bật", value: 1 }, { label: "Tắt", value: 0 }]} />
+                        </Form.Item>
+                        <Form.Item>
+                          <Space>
+                            <Button onClick={() => setGoiFormVisible(false)}>Huỷ</Button>
+                            <Button type="primary" loading={submittingGoi} onClick={() => void handleSubmitGoi()}>Lưu</Button>
+                          </Space>
+                        </Form.Item>
+                      </Form>
+                    </Card>
+                  ) : (
+                    <>
+                      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                        <Button type="primary" size="small" icon={<Plus size={16} />} onClick={openCreateGoi}>Thêm gói</Button>
+                      </div>
+                      <Table<GoiDichVuItem>
+                        rowKey="maGoi"
+                        loading={childLoading}
+                        dataSource={goiList}
+                        pagination={false}
+                        size="small"
+                        columns={[
+                          { title: "Tên gói", dataIndex: "tenGoi" },
+                          { title: "Mô tả", dataIndex: "moTaGoi" },
+                          { title: "Giá", dataIndex: "giaGoi", render: (value: number) => formatCurrency(Number(value || 0)) },
+                          { title: "Khách", render: (_, record) => `${record.soKhachToiThieu || 1}${record.soKhachToiDa ? ` - ${record.soKhachToiDa}` : "+"}` },
+                          { title: "Thứ tự", dataIndex: "thuTu" },
+                          { title: "Trạng thái", dataIndex: "trangThai", render: (value: number) => <Tag color={value ? "green" : "red"}>{value ? "Bật" : "Tắt"}</Tag> },
+                          {
+                            title: "Thao tác",
+                            render: (_: unknown, record: GoiDichVuItem) => (
+                              <Space>
+                                <Button size="small" type="text" icon={<PencilLine size={14} color="#2563eb" />} onClick={() => openEditGoi(record)} />
+                                <Popconfirm title="Xoá gói?" onConfirm={() => void handleDeleteGoi(record)} okText="Xoá" cancelText="Huỷ">
+                                  <Button size="small" type="text" danger icon={<Trash2 size={14} />} />
+                                </Popconfirm>
+                              </Space>
+                            ),
+                          },
+                        ]}
+                      />
+                    </>
+                  )}
+                </Space>
+              ),
+            },
+            {
+              key: "muc",
+              label: "Mục dịch vụ",
+              children: (
+                <Space direction="vertical" size={16} style={{ width: "100%" }}>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Button type="primary" size="small" icon={<Plus size={16} />} onClick={openCreateMuc}>Thêm mục</Button>
+                  </div>
+                  <Table<TourMucDichVuItem>
+                    rowKey="maMuc"
+                    loading={childLoading}
+                    dataSource={mucList}
+                    pagination={false}
+                    size="small"
+                    columns={[
+                      { title: "Loại", dataIndex: "loaiMuc", render: (value: string) => <Tag>{value}</Tag> },
+                      { title: "Nội dung", dataIndex: "noiDung" },
+                      { title: "Thứ tự", dataIndex: "thuTu" },
+                      {
+                        title: "Thao tác",
+                        render: (_: unknown, record: TourMucDichVuItem) => (
+                          <Space>
+                            <Button size="small" type="text" icon={<PencilLine size={14} color="#2563eb" />} onClick={() => openEditMuc(record)} />
+                            <Popconfirm title="Xoá mục?" onConfirm={() => void handleDeleteMuc(record)} okText="Xoá" cancelText="Huỷ">
+                              <Button size="small" type="text" danger icon={<Trash2 size={14} />} />
+                            </Popconfirm>
+                          </Space>
+                        ),
+                      },
+                    ]}
+                  />
+                </Space>
+              ),
+            },
+            {
+              key: "lich-trinh",
+              label: "Lịch trình",
+              children: (
+                <Space direction="vertical" size={16} style={{ width: "100%" }}>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Button type="primary" size="small" icon={<Plus size={16} />} onClick={openCreateLichTrinh}>Thêm lịch trình</Button>
+                  </div>
+                  <Table<LichTrinhTourItem>
+                    rowKey="maLichTrinh"
+                    loading={childLoading}
+                    dataSource={lichTrinhList}
+                    pagination={false}
+                    size="small"
+                    columns={[
+                      { title: "Thời gian", dataIndex: "thoiGian" },
+                      { title: "Tiêu đề", dataIndex: "tieuDe" },
+                      { title: "Chi tiết", dataIndex: "chiTiet" },
+                      { title: "Thứ tự", dataIndex: "thuTu" },
+                      {
+                        title: "Thao tác",
+                        render: (_: unknown, record: LichTrinhTourItem) => (
+                          <Space>
+                            <Button size="small" type="text" icon={<PencilLine size={14} color="#2563eb" />} onClick={() => openEditLichTrinh(record)} />
+                            <Popconfirm title="Xoá lịch trình?" onConfirm={() => void handleDeleteLichTrinh(record)} okText="Xoá" cancelText="Huỷ">
+                              <Button size="small" type="text" danger icon={<Trash2 size={14} />} />
+                            </Popconfirm>
+                          </Space>
+                        ),
+                      },
+                    ]}
+                  />
+                </Space>
+              ),
+            },
+            {
+              key: "khoi-hanh",
+              label: "Lịch khởi hành",
+              children: (
+                <Space direction="vertical" size={16} style={{ width: "100%" }}>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Button type="primary" size="small" icon={<Plus size={16} />} onClick={openCreateLichKhoiHanh}>Thêm lịch khởi hành</Button>
+                  </div>
+                  <Table<TourLichKhoiHanhItem>
+                    rowKey="maLichKhoiHanh"
+                    loading={childLoading}
+                    dataSource={lichKhoiHanhList}
+                    pagination={false}
+                    size="small"
+                    columns={[
+                      { title: "Ngày", dataIndex: "ngayKhoiHanh", render: (value: string) => formatDate(value) },
+                      { title: "Giờ", dataIndex: "gioKhoiHanh" },
+                      { title: "Tối đa", dataIndex: "soChoToiDa" },
+                      { title: "Còn lại", dataIndex: "soChoConLai" },
+                      { title: "Trạng thái", dataIndex: "trangThai", render: (value: string) => <Tag>{value}</Tag> },
+                      {
+                        title: "Thao tác",
+                        render: (_: unknown, record: TourLichKhoiHanhItem) => (
+                          <Space>
+                            <Button size="small" type="text" icon={<PencilLine size={14} color="#2563eb" />} onClick={() => openEditLichKhoiHanh(record)} />
+                            <Popconfirm title="Xoá lịch khởi hành?" onConfirm={() => void handleDeleteLichKhoiHanh(record)} okText="Xoá" cancelText="Huỷ">
+                              <Button size="small" type="text" danger icon={<Trash2 size={14} />} />
+                            </Popconfirm>
+                          </Space>
+                        ),
+                      },
+                    ]}
+                  />
+                </Space>
+              ),
+            },
+            {
+              key: "review",
+              label: "Review hiển thị",
+              children: (
+                <Space direction="vertical" size={16} style={{ width: "100%" }}>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Button type="primary" size="small" icon={<Plus size={16} />} onClick={openCreateReview}>Thêm review</Button>
+                  </div>
+                  <Table<TourReviewHienThiItem>
+                    rowKey="maReviewHienThi"
+                    loading={childLoading}
+                    dataSource={reviewList}
+                    pagination={false}
+                    size="small"
+                    columns={[
+                      { title: "Khách", dataIndex: "tenKhach" },
+                      { title: "Sao", dataIndex: "soSao", render: (value: number) => <Tag color="gold">{value}/5</Tag> },
+                      { title: "Nội dung", dataIndex: "noiDung" },
+                      { title: "Thứ tự", dataIndex: "thuTu" },
+                      {
+                        title: "Thao tác",
+                        render: (_: unknown, record: TourReviewHienThiItem) => (
+                          <Space>
+                            <Button size="small" type="text" icon={<PencilLine size={14} color="#2563eb" />} onClick={() => openEditReview(record)} />
+                            <Popconfirm title="Xoá review?" onConfirm={() => void handleDeleteReview(record)} okText="Xoá" cancelText="Huỷ">
+                              <Button size="small" type="text" danger icon={<Trash2 size={14} />} />
+                            </Popconfirm>
+                          </Space>
+                        ),
+                      },
+                    ]}
+                  />
+                </Space>
+              ),
+            },
+          ]}
+        />
+      </Modal>
+
+      <Modal title={editingMuc ? "Sửa mục dịch vụ" : "Thêm mục dịch vụ"} open={mucFormVisible} onCancel={() => setMucFormVisible(false)} onOk={() => void handleSubmitMuc()} confirmLoading={submittingMuc} okText="Lưu" cancelText="Huỷ">
+        <Form form={mucForm} layout="vertical">
+          <Form.Item name="loaiMuc" label="Loại" rules={[{ required: true, message: "Chọn loại" }]}><Select options={["BAO_GOM", "KHONG_BAO_GOM", "LUU_Y", "CHINH_SACH"].map((value) => ({ label: value, value }))} /></Form.Item>
+          <Form.Item name="noiDung" label="Nội dung" rules={[{ required: true, message: "Nhập nội dung" }]}><Input.TextArea rows={3} /></Form.Item>
+          <Form.Item name="thuTu" label="Thứ tự" rules={[{ required: true, message: "Nhập thứ tự" }]}><InputNumber min={1} style={{ width: "100%" }} /></Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal title={editingLichTrinh ? "Sửa lịch trình" : "Thêm lịch trình"} open={lichTrinhFormVisible} onCancel={() => setLichTrinhFormVisible(false)} onOk={() => void handleSubmitLichTrinh()} confirmLoading={submittingLichTrinh} okText="Lưu" cancelText="Huỷ">
+        <Form form={lichTrinhForm} layout="vertical">
+          <Form.Item name="thoiGian" label="Thời gian" rules={[{ required: true, message: "Nhập thời gian" }]}><Input placeholder="08:00" /></Form.Item>
+          <Form.Item name="tieuDe" label="Tiêu đề" rules={[{ required: true, message: "Nhập tiêu đề" }]}><Input /></Form.Item>
+          <Form.Item name="chiTiet" label="Chi tiết"><Input.TextArea rows={3} /></Form.Item>
+          <Form.Item name="thuTu" label="Thứ tự" rules={[{ required: true, message: "Nhập thứ tự" }]}><InputNumber min={1} style={{ width: "100%" }} /></Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal title={editingLichKhoiHanh ? "Sửa lịch khởi hành" : "Thêm lịch khởi hành"} open={lichKhoiHanhFormVisible} onCancel={() => setLichKhoiHanhFormVisible(false)} onOk={() => void handleSubmitLichKhoiHanh()} confirmLoading={submittingLichKhoiHanh} okText="Lưu" cancelText="Huỷ">
+        <Form form={lichKhoiHanhForm} layout="vertical">
+          <Form.Item name="ngayKhoiHanh" label="Ngày khởi hành" rules={[{ required: true, message: "Chọn ngày" }]}><DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" /></Form.Item>
+          <Form.Item name="gioKhoiHanh" label="Giờ khởi hành"><Input placeholder="08:00" /></Form.Item>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+            <Form.Item name="soChoToiDa" label="Số chỗ tối đa" rules={[{ required: true, message: "Nhập số chỗ" }]}><InputNumber min={1} style={{ width: "100%" }} /></Form.Item>
+            <Form.Item name="soChoConLai" label="Số chỗ còn lại" rules={[{ required: true, message: "Nhập số chỗ" }]}><InputNumber min={0} style={{ width: "100%" }} /></Form.Item>
+          </div>
+          <Form.Item name="trangThai" label="Trạng thái" rules={[{ required: true, message: "Chọn trạng thái" }]}><Select options={["OPEN", "FULL", "CANCELLED", "CLOSED"].map((value) => ({ label: value, value }))} /></Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal title={editingReview ? "Sửa review" : "Thêm review"} open={reviewFormVisible} onCancel={() => setReviewFormVisible(false)} onOk={() => void handleSubmitReview()} confirmLoading={submittingReview} okText="Lưu" cancelText="Huỷ">
+        <Form form={reviewForm} layout="vertical">
+          <Form.Item name="tenKhach" label="Tên khách" rules={[{ required: true, message: "Nhập tên khách" }]}><Input /></Form.Item>
+          <Form.Item name="avatar" label="Avatar URL"><Input /></Form.Item>
+          <Form.Item name="soSao" label="Số sao" rules={[{ required: true, message: "Nhập số sao" }]}><InputNumber min={1} max={5} style={{ width: "100%" }} /></Form.Item>
+          <Form.Item name="noiDung" label="Nội dung" rules={[{ required: true, message: "Nhập nội dung" }]}><Input.TextArea rows={3} /></Form.Item>
+          <Form.Item name="thuTu" label="Thứ tự" rules={[{ required: true, message: "Nhập thứ tự" }]}><InputNumber min={1} style={{ width: "100%" }} /></Form.Item>
         </Form>
       </Modal>
     </div>

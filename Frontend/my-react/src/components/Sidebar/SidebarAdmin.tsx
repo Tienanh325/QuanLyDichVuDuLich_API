@@ -5,8 +5,7 @@ import {
   faPlane,
   faMapLocationDot,
   faTicket,
-  faTrain,
-  faGamepad
+  faTrain
 } from '@fortawesome/free-solid-svg-icons';
 import {
   DashboardOutlined,
@@ -190,11 +189,6 @@ export default function SidebarAdmin({ collapsed, setCollapsed }: SidebarProps) 
                 <NavLink to="/admin/VeTauHoa" style={({ isActive }) => linkStyle(isActive)}>
                   <FontAwesomeIcon icon={faTrain} style={faStyle} />
                   {!collapsed && <span>Vé tàu hỏa</span>}
-                </NavLink>
-
-                <NavLink to="/admin/VeKhuVuiChoi" style={({ isActive }) => linkStyle(isActive)}>
-                  <FontAwesomeIcon icon={faGamepad} style={faStyle} />
-                  {!collapsed && <span>Tour & Hoạt động</span>}
                 </NavLink>
 
               </div>

@@ -24,9 +24,9 @@ class KhachSanController {
 
     static async adminCreate(req, res) {
         try {
-            const { maDichVu, viTri, ten } = req.body;
+            const { maDichVu } = req.body;
             if (!maDichVu) return res.status(400).json({ status: 'error', data: null, message: 'maDichVu là bắt buộc!' });
-            const newKS = await KhachSanModel.create({ maDichVu, viTri, ten });
+            const newKS = await KhachSanModel.create(req.body);
             return res.status(201).json({ status: 'success', data: newKS, message: 'Tạo khách sạn thành công!' });
         } catch (error) {
             return res.status(500).json({ status: 'error', data: null, message: error.message });
@@ -35,8 +35,7 @@ class KhachSanController {
 
     static async adminUpdate(req, res) {
         try {
-            const { viTri, ten } = req.body;
-            const isUpdated = await KhachSanModel.update(req.params.id, { viTri, ten });
+            const isUpdated = await KhachSanModel.update(req.params.id, req.body);
             if (!isUpdated) return res.status(404).json({ status: 'error', data: null, message: 'Không tìm thấy khách sạn!' });
             return res.status(200).json({ status: 'success', data: null, message: 'Cập nhật khách sạn thành công!' });
         } catch (error) {
@@ -67,13 +66,11 @@ class KhachSanController {
 
     static async createLoaiPhong(req, res) {
         try {
-            const { tenLoaiPhong, giaPhong, sucChua, soLuongPhongTrong } = req.body;
-            if (!tenLoaiPhong || !giaPhong) {
+            const data = { maKhachSan: req.params.id, ...req.body };
+            if (!data.tenLoaiPhong || !data.giaPhong) {
                 return res.status(400).json({ status: 'error', data: null, message: 'Tên loại phòng và giá phòng là bắt buộc!' });
             }
-            const newLP = await KhachSanModel.createLoaiPhong({
-                maKhachSan: req.params.id, tenLoaiPhong, giaPhong, sucChua, soLuongPhongTrong
-            });
+            const newLP = await KhachSanModel.createLoaiPhong(data);
             return res.status(201).json({ status: 'success', data: newLP, message: 'Tạo loại phòng thành công!' });
         } catch (error) {
             return res.status(500).json({ status: 'error', data: null, message: error.message });
@@ -82,8 +79,7 @@ class KhachSanController {
 
     static async updateLoaiPhong(req, res) {
         try {
-            const { tenLoaiPhong, giaPhong, sucChua, soLuongPhongTrong } = req.body;
-            const isUpdated = await KhachSanModel.updateLoaiPhong(req.params.phongId, { tenLoaiPhong, giaPhong, sucChua, soLuongPhongTrong });
+            const isUpdated = await KhachSanModel.updateLoaiPhong(req.params.phongId, req.body);
             if (!isUpdated) return res.status(404).json({ status: 'error', data: null, message: 'Không tìm thấy loại phòng!' });
             return res.status(200).json({ status: 'success', data: null, message: 'Cập nhật loại phòng thành công!' });
         } catch (error) {
@@ -96,6 +92,84 @@ class KhachSanController {
             const isDeleted = await KhachSanModel.removeLoaiPhong(req.params.phongId);
             if (!isDeleted) return res.status(404).json({ status: 'error', data: null, message: 'Không tìm thấy loại phòng!' });
             return res.status(200).json({ status: 'success', data: null, message: 'Đã xóa loại phòng thành công!' });
+        } catch (error) {
+            return res.status(500).json({ status: 'error', data: null, message: error.message });
+        }
+    }
+
+    // ========= TIỆN ÍCH / FAQ =========
+
+    static async getKhachSanTienIch(req, res) {
+        try {
+            const data = await KhachSanModel.getKhachSanTienIch(req.params.id);
+            return res.status(200).json({ status: 'success', data });
+        } catch (error) {
+            return res.status(500).json({ status: 'error', data: null, message: error.message });
+        }
+    }
+
+    static async updateKhachSanTienIch(req, res) {
+        try {
+            const ids = req.body.maTienIchList || req.body.maTienIch || [];
+            await KhachSanModel.upsertKhachSanTienIch(req.params.id, Array.isArray(ids) ? ids : []);
+            return res.status(200).json({ status: 'success', data: null, message: 'Cập nhật tiện ích khách sạn thành công!' });
+        } catch (error) {
+            return res.status(500).json({ status: 'error', data: null, message: error.message });
+        }
+    }
+
+    static async getKhachSanFAQ(req, res) {
+        try {
+            const data = await KhachSanModel.getKhachSanFAQ(req.params.id);
+            return res.status(200).json({ status: 'success', data });
+        } catch (error) {
+            return res.status(500).json({ status: 'error', data: null, message: error.message });
+        }
+    }
+
+    static async createKhachSanFAQ(req, res) {
+        try {
+            const newItem = await KhachSanModel.createKhachSanFAQ(req.params.id, req.body);
+            return res.status(201).json({ status: 'success', data: newItem, message: 'Tạo FAQ thành công!' });
+        } catch (error) {
+            return res.status(500).json({ status: 'error', data: null, message: error.message });
+        }
+    }
+
+    static async updateKhachSanFAQ(req, res) {
+        try {
+            const ok = await KhachSanModel.updateKhachSanFAQ(req.params.faqId, req.body);
+            if (!ok) return res.status(404).json({ status: 'error', data: null, message: 'Không tìm thấy FAQ!' });
+            return res.status(200).json({ status: 'success', data: null, message: 'Cập nhật FAQ thành công!' });
+        } catch (error) {
+            return res.status(500).json({ status: 'error', data: null, message: error.message });
+        }
+    }
+
+    static async removeKhachSanFAQ(req, res) {
+        try {
+            const ok = await KhachSanModel.removeKhachSanFAQ(req.params.faqId);
+            if (!ok) return res.status(404).json({ status: 'error', data: null, message: 'Không tìm thấy FAQ!' });
+            return res.status(200).json({ status: 'success', data: null, message: 'Xóa FAQ thành công!' });
+        } catch (error) {
+            return res.status(500).json({ status: 'error', data: null, message: error.message });
+        }
+    }
+
+    static async getLoaiPhongTienIch(req, res) {
+        try {
+            const data = await KhachSanModel.getLoaiPhongTienIch(req.params.phongId);
+            return res.status(200).json({ status: 'success', data });
+        } catch (error) {
+            return res.status(500).json({ status: 'error', data: null, message: error.message });
+        }
+    }
+
+    static async updateLoaiPhongTienIch(req, res) {
+        try {
+            const ids = req.body.maTienIchList || req.body.maTienIch || [];
+            await KhachSanModel.upsertLoaiPhongTienIch(req.params.phongId, Array.isArray(ids) ? ids : []);
+            return res.status(200).json({ status: 'success', data: null, message: 'Cập nhật tiện ích phòng thành công!' });
         } catch (error) {
             return res.status(500).json({ status: 'error', data: null, message: error.message });
         }

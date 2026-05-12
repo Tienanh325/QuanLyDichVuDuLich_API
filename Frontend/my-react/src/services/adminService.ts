@@ -320,3 +320,77 @@ export async function validateKhuyenMai(id: number) {
   const response = await api.get(`/api/khuyen-mai/${id}/kiem-tra`);
   return response.data.data;
 }
+
+// ─── Tour child resources ─────────────────────────────────────────────────────
+export type TourMucLoai = 'BAO_GOM' | 'KHONG_BAO_GOM' | 'LUU_Y' | 'CHINH_SACH';
+
+const dataOf = <T>(response: { data: { data?: T } }) => response.data.data as T;
+
+export async function adminGetTourChild<T>(tourId: number, resource: string): Promise<T[]> {
+  const response = await api.get(`/api/admin/tour/${tourId}/${resource}`);
+  return dataOf<T[]>(response) ?? [];
+}
+
+export async function adminCreateTourChild<T>(tourId: number, resource: string, payload: Partial<T>) {
+  const response = await api.post(`/api/admin/tour/${tourId}/${resource}`, payload);
+  return response.data;
+}
+
+export async function adminUpdateTourChild<T>(tourId: number, resource: string, childId: number, payload: Partial<T>) {
+  const response = await api.put(`/api/admin/tour/${tourId}/${resource}/${childId}`, payload);
+  return response.data;
+}
+
+export async function adminDeleteTourChild(tourId: number, resource: string, childId: number) {
+  const response = await api.delete(`/api/admin/tour/${tourId}/${resource}/${childId}`);
+  return response.data;
+}
+
+// ─── Hotel child resources ────────────────────────────────────────────────────
+export async function adminGetKhachSanTienIch(hotelId: number): Promise<TienIchItem[]> {
+  const response = await api.get(`/api/admin/khach-san/${hotelId}/tien-ich`);
+  return dataOf<TienIchItem[]>(response) ?? [];
+}
+
+export async function adminUpdateKhachSanTienIch(hotelId: number, maTienIchList: number[]) {
+  const response = await api.put(`/api/admin/khach-san/${hotelId}/tien-ich`, { maTienIchList });
+  return response.data;
+}
+
+export async function adminGetLoaiPhongTienIch(hotelId: number, phongId: number): Promise<TienIchItem[]> {
+  const response = await api.get(`/api/admin/khach-san/${hotelId}/loai-phong/${phongId}/tien-ich`);
+  return dataOf<TienIchItem[]>(response) ?? [];
+}
+
+export async function adminUpdateLoaiPhongTienIch(hotelId: number, phongId: number, maTienIchList: number[]) {
+  const response = await api.put(`/api/admin/khach-san/${hotelId}/loai-phong/${phongId}/tien-ich`, { maTienIchList });
+  return response.data;
+}
+
+export interface KhachSanFAQItem {
+  maFAQ: number;
+  maKhachSan: number;
+  cauHoi: string;
+  cauTraLoi: string;
+  thuTu: number;
+}
+
+export async function adminGetKhachSanFAQ(hotelId: number): Promise<KhachSanFAQItem[]> {
+  const response = await api.get(`/api/admin/khach-san/${hotelId}/faq`);
+  return dataOf<KhachSanFAQItem[]>(response) ?? [];
+}
+
+export async function adminCreateKhachSanFAQ(hotelId: number, payload: Partial<KhachSanFAQItem>) {
+  const response = await api.post(`/api/admin/khach-san/${hotelId}/faq`, payload);
+  return response.data;
+}
+
+export async function adminUpdateKhachSanFAQ(hotelId: number, faqId: number, payload: Partial<KhachSanFAQItem>) {
+  const response = await api.put(`/api/admin/khach-san/${hotelId}/faq/${faqId}`, payload);
+  return response.data;
+}
+
+export async function adminDeleteKhachSanFAQ(hotelId: number, faqId: number) {
+  const response = await api.delete(`/api/admin/khach-san/${hotelId}/faq/${faqId}`);
+  return response.data;
+}

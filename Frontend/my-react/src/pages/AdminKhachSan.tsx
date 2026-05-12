@@ -13,6 +13,7 @@ import {
   Space,
   Table,
   Tag,
+  Tabs,
   Typography,
   message,
 } from "antd";
@@ -20,6 +21,7 @@ import type { TableProps } from "antd";
 import { BedDouble, MapPinned, PencilLine, Plus, RefreshCw, Search, Trash2, Home } from "lucide-react";
 import api from "../services/api";
 import axios from "axios";
+import * as adminApi from "../services/adminService";
 
 const { Title, Text } = Typography;
 
@@ -218,11 +220,21 @@ export default function AdminKhachSan() {
   const [roomModalOpen, setRoomModalOpen] = useState(false);
   const [selectedHotelForRooms, setSelectedHotelForRooms] = useState<HotelItem | null>(null);
   const [roomsData, setRoomsData] = useState<RoomItem[]>([]);
+  const [hotelAmenities, setHotelAmenities] = useState<adminApi.TienIchItem[]>([]);
+  const [hotelFaq, setHotelFaq] = useState<adminApi.KhachSanFAQItem[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(false);
   const [roomForm] = Form.useForm<RoomFormValues>();
   const [editingRoom, setEditingRoom] = useState<RoomItem | null>(null);
   const [roomFormVisible, setRoomFormVisible] = useState(false);
   const [submittingRoom, setSubmittingRoom] = useState(false);
+  const [amenityForm] = Form.useForm<Partial<adminApi.TienIchItem>>();
+  const [amenityFormVisible, setAmenityFormVisible] = useState(false);
+  const [editingAmenity, setEditingAmenity] = useState<adminApi.TienIchItem | null>(null);
+  const [submittingAmenity, setSubmittingAmenity] = useState(false);
+  const [faqForm] = Form.useForm<Partial<adminApi.KhachSanFAQItem>>();
+  const [faqFormVisible, setFaqFormVisible] = useState(false);
+  const [editingFaq, setEditingFaq] = useState<adminApi.KhachSanFAQItem | null>(null);
+  const [submittingFaq, setSubmittingFaq] = useState(false);
 
   const loadHotels = async () => {
     setLoading(true);
@@ -337,11 +349,19 @@ export default function AdminKhachSan() {
     setLoadingRooms(true);
 
     try {
-      const rooms = await fetchRooms(hotel.maKhachSan);
+      const [rooms, amenities, faq] = await Promise.all([
+        fetchRooms(hotel.maKhachSan),
+        adminApi.adminGetKhachSanTienIch(hotel.maKhachSan),
+        adminApi.adminGetKhachSanFAQ(hotel.maKhachSan),
+      ]);
       setRoomsData(rooms);
+      setHotelAmenities(amenities);
+      setHotelFaq(faq);
     } catch {
-      message.error("Không tải được dữ liệu phòng.");
+      message.error("Không tải được dữ liệu quản lý khách sạn.");
       setRoomsData([]);
+      setHotelAmenities([]);
+      setHotelFaq([]);
     } finally {
       setLoadingRooms(false);
     }
@@ -405,6 +425,96 @@ export default function AdminKhachSan() {
       }
     } finally {
       setSubmittingRoom(false);
+    }
+  };
+
+  const openCreateAmenity = () => {
+    setEditingAmenity(null);
+    amenityForm.setFieldsValue({ tenTienIch: "", icon: "", loaiTienIch: "KHACH_SAN", trangThai: 1 });
+    setAmenityFormVisible(true);
+  };
+
+  const openEditAmenity = (item: adminApi.TienIchItem) => {
+    setEditingAmenity(item);
+    amenityForm.setFieldsValue(item);
+    setAmenityFormVisible(true);
+  };
+
+  const handleSubmitAmenity = async () => {
+    if (!selectedHotelForRooms) return;
+    const values = await amenityForm.validateFields();
+    setSubmittingAmenity(true);
+    try {
+      if (editingAmenity) {
+        await adminApi.adminUpdateTienIch(editingAmenity.maTienIch, values);
+      } else {
+        const response = await adminApi.adminCreateTienIch({ ...values, loaiTienIch: "KHACH_SAN" });
+        const newId = Number(response?.data?.maTienIch ?? response?.maTienIch ?? 0);
+        if (newId > 0) {
+          await adminApi.adminUpdateKhachSanTienIch(selectedHotelForRooms.maKhachSan, [...hotelAmenities.map((item) => item.maTienIch), newId]);
+        }
+      }
+      setHotelAmenities(await adminApi.adminGetKhachSanTienIch(selectedHotelForRooms.maKhachSan));
+      setAmenityFormVisible(false);
+      message.success(editingAmenity ? "Đã cập nhật tiện ích." : "Đã thêm tiện ích.");
+    } catch {
+      message.error("Không lưu được tiện ích.");
+    } finally {
+      setSubmittingAmenity(false);
+    }
+  };
+
+  const handleDeleteAmenity = async (item: adminApi.TienIchItem) => {
+    if (!selectedHotelForRooms) return;
+    try {
+      await adminApi.adminDeleteTienIch(item.maTienIch);
+      setHotelAmenities((current) => current.filter((entry) => entry.maTienIch !== item.maTienIch));
+      message.success("Đã xoá tiện ích.");
+    } catch {
+      message.error("Xoá tiện ích thất bại.");
+    }
+  };
+
+  const openCreateFaq = () => {
+    setEditingFaq(null);
+    faqForm.setFieldsValue({ cauHoi: "", cauTraLoi: "", thuTu: hotelFaq.length + 1 });
+    setFaqFormVisible(true);
+  };
+
+  const openEditFaq = (item: adminApi.KhachSanFAQItem) => {
+    setEditingFaq(item);
+    faqForm.setFieldsValue(item);
+    setFaqFormVisible(true);
+  };
+
+  const handleSubmitFaq = async () => {
+    if (!selectedHotelForRooms) return;
+    const values = await faqForm.validateFields();
+    setSubmittingFaq(true);
+    try {
+      if (editingFaq) {
+        await adminApi.adminUpdateKhachSanFAQ(selectedHotelForRooms.maKhachSan, editingFaq.maFAQ, values);
+      } else {
+        await adminApi.adminCreateKhachSanFAQ(selectedHotelForRooms.maKhachSan, values);
+      }
+      setHotelFaq(await adminApi.adminGetKhachSanFAQ(selectedHotelForRooms.maKhachSan));
+      setFaqFormVisible(false);
+      message.success(editingFaq ? "Đã cập nhật FAQ." : "Đã thêm FAQ.");
+    } catch {
+      message.error("Không lưu được FAQ.");
+    } finally {
+      setSubmittingFaq(false);
+    }
+  };
+
+  const handleDeleteFaq = async (item: adminApi.KhachSanFAQItem) => {
+    if (!selectedHotelForRooms) return;
+    try {
+      await adminApi.adminDeleteKhachSanFAQ(selectedHotelForRooms.maKhachSan, item.maFAQ);
+      setHotelFaq((current) => current.filter((entry) => entry.maFAQ !== item.maFAQ));
+      message.success("Đã xoá FAQ.");
+    } catch {
+      message.error("Xoá FAQ thất bại.");
     }
   };
 
@@ -602,37 +712,139 @@ export default function AdminKhachSan() {
         footer={null}
         destroyOnClose
       >
-        {!roomFormVisible ? (
-          <Space orientation="vertical" size={16} style={{ width: "100%", marginTop: 16 }}>
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
-              <Button type="primary" icon={<Plus size={16} />} onClick={openCreateRoom}>Thêm loại phòng</Button>
-            </div>
-            <Table<RoomItem>
-              rowKey="maLoaiPhong"
-              columns={roomColumns}
-              dataSource={roomsData}
-              loading={loadingRooms}
-              pagination={false}
-              bordered
-            />
-          </Space>
-        ) : (
-          <div style={{ marginTop: 16 }}>
-            <Title level={5} style={{ marginBottom: 16 }}>{editingRoom ? "Sửa loại phòng" : "Thêm loại phòng mới"}</Title>
-            <Form<RoomFormValues> form={roomForm} layout="vertical">
-              <Form.Item label="Tên loại phòng" name="tenLoaiPhong" rules={[{ required: true, message: "Nhập tên loại phòng." }]}><Input placeholder="VD: Standard, Deluxe" /></Form.Item>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
-                <Form.Item label="Giá phòng (VNĐ)" name="giaPhong" rules={[{ required: true, message: "Nhập giá phòng." }]}><InputNumber min={0} style={{ width: "100%" }} formatter={(val) => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")} /></Form.Item>
-                <Form.Item label="Sức chứa" name="sucChua" rules={[{ required: true, message: "Nhập sức chứa." }]}><Input placeholder="VD: 2 người lớn, 1 trẻ em" /></Form.Item>
-                <Form.Item label="Số lượng phòng trống" name="soLuongPhongTrong" rules={[{ required: true, message: "Nhập số lượng phòng trống." }]}><InputNumber min={0} style={{ width: "100%" }} /></Form.Item>
-              </div>
-              <Space style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
-                <Button onClick={() => setRoomFormVisible(false)}>Huỷ</Button>
-                <Button type="primary" loading={submittingRoom} onClick={() => void handleSubmitRoom()}>Lưu phòng</Button>
-              </Space>
-            </Form>
-          </div>
-        )}
+        <Tabs
+          items={[
+            {
+              key: "rooms",
+              label: "Loại phòng",
+              children: !roomFormVisible ? (
+                <Space orientation="vertical" size={16} style={{ width: "100%", marginTop: 16 }}>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Button type="primary" icon={<Plus size={16} />} onClick={openCreateRoom}>Thêm loại phòng</Button>
+                  </div>
+                  <Table<RoomItem>
+                    rowKey="maLoaiPhong"
+                    columns={roomColumns}
+                    dataSource={roomsData}
+                    loading={loadingRooms}
+                    pagination={false}
+                    bordered
+                  />
+                </Space>
+              ) : (
+                <div style={{ marginTop: 16 }}>
+                  <Title level={5} style={{ marginBottom: 16 }}>{editingRoom ? "Sửa loại phòng" : "Thêm loại phòng mới"}</Title>
+                  <Form<RoomFormValues> form={roomForm} layout="vertical">
+                    <Form.Item label="Tên loại phòng" name="tenLoaiPhong" rules={[{ required: true, message: "Nhập tên loại phòng." }]}><Input placeholder="VD: Standard, Deluxe" /></Form.Item>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
+                      <Form.Item label="Giá phòng (VNĐ)" name="giaPhong" rules={[{ required: true, message: "Nhập giá phòng." }]}><InputNumber min={0} style={{ width: "100%" }} formatter={(val) => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")} /></Form.Item>
+                      <Form.Item label="Sức chứa" name="sucChua" rules={[{ required: true, message: "Nhập sức chứa." }]}><Input placeholder="VD: 2 người lớn, 1 trẻ em" /></Form.Item>
+                      <Form.Item label="Số lượng phòng trống" name="soLuongPhongTrong" rules={[{ required: true, message: "Nhập số lượng phòng trống." }]}><InputNumber min={0} style={{ width: "100%" }} /></Form.Item>
+                    </div>
+                    <Space style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
+                      <Button onClick={() => setRoomFormVisible(false)}>Huỷ</Button>
+                      <Button type="primary" loading={submittingRoom} onClick={() => void handleSubmitRoom()}>Lưu phòng</Button>
+                    </Space>
+                  </Form>
+                </div>
+              ),
+            },
+            {
+              key: "amenities",
+              label: "Tiện ích khách sạn",
+              children: amenityFormVisible ? (
+                <div style={{ marginTop: 16 }}>
+                  <Title level={5}>{editingAmenity ? "Sửa tiện ích" : "Thêm tiện ích"}</Title>
+                  <Form form={amenityForm} layout="vertical">
+                    <Form.Item label="Tên tiện ích" name="tenTienIch" rules={[{ required: true, message: "Nhập tên tiện ích." }]}><Input /></Form.Item>
+                    <Form.Item label="Icon" name="icon"><Input /></Form.Item>
+                    <Form.Item label="Trạng thái" name="trangThai"><Select options={[{ label: "Bật", value: 1 }, { label: "Tắt", value: 0 }]} /></Form.Item>
+                    <Space style={{ display: "flex", justifyContent: "flex-end" }}>
+                      <Button onClick={() => setAmenityFormVisible(false)}>Huỷ</Button>
+                      <Button type="primary" loading={submittingAmenity} onClick={() => void handleSubmitAmenity()}>Lưu tiện ích</Button>
+                    </Space>
+                  </Form>
+                </div>
+              ) : (
+                <Space orientation="vertical" size={16} style={{ width: "100%", marginTop: 16 }}>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Button type="primary" icon={<Plus size={16} />} onClick={openCreateAmenity}>Thêm tiện ích</Button>
+                  </div>
+                  <Table<adminApi.TienIchItem>
+                    rowKey="maTienIch"
+                    dataSource={hotelAmenities}
+                    loading={loadingRooms}
+                    pagination={false}
+                    columns={[
+                      { title: "Tên tiện ích", dataIndex: "tenTienIch" },
+                      { title: "Icon", dataIndex: "icon" },
+                      { title: "Loại", dataIndex: "loaiTienIch", render: (value: string) => <Tag>{value}</Tag> },
+                      {
+                        title: "Thao tác",
+                        align: "center",
+                        render: (_: unknown, record: adminApi.TienIchItem) => (
+                          <Space>
+                            <Button type="text" icon={<PencilLine size={16} color="#2563eb" />} onClick={() => openEditAmenity(record)} />
+                            <Popconfirm title="Xoá tiện ích?" okText="Xoá" cancelText="Huỷ" onConfirm={() => void handleDeleteAmenity(record)}>
+                              <Button type="text" danger icon={<Trash2 size={16} />} />
+                            </Popconfirm>
+                          </Space>
+                        ),
+                      },
+                    ]}
+                  />
+                </Space>
+              ),
+            },
+            {
+              key: "faq",
+              label: "FAQ",
+              children: faqFormVisible ? (
+                <div style={{ marginTop: 16 }}>
+                  <Title level={5}>{editingFaq ? "Sửa FAQ" : "Thêm FAQ"}</Title>
+                  <Form form={faqForm} layout="vertical">
+                    <Form.Item label="Câu hỏi" name="cauHoi" rules={[{ required: true, message: "Nhập câu hỏi." }]}><Input.TextArea rows={2} /></Form.Item>
+                    <Form.Item label="Câu trả lời" name="cauTraLoi" rules={[{ required: true, message: "Nhập câu trả lời." }]}><Input.TextArea rows={3} /></Form.Item>
+                    <Form.Item label="Thứ tự" name="thuTu" rules={[{ required: true, message: "Nhập thứ tự." }]}><InputNumber min={1} style={{ width: "100%" }} /></Form.Item>
+                    <Space style={{ display: "flex", justifyContent: "flex-end" }}>
+                      <Button onClick={() => setFaqFormVisible(false)}>Huỷ</Button>
+                      <Button type="primary" loading={submittingFaq} onClick={() => void handleSubmitFaq()}>Lưu</Button>
+                    </Space>
+                  </Form>
+                </div>
+              ) : (
+                <Space orientation="vertical" size={16} style={{ width: "100%", marginTop: 16 }}>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Button type="primary" icon={<Plus size={16} />} onClick={openCreateFaq}>Thêm FAQ</Button>
+                  </div>
+                  <Table<adminApi.KhachSanFAQItem>
+                    rowKey="maFAQ"
+                    dataSource={hotelFaq}
+                    loading={loadingRooms}
+                    pagination={false}
+                    columns={[
+                      { title: "Câu hỏi", dataIndex: "cauHoi" },
+                      { title: "Câu trả lời", dataIndex: "cauTraLoi" },
+                      { title: "Thứ tự", dataIndex: "thuTu" },
+                      {
+                        title: "Thao tác",
+                        align: "center",
+                        render: (_: unknown, record: adminApi.KhachSanFAQItem) => (
+                          <Space>
+                            <Button type="text" icon={<PencilLine size={16} color="#2563eb" />} onClick={() => openEditFaq(record)} />
+                            <Popconfirm title="Xoá FAQ?" okText="Xoá" cancelText="Huỷ" onConfirm={() => void handleDeleteFaq(record)}>
+                              <Button type="text" danger icon={<Trash2 size={16} />} />
+                            </Popconfirm>
+                          </Space>
+                        ),
+                      },
+                    ]}
+                  />
+                </Space>
+              ),
+            },
+          ]}
+        />
       </Modal>
     </div>
   );

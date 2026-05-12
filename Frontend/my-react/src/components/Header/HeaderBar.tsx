@@ -19,7 +19,6 @@ const TITLE_MAP: Record<string, string> = {
   '/Ve': 'vé',
   '/VeMayBay': 'vé máy bay',
   '/VeTauHoa': 'vé tàu hỏa',
-  '/VeKhuVuiChoi': 'Tour & Hoạt động',
   '/KhuyenMai': 'khuyến mãi',
   '/DanhGia': 'đánh giá',
   '/DonHang': 'đơn hàng',

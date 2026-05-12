@@ -86,6 +86,26 @@ router.get('/tour/:id', TourController.getById);
 router.post('/tour', TourController.adminCreate);
 router.put('/tour/:id', TourController.adminUpdate);
 router.delete('/tour/:id', TourController.adminRemove);
+router.get('/tour/:tourId/goi-dich-vu', TourController.getGoiDichVu);
+router.post('/tour/:tourId/goi-dich-vu', TourController.createGoiDichVu);
+router.put('/tour/:tourId/goi-dich-vu/:maGoi', TourController.updateGoiDichVu);
+router.delete('/tour/:tourId/goi-dich-vu/:maGoi', TourController.removeGoiDichVu);
+router.get('/tour/:tourId/muc-dich-vu', TourController.getTourMucDichVu);
+router.post('/tour/:tourId/muc-dich-vu', TourController.createTourMucDichVu);
+router.put('/tour/:tourId/muc-dich-vu/:maMuc', TourController.updateTourMucDichVu);
+router.delete('/tour/:tourId/muc-dich-vu/:maMuc', TourController.removeTourMucDichVu);
+router.get('/tour/:tourId/lich-trinh', TourController.getLichTrinh);
+router.post('/tour/:tourId/lich-trinh', TourController.createLichTrinh);
+router.put('/tour/:tourId/lich-trinh/:maLichTrinh', TourController.updateLichTrinh);
+router.delete('/tour/:tourId/lich-trinh/:maLichTrinh', TourController.removeLichTrinh);
+router.get('/tour/:tourId/lich-khoi-hanh', TourController.getLichKhoiHanh);
+router.post('/tour/:tourId/lich-khoi-hanh', TourController.createLichKhoiHanh);
+router.put('/tour/:tourId/lich-khoi-hanh/:maLichKhoiHanh', TourController.updateLichKhoiHanh);
+router.delete('/tour/:tourId/lich-khoi-hanh/:maLichKhoiHanh', TourController.removeLichKhoiHanh);
+router.get('/tour/:tourId/review-hien-thi', TourController.getReviewHienThi);
+router.post('/tour/:tourId/review-hien-thi', TourController.createReviewHienThi);
+router.put('/tour/:tourId/review-hien-thi/:maReviewHienThi', TourController.updateReviewHienThi);
+router.delete('/tour/:tourId/review-hien-thi/:maReviewHienThi', TourController.removeReviewHienThi);
 
 // ==========================================
 // 6. KHÁCH SẠN + LOẠI PHÒNG
@@ -100,6 +120,14 @@ router.get('/khach-san/:id/loai-phong', KhachSanController.getLoaiPhong);
 router.post('/khach-san/:id/loai-phong', KhachSanController.createLoaiPhong);
 router.put('/khach-san/:id/loai-phong/:phongId', KhachSanController.updateLoaiPhong);
 router.delete('/khach-san/:id/loai-phong/:phongId', KhachSanController.removeLoaiPhong);
+router.get('/khach-san/:id/tien-ich', KhachSanController.getKhachSanTienIch);
+router.put('/khach-san/:id/tien-ich', KhachSanController.updateKhachSanTienIch);
+router.get('/khach-san/:id/faq', KhachSanController.getKhachSanFAQ);
+router.post('/khach-san/:id/faq', KhachSanController.createKhachSanFAQ);
+router.put('/khach-san/:id/faq/:faqId', KhachSanController.updateKhachSanFAQ);
+router.delete('/khach-san/:id/faq/:faqId', KhachSanController.removeKhachSanFAQ);
+router.get('/khach-san/:id/loai-phong/:phongId/tien-ich', KhachSanController.getLoaiPhongTienIch);
+router.put('/khach-san/:id/loai-phong/:phongId/tien-ich', KhachSanController.updateLoaiPhongTienIch);
 
 // ==========================================
 // 7. VÉ (Máy bay, Tàu hỏa, Vui chơi)
@@ -116,6 +144,18 @@ router.delete('/ve/:id', VeController.adminRemove);
 router.get('/ve/:id/gia', VeController.getGiaVe);
 router.post('/ve/:id/gia', VeController.adminUpsertGiaVe);
 router.delete('/ve/:id/gia/:giaVeId', VeController.adminRemoveGiaVe);
+// Tiện ích
+router.get('/ve/:id/tien-ich', VeController.getVeTienIch);
+router.put('/ve/:id/tien-ich', VeController.updateVeTienIch);
+// Khoang tàu và ghế (chỉ cho vé tàu)
+router.get('/ve/:id/khoang', VeController.getVeTauKhoang);
+router.post('/ve/:id/khoang', VeController.createVeTauKhoang);
+router.put('/ve/:id/khoang/:khoangId', VeController.updateVeTauKhoang);
+router.delete('/ve/:id/khoang/:khoangId', VeController.removeVeTauKhoang);
+router.get('/ve/:id/khoang/:khoangId/ghe', VeController.getVeTauGhe);
+router.post('/ve/:id/khoang/:khoangId/ghe', VeController.createVeTauGhe);
+router.put('/ve/:id/khoang/:khoangId/ghe/:gheId', VeController.updateVeTauGhe);
+router.delete('/ve/:id/khoang/:khoangId/ghe/:gheId', VeController.removeVeTauGhe);
 // Loại vé
 router.get('/loai-ve', LoaiVeController.getAllLoaiVe);
 router.post('/loai-ve', LoaiVeController.adminCreateLoaiVe);

@@ -70,17 +70,20 @@ class KhachSanModel {
     }
 
     static async create(data) {
-        const { maDichVu, viTri, ten } = data;
+        const { maDichVu, viTri, ten, tenkhachsan, diaChiChiTiet, soSao = 5, gioCheckIn = '14:00:00', gioCheckOut = '12:00:00', chinhSachHuy, lat, lng } = data;
         const [result] = await pool.query(
-            `INSERT INTO KhachSan (maDichVu, viTri, tenkhachsan) VALUES (?, ?, ?)`,
-            [maDichVu, viTri, ten]
+            `INSERT INTO KhachSan (maDichVu, viTri, tenkhachsan, diaChiChiTiet, soSao, gioCheckIn, gioCheckOut, chinhSachHuy, lat, lng) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [maDichVu, viTri, tenkhachsan || ten, diaChiChiTiet || null, soSao, gioCheckIn, gioCheckOut, chinhSachHuy || 'Miễn phí hủy trước 48h', lat || null, lng || null]
         );
         return { maKhachSan: result.insertId, ...data };
     }
 
     static async update(id, data) {
-        const { viTri, ten } = data;
-        const [result] = await pool.query(`UPDATE KhachSan SET viTri=?, tenkhachsan=? WHERE maKhachSan=?`, [viTri, ten, id]);
+        const { viTri, ten, tenkhachsan, diaChiChiTiet, soSao = 5, gioCheckIn = '14:00:00', gioCheckOut = '12:00:00', chinhSachHuy, lat, lng } = data;
+        const [result] = await pool.query(
+            `UPDATE KhachSan SET viTri=?, tenkhachsan=?, diaChiChiTiet=?, soSao=?, gioCheckIn=?, gioCheckOut=?, chinhSachHuy=?, lat=?, lng=? WHERE maKhachSan=?`,
+            [viTri, tenkhachsan || ten, diaChiChiTiet || null, soSao, gioCheckIn, gioCheckOut, chinhSachHuy || 'Miễn phí hủy trước 48h', lat || null, lng || null, id]
+        );
         return result.affectedRows > 0;
     }
 
@@ -96,19 +99,20 @@ class KhachSanModel {
     }
 
     static async createLoaiPhong(data) {
-        const { maKhachSan, tenLoaiPhong, giaPhong, sucChua, soLuongPhongTrong } = data;
+        const { maKhachSan, tenLoaiPhong, moTa, giaPhong, sucChua = 1, loaiGiuong = 'Giường đôi', dienTich, huongPhong, soLuongPhongTrong, anhPhong, trangThai = 1 } = data;
         const [result] = await pool.query(
-            `INSERT INTO LoaiPhong (maKhachSan, tenLoaiPhong, giaPhong, sucChua, soLuongPhongTrong) VALUES (?, ?, ?, ?, ?)`,
-            [maKhachSan, tenLoaiPhong, giaPhong, sucChua, soLuongPhongTrong || 0]
+            `INSERT INTO LoaiPhong (maKhachSan, tenLoaiPhong, moTa, giaPhong, sucChua, loaiGiuong, dienTich, huongPhong, soLuongPhongTrong, anhPhong, trangThai)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [maKhachSan, tenLoaiPhong, moTa || null, giaPhong, sucChua, loaiGiuong, dienTich || null, huongPhong || null, soLuongPhongTrong || 0, anhPhong || null, trangThai]
         );
         return { maLoaiPhong: result.insertId, ...data };
     }
 
     static async updateLoaiPhong(maLoaiPhong, data) {
-        const { tenLoaiPhong, giaPhong, sucChua, soLuongPhongTrong } = data;
+        const { tenLoaiPhong, moTa, giaPhong, sucChua, loaiGiuong, dienTich, huongPhong, soLuongPhongTrong, anhPhong, trangThai } = data;
         const [result] = await pool.query(
-            `UPDATE LoaiPhong SET tenLoaiPhong=?, giaPhong=?, sucChua=?, soLuongPhongTrong=? WHERE maLoaiPhong=?`,
-            [tenLoaiPhong, giaPhong, sucChua, soLuongPhongTrong, maLoaiPhong]
+            `UPDATE LoaiPhong SET tenLoaiPhong=?, moTa=?, giaPhong=?, sucChua=?, loaiGiuong=?, dienTich=?, huongPhong=?, soLuongPhongTrong=?, anhPhong=?, trangThai=? WHERE maLoaiPhong=?`,
+            [tenLoaiPhong, moTa || null, giaPhong, sucChua, loaiGiuong, dienTich || null, huongPhong || null, soLuongPhongTrong, anhPhong || null, trangThai, maLoaiPhong]
         );
         return result.affectedRows > 0;
     }
@@ -124,6 +128,89 @@ class KhachSanModel {
     static async removeLoaiPhong(maLoaiPhong) {
         const [result] = await pool.query(`DELETE FROM LoaiPhong WHERE maLoaiPhong = ?`, [maLoaiPhong]);
         return result.affectedRows > 0;
+    }
+
+    // =================== KHÁCH SẠN CHILD TABLES ===================
+
+    // KhachSanTienIch (bulk replace)
+    static async getKhachSanTienIch(maKhachSan) {
+        const [rows] = await pool.query(
+            `SELECT kti.maTienIch, t.tenTienIch, t.icon, t.loaiTienIch
+             FROM KhachSanTienIch kti
+             JOIN TienIch t ON kti.maTienIch = t.maTienIch
+             WHERE kti.maKhachSan = ?`,
+            [maKhachSan]
+        );
+        return rows;
+    }
+    static async upsertKhachSanTienIch(maKhachSan, maTienIchList) {
+        // Replace all assignments for this hotel
+        await pool.query('START TRANSACTION');
+        try {
+            await pool.query(`DELETE FROM KhachSanTienIch WHERE maKhachSan = ?`, [maKhachSan]);
+            if (maTienIchList && maTienIchList.length) {
+                const values = maTienIchList.map(id => [maKhachSan, id]);
+                await pool.query('INSERT INTO KhachSanTienIch (maKhachSan, maTienIch) VALUES ?', [values]);
+            }
+            await pool.query('COMMIT');
+            return true;
+        } catch (e) {
+            await pool.query('ROLLBACK');
+            throw e;
+        }
+    }
+
+    // KhachSanFAQ
+    static async getKhachSanFAQ(maKhachSan) {
+        const [rows] = await pool.query(`SELECT * FROM KhachSanFAQ WHERE maKhachSan = ? ORDER BY thuTu ASC`, [maKhachSan]);
+        return rows;
+    }
+    static async createKhachSanFAQ(maKhachSan, data) {
+        const { cauHoi, cauTraLoi, thuTu = 0 } = data;
+        const [result] = await pool.query(
+            `INSERT INTO KhachSanFAQ (maKhachSan, cauHoi, cauTraLoi, thuTu) VALUES (?, ?, ?, ?)`,
+            [maKhachSan, cauHoi, cauTraLoi, thuTu]
+        );
+        return { maFAQ: result.insertId, ...data };
+    }
+    static async updateKhachSanFAQ(maFAQ, data) {
+        const { cauHoi, cauTraLoi, thuTu } = data;
+        const [result] = await pool.query(
+            `UPDATE KhachSanFAQ SET cauHoi=?, cauTraLoi=?, thuTu=? WHERE maFAQ=?`,
+            [cauHoi, cauTraLoi, thuTu, maFAQ]
+        );
+        return result.affectedRows > 0;
+    }
+    static async removeKhachSanFAQ(maFAQ) {
+        const [result] = await pool.query(`DELETE FROM KhachSanFAQ WHERE maFAQ = ?`, [maFAQ]);
+        return result.affectedRows > 0;
+    }
+
+    // LoaiPhongTienIch (bulk replace for a room)
+    static async getLoaiPhongTienIch(maLoaiPhong) {
+        const [rows] = await pool.query(
+            `SELECT lpti.maTienIch, t.tenTienIch, t.icon, t.loaiTienIch
+             FROM LoaiPhongTienIch lpti
+             JOIN TienIch t ON lpti.maTienIch = t.maTienIch
+             WHERE lpti.maLoaiPhong = ?`,
+            [maLoaiPhong]
+        );
+        return rows;
+    }
+    static async upsertLoaiPhongTienIch(maLoaiPhong, maTienIchList) {
+        await pool.query('START TRANSACTION');
+        try {
+            await pool.query(`DELETE FROM LoaiPhongTienIch WHERE maLoaiPhong = ?`, [maLoaiPhong]);
+            if (maTienIchList && maTienIchList.length) {
+                const values = maTienIchList.map(id => [maLoaiPhong, id]);
+                await pool.query('INSERT INTO LoaiPhongTienIch (maLoaiPhong, maTienIch) VALUES ?', [values]);
+            }
+            await pool.query('COMMIT');
+            return true;
+        } catch (e) {
+            await pool.query('ROLLBACK');
+            throw e;
+        }
     }
 }
 

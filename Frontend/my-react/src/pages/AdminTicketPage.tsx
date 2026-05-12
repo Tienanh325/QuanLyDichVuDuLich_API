@@ -17,11 +17,13 @@ import {
   Space,
   Table,
   Tag,
+  Tabs,
   Typography,
   message,
 } from "antd";
 import type { TableProps } from "antd";
 import { MapPinned, PencilLine, Plane, Plus, RefreshCw, Search, Ticket, TrainFront, Trash2 } from "lucide-react";
+import * as veApi from "../services/veService";
 
 const { Title, Text } = Typography;
 
@@ -374,6 +376,12 @@ export default function AdminTicketPage({ category, title, description }: AdminT
   const [searchText, setSearchText] = useState("");
   const [filterStatus, setFilterStatus] = useState<TicketStatus | "all">("all");
   const [isUsingMockData, setIsUsingMockData] = useState(false);
+  const [manageOpen, setManageOpen] = useState(false);
+  const [managingTicket, setManagingTicket] = useState<TicketItem | null>(null);
+  const [childLoading, setChildLoading] = useState(false);
+  const [priceRows, setPriceRows] = useState<veApi.GiaVe[]>([]);
+  const [amenityRows, setAmenityRows] = useState<veApi.VeTienIchItem[]>([]);
+  const [khoangRows, setKhoangRows] = useState<veApi.VeTauKhoangItem[]>([]);
 
   const loadTickets = async () => {
     setLoading(true);
@@ -437,6 +445,29 @@ export default function AdminTicketPage({ category, title, description }: AdminT
       soldout: scoped.filter((item) => inferStatus(item) === "soldout").length,
     };
   }, [category, data]);
+
+  const openManageModal = async (item: TicketItem) => {
+    setManagingTicket(item);
+    setManageOpen(true);
+    setChildLoading(true);
+    try {
+      const [prices, amenities, khoang] = await Promise.all([
+        veApi.getGiaVe(item.maVe),
+        veApi.adminGetVeTienIch(item.maVe),
+        inferCategory(item) === "train" ? veApi.adminGetVeTauKhoang(item.maVe) : Promise.resolve([]),
+      ]);
+      setPriceRows(prices);
+      setAmenityRows(amenities);
+      setKhoangRows(khoang);
+    } catch {
+      message.error("Không tải được dữ liệu quản lý vé.");
+      setPriceRows([]);
+      setAmenityRows([]);
+      setKhoangRows([]);
+    } finally {
+      setChildLoading(false);
+    }
+  };
 
   const resetForm = () => {
     form.resetFields();
@@ -624,6 +655,7 @@ export default function AdminTicketPage({ category, title, description }: AdminT
       align: "center",
       render: (_value, record) => (
         <Space size="middle">
+          <Button size="small" onClick={() => void openManageModal(record)}>Quản lý</Button>
           <Button type="text" icon={<PencilLine size={16} color="#7c3aed" />} onClick={() => openEditModal(record)} />
           <Popconfirm title="Xoá vé?" description={`Bạn có chắc muốn xoá ${record.TenVe}?`} okText="Xoá" cancelText="Huỷ" onConfirm={() => void handleDelete(record)}>
             <Button type="text" danger icon={<Trash2 size={16} color="#ef4444" />} />
@@ -698,6 +730,73 @@ export default function AdminTicketPage({ category, title, description }: AdminT
             <Form.Item label="Đánh giá" name="danhGia" rules={[{ required: true, message: "Nhập đánh giá." }]}><InputNumber min={0} max={5} step={0.1} style={{ width: "100%" }} /></Form.Item>
           </div>
         </Form>
+      </Modal>
+
+      <Modal
+        title={managingTicket ? `Quản lý vé: ${managingTicket.TenVe}` : "Quản lý vé"}
+        open={manageOpen}
+        onCancel={() => setManageOpen(false)}
+        footer={null}
+        width={1000}
+      >
+        <Tabs
+          items={[
+            {
+              key: "prices",
+              label: "Bảng giá",
+              children: (
+                <Table<veApi.GiaVe>
+                  rowKey="maGiaVe"
+                  loading={childLoading}
+                  dataSource={priceRows}
+                  pagination={false}
+                  columns={[
+                    { title: "Loại vé", dataIndex: "tenLoaiVe" },
+                    { title: "Giá", dataIndex: "gia", render: (value: number) => formatCurrency(Number(value || 0)) },
+                    { title: "Giá gốc", dataIndex: "giaGoc", render: (value: number) => value ? formatCurrency(Number(value)) : "--" },
+                    { title: "Số chỗ", dataIndex: "soChoTrong" },
+                    { title: "Thuế phí", dataIndex: "thuePhi", render: (value: number) => formatCurrency(Number(value || 0)) },
+                  ]}
+                />
+              ),
+            },
+            {
+              key: "amenities",
+              label: "Tiện ích",
+              children: (
+                <Table<veApi.VeTienIchItem>
+                  rowKey="maTienIch"
+                  loading={childLoading}
+                  dataSource={amenityRows}
+                  pagination={false}
+                  columns={[
+                    { title: "Tên tiện ích", dataIndex: "tenTienIch" },
+                    { title: "Icon", dataIndex: "icon" },
+                    { title: "Loại", dataIndex: "loaiTienIch", render: (value: string) => <Tag>{value}</Tag> },
+                  ]}
+                />
+              ),
+            },
+            {
+              key: "khoang",
+              label: "Khoang tàu",
+              children: inferCategory(managingTicket ?? ({} as TicketItem)) === "train" ? (
+                <Table<veApi.VeTauKhoangItem>
+                  rowKey="maKhoang"
+                  loading={childLoading}
+                  dataSource={khoangRows}
+                  pagination={false}
+                  columns={[
+                    { title: "Tên khoang", dataIndex: "tenKhoang" },
+                    { title: "Toa", dataIndex: "toaSo" },
+                    { title: "Loại chỗ", dataIndex: "loaiCho" },
+                    { title: "Thứ tự", dataIndex: "thuTu" },
+                  ]}
+                />
+              ) : <Text>Chỉ vé tàu mới có khoang và ghế.</Text>,
+            },
+          ]}
+        />
       </Modal>
     </div>
   );

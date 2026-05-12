@@ -7,7 +7,6 @@ import AdminTour from '../pages/AdminTour';
 import AdminVe from '../pages/AdminVe';
 import AdminVeMayBay from '../pages/AdminVeMayBay';
 import AdminVeTauHoa from '../pages/AdminVeTauHoa';
-import AdminVeKhuVuiChoi from '../pages/AdminVeKhuVuiChoi';
 import AdminKhuyenMai from '../pages/AdminKhuyenMai';
 import AdminDanhGia from '../pages/AdminDanhGia';
 import AdminDonHang from '../pages/AdminDonHang';
@@ -71,7 +70,7 @@ export default function RoutesIndex() {
         <Route path="Ve" element={<AdminVe />} />
         <Route path="VeMayBay" element={<AdminVeMayBay />} />
         <Route path="VeTauHoa" element={<AdminVeTauHoa />} />
-        <Route path="VeKhuVuiChoi" element={<AdminVeKhuVuiChoi />} />
+        <Route path="VeKhuVuiChoi" element={<Navigate to="Tour" replace />} />
         <Route path="KhuyenMai" element={<AdminKhuyenMai />} />
         <Route path="DanhGia" element={<AdminDanhGia />} />
         <Route path="DonHang" element={<AdminDonHang />} />

@@ -208,11 +208,11 @@ class VeModel {
         return rows;
     }
 
-    static async upsertGiaVe(maVe, maLoaiVe, gia, soChoTrong) {
+    static async upsertGiaVe(maVe, maLoaiVe, gia, soChoTrong, giaGoc = null, thuePhi = 0) {
         await pool.query(
-            `INSERT INTO GiaVe (maVe, maLoaiVe, gia, soChoTrong) VALUES (?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE gia = ?, soChoTrong = ?`,
-            [maVe, maLoaiVe, gia, soChoTrong, gia, soChoTrong]
+            `INSERT INTO GiaVe (maVe, maLoaiVe, gia, giaGoc, soChoTrong, thuePhi) VALUES (?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE gia = ?, giaGoc = ?, soChoTrong = ?, thuePhi = ?`,
+            [maVe, maLoaiVe, gia, giaGoc, soChoTrong, thuePhi, gia, giaGoc, soChoTrong, thuePhi]
         );
     }
 
@@ -282,6 +282,87 @@ class VeModel {
 
         const [rows] = await pool.query(query, queryParams);
         return rows;
+    }
+
+    // =================== TICKET CHILD TABLES ===================
+
+    // VeTienIch (bulk)
+    static async getVeTienIch(maVe) {
+        const [rows] = await pool.query(
+            `SELECT vti.maTienIch, t.tenTienIch, t.icon, t.loaiTienIch
+             FROM VeTienIch vti
+             JOIN TienIch t ON vti.maTienIch = t.maTienIch
+             WHERE vti.maVe = ?`,
+            [maVe]
+        );
+        return rows;
+    }
+    static async upsertVeTienIch(maVe, maTienIchList) {
+        await pool.query('START TRANSACTION');
+        try {
+            await pool.query(`DELETE FROM VeTienIch WHERE maVe = ?`, [maVe]);
+            if (maTienIchList && maTienIchList.length) {
+                const values = maTienIchList.map(id => [maVe, id]);
+                await pool.query('INSERT INTO VeTienIch (maVe, maTienIch) VALUES ?', [values]);
+            }
+            await pool.query('COMMIT');
+            return true;
+        } catch (e) {
+            await pool.query('ROLLBACK');
+            throw e;
+        }
+    }
+
+    // VeTauKhoang
+    static async getVeTauKhoang(maVe) {
+        const [rows] = await pool.query(`SELECT * FROM VeTauKhoang WHERE maVe = ? ORDER BY thuTu ASC`, [maVe]);
+        return rows;
+    }
+    static async createVeTauKhoang(maVe, data) {
+        const { tenKhoang, toaSo, loaiCho, thuTu = 0 } = data;
+        const [result] = await pool.query(
+            `INSERT INTO VeTauKhoang (maVe, tenKhoang, toaSo, loaiCho, thuTu) VALUES (?, ?, ?, ?, ?)`,
+            [maVe, tenKhoang, toaSo || null, loaiCho, thuTu]
+        );
+        return { maKhoang: result.insertId, ...data };
+    }
+    static async updateVeTauKhoang(maKhoang, data) {
+        const { tenKhoang, toaSo, loaiCho, thuTu } = data;
+        const [result] = await pool.query(
+            `UPDATE VeTauKhoang SET tenKhoang=?, toaSo=?, loaiCho=?, thuTu=? WHERE maKhoang=?`,
+            [tenKhoang, toaSo || null, loaiCho, thuTu, maKhoang]
+        );
+        return result.affectedRows > 0;
+    }
+    static async removeVeTauKhoang(maKhoang) {
+        const [result] = await pool.query(`DELETE FROM VeTauKhoang WHERE maKhoang = ?`, [maKhoang]);
+        return result.affectedRows > 0;
+    }
+
+    // VeTauGhe
+    static async getVeTauGhe(maKhoang) {
+        const [rows] = await pool.query(`SELECT * FROM VeTauGhe WHERE maKhoang = ? ORDER BY CAST(soGhe AS UNSIGNED) ASC`, [maKhoang]);
+        return rows;
+    }
+    static async createVeTauGhe(maKhoang, data) {
+        const { soGhe, trangThai = 'AVAILABLE', tang, giaThem = 0 } = data;
+        const [result] = await pool.query(
+            `INSERT INTO VeTauGhe (maKhoang, soGhe, trangThai, tang, giaThem) VALUES (?, ?, ?, ?, ?)`,
+            [maKhoang, soGhe, trangThai, tang || null, giaThem]
+        );
+        return { maGhe: result.insertId, ...data };
+    }
+    static async updateVeTauGhe(maGhe, data) {
+        const { soGhe, trangThai, tang, giaThem } = data;
+        const [result] = await pool.query(
+            `UPDATE VeTauGhe SET soGhe=?, trangThai=?, tang=?, giaThem=? WHERE maGhe=?`,
+            [soGhe, trangThai, tang || null, giaThem, maGhe]
+        );
+        return result.affectedRows > 0;
+    }
+    static async removeVeTauGhe(maGhe) {
+        const [result] = await pool.query(`DELETE FROM VeTauGhe WHERE maGhe = ?`, [maGhe]);
+        return result.affectedRows > 0;
     }
 }
 
