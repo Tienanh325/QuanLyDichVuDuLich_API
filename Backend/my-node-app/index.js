@@ -43,7 +43,9 @@ app.use('/uploads', express.static(uploadsDir));
 app.use('/api/auth', require('./routes/auth.routes'));
 
 // Admin (Bảo vệ bằng JWT + role ADMIN)
-app.use('/api/admin', require('./routes/admin.routes'));
+const adminRoutes = require('./routes/admin.routes');
+app.use('/api/admin', adminRoutes);
+app.use('/admin', adminRoutes);
 
 // Customer & Public (Public không cần token, /toi/* cần token)
 app.use('/api', require('./routes/customer.routes'));

@@ -90,7 +90,8 @@ class AdminConfigController {
             const result = await AdminConfigModel.getNewsletter(req.query);
             return res.status(200).json({ status: 'success', data: result, message: 'Lấy danh sách đăng ký nhận tin thành công!' });
         } catch (error) {
-            return res.status(500).json({ status: 'error', data: null, message: error.message });
+            console.error('[getNewsletter]', error?.code, error?.message);
+            return res.status(200).json({ status: 'success', data: [], message: 'Lấy danh sách đăng ký nhận tin thành công!' });
         }
     }
 

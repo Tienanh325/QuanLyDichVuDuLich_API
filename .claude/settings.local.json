@@ -4,12 +4,11 @@
       "Bash(git *)",
       "Bash(npm *)",
       "Bash(node *)",
+      "Bash(node --check *)",
       "PowerShell(git *)",
       "PowerShell(npm *)",
       "PowerShell(node *)",
-      "PowerShell(node --check \"Backend/my-node-app/index.js\")",
-      "PowerShell(node --check \"Backend/my-node-app/routes/admin.routes.js\")",
-      "PowerShell(node --check \"Backend/my-node-app/controllers/hinhanhadmin.controller.js\")"
+      "PowerShell(node --check *)"
     ]
   }
 }

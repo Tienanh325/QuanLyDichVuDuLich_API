@@ -27,6 +27,7 @@ const DanhGiaController = require('../controllers/danhgia.controller');
 const UserController = require('../controllers/user.controller');
 const LoaiVeController = require('../controllers/loaive.controller');
 const AdminConfigController = require('../controllers/adminconfig.controller');
+const HinhAnhAdminController = require('../controllers/hinhanhadmin.controller');
 
 // ==========================================
 // BẢO VỆ TOÀN BỘ ROUTES ADMIN
@@ -84,22 +85,18 @@ router.post('/dich-vu', DichVuController.adminCreate);
 router.put('/dich-vu/:id', DichVuController.adminUpdate);
 router.patch('/dich-vu/:id/status', DichVuController.adminUpdateStatus);
 router.delete('/dich-vu/:id', DichVuController.adminRemove);
-// Hình ảnh theo dịch vụ (legacy)
-router.post('/dich-vu/:id/hinh-anh', DichVuController.addHinhAnh);
-router.patch('/dich-vu/:id/hinh-anh/:imageId/avatar', DichVuController.setAvatar);
-router.delete('/dich-vu/:id/hinh-anh/:imageId', DichVuController.removeHinhAnh);
+// Hình ảnh độc lập
+router.get('/hinh-anh', HinhAnhAdminController.getAllImages);
+router.get('/hinh-anh/:id', HinhAnhAdminController.getImageById);
+router.post('/hinh-anh', HinhAnhAdminController.createFromUrl);
+router.post('/hinh-anh/upload', upload.single('file'), HinhAnhAdminController.uploadFile);
+router.put('/hinh-anh/:id', HinhAnhAdminController.updateImage);
+router.delete('/hinh-anh/bulk', HinhAnhAdminController.bulkDeleteImages);
+router.delete('/hinh-anh/:id', HinhAnhAdminController.deleteImage);
 
 // ==========================================
 // 4B. QUẢN LÝ HÌNH ẢNH
 // ==========================================
-const HinhAnhAdminController = require('../controllers/hinhanhadmin.controller');
-router.get('/images', HinhAnhAdminController.getAllImages);
-router.get('/images/:id', HinhAnhAdminController.getImageById);
-router.post('/images', HinhAnhAdminController.createFromUrl);
-router.post('/images/upload', upload.single('file'), HinhAnhAdminController.uploadFile);
-router.put('/images/:id', HinhAnhAdminController.updateImage);
-router.delete('/images/bulk', HinhAnhAdminController.bulkDeleteImages);
-router.delete('/images/:id', HinhAnhAdminController.deleteImage);
 
 // ==========================================
 // 5. TOUR

@@ -96,6 +96,17 @@ CREATE TABLE KhuyenMai (
   INDEX idx_km_status (trangThai)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE NewsletterSubscription (
+  maDangKy INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  source VARCHAR(100) NULL,
+  trangThai TINYINT(1) NOT NULL DEFAULT 1,
+  ngayTao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  ngayCapNhat DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_newsletter_status (trangThai),
+  INDEX idx_newsletter_source (source)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE DichVu (
   maDichVu INT AUTO_INCREMENT PRIMARY KEY,
   ten VARCHAR(255) NOT NULL,
@@ -118,16 +129,10 @@ CREATE TABLE DichVu (
 
 CREATE TABLE HinhAnh (
   maHinhAnh INT AUTO_INCREMENT PRIMARY KEY,
-  maDichVu INT NOT NULL,
   urlAnh VARCHAR(1000) NOT NULL,
   altText VARCHAR(255) NULL,
   isAvatar TINYINT(1) NOT NULL DEFAULT 0,
   thuTu INT NOT NULL DEFAULT 0,
-  ngayTao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_hinhanh_dichvu FOREIGN KEY (maDichVu)
-    REFERENCES DichVu(maDichVu) ON DELETE CASCADE ON UPDATE CASCADE,
-  INDEX idx_ha_dv_avatar (maDichVu, isAvatar),
-  INDEX idx_ha_order (maDichVu, thuTu)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ACTIVITY / TOUR UI: danh mục, gói, lịch trình, bao gồm/không bao gồm, lịch khởi hành.
@@ -741,16 +746,13 @@ INSERT INTO DichVu (ten, moTa, loaiDichVu, maNhaCungCap, trangThai, badge, isNoi
 
 
 INSERT INTO HinhAnh (maDichVu, urlAnh, altText, isAvatar, thuTu) VALUES
-(1, 'https://example.com/images/tour-danang.jpg', 'Tour Đà Nẵng', 1, 1),
-(2, 'https://example.com/images/tour-phuquoc.jpg', 'Tour Phú Quốc', 1, 1),
-(3, 'https://example.com/images/tour-halong.jpg', 'Tour Hạ Long', 1, 1),
-(4, 'https://example.com/images/tour-nhatrang.jpg', 'Tour Nha Trang', 1, 1),
-(5, 'https://example.com/images/tour-dalat.jpg', 'Tour Đà Lạt', 1, 1),
-(6, 'https://example.com/images/vinpearl-nhatrang.jpg', 'Vinpearl Nha Trang', 1, 1),
-(7, 'https://example.com/images/luxury-danang.jpg', 'Luxury Đà Nẵng', 1, 1),
-(8, 'https://example.com/images/flight-han-sgn.jpg', 'Vé máy bay', 1, 1),
-(9, 'https://example.com/images/train-han-dad.jpg', 'Vé tàu', 1, 1),
-(10, 'https://example.com/images/banahills.jpg', 'Bà Nà Hills', 1, 1);
+(1, 'https://ik.imagekit.io/tvlk/blog/2022/02/dia-diem-du-lich-viet-nam-cover.jpeg', 'Tour Đà Nẵng', 1, 1),
+(2, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPWhZeMcqy7_AtFsL_kx_L3t6-zB9k_cxK8Q&s', 'Tour Phú Quốc', 1, 1),
+(3, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvFnQ6H6JJcRsXUhEswTiRypxjaqHg_0unxw&s', 'Tour Hạ Long', 1, 1),
+(4, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiTBDGsqHWp4uEHQLmTs2_BX0T8BZ3OW6DRQ&s', 'Tour Nha Trang', 1, 1),
+(5, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRduzb_h54kmQkyZdiNNSIyulXMH_wUneaP-Q&s', 'Bà Nà Hills', 1, 1),
+(6, '/uploads/1778651540939-611884122.png', 'Null', 0, 1),
+(7, 'https://th.bing.com/th/id/OIP.zhvg3_RvL_nm60HNFk12ZAHaE7?w=242&h=180&c=7&r=0&o=7&pid=1.7&rm=3', 'Null', 0, 0);
 
 INSERT INTO DanhMucHoatDong (tenDanhMuc, icon, gradient, moTa, trangThai, thuTu) VALUES
 ('Biển đảo', 'beach', 'blue-cyan', 'Tour biển đảo', 1, 1),

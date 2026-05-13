@@ -70,7 +70,7 @@ class ThanhToanModel {
 
         // Lấy thông tin đơn sau khi thanh toán
         const [updatedDon] = await pool.query(
-            `SELECT dd.*, 
+            `SELECT dd.*,
                     COALESCE(SUM(tt.soTien), 0) AS tongDaThanhToan
              FROM DonDat dd
              LEFT JOIN ThanhToan tt ON dd.maDon = tt.maDon AND tt.trangThai = 'PAID'

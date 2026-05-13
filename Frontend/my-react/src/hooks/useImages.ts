@@ -4,7 +4,7 @@ import type { ImageItem, ImageQueryParams, ImageUpdatePayload, ImageUploadPayloa
 
 export function useImages(params?: ImageQueryParams, options?: Omit<UseQueryOptions<ImageItem[], Error>, "queryKey" | "queryFn">) {
   return useQuery<ImageItem[], Error>({
-    queryKey: ["admin-images", params],
+    queryKey: ["admin-hinh-anh", params],
     queryFn: () => getImages(params),
     ...options,
   });
@@ -16,35 +16,35 @@ export function useMutateImage() {
   const createUrlMutation = useMutation({
     mutationFn: (payload: ImageUrlPayload) => createFromUrl(payload),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["admin-images"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin-hinh-anh"] });
     },
   });
 
   const uploadMutation = useMutation<ImageItem, Error, ImageUploadPayload>({
     mutationFn: uploadFile,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["admin-images"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin-hinh-anh"] });
     },
   });
 
   const updateMutation = useMutation<ImageItem, Error, { id: number; payload: ImageUpdatePayload }>({
     mutationFn: ({ id, payload }) => updateImage(id, payload),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["admin-images"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin-hinh-anh"] });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteImage(id),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["admin-images"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin-hinh-anh"] });
     },
   });
 
   const bulkDeleteMutation = useMutation({
     mutationFn: (ids: number[]) => deleteImages(ids),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["admin-images"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin-hinh-anh"] });
     },
   });
 

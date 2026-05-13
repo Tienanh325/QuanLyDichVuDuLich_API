@@ -1,4 +1,4 @@
-export type ImageSortField = "ngayTao" | "altText" | "thuTu";
+export type ImageSortField = "altText" | "thuTu" | "maHinhAnh";
 export type SortOrder = "asc" | "desc";
 export type ViewMode = "grid" | "list";
 export type ImageModalMode = "url" | "upload" | "edit";
@@ -9,7 +9,6 @@ export interface ImageItem {
   altText: string | null;
   isAvatar: 0 | 1;
   thuTu: number;
-  ngayTao: string;
 }
 
 export interface ImageQueryParams {

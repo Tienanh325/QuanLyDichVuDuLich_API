@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicTours } from "../services/tourService";
-import type { TourListItem } from "../services/tourService";
 import baibienImage from "../assets/images/baibien.jpg";
 import {
 

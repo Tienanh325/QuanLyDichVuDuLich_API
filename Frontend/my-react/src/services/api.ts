@@ -26,9 +26,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      // Token hết hạn hoặc không hợp lệ → xóa session
       localStorage.removeItem('travelhub_token');
       localStorage.removeItem('travelhub_session');
+      if (window.location.pathname !== '/dang-nhap') window.location.href = '/dang-nhap';
     }
     return Promise.reject(error);
   },

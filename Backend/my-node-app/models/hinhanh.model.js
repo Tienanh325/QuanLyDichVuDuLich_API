@@ -1,16 +1,15 @@
 const { pool } = require('../config/db');
 
-const SORT_FIELDS = new Set(['ngayTao', 'altText', 'thuTu']);
-
+const SORT_FIELDS = new Set(['altText', 'thuTu']);
 class HinhAnhModel {
     static async getAll(filters = {}) {
         const conditions = [];
         const values = [];
 
         if (filters.search) {
-            conditions.push('(ha.altText LIKE ? OR ha.urlAnh LIKE ? OR dv.ten LIKE ?)');
+            conditions.push('(ha.altText LIKE ? OR ha.urlAnh LIKE ?)');
             const keyword = `%${filters.search}%`;
-            values.push(keyword, keyword, keyword);
+            values.push(keyword, keyword);
         }
 
         if (filters.isAvatar !== undefined && filters.isAvatar !== '') {
@@ -19,46 +18,47 @@ class HinhAnhModel {
         }
 
         const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-        const sortBy = SORT_FIELDS.has(filters.sortBy) ? filters.sortBy : 'ngayTao';
+        const sortBy = SORT_FIELDS.has(filters.sortBy) ? filters.sortBy : 'maHinhAnh';
         const sortOrder = String(filters.sortOrder).toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        const limit = Math.max(parseInt(filters.limit, 10) || 100, 1);
+        const page = Math.max(parseInt(filters.page, 10) || 1, 1);
+        const offset = (page - 1) * limit;
+
+        const [countRows] = await pool.query(`SELECT COUNT(*) AS total FROM HinhAnh ha ${whereClause}`, values);
+        const totalRecords = countRows[0]?.total || 0;
 
         const [rows] = await pool.query(
-            `SELECT ha.*, dv.ten AS tenDichVu
+            `SELECT ha.*
              FROM HinhAnh ha
-             JOIN DichVu dv ON dv.maDichVu = ha.maDichVu
              ${whereClause}
-             ORDER BY ha.${sortBy} ${sortOrder}, ha.maHinhAnh DESC`,
-            values
+             ORDER BY ha.${sortBy} ${sortOrder}, ha.maHinhAnh DESC
+             LIMIT ? OFFSET ?`,
+            [...values, limit, offset]
         );
-        return rows;
+        return { data: rows, totalRecords, totalPages: Math.ceil(totalRecords / limit), currentPage: page };
     }
 
     static async getById(maHinhAnh) {
         const [rows] = await pool.query(
-            `SELECT ha.*, dv.ten AS tenDichVu
+            `SELECT ha.*
              FROM HinhAnh ha
-             JOIN DichVu dv ON dv.maDichVu = ha.maDichVu
              WHERE ha.maHinhAnh = ?`,
             [maHinhAnh]
         );
         return rows[0] || null;
     }
 
-    static async getByDichVu(maDichVu) {
-        const [rows] = await pool.query(
-            `SELECT * FROM HinhAnh WHERE maDichVu = ? ORDER BY isAvatar DESC, thuTu ASC`,
-            [maDichVu]
-        );
-        return rows;
+    static async getByDichVu(_maDichVu) {
+        return [];
     }
 
-    static async create(maDichVu, urlAnh, isAvatar = false, altText = null, thuTu = 0) {
+    static async create(urlAnh, isAvatar = false, altText = null, thuTu = 0) {
         if (isAvatar) {
-            await pool.query(`UPDATE HinhAnh SET isAvatar = 0 WHERE maDichVu = ?`, [maDichVu]);
+            await pool.query(`UPDATE HinhAnh SET isAvatar = 0`);
         }
         const [result] = await pool.query(
-            `INSERT INTO HinhAnh (maDichVu, urlAnh, altText, isAvatar, thuTu) VALUES (?, ?, ?, ?, ?)`,
-            [maDichVu, urlAnh, altText, isAvatar ? 1 : 0, thuTu]
+            `INSERT INTO HinhAnh (urlAnh, altText, isAvatar, thuTu) VALUES (?, ?, ?, ?)`,
+            [urlAnh, altText, isAvatar ? 1 : 0, thuTu]
         );
         return this.getById(result.insertId);
     }
@@ -67,19 +67,17 @@ class HinhAnhModel {
         const existing = await this.getById(maHinhAnh);
         if (!existing) return null;
 
-        const maDichVu = payload.maDichVu ?? existing.maDichVu;
         const isAvatar = payload.isAvatar === true || payload.isAvatar === 1 || payload.isAvatar === '1';
 
         if (isAvatar) {
-            await pool.query(`UPDATE HinhAnh SET isAvatar = 0 WHERE maDichVu = ? AND maHinhAnh <> ?`, [maDichVu, maHinhAnh]);
+            await pool.query(`UPDATE HinhAnh SET isAvatar = 0 WHERE maHinhAnh <> ?`, [maHinhAnh]);
         }
 
         const [result] = await pool.query(
             `UPDATE HinhAnh
-             SET maDichVu = ?, urlAnh = ?, altText = ?, isAvatar = ?, thuTu = ?
+             SET urlAnh = ?, altText = ?, isAvatar = ?, thuTu = ?
              WHERE maHinhAnh = ?`,
             [
-                maDichVu,
                 payload.urlAnh ?? existing.urlAnh,
                 payload.altText ?? null,
                 isAvatar ? 1 : 0,
@@ -91,11 +89,11 @@ class HinhAnhModel {
         return result.affectedRows > 0 ? this.getById(maHinhAnh) : null;
     }
 
-    static async setAvatar(maHinhAnh, maDichVu) {
-        await pool.query(`UPDATE HinhAnh SET isAvatar = 0 WHERE maDichVu = ?`, [maDichVu]);
+    static async setAvatar(maHinhAnh) {
+        await pool.query(`UPDATE HinhAnh SET isAvatar = 0`);
         const [result] = await pool.query(
-            `UPDATE HinhAnh SET isAvatar = 1 WHERE maHinhAnh = ? AND maDichVu = ?`,
-            [maHinhAnh, maDichVu]
+            `UPDATE HinhAnh SET isAvatar = 1 WHERE maHinhAnh = ?`,
+            [maHinhAnh]
         );
         return result.affectedRows > 0;
     }

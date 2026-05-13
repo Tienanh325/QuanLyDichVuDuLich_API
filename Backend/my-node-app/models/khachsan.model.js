@@ -32,8 +32,8 @@ class KhachSanModel {
                 `SELECT ks.maKhachSan,
                         ks.maDichVu,
                         ks.viTri,
-                        COALESCE(ks.tenkhachsan, dv.ten) AS ten,
-                        COALESCE(ks.tenkhachsan, dv.ten) AS tenKhachSan,
+                        ks.tenkhachsan AS tenKhachSan,
+                        ks.tenkhachsan AS ten,
                         dv.ten AS tenDichVu,
                         dv.moTa,
                         ncc.ten AS tenNhaCungCap,
@@ -59,8 +59,8 @@ class KhachSanModel {
 
     static async getById(id) {
         const [rows] = await pool.query(
-            `SELECT ks.*, COALESCE(ks.tenkhachsan, dv.ten) AS ten,
-                    COALESCE(ks.tenkhachsan, dv.ten) AS tenKhachSan,
+            `SELECT ks.*, ks.tenkhachsan AS ten,
+                    ks.tenkhachsan AS tenKhachSan,
                     dv.ten AS tenDichVu, dv.moTa, dv.trangThai, ncc.ten AS tenNhaCungCap
              FROM KhachSan ks
              LEFT JOIN DichVu dv ON ks.maDichVu = dv.maDichVu
@@ -71,12 +71,11 @@ class KhachSanModel {
         if (!rows[0]) return null;
 
         const [loaiPhong] = await pool.query(`SELECT * FROM LoaiPhong WHERE maKhachSan = ? ORDER BY giaPhong ASC`, [id]);
-        const [images] = await pool.query(`SELECT * FROM HinhAnh WHERE maDichVu = ? ORDER BY isAvatar DESC, thuTu ASC, maHinhAnh ASC`, [rows[0].maDichVu]);
         const [rating] = await pool.query(
             `SELECT AVG(soSao) AS diemTrungBinh, COUNT(*) AS soLuongDanhGia FROM DanhGia WHERE maDichVu = ?`,
             [rows[0].maDichVu]
         );
-        return { ...rows[0], loaiPhong, hinhAnh: images, danhGia: rating[0] };
+        return { ...rows[0], loaiPhong, hinhAnh: [], danhGia: rating[0] };
     }
 
     static async create(data) {

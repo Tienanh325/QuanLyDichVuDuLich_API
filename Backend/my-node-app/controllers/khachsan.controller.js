@@ -67,7 +67,7 @@ class KhachSanController {
     static async createLoaiPhong(req, res) {
         try {
             const data = { maKhachSan: req.params.id, ...req.body };
-            if (!data.tenLoaiPhong || !data.giaPhong) {
+            if (!data.tenLoaiPhong || data.giaPhong === undefined || data.giaPhong === null) {
                 return res.status(400).json({ status: 'error', data: null, message: 'Tên loại phòng và giá phòng là bắt buộc!' });
             }
             const newLP = await KhachSanModel.createLoaiPhong(data);

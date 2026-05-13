@@ -2,12 +2,13 @@ const HinhAnhModel = require('../models/hinhanh.model');
 const { pool } = require('../config/db');
 const fs = require('fs');
 const path = require('path');
+const listResult = (data) => (data && data.data ? data : { data, totalRecords: data.length, totalPages: 1, currentPage: 1 });
 
 class HinhAnhAdminController {
     static async getAllImages(req, res) {
         try {
             const data = await HinhAnhModel.getAll(req.query);
-            return res.status(200).json({ status: 'success', data, message: 'Danh sách hình ảnh' });
+            return res.status(200).json({ status: 'success', data: listResult(data), message: 'Danh sách hình ảnh' });
         } catch (error) {
             return res.status(500).json({ status: 'error', data: null, message: error.message });
         }
@@ -29,10 +30,7 @@ class HinhAnhAdminController {
             if (!urlAnh) {
                 return res.status(400).json({ status: 'error', data: null, message: 'URL ảnh là bắt buộc!' });
             }
-            // ảnh thuộc về dịch vụ mặc định (ví dụ ID 1) hoặc có thể để null nếu DB cho phép
-            const maDichVu = 1;
             const newImage = await HinhAnhModel.create(
-                maDichVu,
                 String(urlAnh).trim(),
                 isAvatar === 1 || isAvatar === true || isAvatar === '1',
                 altText ? String(altText).trim() || null : null,
@@ -52,10 +50,8 @@ class HinhAnhAdminController {
 
             const { altText, isAvatar, thuTu } = req.body;
             const urlAnh = `/uploads/${req.file.filename}`;
-            const maDichVu = 1;
 
             const newImage = await HinhAnhModel.create(
-                maDichVu,
                 urlAnh,
                 isAvatar === 1 || isAvatar === true || isAvatar === '1',
                 altText ? String(altText).trim() || null : null,

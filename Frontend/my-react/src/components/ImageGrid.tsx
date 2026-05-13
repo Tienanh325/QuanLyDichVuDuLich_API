@@ -13,10 +13,6 @@ interface ImageGridProps {
   onDelete: (image: ImageItem) => void;
 }
 
-function formatDate(value: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "--" : date.toLocaleDateString("vi-VN");
-}
 
 export default function ImageGrid({ images, selectedIds, loading, onToggleSelect, onEdit, onDelete }: ImageGridProps) {
   if (!loading && images.length === 0) {
@@ -33,7 +29,7 @@ export default function ImageGrid({ images, selectedIds, loading, onToggleSelect
             cover={
               <div style={{ height: 180, background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}>
                 <Checkbox checked={selectedIds.includes(item.maHinhAnh)} onChange={(event) => onToggleSelect(item.maHinhAnh, event.target.checked)} style={{ position: "absolute", top: 10, left: 10, zIndex: 1, background: "#fff", borderRadius: 4 }} />
-                <Image src={item.urlAnh} alt={item.altText ?? "Ảnh dịch vụ"} style={{ maxHeight: 180, objectFit: "cover" }} />
+                <Image src={item.urlAnh} alt={item.altText ?? "Ảnh"} style={{ maxHeight: 180, objectFit: "cover" }} />
               </div>
             }
           >
@@ -43,7 +39,7 @@ export default function ImageGrid({ images, selectedIds, loading, onToggleSelect
               </Space>
               <Text strong ellipsis={{ tooltip: item.altText ?? "Không có alt text" }}>{item.altText || "Không có alt text"}</Text>
               <Text type="secondary">Thứ tự: {item.thuTu}</Text>
-              <Text type="secondary">Ngày tạo: {formatDate(item.ngayTao)}</Text>
+              <Text type="secondary">Thứ tự: {item.thuTu}</Text>
               <Space style={{ justifyContent: "flex-end", width: "100%" }}>
                 <Button type="text" icon={<PencilLine size={16} color="#7c3aed" />} onClick={() => onEdit(item)} />
                 <Popconfirm title="Xóa hình ảnh?" description="Bạn có chắc muốn xóa hình ảnh này?" okText="Xóa" cancelText="Hủy" onConfirm={() => onDelete(item)}>

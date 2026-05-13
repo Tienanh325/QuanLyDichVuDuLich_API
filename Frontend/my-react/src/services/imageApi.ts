@@ -1,31 +1,7 @@
-import axios from "axios";
+import api from "./api";
 import type { ImageItem, ImageQueryParams, ImageUrlPayload, ImageUploadPayload, ImageUpdatePayload } from "../types/image";
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
-
-const instance = axios.create({ baseURL: BASE_URL });
-
-instance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("travelhub_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-instance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("travelhub_token");
-      window.location.href = "/dang-nhap";
-    }
-    return Promise.reject(error);
-  }
-);
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
 
 function extractArray(payload: unknown): unknown[] {
   if (Array.isArray(payload)) return payload;
@@ -57,17 +33,18 @@ function normalizeImage(input: unknown, index: number): ImageItem {
     altText: raw.altText == null ? null : String(raw.altText),
     isAvatar: raw.isAvatar === 1 || raw.isAvatar === true || raw.isAvatar === "1" ? 1 : 0,
     thuTu: Number(raw.thuTu ?? raw.order ?? 0),
-    ngayTao: String(raw.ngayTao ?? raw.createdAt ?? new Date().toISOString()),
   };
 }
 
+const IMAGE_BASE = "/api/admin/hinh-anh";
+
 export async function getImages(params?: ImageQueryParams): Promise<ImageItem[]> {
-  const response = await instance.get("/api/admin/images", { params });
+  const response = await api.get(IMAGE_BASE, { params });
   return extractArray(response.data).map(normalizeImage);
 }
 
 export async function createFromUrl(payload: ImageUrlPayload): Promise<ImageItem> {
-  const response = await instance.post("/api/admin/images/url", payload);
+  const response = await api.post(IMAGE_BASE, payload);
   return normalizeImage(response.data?.data ?? response.data, 0);
 }
 
@@ -77,21 +54,21 @@ export async function uploadFile(payload: ImageUploadPayload): Promise<ImageItem
   if (payload.altText !== undefined) form.append("altText", payload.altText ?? "");
   if (payload.isAvatar !== undefined) form.append("isAvatar", String(payload.isAvatar));
   if (payload.thuTu !== undefined) form.append("thuTu", String(payload.thuTu));
-  const response = await instance.post("/api/admin/images/upload", form, {
+  const response = await api.post(`${IMAGE_BASE}/upload`, form, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return normalizeImage(response.data?.data ?? response.data, 0);
 }
 
 export async function updateImage(id: number, payload: ImageUpdatePayload): Promise<ImageItem> {
-  const response = await instance.put(`/api/admin/images/${id}`, payload);
+  const response = await api.put(`${IMAGE_BASE}/${id}`, payload);
   return normalizeImage(response.data?.data ?? response.data, 0);
 }
 
 export async function deleteImage(id: number): Promise<void> {
-  await instance.delete(`/api/admin/images/${id}`);
+  await api.delete(`${IMAGE_BASE}/${id}`);
 }
 
 export async function deleteImages(ids: number[]): Promise<void> {
-  await instance.delete("/api/admin/images/bulk", { data: { ids } });
+  await api.delete(`${IMAGE_BASE}/bulk`, { data: { ids } });
 }

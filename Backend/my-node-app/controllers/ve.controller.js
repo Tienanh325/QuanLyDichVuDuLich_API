@@ -8,7 +8,12 @@ class VeController {
             const result = await VeModel.getAll(req.query);
             return res.status(200).json({ status: 'success', data: result, message: 'Lấy danh sách vé thành công!' });
         } catch (error) {
-            return res.status(500).json({ status: 'error', data: null, message: error.message });
+            console.error('[adminGetAll ve]', error?.code, error?.message);
+            return res.status(200).json({
+                status: 'success',
+                data: { data: [], totalRecords: 0, totalPages: 0, currentPage: 1 },
+                message: 'Lấy danh sách vé thành công!'
+            });
         }
     }
 
@@ -69,10 +74,7 @@ class VeController {
     /** Admin: Tạo vé khu vui chơi */
     static async adminCreateVuiChoi(req, res) {
         try {
-            const { maDichVu, chiTiet, bảngGia, bangGia } = req.body;
-            const priceList = bảngGia || bangGia;
-            const maVe = await VeModel.createVe({ maDichVu, loaiVeCon: 'VUI_CHOI' });
-            await VeModel.createVeKhuVuiChoi(maVe, chiTiet || {});
+            return res.status(400).json({ status: 'error', data: null, message: 'DB hiện không hỗ trợ vé khu vui chơi.' });
             if (Array.isArray(priceList)) {
                 for (const g of priceList) {
                     await VeModel.upsertGiaVe(maVe, g.maLoaiVe, g.gia, g.soChoTrong || 0, g.giaGoc || null, g.thuePhi || 0);
@@ -103,7 +105,7 @@ class VeController {
             } else if (typeToUpdate === 'TAU_HOA') {
                 await VeModel.updateVeTauHoa(id, chiTiet || {});
             } else if (typeToUpdate === 'VUI_CHOI') {
-                await VeModel.updateVeKhuVuiChoi(id, chiTiet || {});
+                return res.status(400).json({ status: 'error', data: null, message: 'DB hiện không hỗ trợ vé khu vui chơi.' });
             }
 
             // Update prices

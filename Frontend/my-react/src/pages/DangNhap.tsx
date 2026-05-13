@@ -2,12 +2,16 @@ import type { CSSProperties, FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, LockKeyhole, ShieldCheck, ShoppingBag, User } from "lucide-react";
-import { clearCurrentSession, loginWithAPI, loginWithEmail } from "../utils/auth";
+import { clearCurrentSession, loginWithAPI } from "../utils/auth";
 import "../assets/css/DangNhap.css";
 
 type RegisterState = {
   registeredEmail?: string;
   registeredMessage?: string;
+};
+
+type LocationState = RegisterState & {
+  from?: string;
 };
 
 
@@ -97,7 +101,7 @@ const primaryButtonStyle: CSSProperties = {
 export default function DangNhap() {
   const navigate = useNavigate();
   const location = useLocation();
-  const registerState = location.state as RegisterState | null;
+  const registerState = location.state as LocationState | null;
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -116,36 +120,12 @@ export default function DangNhap() {
     setSuccessMessage("");
     setIsLoading(true);
 
-    const from = (location.state as any)?.from;
 
     // Thử đăng nhập qua API backend trước
     const apiResult = await loginWithAPI(username, password);
     if (apiResult.ok && apiResult.session) {
       setIsLoading(false);
-      let dest = (apiResult.session.role === "admin" ? "/admin/ThongKe" : "/mua-sam");
-      if (from) {
-        if (apiResult.session.role === "admin" && from.toLowerCase().includes("admin")) {
-           dest = from;
-        } else if (apiResult.session.role === "customer" && !from.toLowerCase().includes("admin")) {
-           dest = from;
-        }
-      }
-      navigate(dest, { replace: true });
-      return;
-    }
-
-    // Fallback: thử login localStorage (admin demo)
-    const localResult = loginWithEmail(username, password);
-    if (localResult.ok) {
-      setIsLoading(false);
-      if (localResult.session.role === "admin") {
-        setErrorMessage("Vui lòng đăng nhập Admin bằng tài khoản thực trên Database để lấy Token thật.");
-        return;
-      }
-      let dest = "/mua-sam";
-      if (from && !from.toLowerCase().includes("admin")) {
-         dest = from;
-      }
+      const dest = apiResult.session.role === "admin" ? "/admin/ThongKe" : "/mua-sam";
       navigate(dest, { replace: true });
       return;
     }

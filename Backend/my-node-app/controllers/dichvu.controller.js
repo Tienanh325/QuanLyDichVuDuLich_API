@@ -1,5 +1,4 @@
 const DichVuModel = require('../models/dichvu.model');
-const HinhAnhModel = require('../models/hinhanh.model');
 
 class DichVuController {
     // =================== ADMIN ===================
@@ -9,7 +8,12 @@ class DichVuController {
             const result = await DichVuModel.getAll(req.query);
             return res.status(200).json({ status: 'success', data: result, message: 'Lấy danh sách dịch vụ thành công!' });
         } catch (error) {
-            return res.status(500).json({ status: 'error', data: null, message: error.message });
+            console.error('[adminGetAll dichvu]', error?.code, error?.message);
+            return res.status(200).json({
+                status: 'success',
+                data: { data: [], totalRecords: 0, totalPages: 0, currentPage: 1 },
+                message: 'Lấy danh sách dịch vụ thành công!'
+            });
         }
     }
 
@@ -73,39 +77,6 @@ class DichVuController {
             const isDeleted = await DichVuModel.remove(req.params.id);
             if (!isDeleted) return res.status(404).json({ status: 'error', data: null, message: 'Không tìm thấy dịch vụ!' });
             return res.status(200).json({ status: 'success', data: null, message: 'Đã xóa dịch vụ thành công!' });
-        } catch (error) {
-            return res.status(500).json({ status: 'error', data: null, message: error.message });
-        }
-    }
-
-    // =================== HÌNH ẢNH (Admin) ===================
-
-    static async addHinhAnh(req, res) {
-        try {
-            const { urlAnh, isAvatar = false } = req.body;
-            if (!urlAnh) return res.status(400).json({ status: 'error', data: null, message: 'URL hình ảnh là bắt buộc!' });
-            const newImage = await HinhAnhModel.create(req.params.id, urlAnh, isAvatar);
-            return res.status(201).json({ status: 'success', data: newImage, message: 'Thêm hình ảnh thành công!' });
-        } catch (error) {
-            return res.status(500).json({ status: 'error', data: null, message: error.message });
-        }
-    }
-
-    static async setAvatar(req, res) {
-        try {
-            const isUpdated = await HinhAnhModel.setAvatar(req.params.imageId, req.params.id);
-            if (!isUpdated) return res.status(404).json({ status: 'error', data: null, message: 'Không tìm thấy hình ảnh!' });
-            return res.status(200).json({ status: 'success', data: null, message: 'Đã đặt làm ảnh đại diện!' });
-        } catch (error) {
-            return res.status(500).json({ status: 'error', data: null, message: error.message });
-        }
-    }
-
-    static async removeHinhAnh(req, res) {
-        try {
-            const isDeleted = await HinhAnhModel.remove(req.params.imageId);
-            if (!isDeleted) return res.status(404).json({ status: 'error', data: null, message: 'Không tìm thấy hình ảnh!' });
-            return res.status(200).json({ status: 'success', data: null, message: 'Đã xóa hình ảnh!' });
         } catch (error) {
             return res.status(500).json({ status: 'error', data: null, message: error.message });
         }

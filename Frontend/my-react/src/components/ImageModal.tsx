@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { UploadFile } from "antd";
-import { Form, Input, InputNumber, Modal, Segmented, Upload, Typography, Image, Space } from "antd";
+import { Alert, Form, Image, Input, InputNumber, Modal, Segmented, Space, Switch, Upload, Typography } from "antd";
 import { UploadCloud } from "lucide-react";
 import type { ImageFormValues, ImageItem, ImageModalMode, ImageUpdatePayload, ImageUploadPayload, ImageUrlPayload } from "../types/image";
 
@@ -82,7 +82,7 @@ export default function ImageModal({ open, mode, editingImage, loading, onClose,
 
       const file = fileList[0]?.originFileObj;
       if (!file) return;
-      await onUploadFile({ file, altText, isAvatar, thuTu });
+      await onUploadFile({ file, altText, thuTu });
       onClose();
     } catch (err) {
       console.error(err);

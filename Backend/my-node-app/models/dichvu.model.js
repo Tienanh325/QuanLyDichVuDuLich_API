@@ -5,14 +5,15 @@ class DichVuModel {
      * Lấy danh sách dịch vụ có phân trang, lọc, tìm kiếm
      */
     static async getAll({ page = 1, limit = 12, sortBy, status, loaiDichVu, search, maNhaCungCap } = {}) {
-        const offset = (page - 1) * limit;
         const queryParams = [];
+        const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+        const limitNum = Math.max(parseInt(limit, 10) || 12, 1);
+        const offsetNum = (pageNum - 1) * limitNum;
         let baseQuery = `
-            FROM DichVu dv
-            LEFT JOIN NhaCungCap ncc ON dv.maNhaCungCap = ncc.maNhaCungCap
-            LEFT JOIN HinhAnh ha ON dv.maDichVu = ha.maDichVu AND ha.isAvatar = 1
-            WHERE 1=1
-        `;
+                FROM DichVu dv
+                LEFT JOIN NhaCungCap ncc ON dv.maNhaCungCap = ncc.maNhaCungCap
+                WHERE 1=1
+            `;
 
         if (status !== undefined && status !== '') {
             baseQuery += ` AND dv.trangThai = ?`;
@@ -24,7 +25,7 @@ class DichVuModel {
         }
         if (maNhaCungCap) {
             baseQuery += ` AND dv.maNhaCungCap = ?`;
-            queryParams.push(parseInt(maNhaCungCap));
+            queryParams.push(parseInt(maNhaCungCap, 10));
         }
         if (search) {
             baseQuery += ` AND (dv.ten LIKE ? OR dv.moTa LIKE ?)`;
@@ -32,17 +33,15 @@ class DichVuModel {
             queryParams.push(s, s);
         }
 
-        const [countResult] = await pool.query(
-            `SELECT COUNT(*) as total ${baseQuery}`,
-            queryParams
-        );
-        const totalRecords = countResult[0].total;
+        const [countResult] = await pool.query(`SELECT COUNT(*) as total ${baseQuery}`, queryParams);
+        const totalRecords = countResult[0]?.total || 0;
 
         const selectFields = `
-            dv.maDichVu, dv.ten, dv.moTa, dv.loaiDichVu,
-            dv.maNhaCungCap, ncc.ten AS tenNhaCungCap,
-            dv.trangThai, ha.urlAnh AS avatar
-        `;
+                dv.maDichVu, dv.ten, dv.moTa, dv.loaiDichVu,
+                dv.maNhaCungCap, ncc.ten AS tenNhaCungCap,
+                dv.trangThai,
+                NULL AS avatar
+            `;
         let dataQuery = `SELECT ${selectFields} ${baseQuery}`;
 
         const allowedSortCols = { maDichVu: 'dv.maDichVu', ten: 'dv.ten', loaiDichVu: 'dv.loaiDichVu' };
@@ -55,16 +54,10 @@ class DichVuModel {
         }
 
         dataQuery += ` LIMIT ? OFFSET ?`;
-        queryParams.push(parseInt(limit), parseInt(offset));
+        queryParams.push(limitNum, offsetNum);
 
         const [rows] = await pool.query(dataQuery, queryParams);
-
-        return {
-            data: rows,
-            totalRecords,
-            totalPages: Math.ceil(totalRecords / limit),
-            currentPage: parseInt(page)
-        };
+        return { data: rows, totalRecords, totalPages: Math.ceil(totalRecords / limitNum), currentPage: pageNum };
     }
 
     /**
@@ -81,13 +74,6 @@ class DichVuModel {
         if (!rows[0]) return null;
 
         const dichvu = rows[0];
-
-        // Lấy hình ảnh
-        const [images] = await pool.query(
-            `SELECT * FROM HinhAnh WHERE maDichVu = ? ORDER BY isAvatar DESC`,
-            [id]
-        );
-        dichvu.hinhAnh = images;
 
         // Lấy thông tin con tùy loaiDichVu
         if (dichvu.loaiDichVu === 'TOUR') {
@@ -186,7 +172,6 @@ class DichVuModel {
                    AVG(dg.soSao) AS diemTrungBinh, COUNT(dg.maDanhGia) AS soLuongDanhGia
             FROM DichVu dv
             LEFT JOIN NhaCungCap ncc ON dv.maNhaCungCap = ncc.maNhaCungCap
-            LEFT JOIN HinhAnh ha ON dv.maDichVu = ha.maDichVu AND ha.isAvatar = 1
             LEFT JOIN DanhGia dg ON dv.maDichVu = dg.maDichVu
             WHERE dv.trangThai = 1
         `;

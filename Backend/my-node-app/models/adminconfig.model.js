@@ -74,21 +74,36 @@ class AdminConfigModel {
         if (status) { query += ` AND trangThai = ?`; params.push(status); }
         if (source) { query += ` AND source = ?`; params.push(source); }
         query += ` ORDER BY ngayTao DESC`;
-        const [rows] = await pool.query(query, params);
-        return rows;
+        try {
+            const [rows] = await pool.query(query, params);
+            return rows;
+        } catch (error) {
+            if (error?.code === 'ER_NO_SUCH_TABLE') return [];
+            throw error;
+        }
     }
 
     static async updateNewsletterStatus(id, trangThai) {
-        const [result] = await pool.query(
-            `UPDATE NewsletterSubscription SET trangThai=? WHERE maDangKy=?`,
-            [trangThai, id]
-        );
-        return result.affectedRows > 0;
+        try {
+            const [result] = await pool.query(
+                `UPDATE NewsletterSubscription SET trangThai=? WHERE maDangKy=?`,
+                [trangThai, id]
+            );
+            return result.affectedRows > 0;
+        } catch (error) {
+            if (error?.code === 'ER_NO_SUCH_TABLE') return false;
+            throw error;
+        }
     }
 
     static async removeNewsletter(id) {
-        const [result] = await pool.query(`DELETE FROM NewsletterSubscription WHERE maDangKy=?`, [id]);
-        return result.affectedRows > 0;
+        try {
+            const [result] = await pool.query(`DELETE FROM NewsletterSubscription WHERE maDangKy=?`, [id]);
+            return result.affectedRows > 0;
+        } catch (error) {
+            if (error?.code === 'ER_NO_SUCH_TABLE') return false;
+            throw error;
+        }
     }
 }
 

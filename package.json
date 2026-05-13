@@ -8,7 +8,8 @@
     "install:all": "npm install && cd Backend/my-node-app && npm install && cd ../../Frontend/my-react && npm install"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.14"
   },
   "dependencies": {
     "multer": "^2.1.1"

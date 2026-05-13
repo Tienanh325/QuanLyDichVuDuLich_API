@@ -31,7 +31,7 @@ export interface TourListItem {
 }
 
 export interface TourDetail extends TourListItem {
-  hinhAnh: { maHinhAnh: number; urlAnh: string; isAvatar: number }[];
+  hinhAnh?: { maHinhAnh: number; urlAnh: string; altText?: string | null; isAvatar: number; thuTu: number }[];
   danhGia: { diemTrungBinh: number | null; soLuongDanhGia: number };
 }
 

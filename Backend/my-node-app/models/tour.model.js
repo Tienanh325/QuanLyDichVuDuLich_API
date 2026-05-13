@@ -8,20 +8,19 @@ class TourModel {
             FROM Tour t
             LEFT JOIN DichVu dv ON t.maDichVu = dv.maDichVu
             LEFT JOIN NhaCungCap ncc ON dv.maNhaCungCap = ncc.maNhaCungCap
-            LEFT JOIN HinhAnh ha ON dv.maDichVu = ha.maDichVu AND ha.isAvatar = 1
-            WHERE dv.trangThai = 1
+            WHERE 1=1
         `;
         if (viTri) { baseQuery += ` AND t.viTri LIKE ?`; queryParams.push(`%${viTri}%`); }
         if (search) {
-            baseQuery += ` AND (dv.ten LIKE ? OR t.viTri LIKE ?)`;
-            const s = `%${search}%`; queryParams.push(s, s);
+            baseQuery += ` AND (t.tenTour LIKE ? OR dv.ten LIKE ? OR t.viTri LIKE ?)`;
+            const s = `%${search}%`; queryParams.push(s, s, s);
         }
 
         const [countResult] = await pool.query(`SELECT COUNT(*) as total ${baseQuery}`, queryParams);
         const totalRecords = countResult[0].total;
 
         const allowedSort = { giaTour: 't.giaTour', ngayBatDau: 't.ngayBatDau', maTour: 't.maTour' };
-        let dataQuery = `SELECT t.*, dv.ten, dv.moTa, dv.loaiDichVu, ncc.ten AS tenNhaCungCap, ha.urlAnh AS avatar ${baseQuery}`;
+        let dataQuery = `SELECT t.*, dv.ten AS tenDichVu, dv.moTa, dv.loaiDichVu, ncc.ten AS tenNhaCungCap ${baseQuery}`;
         if (sortBy) {
             const isDesc = sortBy.startsWith('-');
             const col = isDesc ? sortBy.substring(1) : sortBy;
@@ -36,7 +35,7 @@ class TourModel {
 
     static async getById(id) {
         const [rows] = await pool.query(
-            `SELECT t.*, dv.ten, dv.moTa, dv.trangThai, ncc.ten AS tenNhaCungCap
+            `SELECT t.*, dv.ten AS tenDichVu, dv.moTa, dv.trangThai, ncc.ten AS tenNhaCungCap
              FROM Tour t
              LEFT JOIN DichVu dv ON t.maDichVu = dv.maDichVu
              LEFT JOIN NhaCungCap ncc ON dv.maNhaCungCap = ncc.maNhaCungCap
@@ -44,12 +43,11 @@ class TourModel {
             [id]
         );
         if (!rows[0]) return null;
-        const [images] = await pool.query(`SELECT * FROM HinhAnh WHERE maDichVu = ? ORDER BY isAvatar DESC`, [rows[0].maDichVu]);
         const [rating] = await pool.query(
             `SELECT AVG(soSao) AS diemTrungBinh, COUNT(*) AS soLuongDanhGia FROM DanhGia WHERE maDichVu = ?`,
             [rows[0].maDichVu]
         );
-        return { ...rows[0], hinhAnh: images, danhGia: rating[0] };
+        return { ...rows[0], hinhAnh: [], danhGia: rating[0] };
     }
 
     static async create(data) {
