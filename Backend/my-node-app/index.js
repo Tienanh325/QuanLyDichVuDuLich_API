@@ -88,12 +88,15 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
-    app.listen(PORT, () => {
-        console.log(`🚀 Server đang chạy tại: http://localhost:${PORT}`);
-        connectDB()
-            .then(() => console.log('✅ Database kết nối thành công!'))
-            .catch((err) => console.warn(`⚠️  Database không khả dụng: ${err.message}`));
-    });
+    try {
+        await connectDB();
+        app.listen(PORT, () => {
+            console.log(`🚀 Server đang chạy tại: http://localhost:${PORT}`);
+        });
+    } catch (err) {
+        process.exitCode = 1;
+        console.error('❌ Server không khởi động do lỗi DB');
+    }
 };
 
 startServer();

@@ -1,18 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git -C /d/kienthuc/NAM3/web-doan3/DOAN3 status)",
-      "Bash(git -C /d/kienthuc/NAM3/web-doan3/DOAN3 status --porcelain)",
-      "Bash(git -C /d/kienthuc/NAM3/web-doan3/DOAN3 log --oneline --all -10)",
-      "Bash(git -C /d/kienthuc/NAM3/web-doan3/DOAN3 diff --name-status HEAD~1 HEAD)",
-      "Bash(git -C /d/kienthuc/NAM3/web-doan3/DOAN3 log --oneline --all -- \"Frontend/my-react/src/components/Logo/*\")",
-      "Bash(npm --prefix \"Frontend/my-react\" run build)",
-      "Bash(node --check \"Backend/my-node-app/models/tour.model.js\")",
-      "Bash(node --check \"Backend/my-node-app/controllers/tour.controller.js\")",
-      "Bash(node --check \"Backend/my-node-app/models/khachsan.model.js\")",
-      "Bash(node --check \"Backend/my-node-app/controllers/khachsan.controller.js\")",
-      "Bash(node --check \"Backend/my-node-app/models/ve.model.js\")",
-      "Bash(node --check \"Backend/my-node-app/controllers/ve.controller.js\")"
+      "Bash(git *)",
+      "Bash(npm *)",
+      "Bash(node *)",
+      "PowerShell(git *)",
+      "PowerShell(npm *)",
+      "PowerShell(node *)",
+      "PowerShell(node --check \"Backend/my-node-app/index.js\")",
+      "PowerShell(node --check \"Backend/my-node-app/routes/admin.routes.js\")",
+      "PowerShell(node --check \"Backend/my-node-app/controllers/hinhanhadmin.controller.js\")"
     ]
   }
 }

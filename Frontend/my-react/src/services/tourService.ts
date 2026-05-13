@@ -5,19 +5,33 @@ import api from './api';
 export interface TourListItem {
   maTour: number;
   maDichVu: number;
-  viTri: string;
-  thoiGian: string;
+  maDanhMuc: number | null;
+  tenTour: string | null;
+  diaDiem: string | null;
+  viTri: string | null;
+  viTriKhoiHanh: string | null;
+  moTaHoatDong: string | null;
+  thoiGian: string | null;
   giaTour: number;
-  ngayBatDau: string;
+  giaGoc: number | null;
+  giaKhuyenMai: number | null;
+  ngayBatDau: string | null;
   soLuongKhach: number;
+  diemDanhGia: number;
+  soLuotDanhGia: number;
+  highlight: string | null;
+  isBestSeller: number;
+  chinhSachHuy: string | null;
+  xacNhanTucThi: number;
   ten: string;
   moTa: string;
-  tenNhaCungCap: string;
+  loaiDichVu: string;
+  tenNhaCungCap: string | null;
   avatar: string | null;
 }
 
 export interface TourDetail extends TourListItem {
-  hinhAnh: { maHinhAnh: number; urlAnh: string; isAvatar: boolean }[];
+  hinhAnh: { maHinhAnh: number; urlAnh: string; isAvatar: number }[];
   danhGia: { diemTrungBinh: number | null; soLuongDanhGia: number };
 }
 

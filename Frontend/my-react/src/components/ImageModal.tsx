@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { UploadFile } from "antd";
-import { Form, Input, InputNumber, Modal, Segmented, Switch, Upload, Typography, Image, Space, Alert } from "antd";
+import { Form, Input, InputNumber, Modal, Segmented, Upload, Typography, Image, Space } from "antd";
 import { UploadCloud } from "lucide-react";
 import type { ImageFormValues, ImageItem, ImageModalMode, ImageUpdatePayload, ImageUploadPayload, ImageUrlPayload } from "../types/image";
 
@@ -36,12 +36,11 @@ export default function ImageModal({ open, mode, editingImage, loading, onClose,
         urlAnh: editingImage.urlAnh,
         altText: editingImage.altText ?? "",
         thuTu: editingImage.thuTu,
-        isAvatar: editingImage.isAvatar === 1,
       });
       setPreviewUrl(editingImage.urlAnh);
     } else {
       form.resetFields();
-      form.setFieldsValue({ isAvatar: false, thuTu: 0 });
+      form.setFieldsValue({ thuTu: 0 });
     }
   }, [editingImage, form, mode, open]);
 
@@ -63,13 +62,12 @@ export default function ImageModal({ open, mode, editingImage, loading, onClose,
     try {
       const values = await form.validateFields();
       const altText = values.altText?.trim() || null;
-      const isAvatar = values.isAvatar ? 1 : 0;
       const thuTu = Number(values.thuTu ?? 0);
 
       if (isEdit && editingImage) {
         const urlAnh = values.urlAnh?.trim();
         if (!urlAnh) return;
-        await onUpdate(editingImage.maHinhAnh, { urlAnh, altText, isAvatar, thuTu });
+        await onUpdate(editingImage.maHinhAnh, { urlAnh, altText, thuTu });
         onClose();
         return;
       }
@@ -77,7 +75,7 @@ export default function ImageModal({ open, mode, editingImage, loading, onClose,
       if (flow === "url") {
         const urlAnh = values.urlAnh?.trim();
         if (!urlAnh) return;
-        await onCreateUrl({ urlAnh, altText, isAvatar, thuTu });
+        await onCreateUrl({ urlAnh, altText, thuTu });
         onClose();
         return;
       }

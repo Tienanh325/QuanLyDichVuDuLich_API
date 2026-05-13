@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
 import type { CSSProperties } from "react";
-import { Badge, Button, Card, Empty, Image, Input, Popconfirm, Select, Segmented, Space, Table, Tag, Typography, message } from "antd";
+import { Badge, Button, Card, Empty, Image, Input, Popconfirm, Segmented, Space, Table, Typography, message } from "antd";
 import type { TableProps } from "antd";
 import { Image as ImageIcon, LayoutGrid, List, PencilLine, Trash2, UploadCloud } from "lucide-react";
 import ImageGrid from "../components/ImageGrid";
 import ImageModal from "../components/ImageModal";
 import { useImages, useMutateImage } from "../hooks/useImages";
-import type { ImageItem, ImageModalMode, ImageQueryParams, ImageSortField, SortOrder, ViewMode } from "../types/image";
+import type { ImageItem, ImageModalMode, ImageQueryParams, ViewMode } from "../types/image";
 
 const { Title, Text } = Typography;
 
@@ -14,22 +14,9 @@ const pageContainerStyle: CSSProperties = { padding: 24, background: "linear-gra
 const cardStyle: CSSProperties = { borderRadius: 20, border: "1px solid #eceef5", boxShadow: "0 18px 45px rgba(15, 23, 42, 0.06)" };
 const statCardStyle: CSSProperties = { ...cardStyle, height: "100%", background: "#ffffff" };
 
-const sortOptions: { label: string; value: ImageSortField }[] = [
-  { label: "Ngày tạo", value: "ngayTao" },
-  { label: "Alt text", value: "altText" },
-  { label: "Thứ tự", value: "thuTu" },
-];
-
-function formatDate(value: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "--" : date.toLocaleDateString("vi-VN");
-}
 
 export default function ImageAdmin() {
   const [searchText, setSearchText] = useState("");
-  const [avatarOnly, setAvatarOnly] = useState(false);
-  const [sortBy, setSortBy] = useState<ImageSortField>("ngayTao");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -37,17 +24,15 @@ export default function ImageAdmin() {
   const [editingImage, setEditingImage] = useState<ImageItem | null>(null);
 
   const queryParams = useMemo<ImageQueryParams>(() => ({
-    isAvatar: avatarOnly ? 1 : undefined,
     search: searchText.trim() || undefined,
-  }), [avatarOnly, searchText]);
+  }), [searchText]);
 
   const { data = [], isLoading, isFetching, refetch } = useImages(queryParams);
   const mutations = useMutateImage();
 
   const stats = useMemo(() => ({
-    total: data.length,
-    avatar: data.filter((item) => item.isAvatar === 1).length,
-    normal: data.filter((item) => item.isAvatar === 0).length,
+    fromUrl: data.filter((item) => !item.urlAnh.startsWith("/uploads/")).length,
+    fromDevice: data.filter((item) => item.urlAnh.startsWith("/uploads/")).length,
     selected: selectedIds.length,
   }), [data, selectedIds]);
 
@@ -95,32 +80,6 @@ export default function ImageAdmin() {
       render: (value: string, record) => <Image src={value} alt={record.altText ?? "Ảnh dịch vụ"} width={72} height={54} style={{ objectFit: "cover", borderRadius: 8 }} />,
     },
     {
-      title: "Alt text",
-      dataIndex: "altText",
-      key: "altText",
-      sorter: true,
-      sortOrder: sortBy === "altText" ? (sortOrder === "asc" ? "ascend" : "descend") : null,
-      render: (value: string | null) => <Text>{value || "--"}</Text>,
-    },
-    { title: "Avatar", dataIndex: "isAvatar", key: "isAvatar", width: 110, render: (value: 0 | 1) => value === 1 ? <Tag color="gold">Avatar</Tag> : <Tag>Ảnh phụ</Tag> },
-    {
-      title: "Thứ tự",
-      dataIndex: "thuTu",
-      key: "thuTu",
-      width: 110,
-      sorter: true,
-      sortOrder: sortBy === "thuTu" ? (sortOrder === "asc" ? "ascend" : "descend") : null,
-    },
-    {
-      title: "Ngày tạo",
-      dataIndex: "ngayTao",
-      key: "ngayTao",
-      width: 140,
-      sorter: true,
-      sortOrder: sortBy === "ngayTao" ? (sortOrder === "asc" ? "ascend" : "descend") : null,
-      render: (value: string) => formatDate(value),
-    },
-    {
       title: "Thao tác",
       key: "actions",
       align: "center",
@@ -136,14 +95,8 @@ export default function ImageAdmin() {
     },
   ];
 
-  const handleTableChange: TableProps<ImageItem>["onChange"] = (_pagination, _filters, sorter) => {
-    if (Array.isArray(sorter)) return;
-    const field = sorter.field;
-    if (field === "ngayTao" || field === "altText" || field === "thuTu") {
-      setSortBy(field);
-      setSortOrder(sorter.order === "ascend" ? "asc" : "desc");
-    }
-  };
+  const handleTableChange: TableProps<ImageItem>["onChange"] = () => {};
+
 
   return (
     <div style={pageContainerStyle}>
@@ -151,7 +104,7 @@ export default function ImageAdmin() {
         <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
           <div>
             <Title level={3} style={{ margin: 0, color: "#182338" }}>Quản lý hình ảnh</Title>
-            <Text style={{ color: "#7d869c" }}>Quản lý thư viện ảnh dịch vụ, avatar, thứ tự hiển thị và mô tả ảnh.</Text>
+            <Text style={{ color: "#7d869c" }}>Quản lý thư viện ảnh và mô tả ảnh.</Text>
           </div>
           <Space wrap>
             <Button icon={<ImageIcon size={16} />} onClick={openCreateUrl}>Thêm URL</Button>
@@ -160,9 +113,8 @@ export default function ImageAdmin() {
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
-          <Card style={statCardStyle}><Space align="start"><Badge color="#7c3aed" /><div><Text type="secondary">Tổng ảnh</Text><Title level={3} style={{ margin: "4px 0 0" }}>{stats.total}</Title></div></Space></Card>
-          <Card style={statCardStyle}><Space align="start"><Badge color="#f59e0b" /><div><Text type="secondary">Ảnh avatar</Text><Title level={3} style={{ margin: "4px 0 0" }}>{stats.avatar}</Title></div></Space></Card>
-          <Card style={statCardStyle}><Space align="start"><Badge color="#2563eb" /><div><Text type="secondary">Ảnh phụ</Text><Title level={3} style={{ margin: "4px 0 0" }}>{stats.normal}</Title></div></Space></Card>
+          <Card style={statCardStyle}><Space align="start"><Badge color="#7c3aed" /><div><Text type="secondary">Tổng ảnh từ URL</Text><Title level={3} style={{ margin: "4px 0 0" }}>{stats.fromUrl}</Title></div></Space></Card>
+          <Card style={statCardStyle}><Space align="start"><Badge color="#2563eb" /><div><Text type="secondary">Tổng ảnh từ máy</Text><Title level={3} style={{ margin: "4px 0 0" }}>{stats.fromDevice}</Title></div></Space></Card>
           <Card style={statCardStyle}><Space align="start"><Badge color="#16a34a" /><div><Text type="secondary">Đã chọn</Text><Title level={3} style={{ margin: "4px 0 0" }}>{stats.selected}</Title></div></Space></Card>
         </div>
 
@@ -175,9 +127,6 @@ export default function ImageAdmin() {
               </div>
               <Space wrap>
                 <Input allowClear placeholder="Tìm alt text..." value={searchText} onChange={(event) => setSearchText(event.target.value)} style={{ width: 220 }} />
-                <Select value={avatarOnly ? "avatar" : "all"} style={{ width: 150 }} onChange={(value) => setAvatarOnly(value === "avatar")} options={[{ label: "Tất cả ảnh", value: "all" }, { label: "Chỉ avatar", value: "avatar" }]} />
-                <Select value={sortBy} style={{ width: 140 }} onChange={(value) => setSortBy(value)} options={sortOptions} />
-                <Segmented value={sortOrder} onChange={(value) => setSortOrder(value as SortOrder)} options={[{ label: "Tăng", value: "asc" }, { label: "Giảm", value: "desc" }]} />
                 <Segmented value={viewMode} onChange={(value) => setViewMode(value as ViewMode)} options={[{ label: <LayoutGrid size={16} />, value: "grid" }, { label: <List size={16} />, value: "list" }]} />
                 <Popconfirm title="Xóa nhiều ảnh?" description={`Bạn có chắc muốn xóa ${selectedIds.length} ảnh đã chọn?`} okText="Xóa" cancelText="Hủy" disabled={selectedIds.length === 0} onConfirm={() => void handleBulkDelete()}>
                   <Button danger disabled={selectedIds.length === 0 || mutations.isBulkDeleting}>Xóa đã chọn</Button>

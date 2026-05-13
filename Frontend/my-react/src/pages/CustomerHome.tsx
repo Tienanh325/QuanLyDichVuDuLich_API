@@ -1,6 +1,9 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getPublicTours } from "../services/tourService";
+import type { TourListItem } from "../services/tourService";
 import baibienImage from "../assets/images/baibien.jpg";
 import {
 
@@ -147,6 +150,11 @@ export default function CustomerHome() {
   const [activitySearch, setActivitySearch] = useState("");
 
   const homeFlightReturnDate = dayjs().add(3, "day").format("YYYY-MM-DD");
+  const { data: tourResponse } = useQuery({
+    queryKey: ["public-tours-home"],
+    queryFn: () => getPublicTours({ limit: 4 }),
+  });
+  const inspiredDestinations = (tourResponse?.data ?? []).slice(0, 4);
   const [departDate, setDepartDate] = useState<dayjs.Dayjs>(dayjs());
   const [trainDepartDate, setTrainDepartDate] = useState<dayjs.Dayjs>(dayjs());
 
@@ -492,25 +500,20 @@ export default function CustomerHome() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
-            {[
-              { name: "Đà Nẵng", count: "1,240 PROPERTIES", img: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=500&q=80" },
-              { name: "Bali", count: "2,450 PROPERTIES", img: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=500&q=80" },
-              { name: "Tokyo", count: "3,120 PROPERTIES", img: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=500&q=80" },
-              { name: "Dubai", count: "980 PROPERTIES", img: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=500&q=80" },
-            ].map(dest => (
-              <div key={dest.name} style={{ cursor: 'pointer' }}>
-                <div style={{ 
-                  height: 320, 
-                  borderRadius: 16, 
-                  overflow: 'hidden', 
+            {inspiredDestinations.map((dest) => (
+              <div key={dest.maTour} style={{ cursor: 'pointer' }}>
+                <div style={{
+                  height: 320,
+                  borderRadius: 16,
+                  overflow: 'hidden',
                   marginBottom: 16,
-                  backgroundImage: `url(${dest.img})`,
+                  backgroundImage: `url(${dest.avatar || 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=500&q=80'})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   transition: 'transform 0.3s ease'
                 }} />
-                <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px 0' }}>{dest.name}</h3>
-                <p style={{ fontSize: 13, color: '#64748b', margin: 0, fontWeight: 500, letterSpacing: 0.5 }}>{dest.count}</p>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px 0' }}>{dest.diaDiem || dest.viTri || dest.tenTour || 'Điểm đến'}</h3>
+                <p style={{ fontSize: 13, color: '#64748b', margin: 0, fontWeight: 500, letterSpacing: 0.5 }}>{dest.highlight || dest.moTaHoatDong || ''}</p>
               </div>
             ))}
           </div>

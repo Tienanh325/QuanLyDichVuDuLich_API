@@ -2,49 +2,59 @@ const { pool } = require('../config/db');
 
 class KhachSanModel {
     static async getAll({ page = 1, limit = 10, search, viTri } = {}) {
-        const offset = (page - 1) * limit;
+        const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+        const limitNum = Math.max(parseInt(limit, 10) || 10, 1);
+        const offset = (pageNum - 1) * limitNum;
         const whereParams = [];
         let whereClause = `WHERE dv.trangThai = 1`;
 
-        if (viTri) { whereClause += ` AND ks.viTri LIKE ?`; whereParams.push(`%${viTri}%`); }
+        if (viTri) {
+            whereClause += ` AND ks.viTri LIKE ?`;
+            whereParams.push(`%${viTri}%`);
+        }
         if (search) {
             whereClause += ` AND (dv.ten LIKE ? OR ks.viTri LIKE ? OR ks.tenkhachsan LIKE ?)`;
-            const s = `%${search}%`; whereParams.push(s, s, s);
+            const s = `%${search}%`;
+            whereParams.push(s, s, s);
         }
 
-        const [[{ total }]] = await pool.query(
-            `SELECT COUNT(*) as total
-             FROM KhachSan ks
-             LEFT JOIN DichVu dv ON ks.maDichVu = dv.maDichVu
-             LEFT JOIN NhaCungCap ncc ON dv.maNhaCungCap = ncc.maNhaCungCap
-             LEFT JOIN HinhAnh ha ON dv.maDichVu = ha.maDichVu AND ha.isAvatar = 1
-             ${whereClause}`,
-            whereParams
-        );
-        const totalRecords = total;
+        try {
+            const [[{ total }]] = await pool.query(
+                `SELECT COUNT(*) as total
+                 FROM KhachSan ks
+                 LEFT JOIN DichVu dv ON ks.maDichVu = dv.maDichVu
+                 ${whereClause}`,
+                whereParams
+            );
 
-        const dataParams = [...whereParams, parseInt(limit), parseInt(offset)];
-        const [rows] = await pool.query(
-            `SELECT ks.maKhachSan, ks.maDichVu, ks.viTri,
-                    COALESCE(ks.tenkhachsan, dv.ten) AS ten,
-                    COALESCE(ks.tenkhachsan, dv.ten) AS tenKhachSan,
-                    dv.ten AS tenDichVu, dv.moTa,
-                    ncc.ten AS tenNhaCungCap,
-                    ha.urlAnh AS avatar,
-                    MIN(lp.giaPhong) AS giaTuKhoang
-             FROM KhachSan ks
-             LEFT JOIN DichVu dv ON ks.maDichVu = dv.maDichVu
-             LEFT JOIN NhaCungCap ncc ON dv.maNhaCungCap = ncc.maNhaCungCap
-             LEFT JOIN HinhAnh ha ON dv.maDichVu = ha.maDichVu AND ha.isAvatar = 1
-             LEFT JOIN LoaiPhong lp ON ks.maKhachSan = lp.maKhachSan AND lp.soLuongPhongTrong > 0
-             ${whereClause}
-             GROUP BY ks.maKhachSan, ks.maDichVu, ks.viTri, ks.tenkhachsan, dv.ten, dv.moTa, ncc.ten, ha.urlAnh
-             ORDER BY ks.maKhachSan DESC
-             LIMIT ? OFFSET ?`,
-            dataParams
-        );
+            const dataParams = [...whereParams, limitNum, offset];
+            const [rows] = await pool.query(
+                `SELECT ks.maKhachSan,
+                        ks.maDichVu,
+                        ks.viTri,
+                        COALESCE(ks.tenkhachsan, dv.ten) AS ten,
+                        COALESCE(ks.tenkhachsan, dv.ten) AS tenKhachSan,
+                        dv.ten AS tenDichVu,
+                        dv.moTa,
+                        ncc.ten AS tenNhaCungCap,
+                        NULL AS avatar,
+                        (SELECT MIN(lp.giaPhong) FROM LoaiPhong lp WHERE lp.maKhachSan = ks.maKhachSan AND lp.soLuongPhongTrong > 0) AS giaTuKhoang
+                 FROM KhachSan ks
+                 LEFT JOIN DichVu dv ON ks.maDichVu = dv.maDichVu
+                 LEFT JOIN NhaCungCap ncc ON dv.maNhaCungCap = ncc.maNhaCungCap
+                 ${whereClause}
+                 ORDER BY ks.maKhachSan DESC
+                 LIMIT ? OFFSET ?`,
+                dataParams
+            );
 
-        return { data: rows, totalRecords, totalPages: Math.ceil(totalRecords / limit), currentPage: parseInt(page) };
+            return { data: rows, totalRecords: total, totalPages: Math.ceil(total / limitNum), currentPage: pageNum };
+        } catch (err) {
+            console.error('❌ KhachSanModel.getAll failed');
+            console.error(`   code: ${err.code || 'UNKNOWN'}`);
+            console.error(`   message: ${err.message}`);
+            throw err;
+        }
     }
 
     static async getById(id) {
@@ -61,7 +71,7 @@ class KhachSanModel {
         if (!rows[0]) return null;
 
         const [loaiPhong] = await pool.query(`SELECT * FROM LoaiPhong WHERE maKhachSan = ? ORDER BY giaPhong ASC`, [id]);
-        const [images] = await pool.query(`SELECT * FROM HinhAnh WHERE maDichVu = ? ORDER BY isAvatar DESC`, [rows[0].maDichVu]);
+        const [images] = await pool.query(`SELECT * FROM HinhAnh WHERE maDichVu = ? ORDER BY isAvatar DESC, thuTu ASC, maHinhAnh ASC`, [rows[0].maDichVu]);
         const [rating] = await pool.query(
             `SELECT AVG(soSao) AS diemTrungBinh, COUNT(*) AS soLuongDanhGia FROM DanhGia WHERE maDichVu = ?`,
             [rows[0].maDichVu]

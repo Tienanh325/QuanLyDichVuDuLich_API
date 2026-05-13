@@ -39,7 +39,6 @@ export default function ImageGrid({ images, selectedIds, loading, onToggleSelect
           >
             <Space direction="vertical" size={8} style={{ width: "100%" }}>
               <Space wrap>
-                {item.isAvatar === 1 && <Tag color="gold">Avatar</Tag>}
                 <Tag>#{item.maHinhAnh}</Tag>
               </Space>
               <Text strong ellipsis={{ tooltip: item.altText ?? "Không có alt text" }}>{item.altText || "Không có alt text"}</Text>
