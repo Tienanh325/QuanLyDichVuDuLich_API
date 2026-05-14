@@ -1,14 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git *)",
-      "Bash(npm *)",
-      "Bash(node *)",
-      "Bash(node --check *)",
-      "PowerShell(git *)",
-      "PowerShell(npm *)",
-      "PowerShell(node *)",
-      "PowerShell(node --check *)"
+      "Bash(*)",
+      "PowerShell(*)",
+      "Read(*)",
+      "Edit(*)",
+      "Write(*)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\TienAnh\\.claude"
     ]
   }
 }
