@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { getCurrentSession } from '../utils/auth';
 import SidebarAdmin from '../components/Sidebar/SidebarAdmin';
@@ -8,6 +8,7 @@ export default function AdminLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const mainRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const session = getCurrentSession();
@@ -17,6 +18,10 @@ export default function AdminLayout() {
       navigate('/mua-sam', { replace: true });
     }
   }, [navigate, location]);
+
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname]);
 
   const session = getCurrentSession();
   if (!session || session.role !== 'admin') {
@@ -28,9 +33,9 @@ export default function AdminLayout() {
       <SidebarAdmin collapsed={collapsed} setCollapsed={setCollapsed} />
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <HeaderBar />
-        <main style={{ flex: 1, minWidth: 0, overflow: 'auto', background:'#ededed' }}>
+        <main ref={mainRef} style={{ flex: 1, minWidth: 0, overflow: 'auto', background:'#ededed' }}>
           <Outlet />
-        </main> 
+        </main>
       </div>
     </div>
   );

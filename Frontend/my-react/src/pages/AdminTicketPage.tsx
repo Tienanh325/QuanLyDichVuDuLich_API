@@ -1,19 +1,10 @@
-import { useMemo, useState } from "react";
-import dayjs from "dayjs";
+import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
-import {
-  Badge,
-  Button,
-  Card,
-  Drawer,
-  Modal,
-  Select,
-  Space,
-  Table,
-  Tabs,
-  Typography,
-} from "antd";
-import { CircleDollarSign, Clock3, FileText, Filter, Plane, ShieldCheck, Ticket, Trash2 } from "lucide-react";
+import api from "../services/api";
+import axios from "axios";
+import dayjs from "dayjs";
+import { Badge, Button, Card, Drawer, Input, Modal, Select, Space, Table, Tabs, Typography, message } from "antd";
+import { CircleDollarSign, Clock3, FileText, Filter, Plane, ShieldCheck, Ticket, Trash2, Search } from "lucide-react";
 
 const { Title, Text } = Typography;
 
@@ -42,22 +33,129 @@ interface TicketItem {
   TenVe: string;
   danhGia: number;
 }
-interface AdminTicketPageProps { category: TicketCategory; title: string; description: string; }
+
+interface AdminTicketPageProps {
+  category: TicketCategory;
+  title: string;
+  description: string;
+}
 
 const currencyFormatter = new Intl.NumberFormat("vi-VN");
 const formatCurrency = (value: number) => `${currencyFormatter.format(value)} đ`;
-const inferStatus = (item: Pick<TicketItem, "trangThai" | "ngayKhoiHanh" | "soChoTrong">): TicketStatus => { const status = String(item.trangThai ?? "").toUpperCase(); if (status.includes("CANCEL")) return "cancelled"; if (item.soChoTrong <= 0 || status.includes("SOLD")) return "soldout"; if (dayjs(item.ngayKhoiHanh).isAfter(dayjs(), "day")) return "upcoming"; return "available"; };
+const inferStatus = (item: Pick<TicketItem, "trangThai" | "ngayKhoiHanh" | "soChoTrong">): TicketStatus => {
+  const status = String(item.trangThai ?? "").toUpperCase();
+  if (status.includes("CANCEL")) return "cancelled";
+  if (item.soChoTrong <= 0 || status.includes("SOLD")) return "soldout";
+  if (dayjs(item.ngayKhoiHanh).isAfter(dayjs(), "day")) return "upcoming";
+  return "available";
+};
 
-export default function AdminTicketPage({ title, description }: AdminTicketPageProps) {
-  const [data] = useState<TicketItem[]>([]);
+const mockData: TicketItem[] = [];
+const extractArray = (p: unknown): unknown[] => {
+  if (Array.isArray(p)) return p;
+  if (typeof p === "object" && p !== null) {
+    const o = p as Record<string, unknown>;
+    const candidates = [o.data, o.items, (o.data as Record<string, unknown> | undefined)?.data, (o.data as Record<string, unknown> | undefined)?.items];
+    for (const c of candidates) if (Array.isArray(c)) return c;
+  }
+  return [];
+};
+const inferType = (v: Record<string, unknown>): TicketType => {
+  const raw = String(v.loaiVeCon ?? v.loaiVe ?? v.type ?? "").toUpperCase();
+  if (raw.includes("TAU")) return "TAU_HOA";
+  if (raw.includes("VUI")) return "VUI_CHOI";
+  return "MAY_BAY";
+};
+const toTicketItem = (v: any): TicketItem => {
+  const loaiVeCon = inferType(v);
+  const tenHienThi = String(v.hangHangKhong ?? v.hangTau ?? v.tenNhaCungCap ?? v.tenDichVu ?? v.soHieuChuyenBay ?? v.soHieuChuyenTau ?? v.tenVe ?? `Vé ${v.maVe ?? ""}`);
+  return {
+    maVe: Number(v.maVe ?? v.id ?? v.ma ?? 0),
+    maDichVu: Number(v.maDichVu ?? v.serviceId ?? 0),
+    loaiVeCon,
+    trangThai: v.trangThai ?? v.status ?? "",
+    tenHienThi,
+    originalPrice: Number(v.thuePhiSanBay ?? v.gia ?? v.price ?? 0),
+    promo: String(v.goiGia ?? v.loaiChoMacDinh ?? v.promo ?? ""),
+    ngayTao: String(v.ngayTao ?? v.createdAt ?? v.thoiGianKhoiHanh ?? v.departureTime ?? ""),
+    ngayCapNhat: String(v.ngayCapNhat ?? v.updatedAt ?? v.thoiGianKhoiHanh ?? v.departureTime ?? ""),
+    diemKhoiHanh: String(v.diemKhoiHanh ?? v.departurePoint ?? v.noiDi ?? ""),
+    diemDen: String(v.diemDen ?? v.destination ?? v.noiDen ?? ""),
+    ngayKhoiHanh: String(v.thoiGianKhoiHanh ?? v.departureTime ?? v.ngayKhoiHanh ?? ""),
+    gia: Number(v.gia ?? v.thuePhiSanBay ?? v.price ?? 0),
+    soChoTrong: Number(v.soChoTrong ?? v.tongSoCho ?? v.soDiemDung ?? 0),
+    hang: String(v.hangHangKhong ?? v.hangTau ?? v.tenNhaCungCap ?? v.tenDichVu ?? ""),
+    LoaiVeID: Number(v.LoaiVeID ?? v.loaiVeId ?? v.loaiVeID ?? 0),
+    TenVe: String(v.soHieuChuyenBay ?? v.soHieuChuyenTau ?? v.tenVe ?? tenHienThi ?? ""),
+    danhGia: Number(v.danhGia ?? 0),
+  };
+};
+const isRecent = (date: string, filter: TimeFilter) => {
+  const d = dayjs(date);
+  if (filter === "today") return d.isSame(dayjs(), "day");
+  if (filter === "7d") return d.isAfter(dayjs().subtract(7, "day"));
+  if (filter === "30d") return d.isAfter(dayjs().subtract(30, "day"));
+  return true;
+};
+export default function AdminTicketPage({ title, description, category }: AdminTicketPageProps) {
+  const pageType: TicketType | null = category === "flight" ? "MAY_BAY" : category === "train" ? "TAU_HOA" : category === "park" ? "VUI_CHOI" : null;
+  const isValidTicket = (v: TicketItem) => v.maVe > 0 && [v.tenHienThi, v.TenVe, v.hang, v.diemKhoiHanh, v.diemDen].some(Boolean);
+  const matchesPageCategory = (v: TicketItem) => !pageType || v.loaiVeCon === pageType;
+
+  const [data, setData] = useState<TicketItem[]>(mockData);
+  const [loading, setLoading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("7d");
   const [editingItem] = useState<TicketItem | null>(null);
   const [managingTicket] = useState<TicketItem | null>(null);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<TicketCategory>("all");
 
-  const scopedData = useMemo(() => data, [data]);
-  const stats = useMemo(() => ({ total: scopedData.length, available: scopedData.filter((item) => inferStatus(item) === "available").length, soldout: scopedData.filter((item) => inferStatus(item) === "soldout").length, cancelled: scopedData.filter((item) => inferStatus(item) === "cancelled").length, sold: scopedData.length, revenue: 0, today: 12, week: 84, month: 310 }), [scopedData]);
+  const load = async () => {
+    setLoading(true);
+    try {
+      const [allResp] = await Promise.all([
+        api.get("/api/admin/ve", { params: { limit: 1000 } }),
+      ]);
+      const all = extractArray(allResp.data)
+        .map((v) => toTicketItem(v))
+        .filter((v): v is TicketItem => isValidTicket(v) && matchesPageCategory(v));
+      setData(all);
+    } catch (e) {
+      message.warning(axios.isAxiosError(e) ? "Không kết nối được API thống kê." : "Lỗi tải dữ liệu thống kê.");
+      setData(mockData);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { void load(); }, []);
+
+  const scopedData = useMemo(() => data.filter((item: TicketItem) => category === "all" ? true : category === "flight" ? item.loaiVeCon === "MAY_BAY" : category === "train" ? item.loaiVeCon === "TAU_HOA" : item.loaiVeCon === "VUI_CHOI"), [data, category]);
+
+  const filtered = useMemo(() => {
+    const kw = search.trim().toLowerCase();
+    return scopedData.filter((it) => {
+      const matchesCategory = categoryFilter === "all"
+        || (categoryFilter === "flight" && it.loaiVeCon === "MAY_BAY")
+        || (categoryFilter === "train" && it.loaiVeCon === "TAU_HOA")
+        || (categoryFilter === "park" && it.loaiVeCon === "VUI_CHOI");
+      const matchesSearch = !kw || [it.tenHienThi, it.TenVe, it.diemKhoiHanh, it.diemDen, it.hang].join(" ").toLowerCase().includes(kw);
+      return matchesCategory && matchesSearch;
+    });
+  }, [scopedData, search, categoryFilter]);
+
+  const recentCount = useMemo(() => scopedData.filter((item) => isRecent(item.ngayKhoiHanh, timeFilter)).length, [scopedData, timeFilter]);
+
+  const stats = useMemo(() => {
+    const total = scopedData.length;
+    const available = scopedData.filter((item: TicketItem) => inferStatus(item) === "available").length;
+    const soldout = scopedData.filter((item: TicketItem) => inferStatus(item) === "soldout").length;
+    const cancelled = scopedData.filter((item: TicketItem) => inferStatus(item) === "cancelled").length;
+    return { total, available, soldout, cancelled, sold: total, revenue: scopedData.reduce((sum: number, i: TicketItem) => sum + (i.gia || i.originalPrice || 0), 0), today: 12, week: 84, month: 310 };
+  }, [scopedData]);
+
   const reportRows = useMemo(() => [
     { label: "Vé máy bay", revenue: formatCurrency(124500000), cancelRate: "6.2%", completeRate: "91.8%" },
     { label: "Vé tàu hoả", revenue: formatCurrency(84500000), cancelRate: "3.1%", completeRate: "95.4%" },
@@ -70,23 +168,56 @@ export default function AdminTicketPage({ title, description }: AdminTicketPageP
   ], []);
 
   const cardStyle: CSSProperties = { borderRadius: 20, border: "1px solid #eceef5", boxShadow: "0 18px 45px rgba(15, 23, 42, 0.06)" };
-  
+
   return (
     <div style={{ padding: 24, background: "linear-gradient(180deg, #f7f8fc 0%, #f2f4f8 100%)", minHeight: "100%" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-          <div><Title level={3} style={{ margin: 0 }}>{title}</Title><Text type="secondary">{description} · {timeFilter}</Text></div>
-          <Space wrap><Select value={timeFilter} onChange={setTimeFilter} style={{ width: 150 }} options={[{ value: "today", label: "Hôm nay" }, { value: "7d", label: "7 ngày" }, { value: "30d", label: "30 ngày" }, { value: "custom", label: "Custom" }]} /><Button icon={<Filter size={16} />}>Filter</Button></Space>
+          <div><Title level={3} style={{ margin: 0 }}>{title}</Title><Text type="secondary">{description} · {timeFilter} · {recentCount} gần đây</Text></div>
+          <Space wrap>
+            <Select value={timeFilter} onChange={setTimeFilter} style={{ width: 150 }} options={[{ value: "today", label: "Hôm nay" }, { value: "7d", label: "7 ngày" }, { value: "30d", label: "30 ngày" }, { value: "custom", label: "Custom" }]} />
+            <Select value={categoryFilter} onChange={setCategoryFilter} style={{ width: 150 }} options={[{ value: "all", label: "Tất cả" }, { value: "flight", label: "Máy bay" }, { value: "train", label: "Tàu hoả" }, { value: "park", label: "Vui chơi" }]} />
+            <Button icon={<Filter size={16} />}>Filter</Button>
+          </Space>
         </div>
+
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
-          {[{ label: "Tổng vé đã bán", value: stats.sold, icon: <Ticket size={16} color="#7c3aed" /> }, { label: "Tổng doanh thu", value: formatCurrency(stats.revenue), icon: <CircleDollarSign size={16} color="#16a34a" /> }, { label: "Vé còn lại", value: stats.available, icon: <Badge color="#16a34a" /> }, { label: "Vé đã sử dụng", value: stats.sold, icon: <ShieldCheck size={16} color="#2563eb" /> }, { label: "Vé hủy", value: stats.cancelled, icon: <Trash2 size={16} color="#ef4444" /> }, { label: "Đặt mới", value: `${stats.today} / ${stats.week} / ${stats.month}`, icon: <Clock3 size={16} color="#f59e0b" /> }].map((item) => <Card key={item.label} style={{ ...cardStyle, background: "#fff" }}><Space align="start"><div>{item.icon}</div><div><Text type="secondary">{item.label}</Text><Title level={3} style={{ margin: "4px 0 0" }}>{item.value}</Title></div></Space></Card>)}</div>
-        <>
+          {[{ label: "Tổng vé đã bán", value: stats.sold, icon: <Ticket size={16} color="#7c3aed" /> }, { label: "Tổng doanh thu", value: formatCurrency(stats.revenue), icon: <CircleDollarSign size={16} color="#16a34a" /> }, { label: "Vé còn lại", value: stats.available, icon: <Badge color="#16a34a" /> }, { label: "Vé đã sử dụng", value: stats.sold, icon: <ShieldCheck size={16} color="#2563eb" /> }, { label: "Vé hủy", value: stats.cancelled, icon: <Trash2 size={16} color="#ef4444" /> }, { label: "Đặt mới", value: `${stats.today} / ${stats.week} / ${stats.month}`, icon: <Clock3 size={16} color="#f59e0b" /> }].map((item) => <Card key={item.label} style={{ ...cardStyle, background: "#fff" }}><Space align="start"><div>{item.icon}</div><div><Text type="secondary">{item.label}</Text><Title level={3} style={{ margin: "4px 0 0" }}>{item.value}</Title></div></Space></Card>)}
+        </div>
+
         <div style={{ display: "grid", gridTemplateColumns: "1.1fr .9fr", gap: 16 }}>
-          <Card style={cardStyle}><Space direction="vertical" size={12} style={{ width: "100%" }}><Space><Plane size={18} color="#2563eb" /><Title level={4} style={{ margin: 0 }}>Dashboard tổng quan</Title></Space><div style={{ border: "1px dashed #dbe2ef", borderRadius: 16, minHeight: 180, display: "grid", placeItems: "center" }}>Biểu đồ doanh thu / thị phần</div></Space></Card>
+          <Card style={cardStyle}><Space size={12} style={{ width: "100%" }}><Plane size={18} color="#2563eb" /><Title level={4} style={{ margin: 0 }}>Dashboard tổng quan</Title></Space><div style={{ border: "1px dashed #dbe2ef", borderRadius: 16, minHeight: 180, display: "grid", placeItems: "center" }}>Biểu đồ doanh thu / thị phần</div></Card>
           <Card style={cardStyle}><Space direction="vertical" size={12} style={{ width: "100%" }}><Space><FileText size={18} color="#7c3aed" /><Title level={4} style={{ margin: 0 }}>Báo cáo tổng hợp</Title></Space><Space wrap><Button type="primary">Export Excel</Button><Button>Export PDF</Button></Space><Table rowKey="label" pagination={false} size="small" dataSource={reportRows} columns={[{ title: "Loại vé", dataIndex: "label" }, { title: "Doanh thu", dataIndex: "revenue" }, { title: "Tỷ lệ hủy", dataIndex: "cancelRate" }, { title: "Tỷ lệ hoàn thành", dataIndex: "completeRate" }]} /><div style={{ borderTop: "1px solid #eef2f7", paddingTop: 12 }}><Text strong>Top tuyến phổ biến</Text><Table rowKey="label" pagination={false} size="small" dataSource={topRoutes} columns={[{ title: "Tuyến", dataIndex: "label" }, { title: "Loại", dataIndex: "type" }, { title: "Lượt bán", dataIndex: "count" }, { title: "Doanh thu", dataIndex: "revenue" }]} /></div></Space></Card>
         </div>
-       </>
-     </div>
+
+        <Card style={cardStyle}>
+          <Space direction="vertical" size={12} style={{ width: "100%" }}>
+            <Space>
+              <Search size={18} color="#2563eb" />
+              <Title level={4} style={{ margin: 0 }}>Danh sách vé</Title>
+            </Space>
+            <Space wrap>
+              <Input allowClear placeholder="Tìm vé..." value={search} onChange={e => setSearch(e.target.value)} style={{ width: 260 }} />
+              <Button icon={<Filter size={16} />}>Lọc</Button>
+            </Space>
+            <Table<TicketItem>
+              rowKey="maVe"
+              loading={loading}
+              dataSource={filtered}
+              pagination={{ pageSize: 10, showSizeChanger: false }}
+              columns={[
+                { title: "Tên", dataIndex: "tenHienThi" },
+                { title: "Loại", dataIndex: "loaiVeCon" },
+                { title: "Hành trình", render: (_, r) => `${r.diemKhoiHanh} → ${r.diemDen}` },
+                { title: "Khởi hành", dataIndex: "ngayKhoiHanh", render: (v: string) => dayjs(v).format("DD/MM/YYYY HH:mm") },
+                { title: "Giá", dataIndex: "gia", render: (v: number) => formatCurrency(v) },
+                { title: "Chỗ", dataIndex: "soChoTrong" },
+              ]}
+            />
+          </Space>
+        </Card>
+      </div>
+
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} width={760} title={editingItem ? "Cập nhật vé" : "Thêm vé"}>
         <Tabs items={[{ key: "ticket", label: "Thông tin vé", children: <div /> }, { key: "detail", label: "Chi tiết loại vé", children: <div /> }, { key: "service", label: "Giá & tiện ích", children: <div /> }]} />
       </Drawer>

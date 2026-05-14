@@ -10,9 +10,10 @@
 
 
 * { box-sizing: border-box; }
-html, body, #root { min-height: 100%; margin: 0; font-family: "Roboto", ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: #0f172a; }
+html, body, #root { min-height: 100%; margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: #0f172a; }
 body { overflow-x: hidden; overflow-y: auto; }
-body, button, input, select, textarea { font-family: "Roboto", ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+body, button, input, select, textarea { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+body, #root, .app-root, .customer-layout, .customer-layout__main, .home-customer, .hotel-customer, .flight-customer, .casr-page, .ctsr-page { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
 
 /* small helpers */
 .app-root { min-height: 100vh; }
@@ -39,8 +40,8 @@ body, button, input, select, textarea { font-family: "Roboto", ui-sans-serif, sy
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: "Roboto", system-ui, 'Segoe UI', sans-serif;
-  --heading: "Roboto", system-ui, 'Segoe UI', sans-serif;
+  --sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --heading: 'Segoe UI', system-ui, -apple-system, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);

@@ -146,29 +146,33 @@ function extractArray(p: unknown): unknown[] {
 }
 
 function normalize(raw: Record<string, unknown>, idx: number): FlightItem {
+  const hangHangKhong = String(raw.hangHangKhong ?? raw.airline ?? raw.brand ?? raw.tenNhaCungCap ?? raw.tenDichVu ?? "");
+  const soHieuChuyenBay = String(raw.soHieuChuyenBay ?? raw.flightNo ?? raw.soHieu ?? raw.tenVe ?? "");
+  const diemKhoiHanh = String(raw.diemKhoiHanh ?? raw.departurePoint ?? raw.diembaydi ?? raw.noiDi ?? "");
+  const diemDen = String(raw.diemDen ?? raw.destination ?? raw.diembayden ?? raw.noiDen ?? "");
   return {
-    maVe: Number(raw.maVe ?? raw.id ?? idx + 1),
-    hangHangKhong: String(raw.hangHangKhong ?? raw.airline ?? raw.brand ?? ""),
+    maVe: Number(raw.maVe ?? raw.id ?? raw.ma ?? idx + 1),
+    hangHangKhong,
     logoHang: raw.logoHang ? String(raw.logoHang) : null,
-    soHieuChuyenBay: String(raw.soHieuChuyenBay ?? raw.flightNo ?? ""),
-    hangVe: String(raw.hangVe ?? raw.ticketClass ?? "Phổ thông"),
+    soHieuChuyenBay,
+    hangVe: String(raw.hangVe ?? raw.ticketClass ?? raw.loaiVe ?? "Phổ thông"),
     goiGia: raw.goiGia ? String(raw.goiGia) : null,
-    diemKhoiHanh: String(raw.diemKhoiHanh ?? raw.departurePoint ?? ""),
+    diemKhoiHanh,
     maSanBayDi: raw.maSanBayDi ? String(raw.maSanBayDi) : null,
     tenSanBayDi: raw.tenSanBayDi ? String(raw.tenSanBayDi) : null,
-    diemDen: String(raw.diemDen ?? raw.destination ?? ""),
+    diemDen,
     maSanBayDen: raw.maSanBayDen ? String(raw.maSanBayDen) : null,
     tenSanBayDen: raw.tenSanBayDen ? String(raw.tenSanBayDen) : null,
-    thoiGianKhoiHanh: String(raw.thoiGianKhoiHanh ?? raw.departureTime ?? dayjs().format("YYYY-MM-DDTHH:mm:ss")),
+    thoiGianKhoiHanh: String(raw.thoiGianKhoiHanh ?? raw.departureTime ?? raw.ngayKhoiHanh ?? dayjs().format("YYYY-MM-DDTHH:mm:ss")),
     thoiGianDen: raw.thoiGianDen ? String(raw.thoiGianDen) : null,
     thoiLuongPhut: raw.thoiLuongPhut == null ? null : Number(raw.thoiLuongPhut),
-    soDiemDung: Number(raw.soDiemDung ?? 0),
+    soDiemDung: Number(raw.soDiemDung ?? raw.soChoTrong ?? 0),
     hanhLyXachTay: raw.hanhLyXachTay ? String(raw.hanhLyXachTay) : null,
     hanhLyKyGui: raw.hanhLyKyGui ? String(raw.hanhLyKyGui) : null,
     suatAn: raw.suatAn ? String(raw.suatAn) : null,
     giaiTri: raw.giaiTri ? String(raw.giaiTri) : null,
     dieuKienVe: raw.dieuKienVe ? String(raw.dieuKienVe) : null,
-    thuePhiSanBay: Number(raw.thuePhiSanBay ?? 0),
+    thuePhiSanBay: Number(raw.thuePhiSanBay ?? raw.gia ?? raw.price ?? 0),
   };
 }
 
@@ -190,7 +194,7 @@ export default function AdminVeMayBay() {
   const load = async () => {
     setLoading(true);
     try {
-      const tickets = await api.get(FLIGHT_API, { params: { limit: 1000 } }).then(r => extractArray(r.data).map((x, i) => normalize(x as Record<string, unknown>, i)));
+      const tickets = await api.get("/api/admin/ve", { params: { limit: 1000 } }).then(r => extractArray(r.data).map((x, i) => normalize(x as Record<string, unknown>, i)).filter((v: FlightItem) => [v.soHieuChuyenBay, v.hangHangKhong, v.diemKhoiHanh, v.diemDen].some(Boolean)));
       setData(tickets.length > 0 ? tickets : mockData);
       setIsMock(tickets.length === 0);
       if (tickets.length === 0) message.info("API chưa trả dữ liệu, đang hiển thị dữ liệu mẫu.");

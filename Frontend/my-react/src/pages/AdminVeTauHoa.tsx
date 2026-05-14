@@ -110,16 +110,20 @@ function extractArray(p: unknown): unknown[] {
 }
 
 function normalize(raw: Record<string, unknown>, idx: number): TrainItem {
+  const hangTau = String(raw.hangTau ?? raw.airline ?? raw.brand ?? raw.tenNhaCungCap ?? raw.tenDichVu ?? "");
+  const soHieuChuyenTau = String(raw.soHieuChuyenTau ?? raw.trainNo ?? raw.soHieu ?? raw.tenVe ?? "");
+  const diemKhoiHanh = String(raw.diemKhoiHanh ?? raw.departurePoint ?? raw.diembaydi ?? raw.noiDi ?? "");
+  const diemDen = String(raw.diemDen ?? raw.destination ?? raw.diembayden ?? raw.noiDen ?? "");
   return {
-    maVe: Number(raw.maVe ?? raw.id ?? idx + 1),
-    hangTau: String(raw.hangTau ?? raw.airline ?? raw.brand ?? ""),
+    maVe: Number(raw.maVe ?? raw.id ?? raw.ma ?? idx + 1),
+    hangTau,
     nhaVanHanh: raw.nhaVanHanh ? String(raw.nhaVanHanh) : null,
-    soHieuChuyenTau: String(raw.soHieuChuyenTau ?? raw.trainNo ?? ""),
-    diemKhoiHanh: String(raw.diemKhoiHanh ?? raw.departurePoint ?? ""),
+    soHieuChuyenTau,
+    diemKhoiHanh,
     gaKhoiHanh: raw.gaKhoiHanh ? String(raw.gaKhoiHanh) : null,
-    diemDen: String(raw.diemDen ?? raw.destination ?? ""),
+    diemDen,
     gaDen: raw.gaDen ? String(raw.gaDen) : null,
-    thoiGianKhoiHanh: String(raw.thoiGianKhoiHanh ?? raw.departureTime ?? dayjs().format("YYYY-MM-DDTHH:mm:ss")),
+    thoiGianKhoiHanh: String(raw.thoiGianKhoiHanh ?? raw.departureTime ?? raw.ngayKhoiHanh ?? dayjs().format("YYYY-MM-DDTHH:mm:ss")),
     thoiGianDen: raw.thoiGianDen ? String(raw.thoiGianDen) : null,
     thoiLuongPhut: raw.thoiLuongPhut == null ? null : Number(raw.thoiLuongPhut),
     loaiChoMacDinh: raw.loaiChoMacDinh ? String(raw.loaiChoMacDinh) : null,
@@ -151,7 +155,7 @@ export default function AdminVeTauHoa() {
   const load = async () => {
     setLoading(true);
     try {
-      const tickets = await api.get(TRAIN_API, { params: { limit: 1000 } }).then(r => extractArray(r.data).map((x, i) => normalize(x as Record<string, unknown>, i)));
+      const tickets = await api.get("/api/admin/ve", { params: { limit: 1000 } }).then(r => extractArray(r.data).map((x, i) => normalize(x as Record<string, unknown>, i)).filter((v: TrainItem) => [v.soHieuChuyenTau, v.hangTau, v.diemKhoiHanh, v.diemDen].some(Boolean)));
       setData(tickets.length > 0 ? tickets : mockData);
       setIsMock(tickets.length === 0);
       if (tickets.length === 0) message.info("API chưa trả dữ liệu, đang hiển thị dữ liệu mẫu.");
@@ -274,8 +278,8 @@ export default function AdminVeTauHoa() {
   };
 
   const columns: TableProps<TrainItem>["columns"] = [
-    { title: "Tên vé", key: "ten", render: (_, r) => <div><div style={{ fontWeight: 700, color: "#1f2a44" }}>{r.hangTau}</div><Text style={{ color: "#7d869c", fontSize: 13 }}>Mã vé: {r.maVe}</Text></div> },
-    { title: "Chuyến tàu", key: "train", render: (_, r) => <div><div style={{ fontWeight: 600 }}>{r.soHieuChuyenTau}</div><div style={{ color: "#7d869c", fontSize: 13 }}>{r.nhaVanHanh ?? "--"}</div></div> },
+    { title: "Hãng tàu", key: "ten", render: (_, r) => <div><div style={{ fontWeight: 700, color: "#1f2a44" }}>{r.hangTau}</div><Text style={{ color: "#7d869c", fontSize: 13 }}>Mã vé: {r.maVe}</Text></div> },
+    { title: "Số hiệu", key: "train", render: (_, r) => <div><div style={{ fontWeight: 600 }}>{r.soHieuChuyenTau}</div><div style={{ color: "#7d869c", fontSize: 13 }}>{r.nhaVanHanh ?? "--"}</div></div> },
     { title: "Hành trình", key: "route", render: (_, r) => <div><Space size={6}><MapPinned size={14} color="#2563eb" /><Text>{r.diemKhoiHanh}</Text></Space><div style={{ color: "#7d869c", fontSize: 13, marginTop: 4 }}>Đến: {r.diemDen}</div></div> },
     { title: "Ga", key: "station", render: (_, r) => <div><div style={{ color: "#1f2a44", fontWeight: 600 }}>{r.gaKhoiHanh ?? "--"}</div><div style={{ color: "#7d869c", fontSize: 12 }}>{r.gaDen ?? "--"}</div></div> },
     { title: "Khởi hành", key: "date", render: (_, r) => <div><div style={{ color: "#1f2a44", fontWeight: 600 }}>{fmtDate(r.thoiGianKhoiHanh)}</div><div style={{ color: "#7d869c", fontSize: 12 }}>{r.thoiGianDen ? fmtDate(r.thoiGianDen) : "--"}</div></div> },

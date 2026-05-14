@@ -499,22 +499,30 @@ export default function CustomerHome() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
-            {inspiredDestinations.map((dest) => (
-              <div key={dest.maTour} style={{ cursor: 'pointer' }}>
-                <div style={{
-                  height: 320,
-                  borderRadius: 16,
-                  overflow: 'hidden',
-                  marginBottom: 16,
-                  backgroundImage: `url(${dest.avatar || 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=500&q=80'})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  transition: 'transform 0.3s ease'
-                }} />
-                <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px 0' }}>{dest.diaDiem || dest.viTri || dest.tenTour || 'Điểm đến'}</h3>
-                <p style={{ fontSize: 13, color: '#64748b', margin: 0, fontWeight: 500, letterSpacing: 0.5 }}>{dest.highlight || dest.moTaHoatDong || ''}</p>
-              </div>
-            ))}
+            {inspiredDestinations.map((dest) => {
+              const destination = dest.diaDiem || dest.viTri || dest.tenTour || 'Điểm đến';
+              return (
+                <button
+                  key={dest.maTour}
+                  type="button"
+                  onClick={() => navigate(`/mua-sam/ket-qua-hoat-dong?q=${encodeURIComponent(destination)}`)}
+                  style={{ cursor: 'pointer', border: 'none', background: 'transparent', padding: 0, textAlign: 'left' }}
+                >
+                  <div style={{
+                    height: 320,
+                    borderRadius: 16,
+                    overflow: 'hidden',
+                    marginBottom: 16,
+                    backgroundImage: `url(${dest.avatar || 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=500&q=80'})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    transition: 'transform 0.3s ease'
+                  }} />
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px 0' }}>{destination}</h3>
+                  <p style={{ fontSize: 13, color: '#64748b', margin: 0, fontWeight: 500, letterSpacing: 0.5 }}>{dest.highlight || dest.moTaHoatDong || ''}</p>
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>
