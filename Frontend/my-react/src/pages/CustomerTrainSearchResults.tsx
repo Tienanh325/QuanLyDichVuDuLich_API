@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import "../assets/css/CustomerTrainSearchResults.css";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowRight, ChevronDown, ChevronUp, Clock, Filter, Wifi, Wind, Utensils, SlidersHorizontal } from "lucide-react";
+import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Clock, Filter, Wifi, Wind, Utensils, SlidersHorizontal } from "lucide-react";
+import { searchTauHoa, formatGio, type VeTauHoaResult } from "../services/veService";
+import { clampPage, getPageItems, getPaginationState } from "../utils/pagination";
 
 /* ─── Types ─────────────────────────────────────────────────── */
 type SeatClass = "Ngồi mềm" | "Ngồi cứng" | "Nằm mềm" | "Nằm cứng";
@@ -29,49 +31,27 @@ interface TrainFilters {
   timeSlots: TimeSlot[];
 }
 
-/* ─── Mock API ───────────────────────────────────────────────── */
-function fetchTrainResults(from: string, to: string, _date?: string): Promise<TrainTicket[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        {
-          id: "1", trainCode: "SE1", operator: "SE",
-          from: from || "Hà Nội", to: to || "TP. HCM",
-          departTime: "06:00", arriveTime: "30:00", duration: "30 giờ 00 phút",
-          seatClass: "Nằm mềm", price: 850000, seatsLeft: 12,
-          amenities: ["wifi", "food", "ac"],
-        },
-        {
-          id: "2", trainCode: "SE3", operator: "SE",
-          from: from || "Hà Nội", to: to || "TP. HCM",
-          departTime: "19:30", arriveTime: "25:30", duration: "30 giờ 00 phút",
-          seatClass: "Nằm mềm", price: 780000, seatsLeft: 5,
-          amenities: ["ac", "food"],
-        },
-        {
-          id: "3", trainCode: "TN5", operator: "TN",
-          from: from || "Hà Nội", to: to || "TP. HCM",
-          departTime: "09:00", arriveTime: "35:00", duration: "26 giờ 00 phút",
-          seatClass: "Ngồi mềm", price: 450000, seatsLeft: 30,
-          amenities: ["ac"],
-        },
-        {
-          id: "4", trainCode: "SE5", operator: "SE",
-          from: from || "Hà Nội", to: to || "TP. HCM",
-          departTime: "14:00", arriveTime: "44:00", duration: "30 giờ 00 phút",
-          seatClass: "Nằm cứng", price: 620000, seatsLeft: 18,
-          amenities: ["food", "ac"],
-        },
-        {
-          id: "5", trainCode: "SN1", operator: "SN",
-          from: from || "Hà Nội", to: to || "TP. HCM",
-          departTime: "22:00", arriveTime: "52:00", duration: "30 giờ 00 phút",
-          seatClass: "Ngồi cứng", price: 320000, seatsLeft: 50,
-          amenities: [],
-        },
-      ]);
-    }, 900);
-  });
+function diffMinutes(start: string, end: string) {
+  const diff = new Date(end).getTime() - new Date(start).getTime();
+  return Math.max(0, Math.round(diff / 60000));
+}
+
+function mapTrain(row: VeTauHoaResult): TrainTicket {
+  const minutes = diffMinutes(row.thoiGianKhoiHanh, row.thoiGianDen);
+  return {
+    id: String(row.maVe),
+    trainCode: row.soHieuChuyenTau || row.hangTau || "Tàu",
+    operator: "SE",
+    from: row.diemKhoiHanh,
+    to: row.diemDen,
+    departTime: formatGio(row.thoiGianKhoiHanh),
+    arriveTime: formatGio(row.thoiGianDen),
+    duration: `${Math.floor(minutes / 60)}h ${minutes % 60}m`,
+    seatClass: "Nằm mềm",
+    price: Number(row.giaThapNhat ?? 0),
+    seatsLeft: Number(row.tongSoCho ?? 0),
+    amenities: ["ac"],
+  };
 }
 
 const amenityIcons: Record<string, { icon: React.ElementType; label: string }> = {
@@ -106,9 +86,19 @@ export default function CustomerTrainSearchResults() {
   const fromCity = searchParams.get("from") || "Hà Nội";
   const toCity = searchParams.get("to") || "TP. HCM";
   const date = searchParams.get("date") || new Date().toISOString().slice(0, 10);
+  const currentPage = clampPage(searchParams.get("page"));
+  const pageSize = 5;
 
   const [tickets, setTickets] = useState<TrainTicket[]>([]);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [loading, setLoading] = useState(true);
+  const pagination = getPaginationState(currentPage, pageSize, totalRecords);
+
+  function goToPage(page: number) {
+    const next = new URLSearchParams(location.search);
+    next.set("page", String(page));
+    navigate(`${location.pathname}?${next.toString()}`);
+  }
   const [filters, setFilters] = useState<TrainFilters>({ seatClasses: [], operators: [], timeSlots: [] });
   const [sortKey, setSortKey] = useState<SortKey>("price_asc");
   const [expandedFilters, setExpandedFilters] = useState<Record<string, boolean>>({
@@ -117,11 +107,17 @@ export default function CustomerTrainSearchResults() {
 
   useEffect(() => {
     setLoading(true);
-    fetchTrainResults(fromCity, toCity).then((data) => {
-      setTickets(data);
-      setLoading(false);
-    });
-  }, [fromCity, toCity, date]);
+    searchTauHoa({ diemKhoiHanh: fromCity, diemDen: toCity, ngayKhoiHanh: date, page: currentPage, limit: pageSize })
+      .then((response) => {
+        setTickets(response.data.map(mapTrain));
+        setTotalRecords(response.totalRecords);
+      })
+      .catch(() => {
+        setTickets([]);
+        setTotalRecords(0);
+      })
+      .finally(() => setLoading(false));
+  }, [currentPage, fromCity, toCity, date]);
 
   function toggleFilter<T>(key: keyof TrainFilters, value: T) {
     setFilters((prev) => {
@@ -173,7 +169,7 @@ export default function CustomerTrainSearchResults() {
                 <ArrowRight size={20} className="ctsr-summary-bar__arrow" />
                 <span>{toCity}</span>
               </div>
-              <p className="ctsr-summary-bar__meta">{formattedDate} · {displayedTickets.length} chuyến tàu</p>
+              <p className="ctsr-summary-bar__meta">{formattedDate} · {pagination.totalItems} chuyến tàu</p>
             </div>
             <button onClick={() => navigate("/mua-sam/ve-tau")} className="ctsr-summary-bar__change-btn">
               Đổi tìm kiếm
@@ -266,7 +262,7 @@ export default function CustomerTrainSearchResults() {
             {/* Sort Bar */}
             <div className="ctsr-sort-bar">
               <p className="ctsr-sort-bar__count">
-                Đang hiển thị <span className="ctsr-sort-bar__count-number">{displayedTickets.length}</span> chuyến tàu
+                Đang hiển thị <span className="ctsr-sort-bar__count-number">{pagination.from}-{pagination.to}</span> / {pagination.totalItems} chuyến tàu
               </p>
               <div className="ctsr-sort-bar__controls">
                 <Filter size={16} className="ctsr-sort-bar__filter-icon" />
@@ -304,10 +300,40 @@ export default function CustomerTrainSearchResults() {
             ) : (
               <div className="ctsr-card-list">
                 {displayedTickets.map((ticket) => (
-                  <TrainCard key={ticket.id} ticket={ticket} />
+                  <TrainCard key={ticket.id} ticket={ticket} onSelect={() => navigate(`/mua-sam/chi-tiet-tau/${ticket.id}`)} />
                 ))}
               </div>
             )}
+
+            <div className="ctsr-pagination">
+              <button
+                className={`ctsr-pagination__btn ${!pagination.hasPrev ? "ctsr-pagination__btn--disabled" : ""}`}
+                disabled={!pagination.hasPrev}
+                onClick={() => goToPage(pagination.currentPage - 1)}
+              >
+                <ChevronLeft size={18} />
+              </button>
+              {getPageItems(pagination.currentPage, pagination.totalPages).map((item, index) =>
+                item === "ellipsis" ? (
+                  <span key={`ellipsis-${index}`} className="ctsr-pagination__dots">...</span>
+                ) : (
+                  <button
+                    key={item}
+                    className={`ctsr-pagination__btn ${item === pagination.currentPage ? "ctsr-pagination__btn--active" : ""}`}
+                    onClick={() => goToPage(item)}
+                  >
+                    {item}
+                  </button>
+                ),
+              )}
+              <button
+                className={`ctsr-pagination__btn ${!pagination.hasNext ? "ctsr-pagination__btn--disabled" : ""}`}
+                disabled={!pagination.hasNext}
+                onClick={() => goToPage(pagination.currentPage + 1)}
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -316,7 +342,7 @@ export default function CustomerTrainSearchResults() {
 }
 
 /* ─── TrainCard ──────────────────────────────────────────────── */
-function TrainCard({ ticket }: { ticket: TrainTicket }) {
+function TrainCard({ ticket, onSelect }: { ticket: TrainTicket; onSelect: () => void }) {
   return (
     <div className="ctsr-card">
       <div className="ctsr-card__body">
@@ -378,7 +404,7 @@ function TrainCard({ ticket }: { ticket: TrainTicket }) {
               <span className="ctsr-card__no-amenity">Không có tiện ích bổ sung</span>
             )}
           </div>
-          <button className="ctsr-card__book-btn">Chọn vé</button>
+          <button className="ctsr-card__book-btn" onClick={onSelect}>Chọn vé</button>
         </div>
       </div>
     </div>

@@ -1,0 +1,296 @@
+- generic [ref=e3]:
+  - banner:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "traveloka" [ref=e8] [cursor=pointer]:
+          - /url: /mua-sam
+        - generic [ref=e10]:
+          - link "Đăng nhập" [ref=e11] [cursor=pointer]:
+            - /url: /dang-nhap
+          - link "Đăng ký" [ref=e12] [cursor=pointer]:
+            - /url: /dang-ky
+      - navigation [ref=e13]:
+        - link "Khách sạn" [ref=e14] [cursor=pointer]:
+          - /url: /mua-sam/khach-san
+        - link "Vé máy bay" [ref=e15] [cursor=pointer]:
+          - /url: /mua-sam/ve-may-bay
+        - link "Vé tàu" [ref=e16] [cursor=pointer]:
+          - /url: /mua-sam/ve-tau
+        - link "Tour & Hoạt động" [ref=e17] [cursor=pointer]:
+          - /url: /mua-sam/hoat-dong-vui-choi
+  - main [ref=e18]:
+    - generic [ref=e19]:
+      - generic [ref=e21]:
+        - heading "App du lịch hàng đầu, một chạm đi bất cứ đâu" [level=1] [ref=e23]
+        - generic [ref=e24]:
+          - generic [ref=e25]:
+            - button "Khách sạn" [ref=e26] [cursor=pointer]:
+              - img [ref=e27]
+              - generic [ref=e30]: Khách sạn
+            - button "Vé máy bay" [ref=e31] [cursor=pointer]:
+              - img [ref=e32]
+              - generic [ref=e34]: Vé máy bay
+            - button "Vé tàu" [ref=e35] [cursor=pointer]:
+              - img [ref=e36]
+              - generic [ref=e40]: Vé tàu
+            - button "Tour & Hoạt động" [ref=e41] [cursor=pointer]:
+              - img [ref=e42]
+              - generic [ref=e44]: Tour & Hoạt động
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - generic [ref=e49]: Thành phố, địa điểm hoặc tên khách sạn
+              - generic [ref=e50] [cursor=pointer]:
+                - img [ref=e52]
+                - textbox "Nhập địa điểm" [ref=e56]
+            - generic [ref=e57]:
+              - generic [ref=e58]: Ngày nhận phòng và trả phòng
+              - generic [ref=e59] [cursor=pointer]:
+                - img [ref=e61]
+                - generic [ref=e63]:
+                  - textbox "Start date" [ref=e65]: 14/05/2026
+                  - generic "to" [ref=e67]:
+                    - img "swap-right" [ref=e68]:
+                      - img [ref=e69]
+                  - textbox "End date" [ref=e72]: 15/05/2026
+                  - generic:
+                    - img "calendar":
+                      - img
+            - generic [ref=e73]:
+              - generic [ref=e74]: Số khách
+              - generic [ref=e75] [cursor=pointer]:
+                - img [ref=e77]
+                - textbox "Hãy nhập số người ở" [ref=e82]
+            - button "Tìm khách sạn" [ref=e83] [cursor=pointer]:
+              - img [ref=e84]
+      - generic [ref=e88]:
+        - generic [ref=e89]:
+          - generic [ref=e90]:
+            - heading "Ưu đãi chọn lọc" [level=2] [ref=e91]
+            - paragraph [ref=e92]: Những khuyến mãi tốt nhất dành riêng cho bạn
+          - link "Xem tất cả ưu đãi" [ref=e93] [cursor=pointer]:
+            - /url: "#uu-dai"
+            - text: Xem tất cả ưu đãi
+            - img [ref=e94]
+        - generic [ref=e96]:
+          - generic [ref=e97]:
+            - heading "Mùa Hè Rực Rỡ" [level=3] [ref=e98]
+            - paragraph [ref=e99]: Giảm giá lên đến 45%
+            - button "Nhận mã giảm giá" [ref=e101] [cursor=pointer]
+          - generic [ref=e102]:
+            - generic [ref=e103]:
+              - heading "Khuyến mãi bay toàn cầu" [level=3] [ref=e104]
+              - paragraph [ref=e105]: Tích điểm gấp đôi cho mọi chuyến bay quốc tế.
+            - generic [ref=e106]:
+              - heading "Tour & Hoạt động" [level=3] [ref=e107]
+              - paragraph [ref=e108]: Ưu đãi đặc biệt cho tour và hoạt động vui chơi.
+      - generic [ref=e110]:
+        - generic [ref=e111]:
+          - generic [ref=e112]:
+            - heading "Điểm đến truyền cảm hứng" [level=2] [ref=e113]
+            - paragraph [ref=e114]: Lựa chọn hàng đầu cho chuyến đi sắp tới của bạn
+          - generic [ref=e115]:
+            - button [ref=e116] [cursor=pointer]:
+              - img [ref=e117]
+            - button [ref=e119] [cursor=pointer]:
+              - img [ref=e120]
+        - generic [ref=e122]:
+          - button "Đà Nẵng Cầu Vàng" [ref=e123] [cursor=pointer]:
+            - heading "Đà Nẵng" [level=3] [ref=e125]
+            - paragraph [ref=e126]: Cầu Vàng
+          - button "Phú Quốc Đảo ngọc" [ref=e127] [cursor=pointer]:
+            - heading "Phú Quốc" [level=3] [ref=e129]
+            - paragraph [ref=e130]: Đảo ngọc
+          - button "Hạ Long Du thuyền" [ref=e131] [cursor=pointer]:
+            - heading "Hạ Long" [level=3] [ref=e133]
+            - paragraph [ref=e134]: Du thuyền
+          - button "Nha Trang VinWonders" [ref=e135] [cursor=pointer]:
+            - heading "Nha Trang" [level=3] [ref=e137]
+            - paragraph [ref=e138]: VinWonders
+      - generic [ref=e140]:
+        - generic [ref=e141]:
+          - heading "Chỗ nghỉ đẳng cấp" [level=2] [ref=e142]
+          - paragraph [ref=e143]: Trải nghiệm dịch vụ 5 sao tại những địa điểm tuyệt đẹp nhất
+        - generic [ref=e144]:
+          - generic [ref=e145] [cursor=pointer]:
+            - generic [ref=e146]:
+              - generic [ref=e147]:
+                - generic [ref=e148]: ★
+                - text: "4.9"
+                - generic [ref=e149]: "|"
+                - generic [ref=e150]: 1.2k đánh giá
+              - button [ref=e151]:
+                - img [ref=e152]
+            - generic [ref=e154]:
+              - generic [ref=e155]:
+                - heading "InterContinental Danang Sun Peninsula Resort" [level=3] [ref=e156]
+                - generic [ref=e157]: $420/đêm
+              - generic [ref=e158]:
+                - img [ref=e159]
+                - text: Đà Nẵng, Việt Nam
+          - generic [ref=e163] [cursor=pointer]:
+            - generic [ref=e164]:
+              - generic [ref=e165]:
+                - generic [ref=e166]: ★
+                - text: "4.9"
+                - generic [ref=e167]: "|"
+                - generic [ref=e168]: 2.1k đánh giá
+              - button [ref=e169]:
+                - img [ref=e170]
+            - generic [ref=e172]:
+              - generic [ref=e173]:
+                - heading "Four Seasons Resort Bali at Sayan" [level=3] [ref=e174]
+                - generic [ref=e175]: $650/đêm
+              - generic [ref=e176]:
+                - img [ref=e177]
+                - text: Ubud, Bali
+          - generic [ref=e181] [cursor=pointer]:
+            - generic [ref=e182]:
+              - generic [ref=e183]:
+                - generic [ref=e184]: ★
+                - text: "4.8"
+                - generic [ref=e185]: "|"
+                - generic [ref=e186]: 940 đánh giá
+              - button [ref=e187]:
+                - img [ref=e188]
+            - generic [ref=e190]:
+              - generic [ref=e191]:
+                - heading "Aman Tokyo" [level=3] [ref=e192]
+                - generic [ref=e193]: $850/đêm
+              - generic [ref=e194]:
+                - img [ref=e195]
+                - text: Otemachi, Tokyo
+  - contentinfo [ref=e199]:
+    - generic [ref=e200]:
+      - generic [ref=e201]:
+        - generic [ref=e203]:
+          - heading "Đối tác thanh toán" [level=3] [ref=e204]
+          - generic [ref=e205]:
+            - generic [ref=e207]: Visa
+            - generic [ref=e209]: Mastercard
+            - generic [ref=e211]: JCB
+            - generic [ref=e213]: Amex
+            - generic [ref=e215]: MoMo
+            - generic [ref=e217]: ZaloPay
+            - generic [ref=e219]: VNPAY
+            - generic [ref=e221]: ShopeePay
+            - generic [ref=e223]: ATM
+            - generic [ref=e225]: PayPal
+            - generic [ref=e227]: Apple Pay
+            - generic [ref=e229]: Google Pay
+            - generic [ref=e231]: BIDV
+            - generic [ref=e233]: Vietcombank
+            - generic [ref=e235]: Techcombank
+            - generic [ref=e237]: MB Bank
+            - generic [ref=e239]: ACB
+            - generic [ref=e241]: VPBank
+            - generic [ref=e243]: Sacombank
+            - generic [ref=e245]: TPBank
+        - generic [ref=e246]:
+          - heading "Về Traveloka" [level=3] [ref=e247]
+          - list [ref=e248]:
+            - listitem [ref=e249]:
+              - link "Cách đặt chỗ" [ref=e250] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e251]:
+              - link "Liên hệ chúng tôi" [ref=e252] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e253]:
+              - link "Trợ giúp" [ref=e254] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e255]:
+              - link "Tuyển dụng" [ref=e256] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e257]:
+              - link "Về chúng tôi" [ref=e258] [cursor=pointer]:
+                - /url: "#uu-dai"
+          - generic [ref=e259]:
+            - heading "Theo dõi chúng tôi trên" [level=3] [ref=e260]
+            - list [ref=e261]:
+              - listitem [ref=e262]:
+                - link "Facebook" [ref=e263] [cursor=pointer]:
+                  - /url: "#uu-dai"
+                  - img [ref=e264]
+                  - text: Facebook
+              - listitem [ref=e266]:
+                - link "Instagram" [ref=e267] [cursor=pointer]:
+                  - /url: "#uu-dai"
+                  - img [ref=e268]
+                  - text: Instagram
+              - listitem [ref=e271]:
+                - link "TikTok" [ref=e272] [cursor=pointer]:
+                  - /url: "#uu-dai"
+                  - img [ref=e273]
+                  - text: TikTok
+              - listitem [ref=e276]:
+                - link "Youtube" [ref=e277] [cursor=pointer]:
+                  - /url: "#uu-dai"
+                  - img [ref=e278]
+                  - text: Youtube
+              - listitem [ref=e281]:
+                - link "Telegram" [ref=e282] [cursor=pointer]:
+                  - /url: "#uu-dai"
+                  - img [ref=e283]
+                  - text: Telegram
+        - generic [ref=e286]:
+          - heading "Sản phẩm" [level=3] [ref=e287]
+          - list [ref=e288]:
+            - listitem [ref=e289]:
+              - link "Khách sạn" [ref=e290] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e291]:
+              - link "Vé máy bay" [ref=e292] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e293]:
+              - link "Vé tàu" [ref=e294] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e295]:
+              - link "Tour & Hoạt động" [ref=e296] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e297]:
+              - link "Du thuyền" [ref=e298] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e299]:
+              - link "Biệt thự" [ref=e300] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e301]:
+              - link "Căn hộ" [ref=e302] [cursor=pointer]:
+                - /url: "#uu-dai"
+        - generic [ref=e303]:
+          - heading "Khác" [level=3] [ref=e304]
+          - list [ref=e305]:
+            - listitem [ref=e306]:
+              - link "Traveloka Affiliate" [ref=e307] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e308]:
+              - link "Giới thiệu bạn bè" [ref=e309] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e310]:
+              - link "Traveloka Blog" [ref=e311] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e312]:
+              - link "Chính Sách Quyền Riêng" [ref=e313] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e314]:
+              - link "Điều khoản & Điều kiện" [ref=e315] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e316]:
+              - link "Đăng ký nơi nghỉ của bạn" [ref=e317] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e318]:
+              - link "Đăng ký doanh nghiệp hoạt động du lịch của bạn" [ref=e319] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e320]:
+              - link "Khu vực báo chí" [ref=e321] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e322]:
+              - link "Quy chế hoạt động" [ref=e323] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e324]:
+              - link "Vulnerability Disclosure Program" [ref=e325] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e326]:
+              - link "APAC Travel Insights" [ref=e327] [cursor=pointer]:
+                - /url: "#uu-dai"
+      - generic [ref=e329]:
+        - paragraph [ref=e330]: "Công ty TNHH Traveloka Việt Nam. Mã số doanh nghiệp 0313581779 cấp ngày 18/12/2015 | Địa chỉ: Tòa nhà An Phú, 117 Lý Chính Thắng, Phường Xuân Hòa, TP HCM | Đại diện pháp luật: Lê Minh Tự | Email: cs@traveloka.com | Tel: +84 28 3861 4699"
+        - paragraph [ref=e331]: Copyright © 2026 Traveloka. All rights reserved

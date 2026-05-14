@@ -132,7 +132,7 @@ CREATE TABLE HinhAnh (
   urlAnh VARCHAR(1000) NOT NULL,
   altText VARCHAR(255) NULL,
   isAvatar TINYINT(1) NOT NULL DEFAULT 0,
-  thuTu INT NOT NULL DEFAULT 0,
+  thuTu INT NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ACTIVITY / TOUR UI: danh mục, gói, lịch trình, bao gồm/không bao gồm, lịch khởi hành.
@@ -745,14 +745,14 @@ INSERT INTO DichVu (ten, moTa, loaiDichVu, maNhaCungCap, trangThai, badge, isNoi
 ('Vé Sun World Bà Nà Hills', 'Vé vui chơi trọn ngày', 'VE', 5, 1, 'HOT', 1, 8200);
 
 
-INSERT INTO HinhAnh (maDichVu, urlAnh, altText, isAvatar, thuTu) VALUES
-(1, 'https://ik.imagekit.io/tvlk/blog/2022/02/dia-diem-du-lich-viet-nam-cover.jpeg', 'Tour Đà Nẵng', 1, 1),
-(2, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPWhZeMcqy7_AtFsL_kx_L3t6-zB9k_cxK8Q&s', 'Tour Phú Quốc', 1, 1),
-(3, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvFnQ6H6JJcRsXUhEswTiRypxjaqHg_0unxw&s', 'Tour Hạ Long', 1, 1),
-(4, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiTBDGsqHWp4uEHQLmTs2_BX0T8BZ3OW6DRQ&s', 'Tour Nha Trang', 1, 1),
-(5, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRduzb_h54kmQkyZdiNNSIyulXMH_wUneaP-Q&s', 'Bà Nà Hills', 1, 1),
-(6, '/uploads/1778651540939-611884122.png', 'Null', 0, 1),
-(7, 'https://th.bing.com/th/id/OIP.zhvg3_RvL_nm60HNFk12ZAHaE7?w=242&h=180&c=7&r=0&o=7&pid=1.7&rm=3', 'Null', 0, 0);
+INSERT INTO HinhAnh (urlAnh, altText, isAvatar, thuTu) VALUES
+('https://ik.imagekit.io/tvlk/blog/2022/02/dia-diem-du-lich-viet-nam-cover.jpeg', 'Tour Đà Nẵng', 1, 1),
+('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPWhZeMcqy7_AtFsL_kx_L3t6-zB9k_cxK8Q&s', 'Tour Phú Quốc', 1, 1),
+('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvFnQ6H6JJcRsXUhEswTiRypxjaqHg_0unxw&s', 'Tour Hạ Long', 1, 1),
+('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiTBDGsqHWp4uEHQLmTs2_BX0T8BZ3OW6DRQ&s', 'Tour Nha Trang', 1, 1),
+('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRduzb_h54kmQkyZdiNNSIyulXMH_wUneaP-Q&s', 'Bà Nà Hills', 1, 1),
+('/uploads/1778651540939-611884122.png', 'Null', 0, 1),
+('https://th.bing.com/th/id/OIP.zhvg3_RvL_nm60HNFk12ZAHaE7?w=242&h=180&c=7&r=0&o=7&pid=1.7&rm=3', 'Null', 0, 0);
 
 INSERT INTO DanhMucHoatDong (tenDanhMuc, icon, gradient, moTa, trangThai, thuTu) VALUES
 ('Biển đảo', 'beach', 'blue-cyan', 'Tour biển đảo', 1, 1),

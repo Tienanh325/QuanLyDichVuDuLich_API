@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -27,6 +28,7 @@ import { ConfigProvider, DatePicker } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import viVN from "antd/locale/vi_VN";
+import { getPublicHotels } from "../services/hotelService";
 
 dayjs.locale("vi");
 
@@ -73,74 +75,39 @@ const exclusiveOffers = [
   },
 ] as const;
 
-const accommodationTypes = [
+const roomTypes = [
   {
     id: 1,
-    title: "Khu nghỉ dưỡng",
-    subtitle: "Resort & Spa Luxury",
+    title: "Deluxe Sea View",
+    subtitle: "Phòng hướng biển",
     image: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
   },
   {
     id: 2,
-    title: "Biệt thự",
-    subtitle: "Private Villa Escape",
+    title: "Superior City View",
+    subtitle: "Phòng hướng thành phố",
     image: "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
   },
   {
     id: 3,
-    title: "Căn hộ",
-    subtitle: "Modern Apartment",
+    title: "Family Suite",
+    subtitle: "Phòng gia đình",
     image: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
   },
   {
     id: 4,
-    title: "Boutique Hotel",
-    subtitle: "Unique Stay Experience",
+    title: "Presidential Suite",
+    subtitle: "Phòng tổng thống",
     image: "linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%)",
   },
 ] as const;
 
-const massonryDestinations = [
-  {
-    id: 1,
-    name: "Đà Nẵng",
-    subtitle: "Thành phố biển xinh đẹp",
-    hotels: "2.320 khách sạn",
-    image: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    size: "large",
-  },
-  {
-    id: 2,
-    name: "Hạ Long",
-    subtitle: "Di sản thế giới",
-    hotels: "1.540 khách sạn",
-    image: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-    size: "small",
-  },
-  {
-    id: 3,
-    name: "Hội An",
-    subtitle: "Phố cổ yên bình",
-    hotels: "980 khách sạn",
-    image: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-    size: "small",
-  },
-  {
-    id: 4,
-    name: "TP HCM",
-    subtitle: "Thành phố sôi động",
-    hotels: "2.876 khách sạn",
-    image: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-    size: "small",
-  },
-  {
-    id: 5,
-    name: "TP HCM",
-    subtitle: "Thành phố sôi động",
-    hotels: "2.876 khách sạn",
-    image: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-    size: "small",
-  },
+const destinationGradients = [
+  "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+  "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+  "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+  "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+  "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
 ] as const;
 
 const whyBookWithTraveloka = [
@@ -320,16 +287,44 @@ export default function CustomerHotel() {
     };
   });
   const hotelGuestSummary = hotelForm.guests > 0 ? `${hotelForm.guests}` : "";
+  const { data: landingHotels } = useQuery({
+    queryKey: ["hotel-landing-offers"],
+    queryFn: () => getPublicHotels({ limit: 6 }),
+  });
+  const { data: destinationHotels } = useQuery({
+    queryKey: ["hotel-destination-stats"],
+    queryFn: () => getPublicHotels({ limit: 100 }),
+  });
+  const topHotelDestinations = useMemo(() => {
+    const counts = new Map<string, number>();
+    (destinationHotels?.data ?? []).forEach((hotel) => {
+      const location = hotel.viTri?.trim();
+      if (location) counts.set(location, (counts.get(location) ?? 0) + 1);
+    });
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, count], index) => ({
+        id: name,
+        name,
+        subtitle: "Điểm đến khách sạn nổi bật",
+        hotels: `${count} khách sạn`,
+        image: destinationGradients[index % destinationGradients.length],
+        size: index === 0 ? "large" : "small",
+      }));
+  }, [destinationHotels?.data]);
   const isResultsView = parsedSearch.view === "results";
-  const activeSearchState: HotelSearchState = {
-    ...parsedSearch,
-    view: isResultsView ? "results" : "landing",
-    destination: hotelDestination.name,
-    destinationSubtitle: hotelDestination.subtitle,
-    checkInDate: hotelForm.stay[0].format("YYYY-MM-DD"),
-    checkOutDate: hotelForm.stay[1].format("YYYY-MM-DD"),
-    guests: hotelForm.guests,
-  };
+  const activeSearchState: HotelSearchState = isResultsView
+    ? parsedSearch
+    : {
+        ...parsedSearch,
+        view: "landing",
+        destination: hotelDestination.name,
+        destinationSubtitle: hotelDestination.subtitle,
+        checkInDate: hotelForm.stay[0].format("YYYY-MM-DD"),
+        checkOutDate: hotelForm.stay[1].format("YYYY-MM-DD"),
+        guests: hotelForm.guests,
+      };
   function handleHotelSearch() {
     navigate(
       `/mua-sam/khach-san?${buildHotelSearchQuery({
@@ -448,13 +443,21 @@ export default function CustomerHotel() {
           </div>
 
           <div className="hotel-customer__exclusive-grid">
-            {exclusiveOffers.map((offer) => (
-              <article key={offer.id} className="hotel-customer__exclusive-card">
+            {(landingHotels?.data ?? exclusiveOffers).map((offer: any) => {
+              const id = offer.maKhachSan ?? offer.id;
+              const name = offer.ten ?? offer.name;
+              const location = offer.viTri ?? offer.location;
+              const oldPrice = offer.giaTuKhoang ? Number(offer.giaTuKhoang) * 1.2 : offer.oldPrice;
+              const newPrice = offer.giaTuKhoang ?? offer.newPrice;
+              const rating = offer.rating ?? 4.8;
+              const reviews = offer.reviews ?? 0;
+              return (
+              <article key={id} className="hotel-customer__exclusive-card" onClick={() => navigate(`/mua-sam/khach-san/${id}`)} style={{ cursor: 'pointer' }}>
                 <div
                   className="hotel-customer__exclusive-image"
-                  style={{ backgroundImage: offer.image }}
+                  style={{ backgroundImage: offer.image ?? "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" }}
                 >
-                  <span className="hotel-customer__discount-badge">{offer.discount}%</span>
+                  <span className="hotel-customer__discount-badge">{offer.discount ?? 15}%</span>
                   <button
                     type="button"
                     className="hotel-customer__favorite-btn"
@@ -464,35 +467,35 @@ export default function CustomerHotel() {
                   </button>
                 </div>
                 <div className="hotel-customer__exclusive-info">
-                  <h3>{offer.name}</h3>
-                  <p className="hotel-customer__location">{offer.location}</p>
+                  <h3>{name}</h3>
+                  <p className="hotel-customer__location">{location}</p>
                   <div className="hotel-customer__rating">
                     <div className="hotel-customer__stars">
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star
                           key={i}
                           size={14}
-                          className={i < Math.floor(offer.rating) ? "is-filled" : ""}
-                          fill={i < Math.floor(offer.rating) ? "#fbbf24" : "none"}
-                          color={i < Math.floor(offer.rating) ? "#fbbf24" : "#d1d5db"}
+                          className={i < Math.floor(rating) ? "is-filled" : ""}
+                          fill={i < Math.floor(rating) ? "#fbbf24" : "none"}
+                          color={i < Math.floor(rating) ? "#fbbf24" : "#d1d5db"}
                         />
                       ))}
                     </div>
                     <span className="hotel-customer__reviews">
-                      {offer.rating} ({offer.reviews} đánh giá)
+                      {rating} ({reviews} đánh giá)
                     </span>
                   </div>
                   <div className="hotel-customer__price">
                     <span className="hotel-customer__old-price">
-                      {new Intl.NumberFormat("vi-VN").format(offer.oldPrice)}đ
+                      {new Intl.NumberFormat("vi-VN").format(oldPrice)}đ
                     </span>
                     <span className="hotel-customer__new-price">
-                      {new Intl.NumberFormat("vi-VN").format(offer.newPrice)}đ
+                      {new Intl.NumberFormat("vi-VN").format(newPrice)}đ
                     </span>
                   </div>
                 </div>
               </article>
-            ))}
+            );})}
           </div>
         </div>
       </section>
@@ -502,12 +505,12 @@ export default function CustomerHotel() {
           <div className="hotel-customer__section-head">
             <div>
               <span>Khám phá</span>
-              <h2>Các loại hình lưu trú đa dạng</h2>
+              <h2>Các loại phòng đa dạng</h2>
             </div>
           </div>
 
           <div className="hotel-customer__accommodation-grid">
-            {accommodationTypes.map((type) => (
+            {roomTypes.map((type) => (
               <article
                 key={type.id}
                 className="hotel-customer__accommodation-card"
@@ -533,12 +536,22 @@ export default function CustomerHotel() {
           </div>
 
           <div className="hotel-customer__masonry-grid">
-            {massonryDestinations.map((destination) => (
+            {topHotelDestinations.map((destination) => (
               <article
                 key={destination.id}
                 className={`hotel-customer__masonry-card ${destination.size === "large" ? "is-large" : "is-small"
                   }`}
-                style={{ backgroundImage: destination.image }}
+                style={{ backgroundImage: destination.image, cursor: "pointer" }}
+                onClick={() =>
+                  navigate(
+                    `/mua-sam/khach-san?${buildHotelSearchQuery({
+                      ...activeSearchState,
+                      view: "results",
+                      destination: destination.name,
+                      destinationSubtitle: destination.subtitle,
+                    })}`,
+                  )
+                }
               >
                 <div className="hotel-customer__masonry-overlay">
                   <h3>{destination.name}</h3>

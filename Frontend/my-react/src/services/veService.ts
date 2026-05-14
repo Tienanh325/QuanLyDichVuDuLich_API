@@ -61,38 +61,58 @@ export interface VeDetail {
 
 // ─── Search Params ─────────────────────────────────────────────────────────
 
+export interface VeSearchResponse<T> {
+  data: T[];
+  totalRecords: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize?: number;
+}
+
 export interface SearchMayBayParams {
   diemKhoiHanh?: string;
   diemDen?: string;
   ngayKhoiHanh?: string;
+  page?: number;
   limit?: number;
+  hangHangKhong?: string;
+  soDiemDung?: number;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 export interface SearchTauHoaParams {
   diemKhoiHanh?: string;
   diemDen?: string;
   ngayKhoiHanh?: string;
+  page?: number;
   limit?: number;
 }
 
 // ─── API Functions ──────────────────────────────────────────────────────────
 
 /** Tìm kiếm vé máy bay (public) */
-export async function searchMayBay(params?: SearchMayBayParams): Promise<VeMayBayResult[]> {
-  const response = await api.get<{ status: string; data: VeMayBayResult[] }>(
+export async function searchMayBay(params?: SearchMayBayParams): Promise<VeSearchResponse<VeMayBayResult>> {
+  const response = await api.get<{ status: string; data: VeSearchResponse<VeMayBayResult> | VeMayBayResult[] }>(
     '/api/ve/may-bay/tim-kiem',
     { params },
   );
-  return response.data.data ?? [];
+  const data = response.data.data;
+  return Array.isArray(data)
+    ? { data, totalRecords: data.length, totalPages: 1, currentPage: 1, pageSize: data.length }
+    : data;
 }
 
 /** Tìm kiếm vé tàu hỏa (public) */
-export async function searchTauHoa(params?: SearchTauHoaParams): Promise<VeTauHoaResult[]> {
-  const response = await api.get<{ status: string; data: VeTauHoaResult[] }>(
+export async function searchTauHoa(params?: SearchTauHoaParams): Promise<VeSearchResponse<VeTauHoaResult>> {
+  const response = await api.get<{ status: string; data: VeSearchResponse<VeTauHoaResult> | VeTauHoaResult[] }>(
     '/api/ve/tau-hoa/tim-kiem',
     { params },
   );
-  return response.data.data ?? [];
+  const data = response.data.data;
+  return Array.isArray(data)
+    ? { data, totalRecords: data.length, totalPages: 1, currentPage: 1, pageSize: data.length }
+    : data;
 }
 
 /** Lấy chi tiết 1 vé (public) */

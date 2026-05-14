@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -18,6 +19,7 @@ import "../assets/css/CustomerFlight.css";
 import CustomerFlightSearchResults from "./CustomerFlightSearchResults";
 import { buildFlightSearchQuery, parseFlightSearchParams } from "../utils/flightSearch";
 import type { FlightSearchState } from "../utils/flightSearch";
+import { formatGio, formatVnd, searchMayBay } from "../services/veService";
 import { ConfigProvider, DatePicker } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
@@ -292,6 +294,10 @@ export default function CustomerFlight() {
   const [tripType] = useState<TripType>(parsedSearch.tripType);
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
   const [newsletterEmail, setNewsletterEmail] = useState("");
+  const { data: landingFlights } = useQuery({
+    queryKey: ["flight-landing-promotions"],
+    queryFn: () => searchMayBay({ limit: 6 }),
+  });
   const [flightRoute, setFlightRoute] = useState<RouteValues>({
     fromTitle: parsedSearch.fromTitle,
     fromSubtitle: parsedSearch.fromSubtitle,
@@ -406,23 +412,28 @@ export default function CustomerFlight() {
             seeAllHref="#khuyen-mai"
           />
           <div className="flight-promo__grid">
-            {flightPromotions.map((item) => (
-              <article key={item.id} className="flight-promo__card">
+            {(landingFlights?.data && landingFlights.data.length > 0 ? landingFlights.data : flightPromotions).map((item: any) => {
+              const id = item.maVe ?? item.id;
+              const route = item.diemKhoiHanh ? `${item.diemKhoiHanh} → ${item.diemDen}` : item.route;
+              const price = item.giaThapNhat != null ? formatVnd(item.giaThapNhat) : item.price;
+              const badge = item.hangHangKhong ? `${item.hangHangKhong} • ${formatGio(item.thoiGianKhoiHanh)}` : item.badge;
+              return (
+              <article key={id} className="flight-promo__card" onClick={() => navigate(`/mua-sam/chi-tiet-chuyen-bay/${id}`)} style={{ cursor: 'pointer' }}>
                 <div className="flight-promo__card-image">
-                  <img src={item.image} alt={item.route} />
-                  <span className={`flight-promo__badge ${item.badge === "Hot" ? "flight-promo__badge--hot" : ""}`}>
-                    {item.badge}
+                  <img src={item.image ?? "https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?auto=format&fit=crop&q=80&w=480"} alt={route} />
+                  <span className={`flight-promo__badge ${badge === "Hot" ? "flight-promo__badge--hot" : ""}`}>
+                    {badge}
                   </span>
                 </div>
                 <div className="flight-promo__card-body">
-                  <span className="flight-promo__route">{item.route}</span>
-                  <strong className="flight-promo__price">{item.price}</strong>
-                  <button type="button" className="flight-promo__arrow" aria-label="Xem chi tiết">
+                  <span className="flight-promo__route">{route}</span>
+                  <strong className="flight-promo__price">{price}</strong>
+                  <button type="button" className="flight-promo__arrow" aria-label="Xem chi tiết" onClick={(event) => { event.stopPropagation(); navigate(`/mua-sam/chi-tiet-chuyen-bay/${id}`); }}>
                     <ArrowRight size={18} />
                   </button>
                 </div>
               </article>
-            ))}
+            );})}
           </div>
         </div>
       </section>

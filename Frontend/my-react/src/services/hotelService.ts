@@ -91,6 +91,9 @@ export async function getPublicHotels(params?: {
   limit?: number;
   search?: string;
   viTri?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  soSao?: string;
 }): Promise<KhachSanListResponse> {
   const response = await api.get<{ status: string; data: KhachSanListResponse }>(
     '/api/khach-san',

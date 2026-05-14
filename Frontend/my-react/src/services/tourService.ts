@@ -50,6 +50,11 @@ export async function getPublicTours(params?: {
   limit?: number;
   search?: string;
   viTri?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minRating?: number;
+  maDanhMuc?: number;
+  isBestSeller?: 1;
 }): Promise<TourListResponse> {
   const response = await api.get<{ status: string; data: TourListResponse }>(
     '/api/tour',

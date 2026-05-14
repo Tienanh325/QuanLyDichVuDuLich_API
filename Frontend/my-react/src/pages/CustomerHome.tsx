@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicTours } from "../services/tourService";
+import { getPublicHotels } from "../services/hotelService";
 import baibienImage from "../assets/images/baibien.jpg";
 import {
 
@@ -153,7 +154,12 @@ export default function CustomerHome() {
     queryKey: ["public-tours-home"],
     queryFn: () => getPublicTours({ limit: 4 }),
   });
+  const { data: hotelResponse } = useQuery({
+    queryKey: ["public-hotels-home"],
+    queryFn: () => getPublicHotels({ limit: 3 }),
+  });
   const inspiredDestinations = (tourResponse?.data ?? []).slice(0, 4);
+  const featuredHotels = hotelResponse?.data ?? [];
   const [departDate, setDepartDate] = useState<dayjs.Dayjs>(dayjs());
   const [trainDepartDate, setTrainDepartDate] = useState<dayjs.Dayjs>(dayjs());
 
@@ -536,21 +542,21 @@ export default function CustomerHome() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
-            {[
-              { name: "InterContinental Danang Sun Peninsula Resort", price: "$420/đêm", location: "Đà Nẵng, Việt Nam", rating: "4.9", reviews: "1.2k", img: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80" },
-              { name: "Four Seasons Resort Bali at Sayan", price: "$650/đêm", location: "Ubud, Bali", rating: "4.9", reviews: "2.1k", img: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80" },
-              { name: "Aman Tokyo", price: "$850/đêm", location: "Otemachi, Tokyo", rating: "4.8", reviews: "940", img: "https://images.unsplash.com/photo-1542314831-c6a4d14d8835?w=800&q=80" },
-            ].map(acc => (
-              <div key={acc.name} style={{ borderRadius: 20, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', transition: 'box-shadow 0.3s ease' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}>
+            {(featuredHotels.length > 0 ? featuredHotels : [
+              { maKhachSan: 0, ten: "InterContinental Danang Sun Peninsula Resort", giaTuKhoang: 10000000, viTri: "Đà Nẵng, Việt Nam", rating: "4.9", reviews: "1.2k", avatar: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80" },
+              { maKhachSan: 0, ten: "Four Seasons Resort Bali at Sayan", giaTuKhoang: 15000000, viTri: "Ubud, Bali", rating: "4.9", reviews: "2.1k", avatar: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80" },
+              { maKhachSan: 0, ten: "Aman Tokyo", giaTuKhoang: 20000000, viTri: "Otemachi, Tokyo", rating: "4.8", reviews: "940", avatar: "https://images.unsplash.com/photo-1542314831-c6a4d14d8835?w=800&q=80" },
+            ]).map((acc: any) => (
+              <div key={acc.maKhachSan || acc.ten} onClick={() => acc.maKhachSan && navigate(`/mua-sam/khach-san/${acc.maKhachSan}`)} style={{ borderRadius: 20, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', transition: 'box-shadow 0.3s ease' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}>
                 <div style={{ 
                   height: 240, 
                   position: 'relative',
-                  backgroundImage: `url(${acc.img})`,
+                  backgroundImage: `url(${acc.avatar || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80'})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center'
                 }}>
                   <div style={{ position: 'absolute', top: 16, left: 16, background: '#fff', padding: '6px 12px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600, color: '#0f172a' }}>
-                    <span style={{ color: '#f59e0b' }}>★</span> {acc.rating} <span style={{ color: '#cbd5e1' }}>|</span> <span style={{ color: '#64748b', fontWeight: 500 }}>{acc.reviews} đánh giá</span>
+                    <span style={{ color: '#f59e0b' }}>★</span> {acc.rating ?? '4.8'} <span style={{ color: '#cbd5e1' }}>|</span> <span style={{ color: '#64748b', fontWeight: 500 }}>{acc.reviews ?? 0} đánh giá</span>
                   </div>
                   <button style={{ position: 'absolute', top: 16, right: 16, width: 36, height: 36, borderRadius: '50%', background: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
@@ -558,11 +564,11 @@ export default function CustomerHome() {
                 </div>
                 <div style={{ padding: 24 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                    <h3 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', margin: 0, flex: 1, paddingRight: 16, lineHeight: 1.4 }}>{acc.name}</h3>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a' }}>{acc.price}</div>
+                    <h3 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', margin: 0, flex: 1, paddingRight: 16, lineHeight: 1.4 }}>{acc.ten ?? acc.name}</h3>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a' }}>{acc.giaTuKhoang ? `${new Intl.NumberFormat('vi-VN').format(acc.giaTuKhoang)}đ/đêm` : acc.price}</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 14 }}>
-                    <MapPinned size={16} /> {acc.location}
+                    <MapPinned size={16} /> {acc.viTri ?? acc.location}
                   </div>
                 </div>
               </div>

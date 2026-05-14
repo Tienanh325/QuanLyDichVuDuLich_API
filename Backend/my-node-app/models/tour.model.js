@@ -1,8 +1,10 @@
 const { pool } = require('../config/db');
 
 class TourModel {
-    static async getAll({ page = 1, limit = 10, sortBy, search, viTri } = {}) {
-        const offset = (page - 1) * limit;
+    static async getAll({ page = 1, limit = 10, sortBy, search, viTri, minPrice, maxPrice, minRating, maDanhMuc, isBestSeller } = {}) {
+        const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+        const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 10));
+        const offset = (pageNum - 1) * limitNum;
         const queryParams = [];
         let baseQuery = `
             FROM Tour t
@@ -12,9 +14,14 @@ class TourModel {
         `;
         if (viTri) { baseQuery += ` AND t.viTri LIKE ?`; queryParams.push(`%${viTri}%`); }
         if (search) {
-            baseQuery += ` AND (t.tenTour LIKE ? OR dv.ten LIKE ? OR t.viTri LIKE ?)`;
-            const s = `%${search}%`; queryParams.push(s, s, s);
+            baseQuery += ` AND (t.tenTour LIKE ? OR dv.ten LIKE ? OR t.viTri LIKE ? OR t.diaDiem LIKE ?)`;
+            const s = `%${search}%`; queryParams.push(s, s, s, s);
         }
+        if (maDanhMuc) { baseQuery += ` AND t.maDanhMuc = ?`; queryParams.push(parseInt(maDanhMuc, 10)); }
+        if (minPrice) { baseQuery += ` AND COALESCE(t.giaKhuyenMai, t.giaTour) >= ?`; queryParams.push(Number(minPrice)); }
+        if (maxPrice) { baseQuery += ` AND COALESCE(t.giaKhuyenMai, t.giaTour) <= ?`; queryParams.push(Number(maxPrice)); }
+        if (minRating) { baseQuery += ` AND t.diemDanhGia >= ?`; queryParams.push(Number(minRating)); }
+        if (isBestSeller === '1' || isBestSeller === 1 || isBestSeller === true) { baseQuery += ` AND t.isBestSeller = 1`; }
 
         const [countResult] = await pool.query(`SELECT COUNT(*) as total ${baseQuery}`, queryParams);
         const totalRecords = countResult[0].total;
@@ -27,10 +34,10 @@ class TourModel {
             dataQuery += ` ORDER BY ${allowedSort[col] || 't.maTour'} ${isDesc ? 'DESC' : 'ASC'}`;
         } else { dataQuery += ` ORDER BY t.ngayBatDau ASC`; }
         dataQuery += ` LIMIT ? OFFSET ?`;
-        queryParams.push(parseInt(limit), parseInt(offset));
+        queryParams.push(limitNum, offset);
 
         const [rows] = await pool.query(dataQuery, queryParams);
-        return { data: rows, totalRecords, totalPages: Math.ceil(totalRecords / limit), currentPage: parseInt(page) };
+        return { data: rows, totalRecords, totalPages: Math.ceil(totalRecords / limitNum), currentPage: pageNum, pageSize: limitNum };
     }
 
     static async getById(id) {

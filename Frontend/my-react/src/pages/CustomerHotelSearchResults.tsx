@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import "../assets/css/CustomerHotelSearchResults.css";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Card, Button, Slider, Pagination, Rate, Row, Col, Typography, Tag, Space, Spin, Empty } from "antd";
 import { Edit2, Map, MapPin, Star } from "lucide-react";
 import { type HotelSearchState, formatHotelDateRange, formatHotelGuestSummary } from "../utils/hotelSearch";
+import { clampPage, getPaginationState } from "../utils/pagination";
 import { getPublicHotels, type KhachSanListItem } from "../services/hotelService";
 
 function formatCurrencyVnd(value: number): string {
@@ -33,13 +34,38 @@ export default function CustomerHotelSearchResults({
   onStartNewSearch,
 }: CustomerHotelSearchResultsProps) {
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1);
+  const location = useLocation();
+  const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const currentPage = clampPage(searchParams.get("page"));
+  const selectedStars = useMemo(() => searchParams.get("soSao")?.split(",").filter(Boolean) ?? [], [searchParams]);
   const [hotels, setHotels] = useState<KhachSanListItem[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [loading, setLoading] = useState(true);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 20_000_000]);
   const [sortKey, setSortKey] = useState("price_desc");
   const pageSize = 5;
+  const pagination = getPaginationState(currentPage, pageSize, totalRecords);
+
+  function navigateWithFilters(updates: Record<string, string | number | null>, page = 1) {
+    const next = new URLSearchParams(location.search);
+    next.set("page", String(page));
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === "") next.delete(key);
+      else next.set(key, String(value));
+    });
+    navigate(`${location.pathname}?${next.toString()}`);
+  }
+
+  function handlePageChange(page: number) {
+    navigateWithFilters({}, page);
+  }
+
+  function toggleStar(star: number) {
+    const nextStars = selectedStars.includes(String(star))
+      ? selectedStars.filter((item) => item !== String(star))
+      : [...selectedStars, String(star)];
+    navigateWithFilters({ soSao: nextStars.join(",") || null });
+  }
 
   const fetchHotels = useCallback(async () => {
     setLoading(true);
@@ -47,8 +73,10 @@ export default function CustomerHotelSearchResults({
       const result = await getPublicHotels({
         page: currentPage,
         limit: pageSize,
-        search: searchState.destination || undefined,
         viTri: searchState.destination || undefined,
+        minPrice: priceRange[0],
+        maxPrice: priceRange[1],
+        soSao: selectedStars.join(",") || undefined,
       });
       setHotels(result.data);
       setTotalRecords(result.totalRecords);
@@ -59,7 +87,7 @@ export default function CustomerHotelSearchResults({
     } finally {
       setLoading(false);
     }
-  }, [currentPage, searchState.destination]);
+  }, [currentPage, priceRange, searchState.destination, selectedStars]);
 
   useEffect(() => {
     void fetchHotels();
@@ -125,7 +153,7 @@ export default function CustomerHotelSearchResults({
           <Col span={6}>
             <Card
               title={<span style={{ fontWeight: 800, fontSize: 16, color: "#17324d" }}>Bộ lọc</span>}
-              extra={<Button type="link" style={{ padding: 0, fontWeight: 600, color: "#0194f3" }} onClick={() => setPriceRange([0, 20_000_000])}>Đặt lại</Button>}
+              extra={<Button type="link" style={{ padding: 0, fontWeight: 600, color: "#0194f3" }} onClick={() => { setPriceRange([0, 20_000_000]); navigateWithFilters({ minPrice: null, maxPrice: null, soSao: null }); }}>Đặt lại</Button>}
               style={{ borderRadius: 12, marginBottom: 16, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
             >
               {/* Phạm vi giá */}
@@ -135,6 +163,7 @@ export default function CustomerHotelSearchResults({
                   range
                   value={priceRange}
                   onChange={(val) => setPriceRange(val as [number, number])}
+                  onChangeComplete={(val) => navigateWithFilters({ minPrice: (val as [number, number])[0], maxPrice: (val as [number, number])[1] })}
                   max={20_000_000}
                   step={100_000}
                   tooltip={{ formatter: (value) => value ? formatCurrencyVnd(value) : "0 VND" }}
@@ -152,9 +181,12 @@ export default function CustomerHotelSearchResults({
                   {[1, 2, 3, 4, 5].map(star => (
                     <Button
                       key={star}
+                      onClick={() => toggleStar(star)}
                       style={{
                         display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                        borderRadius: 8, borderColor: "#d9d9d9", backgroundColor: "#fff"
+                        borderRadius: 8,
+                        borderColor: selectedStars.includes(String(star)) ? "#0194f3" : "#d9d9d9",
+                        backgroundColor: selectedStars.includes(String(star)) ? "#e6f4ff" : "#fff"
                       }}
                     >
                       {star} <Star size={14} fill="#fadb14" color="#fadb14" />
@@ -182,7 +214,7 @@ export default function CustomerHotelSearchResults({
           <Col span={18}>
             <Row align="middle" justify="space-between" style={{ marginBottom: 16 }}>
               <Text strong style={{ fontSize: 16, color: "#17324d" }}>
-                Đang hiển thị <span style={{ color: "#0194f3" }}>{totalRecords}</span> khách sạn
+                Đang hiển thị <span style={{ color: "#0194f3" }}>{pagination.from}-{pagination.to}</span> / {pagination.totalItems} khách sạn
               </Text>
               <Space align="center" size="middle">
                 <Text type="secondary" style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase" }}>Sắp xếp theo:</Text>
@@ -285,9 +317,9 @@ export default function CustomerHotelSearchResults({
                 <Row justify="center" style={{ marginTop: 32, marginBottom: 40 }}>
                   <Pagination
                     current={currentPage}
-                    onChange={(page) => { setCurrentPage(page); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                    total={totalRecords}
-                    pageSize={pageSize}
+                    onChange={(page) => handlePageChange(page)}
+                    total={pagination.totalItems}
+                    pageSize={pagination.pageSize}
                     showSizeChanger={false}
                   />
                 </Row>

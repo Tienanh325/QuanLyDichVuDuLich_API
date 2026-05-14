@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../assets/css/CustomerActivitySearchResults.css";
 import {
@@ -12,79 +12,101 @@ import {
   CheckCircle2,
   Edit2
 } from "lucide-react";
+import { getPublicTours, type TourListItem } from "../services/tourService";
+import { clampPage, getPageItems, getPaginationState } from "../utils/pagination";
 
-// --- Mock Data ---
-const ACTIVITY_RESULTS = [
-  {
-    id: "a1",
-    title: "Vé VinWonders Phú Quốc - Công viên chủ đề lớn nhất Việt Nam",
-    location: "Gành Dầu",
-    category: "Công viên giải trí",
-    isBestSeller: true,
-    rating: 4.8,
-    reviews: "2.4k",
-    highlight: "Xác nhận tức thì",
-    highlightIcon: Zap,
-    originalPrice: 950000,
-    price: 880000,
-    image: "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    id: "a2",
-    title: "Tour Đảo Ngọc Phú Quốc: Lặn ngắm san hô & Câu cá (Bao ăn trưa)",
-    location: "An Thới",
-    category: "Tour đảo",
-    isBestSeller: false,
-    rating: 4.9,
-    reviews: "1.2k",
-    highlight: "Tour 1 ngày",
-    highlightIcon: CheckCircle2,
-    originalPrice: 1200000,
-    price: 950000,
-    image: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    id: "a3",
-    title: "Vé cáp treo Hòn Thơm & Công viên nước Aquatopia Phú Quốc",
-    location: "Hòn Thơm",
-    category: "Tham quan",
-    isBestSeller: true,
-    rating: 4.7,
-    reviews: "3.5k",
-    highlight: "Xác nhận tức thì",
-    highlightIcon: Zap,
-    originalPrice: 600000,
-    price: 540000,
-    image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    id: "a4",
-    title: "Trải nghiệm Tắm bùn Galina Phú Quốc Mudbath & Spa",
-    location: "Dương Đông",
-    category: "Spa & Làm đẹp",
-    isBestSeller: false,
-    rating: 4.6,
-    reviews: "850",
-    highlight: "Hủy miễn phí",
-    highlightIcon: CheckCircle2,
-    originalPrice: null,
-    price: 420000,
-    image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800"
-  }
-];
+type ActivityResult = {
+  id: string;
+  title: string;
+  location: string;
+  category: string;
+  isBestSeller: boolean;
+  rating: number;
+  reviews: string;
+  highlight: string;
+  highlightIcon: typeof Zap;
+  originalPrice: number | null;
+  price: number;
+  image: string;
+};
+
+const PLACEHOLDER_IMAGE = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=800";
+
+function mapActivity(row: TourListItem): ActivityResult {
+  return {
+    id: String(row.maTour),
+    title: row.tenTour || row.ten,
+    location: row.diaDiem || row.viTri || "Việt Nam",
+    category: row.thoiGian || "Tour",
+    isBestSeller: Boolean(row.isBestSeller),
+    rating: Number(row.diemDanhGia || 0),
+    reviews: String(row.soLuotDanhGia || 0),
+    highlight: row.highlight || (row.xacNhanTucThi ? "Xác nhận tức thì" : "Tour & hoạt động"),
+    highlightIcon: row.xacNhanTucThi ? Zap : CheckCircle2,
+    originalPrice: row.giaGoc,
+    price: Number(row.giaKhuyenMai || row.giaTour || 0),
+    image: row.avatar || PLACEHOLDER_IMAGE,
+  };
+}
 
 export default function CustomerActivitySearchResults() {
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const searchQuery = searchParams.get("q") || "Phú Quốc";
+  const currentPage = clampPage(searchParams.get("page"));
+  const pageSize = 5;
+  const selectedCategory = searchParams.get("maDanhMuc") ?? "";
+  const selectedMinRating = searchParams.get("minRating") ?? "";
+  const bestSellerOnly = searchParams.get("isBestSeller") === "1";
 
   const [activeSort, setActiveSort] = useState("popular");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [priceRange, setPriceRange] = useState(2500000);
+  const [activities, setActivities] = useState<ActivityResult[]>([]);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const pagination = getPaginationState(currentPage, pageSize, totalRecords);
+
+  function navigateWithFilters(updates: Record<string, string | number | null>, page = 1) {
+    const next = new URLSearchParams(location.search);
+    next.set("page", String(page));
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === "") next.delete(key);
+      else next.set(key, String(value));
+    });
+    navigate(`${location.pathname}?${next.toString()}`);
+  }
+
+  function goToPage(page: number) {
+    navigateWithFilters({}, page);
+  }
+
+  useEffect(() => {
+    setLoading(true);
+    getPublicTours({
+      search: searchQuery || undefined,
+      page: currentPage,
+      limit: pageSize,
+      minPrice: 0,
+      maxPrice: priceRange,
+      maDanhMuc: selectedCategory ? Number(selectedCategory) : undefined,
+      minRating: selectedMinRating ? Number(selectedMinRating) : undefined,
+      isBestSeller: bestSellerOnly ? 1 : undefined,
+    })
+      .then((response) => {
+        setActivities(response.data.map(mapActivity));
+        setTotalRecords(response.totalRecords);
+      })
+      .catch(() => {
+        setActivities([]);
+        setTotalRecords(0);
+      })
+      .finally(() => setLoading(false));
+  }, [bestSellerOnly, currentPage, priceRange, searchQuery, selectedCategory, selectedMinRating]);
 
   const sortedActivities = useMemo(() => {
-    const result = [...ACTIVITY_RESULTS];
+    const result = [...activities];
     if (activeSort === "price") {
       result.sort((a, b) => a.price - b.price);
     } else if (activeSort === "price_desc") {
@@ -93,7 +115,7 @@ export default function CustomerActivitySearchResults() {
       result.sort((a, b) => Number(b.reviews) - Number(a.reviews));
     }
     return result;
-  }, [activeSort]);
+  }, [activeSort, activities]);
 
   return (
     <div className="casr-page">
@@ -130,7 +152,7 @@ export default function CustomerActivitySearchResults() {
               {/* Header */}
               <div className="casr-sidebar__header">
                 <span className="casr-sidebar__title">BỘ LỌC</span>
-                <button className="casr-sidebar__reset">Đặt lại</button>
+                <button className="casr-sidebar__reset" onClick={() => navigateWithFilters({ maDanhMuc: null, minRating: null, isBestSeller: null })}>Đặt lại</button>
               </div>
 
               {/* Section 1 - Danh mục */}
@@ -138,21 +160,26 @@ export default function CustomerActivitySearchResults() {
                 <h3 className="casr-sidebar__section-title">DANH MỤC</h3>
                 <div className="casr-sidebar__checkbox-list">
                   <label className="casr-sidebar__checkbox-label">
-                    <input type="checkbox" className="casr-sidebar__checkbox" defaultChecked />
-                    <span className="casr-sidebar__checkbox-text--active">Tất cả</span>
+                    <input type="checkbox" className="casr-sidebar__checkbox" checked={!selectedCategory} onChange={() => navigateWithFilters({ maDanhMuc: null })} />
+                    <span className={!selectedCategory ? "casr-sidebar__checkbox-text--active" : "casr-sidebar__checkbox-text"}>Tất cả</span>
                   </label>
-                  <label className="casr-sidebar__checkbox-label">
-                    <input type="checkbox" className="casr-sidebar__checkbox" />
-                    <span className="casr-sidebar__checkbox-text">Tour</span>
-                  </label>
-                  <label className="casr-sidebar__checkbox-label">
-                    <input type="checkbox" className="casr-sidebar__checkbox" />
-                    <span className="casr-sidebar__checkbox-text">Công viên giải trí</span>
-                  </label>
-                  <label className="casr-sidebar__checkbox-label">
-                    <input type="checkbox" className="casr-sidebar__checkbox" />
-                    <span className="casr-sidebar__checkbox-text">Thể thao dưới nước</span>
-                  </label>
+                  {[
+                    [1, "Biển đảo"],
+                    [2, "Núi rừng"],
+                    [3, "Thành phố"],
+                    [4, "Ẩm thực"],
+                    [5, "Văn hóa"],
+                  ].map(([id, label]) => (
+                    <label key={id} className="casr-sidebar__checkbox-label">
+                      <input
+                        type="checkbox"
+                        className="casr-sidebar__checkbox"
+                        checked={selectedCategory === String(id)}
+                        onChange={() => navigateWithFilters({ maDanhMuc: selectedCategory === String(id) ? null : id })}
+                      />
+                      <span className={selectedCategory === String(id) ? "casr-sidebar__checkbox-text--active" : "casr-sidebar__checkbox-text"}>{label}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
 
@@ -167,6 +194,8 @@ export default function CustomerActivitySearchResults() {
                     step="100000"
                     value={priceRange}
                     onChange={(e) => setPriceRange(Number(e.target.value))}
+                    onMouseUp={() => navigateWithFilters({ maxPrice: priceRange })}
+                    onTouchEnd={() => navigateWithFilters({ maxPrice: priceRange })}
                     className="casr-sidebar__slider"
                   />
                   <div className="casr-sidebar__slider-labels">
@@ -180,7 +209,7 @@ export default function CustomerActivitySearchResults() {
               {/* Section 3 - Xếp hạng */}
               <div>
                 <h3 className="casr-sidebar__section-title">XẾP HẠNG</h3>
-                <div className="casr-sidebar__rating">
+                <div className="casr-sidebar__rating" onClick={() => navigateWithFilters({ minRating: selectedMinRating === "4" ? null : 4 })} style={{ cursor: "pointer" }}>
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
@@ -190,6 +219,15 @@ export default function CustomerActivitySearchResults() {
                   ))}
                   <span className="casr-sidebar__rating-text">4+</span>
                 </div>
+                <label className="casr-sidebar__checkbox-label" style={{ marginTop: 12 }}>
+                  <input
+                    type="checkbox"
+                    className="casr-sidebar__checkbox"
+                    checked={bestSellerOnly}
+                    onChange={() => navigateWithFilters({ isBestSeller: bestSellerOnly ? null : 1 })}
+                  />
+                  <span className={bestSellerOnly ? "casr-sidebar__checkbox-text--active" : "casr-sidebar__checkbox-text"}>Bán chạy</span>
+                </label>
               </div>
 
             </div>
@@ -201,7 +239,7 @@ export default function CustomerActivitySearchResults() {
             {/* STEP 4: Sort Bar & View Mode */}
             <div className="casr-sort-bar">
               <p className="casr-sort-bar__count">
-                Đang hiển thị <span className="casr-sort-bar__count-number">{sortedActivities.length}</span> hoạt động
+                Đang hiển thị <span className="casr-sort-bar__count-number">{pagination.from}-{pagination.to}</span> / {pagination.totalItems} hoạt động
               </p>
               
               <div className="casr-sort-bar__controls">
@@ -235,7 +273,11 @@ export default function CustomerActivitySearchResults() {
 
             {/* STEP 5: Activity Cards */}
             <div className="casr-card-list">
-              {sortedActivities.map((activity) => {
+              {loading ? (
+                <div className="casr-card">Đang tải hoạt động...</div>
+              ) : sortedActivities.length === 0 ? (
+                <div className="casr-card">Không tìm thấy hoạt động phù hợp.</div>
+              ) : sortedActivities.map((activity) => {
                 const Icon = activity.highlightIcon;
                 return (
                   <div key={activity.id} className="casr-card">
@@ -307,7 +349,7 @@ export default function CustomerActivitySearchResults() {
                             {activity.price.toLocaleString('vi-VN')} VND
                           </div>
                         </div>
-                        <button className="casr-card__book-btn">
+                        <button className="casr-card__book-btn" onClick={() => navigate(`/mua-sam/hoat-dong-vui-choi/${activity.id}`)}>
                           Đặt ngay
                         </button>
                       </div>
@@ -319,27 +361,33 @@ export default function CustomerActivitySearchResults() {
 
             {/* STEP 6: Pagination */}
             <div className="casr-pagination">
-              <button className="casr-pagination__btn casr-pagination__btn--disabled">
+              <button
+                className={`casr-pagination__btn ${!pagination.hasPrev ? "casr-pagination__btn--disabled" : ""}`}
+                disabled={!pagination.hasPrev}
+                onClick={() => goToPage(pagination.currentPage - 1)}
+              >
                 <ChevronLeft size={20} />
               </button>
 
-              <button className="casr-pagination__btn casr-pagination__btn--active">
-                1
-              </button>
-              <button className="casr-pagination__btn">
-                2
-              </button>
-              <button className="casr-pagination__btn">
-                3
-              </button>
+              {getPageItems(pagination.currentPage, pagination.totalPages).map((item, index) =>
+                item === "ellipsis" ? (
+                  <span key={`ellipsis-${index}`} className="casr-pagination__dots">...</span>
+                ) : (
+                  <button
+                    key={item}
+                    className={`casr-pagination__btn ${item === pagination.currentPage ? "casr-pagination__btn--active" : ""}`}
+                    onClick={() => goToPage(item)}
+                  >
+                    {item}
+                  </button>
+                ),
+              )}
 
-              <span className="casr-pagination__dots">...</span>
-
-              <button className="casr-pagination__btn">
-                12
-              </button>
-
-              <button className="casr-pagination__btn">
+              <button
+                className={`casr-pagination__btn ${!pagination.hasNext ? "casr-pagination__btn--disabled" : ""}`}
+                disabled={!pagination.hasNext}
+                onClick={() => goToPage(pagination.currentPage + 1)}
+              >
                 <ChevronRight size={20} />
               </button>
             </div>

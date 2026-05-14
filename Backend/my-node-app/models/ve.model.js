@@ -27,7 +27,9 @@ class VeModel {
             SELECT v.maVe, v.maDichVu, v.loaiVeCon, v.trangThai, v.ngayTao,
                    dv.ten AS tenDichVu, ncc.ten AS tenNhaCungCap,
                    mb.hangHangKhong, mb.soHieuChuyenBay, mb.diemKhoiHanh AS diemKhoiHanh_mb, mb.diemDen AS diemDen_mb,
+                   mb.thoiGianKhoiHanh AS thoiGianKhoiHanh_mb,
                    th.hangTau, th.soHieuChuyenTau, th.diemKhoiHanh AS diemKhoiHanh_th, th.diemDen AS diemDen_th,
+                   th.thoiGianKhoiHanh AS thoiGianKhoiHanh_th,
                    MIN(gv.gia) AS gia, SUM(gv.soChoTrong) AS soChoTrong
             FROM Ve v
             LEFT JOIN DichVu dv ON v.maDichVu = dv.maDichVu
@@ -186,15 +188,16 @@ class VeModel {
 
     // =================== TÌM VÉ MÁY BAY (cho trang tìm kiếm) ===================
 
-    static async searchVeMayBay({ diemKhoiHanh, diemDen, ngayKhoiHanh, limit = 20 } = {}) {
+    static buildPagination(page = 1, limit = 20) {
+        const currentPage = Math.max(1, parseInt(page, 10) || 1);
+        const pageSize = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
+        return { currentPage, pageSize, offset: (currentPage - 1) * pageSize };
+    }
+
+    static async searchVeMayBay({ diemKhoiHanh, diemDen, ngayKhoiHanh, page = 1, limit = 20, hangHangKhong, soDiemDung, minPrice, maxPrice } = {}) {
+        const { currentPage, pageSize, offset } = this.buildPagination(page, limit);
         const queryParams = [];
-        let query = `
-            SELECT v.maVe, v.loaiVeCon, v.trangThai,
-                   mb.hangHangKhong, mb.soHieuChuyenBay, mb.diemKhoiHanh, mb.diemDen,
-                   mb.thoiGianKhoiHanh, mb.thoiGianDen,
-                   dv.ten AS tenDichVu, ncc.ten AS tenNhaCungCap,
-                   MIN(gv.gia) AS giaThapNhat,
-                   SUM(gv.soChoTrong) AS tongSoCho
+        let baseQuery = `
             FROM Ve v
             JOIN VeMayBay mb ON v.maVe = mb.maVe
             LEFT JOIN DichVu dv ON v.maDichVu = dv.maDichVu
@@ -202,25 +205,39 @@ class VeModel {
             LEFT JOIN GiaVe gv ON v.maVe = gv.maVe
             WHERE v.trangThai = 'AVAILABLE'
         `;
-        if (diemKhoiHanh) { query += ` AND mb.diemKhoiHanh LIKE ?`; queryParams.push(`%${diemKhoiHanh}%`); }
-        if (diemDen) { query += ` AND mb.diemDen LIKE ?`; queryParams.push(`%${diemDen}%`); }
-        if (ngayKhoiHanh) { query += ` AND DATE(mb.thoiGianKhoiHanh) = ?`; queryParams.push(ngayKhoiHanh); }
-        query += ` GROUP BY v.maVe ORDER BY mb.thoiGianKhoiHanh ASC LIMIT ?`;
-        queryParams.push(parseInt(limit));
+        if (diemKhoiHanh) { baseQuery += ` AND mb.diemKhoiHanh LIKE ?`; queryParams.push(`%${diemKhoiHanh}%`); }
+        if (diemDen) { baseQuery += ` AND mb.diemDen LIKE ?`; queryParams.push(`%${diemDen}%`); }
+        if (ngayKhoiHanh) { baseQuery += ` AND DATE(mb.thoiGianKhoiHanh) = ?`; queryParams.push(ngayKhoiHanh); }
+        if (hangHangKhong) { baseQuery += ` AND mb.hangHangKhong = ?`; queryParams.push(hangHangKhong); }
+        if (soDiemDung !== undefined && soDiemDung !== '') { baseQuery += ` AND mb.soDiemDung = ?`; queryParams.push(parseInt(soDiemDung, 10)); }
+        if (minPrice) { baseQuery += ` AND gv.gia >= ?`; queryParams.push(Number(minPrice)); }
+        if (maxPrice) { baseQuery += ` AND gv.gia <= ?`; queryParams.push(Number(maxPrice)); }
 
-        const [rows] = await pool.query(query, queryParams);
-        return rows;
-    }
-
-    static async searchVeTauHoa({ diemKhoiHanh, diemDen, ngayKhoiHanh, limit = 20 } = {}) {
-        const queryParams = [];
-        let query = `
+        const countSql = `SELECT COUNT(*) AS total FROM (SELECT v.maVe ${baseQuery} GROUP BY v.maVe) counted`;
+        const dataSql = `
             SELECT v.maVe, v.loaiVeCon, v.trangThai,
-                   th.hangTau, th.soHieuChuyenTau, th.diemKhoiHanh, th.diemDen,
-                   th.thoiGianKhoiHanh, th.thoiGianDen,
+                   mb.hangHangKhong, mb.soHieuChuyenBay, mb.diemKhoiHanh, mb.diemDen,
+                   mb.thoiGianKhoiHanh, mb.thoiGianDen,
                    dv.ten AS tenDichVu, ncc.ten AS tenNhaCungCap,
                    MIN(gv.gia) AS giaThapNhat,
                    SUM(gv.soChoTrong) AS tongSoCho
+            ${baseQuery}
+            GROUP BY v.maVe
+            ORDER BY mb.thoiGianKhoiHanh ASC
+            LIMIT ? OFFSET ?
+        `;
+        const [[{ total }], [rows]] = await Promise.all([
+            pool.query(countSql, queryParams),
+            pool.query(dataSql, [...queryParams, pageSize, offset]),
+        ]);
+
+        return { data: rows, totalRecords: total, totalPages: Math.ceil(total / pageSize), currentPage, pageSize };
+    }
+
+    static async searchVeTauHoa({ diemKhoiHanh, diemDen, ngayKhoiHanh, page = 1, limit = 20 } = {}) {
+        const { currentPage, pageSize, offset } = this.buildPagination(page, limit);
+        const queryParams = [];
+        let baseQuery = `
             FROM Ve v
             JOIN VeTauHoa th ON v.maVe = th.maVe
             LEFT JOIN DichVu dv ON v.maDichVu = dv.maDichVu
@@ -228,14 +245,29 @@ class VeModel {
             LEFT JOIN GiaVe gv ON v.maVe = gv.maVe
             WHERE v.trangThai = 'AVAILABLE'
         `;
-        if (diemKhoiHanh) { query += ` AND th.diemKhoiHanh LIKE ?`; queryParams.push(`%${diemKhoiHanh}%`); }
-        if (diemDen) { query += ` AND th.diemDen LIKE ?`; queryParams.push(`%${diemDen}%`); }
-        if (ngayKhoiHanh) { query += ` AND DATE(th.thoiGianKhoiHanh) = ?`; queryParams.push(ngayKhoiHanh); }
-        query += ` GROUP BY v.maVe ORDER BY th.thoiGianKhoiHanh ASC LIMIT ?`;
-        queryParams.push(parseInt(limit));
+        if (diemKhoiHanh) { baseQuery += ` AND th.diemKhoiHanh LIKE ?`; queryParams.push(`%${diemKhoiHanh}%`); }
+        if (diemDen) { baseQuery += ` AND th.diemDen LIKE ?`; queryParams.push(`%${diemDen}%`); }
+        if (ngayKhoiHanh) { baseQuery += ` AND DATE(th.thoiGianKhoiHanh) = ?`; queryParams.push(ngayKhoiHanh); }
 
-        const [rows] = await pool.query(query, queryParams);
-        return rows;
+        const countSql = `SELECT COUNT(*) AS total FROM (SELECT v.maVe ${baseQuery} GROUP BY v.maVe) counted`;
+        const dataSql = `
+            SELECT v.maVe, v.loaiVeCon, v.trangThai,
+                   th.hangTau, th.soHieuChuyenTau, th.diemKhoiHanh, th.diemDen,
+                   th.thoiGianKhoiHanh, th.thoiGianDen,
+                   dv.ten AS tenDichVu, ncc.ten AS tenNhaCungCap,
+                   MIN(gv.gia) AS giaThapNhat,
+                   SUM(gv.soChoTrong) AS tongSoCho
+            ${baseQuery}
+            GROUP BY v.maVe
+            ORDER BY th.thoiGianKhoiHanh ASC
+            LIMIT ? OFFSET ?
+        `;
+        const [[{ total }], [rows]] = await Promise.all([
+            pool.query(countSql, queryParams),
+            pool.query(dataSql, [...queryParams, pageSize, offset]),
+        ]);
+
+        return { data: rows, totalRecords: total, totalPages: Math.ceil(total / pageSize), currentPage, pageSize };
     }
 
     // =================== TICKET CHILD TABLES ===================

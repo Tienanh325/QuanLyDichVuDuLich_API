@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { 
   MapPin, 
   Search, 
@@ -18,6 +19,7 @@ import {
 
 import baibienImage from "../assets/images/baibien.jpg";
 import "../assets/css/CustomerActivity.css";
+import { getPublicTours } from '../services/tourService';
 
 const images = {
   hero: baibienImage,
@@ -74,6 +76,11 @@ const recommended = [
 export default function CustomerActivity() {
   const [activitySearch, setActivitySearch] = useState("");
   const navigate = useNavigate();
+  const { data: tourResponse } = useQuery({
+    queryKey: ["activity-landing-tours"],
+    queryFn: () => getPublicTours({ limit: 3 }),
+  });
+  const activityCards = tourResponse?.data ?? [];
 
   function handleSearch() {
     navigate(`/mua-sam/ket-qua-hoat-dong?q=${encodeURIComponent(activitySearch)}`);
@@ -166,42 +173,37 @@ export default function CustomerActivity() {
           </div>
 
           <div className="ca-recommended__grid">
-            {recommended.map((item) => (
-              <div key={item.id} className="ca-activity-card">
+            {(activityCards.length > 0 ? activityCards : recommended).map((item: any) => {
+              const id = item.maTour ?? item.id;
+              const title = item.tenTour ?? item.title;
+              const location = item.diaDiem ?? item.viTri ?? item.location;
+              const oldPrice = item.giaGoc ? Number(item.giaGoc).toLocaleString('vi-VN') : item.oldPrice;
+              const newPrice = Number(item.giaKhuyenMai ?? item.giaTour ?? String(item.newPrice).replace(/\D/g, '')).toLocaleString('vi-VN');
+              const image = item.avatar ?? item.image;
+              const BadgeIcon = item.badgeIcon ?? (item.isBestSeller ? Flame : Ticket);
+              return (
+              <div key={id} className="ca-activity-card" onClick={() => navigate(`/mua-sam/hoat-dong-vui-choi/${id}`)} style={{ cursor: 'pointer' }}>
                 <div className="ca-activity-card__media">
-                  <img 
-                    src={item.image} 
-                    alt={item.title}
-                  />
-                  <span className={`ca-activity-card__badge ${item.badgeColor}`}>
-                    <item.badgeIcon />
-                    {item.badge}
+                  <img src={image} alt={title} />
+                  <span className={`ca-activity-card__badge ${item.badgeColor ?? 'bg-blue-500'}`}>
+                    <BadgeIcon />
+                    {item.highlight ?? item.badge ?? 'Tour'}
                   </span>
                 </div>
-                
+
                 <div className="ca-activity-card__body">
                   <div className="ca-activity-card__meta">
-                    <span className="ca-activity-card__location">
-                      <MapPin />
-                      {item.location}
-                    </span>
-                    <button className="ca-activity-card__wishlist">
-                      <Heart />
-                    </button>
+                    <span className="ca-activity-card__location"><MapPin />{location}</span>
+                    <button className="ca-activity-card__wishlist" onClick={(event) => event.stopPropagation()}><Heart /></button>
                   </div>
-                  
-                  <h3 className="ca-activity-card__title">{item.title}</h3>
-                  
+                  <h3 className="ca-activity-card__title">{title}</h3>
                   <div className="ca-activity-card__pricing">
-                    <span className="ca-activity-card__old-price">{item.oldPrice} VND</span>
-                    <div className="ca-activity-card__new-price">
-                      <span>{item.newPrice}</span>
-                      <span>VND</span>
-                    </div>
+                    {oldPrice ? <span className="ca-activity-card__old-price">{oldPrice} VND</span> : null}
+                    <div className="ca-activity-card__new-price"><span>{newPrice}</span><span>VND</span></div>
                   </div>
                 </div>
               </div>
-            ))}
+            );})}
           </div>
         </div>
       </section>

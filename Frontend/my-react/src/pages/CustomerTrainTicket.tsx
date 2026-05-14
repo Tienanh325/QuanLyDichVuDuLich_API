@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import type { ReactNode } from "react";
 import {
@@ -17,6 +18,7 @@ import { ConfigProvider, DatePicker } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import viVN from "antd/locale/vi_VN";
+import { formatVnd, searchTauHoa } from "../services/veService";
 
 dayjs.locale("vi");
 
@@ -100,6 +102,10 @@ export default function CustomerTrainTicket() {
   const [busDestination, setBusDestination] = useState("");
   const [busJourneyDate, setBusJourneyDate] = useState(dayjs());
   const navigate = useNavigate();
+  const { data: popularTrains } = useQuery({
+    queryKey: ["train-landing-routes"],
+    queryFn: () => searchTauHoa({ limit: 5 }),
+  });
 
   function handleTrainSearch() {
     const params = new URLSearchParams();
@@ -188,39 +194,21 @@ export default function CustomerTrainTicket() {
         <h2 className="train-customer__section-title">Hành trình phổ biến</h2>
         <p className="train-customer__section-subtitle">Những tuyến tàu được yêu thích nhất với giá tốt nhất.</p>
         <div className="train-customer__routes-grid">
-          <div className="train-customer__route-card train-customer__route-card--large" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&q=80&w=800)' }}>
-            <div className="train-customer__route-badge">Yêu thích nhất</div>
-            <div className="train-customer__route-overlay">
-              <h3 className="train-customer__route-title">TP. HCM → Đà Nẵng</h3>
-              <span className="train-customer__route-meta">Khoảng 17 giờ di chuyển</span>
-              <span className="train-customer__route-price">850.000 VND</span>
+          {(popularTrains?.data ?? []).map((train, index) => (
+            <div
+              key={train.maVe}
+              className={`train-customer__route-card ${index < 2 ? 'train-customer__route-card--large' : 'train-customer__route-card--small'}`}
+              style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&q=80&w=800)' }}
+              onClick={() => navigate(`/mua-sam/chi-tiet-tau/${train.maVe}`)}
+            >
+              {index === 0 && <div className="train-customer__route-badge">Yêu thích nhất</div>}
+              <div className="train-customer__route-overlay">
+                <h3 className="train-customer__route-title">{train.diemKhoiHanh} → {train.diemDen}</h3>
+                <span className="train-customer__route-meta">{train.soHieuChuyenTau || train.hangTau}</span>
+                <span className="train-customer__route-price">{formatVnd(train.giaThapNhat)}</span>
+              </div>
             </div>
-          </div>
-          <div className="train-customer__route-card train-customer__route-card--large" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=800)' }}>
-            <div className="train-customer__route-overlay">
-              <h3 className="train-customer__route-title">Hà Nội → Hải Phòng</h3>
-              <span className="train-customer__route-meta">2 giờ 30 phút</span>
-              <span className="train-customer__route-price">120.000 VND</span>
-            </div>
-          </div>
-          <div className="train-customer__route-card train-customer__route-card--small" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&q=80&w=600)' }}>
-            <div className="train-customer__route-overlay">
-              <h3 className="train-customer__route-title">Hà Nội → Huế</h3>
-              <span className="train-customer__route-price">650.000 VND</span>
-            </div>
-          </div>
-          <div className="train-customer__route-card train-customer__route-card--small" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80&w=600)' }}>
-            <div className="train-customer__route-overlay">
-              <h3 className="train-customer__route-title">Hà Nội → Lào Cai</h3>
-              <span className="train-customer__route-price">450.000 VND</span>
-            </div>
-          </div>
-          <div className="train-customer__route-card train-customer__route-card--small" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&q=80&w=600)' }}>
-            <div className="train-customer__route-overlay">
-              <h3 className="train-customer__route-title">TP. HCM → Phan Thiết</h3>
-              <span className="train-customer__route-price">250.000 VND</span>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 

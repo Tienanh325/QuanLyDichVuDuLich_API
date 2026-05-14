@@ -1,9 +1,9 @@
 const { pool } = require('../config/db');
 
 class KhachSanModel {
-    static async getAll({ page = 1, limit = 10, search, viTri } = {}) {
+    static async getAll({ page = 1, limit = 10, search, viTri, minPrice, maxPrice, soSao } = {}) {
         const pageNum = Math.max(parseInt(page, 10) || 1, 1);
-        const limitNum = Math.max(parseInt(limit, 10) || 10, 1);
+        const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 10));
         const offset = (pageNum - 1) * limitNum;
         const whereParams = [];
         let whereClause = `WHERE dv.trangThai = 1`;
@@ -16,6 +16,25 @@ class KhachSanModel {
             whereClause += ` AND (dv.ten LIKE ? OR ks.viTri LIKE ? OR ks.tenkhachsan LIKE ?)`;
             const s = `%${search}%`;
             whereParams.push(s, s, s);
+        }
+        if (soSao) {
+            const stars = String(soSao).split(',').map((item) => parseInt(item, 10)).filter((item) => item >= 1 && item <= 5);
+            if (stars.length) {
+                whereClause += ` AND ks.soSao IN (${stars.map(() => '?').join(',')})`;
+                whereParams.push(...stars);
+            }
+        }
+        if (minPrice || maxPrice) {
+            whereClause += ` AND EXISTS (SELECT 1 FROM LoaiPhong lp WHERE lp.maKhachSan = ks.maKhachSan AND lp.soLuongPhongTrong > 0`;
+            if (minPrice) {
+                whereClause += ` AND lp.giaPhong >= ?`;
+                whereParams.push(Number(minPrice));
+            }
+            if (maxPrice) {
+                whereClause += ` AND lp.giaPhong <= ?`;
+                whereParams.push(Number(maxPrice));
+            }
+            whereClause += `)`;
         }
 
         try {
