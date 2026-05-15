@@ -420,23 +420,6 @@ export default function CustomerHome() {
           </section>
         </div>
       </section>
-      <Reveal as="section" className="home-stats" direction="up">
-        <div className="customer-shell__container home-stats__grid">
-          <div className="home-stat-card motion-hover-lift">
-            <strong><CountUp value={120} suffix="+" /></strong>
-            <span>Điểm đến nổi bật</span>
-          </div>
-          <div className="home-stat-card motion-hover-lift">
-            <strong><CountUp value={8600} suffix="+" /></strong>
-            <span>Khách hàng hài lòng</span>
-          </div>
-          <div className="home-stat-card motion-hover-lift">
-            <strong><CountUp value={98} suffix="%" /></strong>
-            <span>Đặt dịch vụ thành công</span>
-          </div>
-        </div>
-      </Reveal>
-
       {/* Promos Section ('Ưu đãi chọn lọc') */}
       <Reveal as="section" className="home-motion-section" direction="up" style={{ padding: '64px 0', background: '#fff' }}>
         <div className="customer-shell__container" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
@@ -563,15 +546,15 @@ export default function CustomerHome() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
             {(featuredHotels.length > 0 ? featuredHotels : [
-              { maKhachSan: 0, ten: "InterContinental Danang Sun Peninsula Resort", giaTuKhoang: 10000000, viTri: "Đà Nẵng, Việt Nam", rating: "4.9", reviews: "1.2k", avatar: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80" },
-              { maKhachSan: 0, ten: "Four Seasons Resort Bali at Sayan", giaTuKhoang: 15000000, viTri: "Ubud, Bali", rating: "4.9", reviews: "2.1k", avatar: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80" },
-              { maKhachSan: 0, ten: "Aman Tokyo", giaTuKhoang: 20000000, viTri: "Otemachi, Tokyo", rating: "4.8", reviews: "940", avatar: "https://images.unsplash.com/photo-1542314831-c6a4d14d8835?w=800&q=80" },
-            ]).map((acc: any) => (
+              { maKhachSan: 0, ten: "InterContinental Danang Sun Peninsula Resort", giaTuKhoang: 10000000, viTri: "Đà Nẵng, Việt Nam", rating: "4.9", reviews: "1.2k", avatar: baibienImage },
+              { maKhachSan: 0, ten: "Four Seasons Resort Bali at Sayan", giaTuKhoang: 15000000, viTri: "Ubud, Bali", rating: "4.9", reviews: "2.1k", avatar: baibienImage },
+              { maKhachSan: 0, ten: "Aman Tokyo", giaTuKhoang: 20000000, viTri: "Otemachi, Tokyo", rating: "4.8", reviews: "940", avatar: baibienImage },
+            ]).map((acc: { maKhachSan?: number; ten?: string; name?: string; giaTuKhoang?: number | null; price?: string; viTri?: string; location?: string; rating?: string; reviews?: string | number; avatar?: string | null }) => (
               <div key={acc.maKhachSan || acc.ten} className="home-accommodation-card motion-hover-lift" onClick={() => acc.maKhachSan && navigate(`/mua-sam/khach-san/${acc.maKhachSan}`)} style={{ borderRadius: 20, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer' }}>
                 <div style={{ 
                   height: 240, 
                   position: 'relative',
-                  backgroundImage: `url(${acc.avatar || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80'})`,
+                  backgroundImage: `url(${acc.avatar || baibienImage})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center'
                 }}>

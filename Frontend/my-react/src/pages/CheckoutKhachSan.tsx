@@ -283,7 +283,7 @@ export default function CheckoutKhachSan() {
       setHoTen(session.fullName ?? "");
       setEmail(session.email ?? "");
     }
-  }, []);
+  }, [session]);
 
   async function handleContinue() {
     if (!hoTen.trim() || !email.trim()) {

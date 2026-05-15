@@ -36,7 +36,7 @@ export function Reveal({
     if (!node) return;
 
     if (!("IntersectionObserver" in window)) {
-      setVisible(true);
+      queueMicrotask(() => setVisible(true));
       return;
     }
 

@@ -676,7 +676,7 @@ export default function AdminKhachSan() {
         okText={editingItem ? "Lưu thay đổi" : "Tạo mới"}
         cancelText="Huỷ"
         confirmLoading={submitting}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form<HotelFormValues> form={form} layout="vertical" style={{ marginTop: 16 }}>
           <Form.Item label="Dịch vụ" name="maDichVu" rules={[{ required: true, message: "Chọn dịch vụ." }]}>
@@ -703,7 +703,7 @@ export default function AdminKhachSan() {
         onCancel={() => setRoomModalOpen(false)}
         width={800}
         footer={null}
-        destroyOnClose
+        destroyOnHidden
       >
         <Tabs
           items={[

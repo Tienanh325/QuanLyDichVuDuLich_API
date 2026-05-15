@@ -84,7 +84,7 @@ export default function CustomerActivitySearchResults() {
   }
 
   useEffect(() => {
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     getPublicTours({
       search: searchQuery || undefined,
       page: currentPage,

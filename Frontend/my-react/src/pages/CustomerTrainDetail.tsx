@@ -32,7 +32,7 @@ const CustomerTrainDetail = () => {
 
   useEffect(() => {
     if (!id) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     getVeById(id).then(setTicket).catch(() => setTicket(null)).finally(() => setLoading(false));
   }, [id]);
 

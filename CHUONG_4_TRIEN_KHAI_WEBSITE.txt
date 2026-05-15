@@ -1,0 +1,752 @@
+CHƯƠNG 4: TRIỂN KHAI WEBSITE
+
+4.1. Triển khai các chức năng cho phân hệ người dùng
+
+Phân hệ người dùng của hệ thống được xây dựng theo mô hình tách biệt giữa giao diện và xử lý nghiệp vụ. Ở phía giao diện, dự án sử dụng ReactJS kết hợp TypeScript, được khởi tạo và build bằng Vite, đồng thời sử dụng thêm các thư viện như React Router DOM để điều hướng trang, Axios để gọi API, TanStack React Query để truy vấn dữ liệu, Ant Design để hỗ trợ một số thành phần giao diện, và Lucide React để hiển thị biểu tượng. Toàn bộ ứng dụng frontend được khởi tạo tại file Frontend/my-react/src/main.tsx, trong đó tích hợp BrowserRouter và QueryClientProvider.
+
+Phân hệ người dùng gồm các chức năng chính như: đăng ký tài khoản, đăng nhập, xem trang chủ, xem danh sách khách sạn, xem chi tiết khách sạn, tìm kiếm dữ liệu dịch vụ, đặt chỗ khách sạn, thanh toán, xem lịch sử đặt chỗ và một số trang tài khoản cá nhân. Frontend giao tiếp với backend thông qua các API dạng REST, với cấu hình gọi API tập trung tại file Frontend/my-react/src/services/api.ts. Backend cung cấp API bằng Node.js + Express, trả dữ liệu JSON, xác thực người dùng bằng JWT, và lưu trữ dữ liệu bằng MySQL thông qua thư viện mysql2/promise.
+
+4.1.1. Chức năng đăng ký tài khoản
+
+a) Phía frontend
+
+- Xây dựng bố cục trang bằng HTML/JSX:
+
+Chức năng đăng ký được triển khai tại file Frontend/my-react/src/pages/DangKy.tsx. Giao diện được xây dựng theo bố cục hai cột, gồm khối biểu mẫu nhập thông tin tài khoản và khối trình bày thông điệp giới thiệu. Form đăng ký gồm các trường: tên đăng nhập, họ tên, email, số điện thoại, mật khẩu và xác nhận mật khẩu. Ngoài ra còn có nút đăng ký và liên kết chuyển sang trang đăng nhập.
+
+- Kỹ thuật định dạng bằng CSS:
+
+Giao diện sử dụng kiểu thiết kế hiện đại với nền gradient, card bo góc, đổ bóng và các vùng nhập liệu dạng khối. CSS được kết hợp giữa inline style trong file component và file dùng chung Frontend/my-react/src/assets/css/DangNhap.css. Form được căn giữa, khoảng cách giữa các trường được bố trí đều, màu sắc theo tông xanh dương nhạt phù hợp với ứng dụng du lịch.
+
+- Sử dụng JavaScript, ReactJS để lập trình chức năng:
+
+Component quản lý state bằng useState cho các trường nhập liệu. Khi người dùng bấm nút đăng ký, hàm handleSubmit() kiểm tra dữ liệu bắt buộc, kiểm tra khớp mật khẩu xác nhận, sau đó gọi hàm registerWithAPI() trong file Frontend/my-react/src/utils/auth.ts. Hàm này gửi request POST đến API /api/auth/register. Nếu đăng ký thành công, hệ thống điều hướng người dùng sang trang đăng nhập và hiển thị thông báo đã đăng ký thành công.
+
+b) Phía backend
+
+- Triển khai lớp tầng DataAccess/Model:
+
+Dữ liệu người dùng được lưu trong bảng Users. Việc thêm người dùng mới được thực hiện trực tiếp trong Backend/my-node-app/services/auth.service.js thông qua truy vấn SQL INSERT INTO Users (...). Trong quá trình này, hệ thống kiểm tra trùng username hoặc email bằng truy vấn SELECT * FROM Users WHERE username = ? OR email = ?.
+
+- Triển khai lớp tầng Business/Service:
+
+Tại file Backend/my-node-app/services/auth.service.js, hàm register() đảm nhiệm nghiệp vụ đăng ký tài khoản. Hệ thống kiểm tra tài khoản đã tồn tại hay chưa, mã hóa mật khẩu bằng bcryptjs, sau đó thêm bản ghi người dùng vào cơ sở dữ liệu với vai trò mặc định là CUSTOMER và trạng thái hoạt động là true.
+
+- Triển khai lớp tầng Controller:
+
+File Backend/my-node-app/controllers/auth.controller.js tiếp nhận request đăng ký thông qua hàm register(). Controller kiểm tra dữ liệu đầu vào cơ bản gồm username, password, ten, sau đó gọi AuthService.register(). Route tương ứng được khai báo tại Backend/my-node-app/routes/auth.routes.js:
+
+- POST /api/auth/register
+
+API này được frontend gọi từ Frontend/my-react/src/utils/auth.ts.
+
+4.1.2. Chức năng đăng nhập
+
+a) Phía frontend
+
+- Xây dựng bố cục trang bằng HTML/JSX:
+
+Trang đăng nhập được triển khai tại Frontend/my-react/src/pages/DangNhap.tsx. Bố cục gồm phần giới thiệu bên trái và phần form đăng nhập bên phải. Form gồm hai trường chính: tên đăng nhập và mật khẩu. Ngoài ra còn có nút hiển thị/ẩn mật khẩu, thông báo lỗi, thông báo đăng ký thành công và liên kết sang trang đăng ký.
+
+- Kỹ thuật định dạng bằng CSS:
+
+Giao diện sử dụng card lớn có bo góc, nền mờ, hiệu ứng bóng và bố cục chia lưới hai cột. Trường nhập liệu được gắn icon minh họa bằng thư viện lucide-react. Màu chủ đạo là cam và xanh, tạo cảm giác hiện đại và thân thiện.
+
+- Sử dụng JavaScript, ReactJS để lập trình chức năng:
+
+Khi người dùng gửi form, hàm handleSubmit() gọi loginWithAPI() trong Frontend/my-react/src/utils/auth.ts. Hàm này gửi request POST đến /api/auth/login. Nếu đăng nhập thành công, token JWT được lưu vào localStorage với key travelhub_token, đồng thời lưu session vào travelhub_session. Sau đó hệ thống điều hướng: nếu vai trò là admin thì chuyển tới /admin/ThongKe, nếu vai trò là customer thì chuyển tới /mua-sam.
+
+Ngoài ra, file Frontend/my-react/src/services/api.ts cấu hình interceptor để tự động gắn token vào header Authorization cho các request sau này, và tự động chuyển về trang đăng nhập nếu API trả lỗi 401.
+
+b) Phía backend
+
+- Triển khai lớp tầng DataAccess/Model:
+
+Việc truy vấn tài khoản khi đăng nhập được thực hiện trong Backend/my-node-app/services/auth.service.js, bằng câu lệnh tìm người dùng theo username từ bảng Users.
+
+- Triển khai lớp tầng Business/Service:
+
+Hàm login() trong Backend/my-node-app/services/auth.service.js đảm nhiệm nghiệp vụ đăng nhập. Hệ thống kiểm tra: tài khoản có tồn tại hay không, tài khoản có bị khóa hay không, mật khẩu có đúng hay không. Mật khẩu được so sánh bằng bcrypt.compare() nếu dữ liệu là dạng hash; ngoài ra có hỗ trợ so sánh plain text cho dữ liệu mẫu. Sau đó hệ thống tạo JWT token bằng jsonwebtoken, với thông tin maUser, username, vaiTro, thời hạn 1 ngày.
+
+- Triển khai lớp tầng Controller:
+
+File Backend/my-node-app/controllers/auth.controller.js tiếp nhận request đăng nhập qua hàm login(), kiểm tra đầu vào rồi gọi AuthService.login(). Route tương ứng:
+
+- POST /api/auth/login
+
+API này được frontend gọi từ Frontend/my-react/src/utils/auth.ts.
+
+4.1.3. Trang chủ người dùng
+
+a) Phía frontend
+
+- Xây dựng bố cục trang bằng HTML/JSX:
+
+Trang chủ phân hệ người dùng được cấu hình tại route /mua-sam, hiển thị component CustomerHome theo định nghĩa trong Frontend/my-react/src/routes/index.tsx. Giao diện dùng layout chung Frontend/my-react/src/layouts/CustomerLayout.tsx. Ngoài phần nội dung trung tâm, hệ thống còn có header và footer dùng cho toàn bộ khu vực mua sắm.
+
+- Kỹ thuật định dạng bằng CSS:
+
+Trang chủ sử dụng các file CSS như Frontend/my-react/src/assets/css/CustomerHome.css, kết hợp các section hiển thị theo card, banner và lưới nội dung. Một số thành phần dùng ảnh minh họa và icon để tăng tính trực quan.
+
+- Sử dụng JavaScript, ReactJS để lập trình chức năng:
+
+Trang chủ đóng vai trò điều hướng người dùng tới các nhóm dịch vụ như khách sạn, vé máy bay, vé tàu và hoạt động vui chơi. Một số dữ liệu hiển thị dạng nổi bật có thể được lấy từ các API công khai thông qua các service tương ứng.
+
+b) Phía backend
+
+- Triển khai lớp tầng DataAccess/Model:
+
+Trang chủ chủ yếu sử dụng dữ liệu tổng hợp từ các module dịch vụ công khai như khách sạn, tour hoặc dịch vụ nổi bật.
+
+- Triển khai lớp tầng Business/Service:
+
+Chưa xác định được một service backend riêng dành riêng cho trang chủ; dữ liệu được lấy từ các API công khai của từng loại dịch vụ.
+
+- Triển khai lớp tầng Controller:
+
+Backend cung cấp các route công khai trong Backend/my-node-app/routes/customer.routes.js, ví dụ:
+
+- GET /api/dich-vu
+- GET /api/dich-vu/noi-bat
+- GET /api/tour
+- GET /api/khach-san
+
+4.1.4. Chức năng xem danh sách khách sạn và tìm kiếm khách sạn
+
+a) Phía frontend
+
+- Xây dựng bố cục trang bằng HTML/JSX:
+
+Trang khách sạn được triển khai tại Frontend/my-react/src/pages/CustomerHotel.tsx, route /mua-sam/khach-san. Giao diện gồm các khu vực chính: thanh tìm kiếm điểm đến, chọn ngày nhận và trả phòng, chọn số lượng khách, danh sách khách sạn nổi bật, danh sách điểm đến phổ biến, khu vực hiển thị kết quả tìm kiếm. Component còn sử dụng CustomerHotelSearchResults để hiển thị kết quả theo điều kiện tìm kiếm.
+
+- Kỹ thuật định dạng bằng CSS:
+
+Trang sử dụng các file CSS CustomerHome.css và CustomerHotel.css, kết hợp bố cục dạng thẻ card, lưới nhiều cột, khu vực tìm kiếm có biểu tượng và hiệu ứng mở rộng. Giao diện phù hợp với web du lịch, hiển thị danh sách khách sạn dưới dạng các khối trực quan.
+
+- Sử dụng JavaScript, ReactJS để lập trình chức năng:
+
+Trang sử dụng useQuery của React Query để gọi getPublicHotels() từ Frontend/my-react/src/services/hotelService.ts. Dữ liệu tìm kiếm được truyền qua query string, xử lý bởi các hàm hỗ trợ trong Frontend/my-react/src/utils/hotelSearch. Khi người dùng tìm kiếm theo điểm đến, ngày lưu trú, số khách, hệ thống sinh query tương ứng và hiển thị kết quả theo điều kiện đó. Ngoài ra còn có lọc theo vị trí, khoảng giá và số sao ở phía backend.
+
+b) Phía backend
+
+- Triển khai lớp tầng DataAccess/Model:
+
+File Backend/my-node-app/models/khachsan.model.js cài đặt hàm getAll() để truy vấn danh sách khách sạn. Hàm này hỗ trợ các tham số: page, limit, search, viTri, minPrice, maxPrice, soSao. Truy vấn SQL kết hợp các bảng KhachSan, DichVu, NhaCungCap, và truy vấn con trên bảng LoaiPhong để tính giá thấp nhất còn phòng.
+
+- Triển khai lớp tầng Business/Service:
+
+Module khách sạn không tách service riêng; controller gọi trực tiếp model. Việc lọc, phân trang, tính tổng số bản ghi, tính giaTuKhoang đã được xử lý trong model.
+
+- Triển khai lớp tầng Controller:
+
+File Backend/my-node-app/controllers/khachsan.controller.js có hàm publicGetAll() gọi KhachSanModel.getAll(req.query) và trả về kết quả. Route khai báo tại Backend/my-node-app/routes/customer.routes.js:
+
+- GET /api/khach-san
+
+Ở frontend, API này được gọi tại Frontend/my-react/src/services/hotelService.ts.
+
+4.1.5. Chức năng xem chi tiết khách sạn
+
+a) Phía frontend
+
+- Xây dựng bố cục trang bằng HTML/JSX:
+
+Trang chi tiết khách sạn được triển khai tại Frontend/my-react/src/pages/CustomerHotelDetail.tsx, route /mua-sam/khach-san/:id. Giao diện gồm: breadcrumb điều hướng, khu vực thư viện ảnh, tên khách sạn, địa chỉ, điểm đánh giá, mô tả, danh sách tiện ích nổi bật, danh sách loại phòng, khu vực đánh giá, khu vực câu hỏi thường gặp, khối đặt phòng.
+
+- Kỹ thuật định dạng bằng CSS:
+
+File Frontend/my-react/src/assets/css/CustomerHotelDetail.css định dạng giao diện theo dạng trang chi tiết lớn, có lưới gallery ảnh, card phòng, khu vực đánh giá và FAQ. Một số icon như MapPin, Star, Wifi, Coffee, BedDouble được dùng để tăng tính trực quan.
+
+- Sử dụng JavaScript, ReactJS để lập trình chức năng:
+
+Khi trang tải lên, component lấy tham số id từ URL bằng useParams, sau đó gọi getPublicHotelById(id) trong hotelService.ts. Dữ liệu trả về gồm thông tin khách sạn, danh sách loại phòng và số lượng đánh giá. Người dùng có thể chọn loại phòng, số khách, số phòng, ngày nhận và trả phòng. Khi bấm Đặt ngay, hệ thống tạo query string gồm khachSanId, maDichVu, loaiPhongId, giaPhong, checkIn, checkOut, adults, rooms,... rồi chuyển sang trang thanh toán khách sạn.
+
+b) Phía backend
+
+- Triển khai lớp tầng DataAccess/Model:
+
+Trong Backend/my-node-app/models/khachsan.model.js, hàm getById(id) truy vấn: thông tin khách sạn từ bảng KhachSan, thông tin dịch vụ từ bảng DichVu, nhà cung cấp từ bảng NhaCungCap, danh sách loại phòng từ bảng LoaiPhong, điểm đánh giá trung bình và số lượng đánh giá từ bảng DanhGia. Kết quả trả về là một object gồm thông tin khách sạn, loaiPhong, hinhAnh, danhGia.
+
+- Triển khai lớp tầng Business/Service:
+
+Chưa tách lớp service riêng; logic lấy dữ liệu chi tiết nằm trong model.
+
+- Triển khai lớp tầng Controller:
+
+File Backend/my-node-app/controllers/khachsan.controller.js có hàm getById(req, res) nhận id, gọi model và trả về dữ liệu chi tiết hoặc lỗi 404 nếu không tìm thấy. Route:
+
+- GET /api/khach-san/:id
+
+4.1.6. Chức năng đặt chỗ khách sạn
+
+a) Phía frontend
+
+- Xây dựng bố cục trang bằng HTML/JSX:
+
+Trang đặt chỗ khách sạn được triển khai tại Frontend/my-react/src/pages/CheckoutKhachSan.tsx, route /mua-sam/thanh-toan-khach-san. Giao diện gồm các phần: thanh tiến trình 3 bước, form thông tin liên hệ, khối yêu cầu đặc biệt, khối tóm tắt đơn đặt, chi tiết giá, nút tiếp tục thanh toán.
+
+- Kỹ thuật định dạng bằng CSS:
+
+Trang sử dụng file Frontend/my-react/src/assets/css/checkoutkhachsan.css. Bố cục chia thành nhiều card riêng biệt, nhấn mạnh vào thông tin giá, thông tin khách hàng và độ an toàn khi giao dịch.
+
+- Sử dụng JavaScript, ReactJS để lập trình chức năng:
+
+Trang nhận dữ liệu từ query string do trang chi tiết khách sạn truyền sang, gồm thông tin khách sạn, loại phòng, ngày ở, số phòng, số khách, giá. Component tính số đêm lưu trú, tính tổng tiền, thuế và phí. Nếu người dùng chưa đăng nhập thì chuyển về trang đăng nhập. Nếu đã đăng nhập, khi bấm tiếp tục hệ thống gọi createDonDat() trong Frontend/my-react/src/services/hotelService.ts, gửi danh sách chiTietList lên API tạo đơn đặt. Sau khi tạo đơn thành công, hệ thống lưu thông tin đặt chỗ vào local storage qua saveBookingInfo() và chuyển sang trang thanh toán.
+
+b) Phía backend
+
+- Triển khai lớp tầng DataAccess/Model:
+
+Việc tạo đơn đặt được triển khai qua DonDatModel và được gọi từ Backend/my-node-app/controllers/dondat.controller.js. Model xử lý tạo đơn và lưu các chi tiết đơn đặt. Do source code model chi tiết không được trích đầy đủ trong lần đọc, có thể xác định chắc chắn rằng backend dùng lớp DonDatModel.create(maUser, maKhuyenMai, chiTietList) để ghi dữ liệu đơn đặt.
+
+- Triển khai lớp tầng Business/Service:
+
+Chưa thấy tách service riêng cho đơn đặt; controller gọi trực tiếp model.
+
+- Triển khai lớp tầng Controller:
+
+Tại Backend/my-node-app/controllers/dondat.controller.js, hàm customerCreate(): lấy maUser từ token đã xác thực, kiểm tra chiTietList không rỗng, kiểm tra từng dòng chi tiết có maDichVu, soLuong, giaTaiThoiDiemMua, gọi model tạo đơn, trả về đơn đặt mới. Route:
+
+- POST /api/don-dat
+
+Route này được bảo vệ bởi middleware requireAuth trong Backend/my-node-app/routes/customer.routes.js.
+
+4.1.7. Chức năng thanh toán
+
+a) Phía frontend
+
+- Xây dựng bố cục trang bằng HTML/JSX:
+
+Sau bước tạo đơn, người dùng được điều hướng sang trang PaymentKhachSan.tsx, tiếp theo là SuccessKhachSan.tsx khi hoàn tất. Các route được khai báo trong Frontend/my-react/src/routes/index.tsx:
+
+- /mua-sam/thanh-toan-dat-cho
+- /mua-sam/thanh-toan-thanh-cong
+
+- Kỹ thuật định dạng bằng CSS:
+
+Các trang thanh toán được bố trí theo dạng từng bước, giúp người dùng dễ theo dõi trạng thái giao dịch.
+
+- Sử dụng JavaScript, ReactJS để lập trình chức năng:
+
+Frontend sử dụng hàm createThanhToan() trong Frontend/my-react/src/services/hotelService.ts để gọi API thanh toán. Payload gồm: maDon, phuongThuc, soTien, ghiChu, maGiaoDichNgoai.
+
+b) Phía backend
+
+- Triển khai lớp tầng DataAccess/Model:
+
+Backend có module thanh toán với controller ThanhToanController, kèm các route quản trị và người dùng. Chưa xác định được đầy đủ model cụ thể trong lần đọc, nhưng có thể xác định hệ thống có lưu và thống kê thanh toán.
+
+- Triển khai lớp tầng Business/Service:
+
+Chức năng thanh toán được xử lý trong ThanhToanController.customerThanhToan.
+
+- Triển khai lớp tầng Controller:
+
+Route dành cho người dùng:
+
+- POST /api/thanh-toan
+- GET /api/toi/don-dat/:donId/thanh-toan
+
+Các route này được khai báo tại Backend/my-node-app/routes/customer.routes.js.
+
+4.1.8. Chức năng xem đặt chỗ của tôi
+
+a) Phía frontend
+
+- Xây dựng bố cục trang bằng HTML/JSX:
+
+Trang Đặt chỗ của tôi được triển khai tại Frontend/my-react/src/pages/CustomerBookings.tsx, route /mua-sam/dat-cho-cua-toi. Giao diện gồm: sidebar điều hướng người dùng, khu vực vé điện tử và phiếu thanh toán hiện hành, khu vực liên kết tới lịch sử giao dịch.
+
+- Kỹ thuật định dạng bằng CSS:
+
+File Frontend/my-react/src/assets/css/CustomerBookings.css định dạng trang theo hướng thẻ vé điện tử, nhấn mạnh mã đặt chỗ, loại dịch vụ, thông tin thanh toán, thời gian sử dụng và liên kết điều hướng.
+
+- Sử dụng JavaScript, ReactJS để lập trình chức năng:
+
+Trang hiện tại đọc dữ liệu từ local storage qua readBookingInfo() trong bookingStorage, sau đó hiển thị vé điện tử tạm thời. Điều này cho thấy giao diện đã có chức năng hiển thị đặt chỗ, tuy nhiên trong file đang đọc, trang chưa trực tiếp gọi API /api/toi/don-dat để tải danh sách từ backend.
+
+b) Phía backend
+
+- Triển khai lớp tầng DataAccess/Model:
+
+DonDatModel hỗ trợ lấy danh sách đơn của người dùng và chi tiết đơn theo người dùng.
+
+- Triển khai lớp tầng Business/Service:
+
+Chưa tách service riêng.
+
+- Triển khai lớp tầng Controller:
+
+Trong Backend/my-node-app/controllers/dondat.controller.js có:
+
+- customerGetMyOrders()
+- customerGetMyOrderById()
+- customerCancel()
+
+Route tương ứng:
+
+- GET /api/toi/don-dat
+- GET /api/toi/don-dat/:id
+- PATCH /api/toi/don-dat/:id/huy
+
+Tuy nhiên, phía frontend trang CustomerBookings.tsx hiện chưa xác định được việc gọi trực tiếp các API này trong source code đã đọc.
+
+4.1.9. Chức năng tài khoản cá nhân
+
+a) Phía frontend
+
+- Xây dựng bố cục trang bằng HTML/JSX:
+
+Trang tài khoản được triển khai tại Frontend/my-react/src/pages/CustomerProfile.tsx, route /mua-sam/tai-khoan. Giao diện gồm hai tab: Thông tin tài khoản và Mật khẩu và bảo mật. Trong đó phần thông tin tài khoản có form họ tên, giới tính, ngày sinh, thành phố cư trú, email và số điện thoại.
+
+- Kỹ thuật định dạng bằng CSS:
+
+Trang sử dụng các file CSS CustomerTransactions.css và CustomerProfile.css, kết hợp với component Tabs, Form, Input, Select của Ant Design để tạo giao diện biểu mẫu quản lý hồ sơ.
+
+- Sử dụng JavaScript, ReactJS để lập trình chức năng:
+
+Trang hiện dùng dữ liệu userMock ngay trong file để hiển thị. Khi người dùng thay đổi dữ liệu và bấm lưu, hệ thống chỉ thực hiện console.log() và chưa xác định được việc gọi API cập nhật hồ sơ thực sự. Vì vậy, có thể kết luận giao diện trang hồ sơ đã có nhưng luồng kết nối backend ở phần này chưa xác định được trong source code đang đọc.
+
+b) Phía backend
+
+- Triển khai lớp tầng DataAccess/Model:
+
+File Backend/my-node-app/models/user.model.js có các hàm: update(id, data) để cập nhật ten, email, sdt; changePassword(id, oldPassword, newPassword).
+
+- Triển khai lớp tầng Business/Service:
+
+Nghiệp vụ cập nhật hồ sơ người dùng và đổi mật khẩu được thực hiện thông qua controller người dùng.
+
+- Triển khai lớp tầng Controller:
+
+Route dành cho hồ sơ cá nhân tại Backend/my-node-app/routes/customer.routes.js:
+
+- GET /api/toi/profile
+- PUT /api/toi/profile
+- PATCH /api/toi/doi-mat-khau
+
+Các API này yêu cầu đăng nhập bằng JWT.
+
+4.2. Triển khai các chức năng cho phân hệ quản trị nội dung
+
+Phân hệ quản trị được xây dựng dưới dạng một khu vực riêng với route gốc /admin, sử dụng layout Frontend/my-react/src/layouts/AdminLayout.tsx. Các chức năng quản trị chính bao gồm: thống kê tổng quan, quản lý khách sạn, quản lý loại phòng, quản lý dịch vụ, quản lý hình ảnh, quản lý tour, quản lý vé, quản lý loại vé, quản lý khuyến mãi, quản lý người dùng, quản lý nhà cung cấp, quản lý đơn đặt, quản lý đánh giá và cấu hình hệ thống. Phần lớn các trang quản trị giao tiếp với backend thông qua file service Frontend/my-react/src/services/adminService.ts, sử dụng token JWT gắn tự động trong api.ts.
+
+4.2.1. Chức năng thống kê tổng quan
+
+Mục đích của chức năng
+
+Chức năng này giúp quản trị viên theo dõi tình hình hoạt động của hệ thống như doanh thu, số lượng đơn đặt, số lượng khách hàng, số lượng dịch vụ, phân loại doanh thu theo nhóm dịch vụ và các cảnh báo vận hành.
+
+a) Phía frontend
+
+- Xây dựng bố cục trang bằng HTML/JSX:
+
+Trang được triển khai tại Frontend/my-react/src/pages/AdminThongKe.tsx. Giao diện gồm: các thẻ KPI tổng quan, biểu đồ doanh thu theo tháng, biểu đồ cơ cấu dịch vụ, danh sách dịch vụ hiệu quả, bộ lọc khoảng thời gian theo preset hoặc tùy chọn ngày.
+
+- Kỹ thuật định dạng bằng CSS:
+
+Trang sử dụng bố cục card, nền sáng, lưới nhiều cột và các biểu đồ trực quan. Các biểu đồ được dựng bằng thư viện recharts. Các thành phần chọn ngày và bộ lọc dùng DatePicker, Select của Ant Design.
+
+- Sử dụng JavaScript, ReactJS để lập trình chức năng:
+
+Component dùng useEffect để gọi adminGetDashboardStats(dateRange) từ adminService.ts. Dữ liệu được lưu vào state, sau đó hiển thị trong các card thống kê và biểu đồ. Khi quản trị viên thay đổi khoảng thời gian, hệ thống gọi lại API để lấy số liệu mới.
+
+b) Phía backend
+
+- Triển khai lớp tầng DataAccess/Model:
+
+Backend sử dụng model thống kê, điển hình là dashboard.model.js, để tổng hợp dữ liệu từ nhiều bảng như người dùng, nhà cung cấp, dịch vụ, tour, khách sạn, vé, đơn đặt, thanh toán.
+
+- Triển khai lớp tầng Business/Service:
+
+Chưa xác định được service trung gian riêng; controller gọi trực tiếp model/thành phần thống kê.
+
+- Triển khai lớp tầng Controller:
+
+Backend/my-node-app/routes/admin.routes.js khai báo các route:
+
+- GET /api/admin/thong-ke
+- GET /api/admin/thanh-toan/thong-ke
+- GET /api/admin/thanh-toan/doanh-thu
+
+Các route này được bảo vệ bởi middleware requireAdmin.
+
+4.2.2. Chức năng quản lý khách sạn và loại phòng
+
+Mục đích của chức năng
+
+Chức năng này cho phép quản trị viên thêm mới, cập nhật, xóa khách sạn; đồng thời quản lý loại phòng, tiện ích khách sạn và câu hỏi thường gặp của từng khách sạn.
+
+a) Phía frontend
+
+- Xây dựng bố cục trang bằng HTML/JSX:
+
+Chức năng được triển khai tại Frontend/my-react/src/pages/AdminKhachSan.tsx. Giao diện gồm: bảng danh sách khách sạn, ô tìm kiếm, form thêm/sửa khách sạn, khu vực quản lý loại phòng theo từng khách sạn, khu vực quản lý tiện ích, khu vực quản lý FAQ.
+
+- Kỹ thuật định dạng bằng CSS:
+
+Trang sử dụng các component của Ant Design như Table, Form, Modal, Tabs, Input, InputNumber, Select, Popconfirm. Dữ liệu được hiển thị theo bảng, modal dùng để thêm sửa, icon dùng để thể hiện thao tác thêm/sửa/xóa.
+
+- Sử dụng JavaScript, ReactJS để lập trình chức năng:
+
+Trang gọi trực tiếp nhiều API: lấy danh sách khách sạn, lấy danh sách dịch vụ, thêm/sửa/xóa khách sạn, lấy và quản lý loại phòng, lấy tiện ích khách sạn, lấy FAQ khách sạn. Dữ liệu được tải khi trang mở bằng loadHotels(). Khi người dùng thêm hoặc sửa khách sạn, trang gửi request tương ứng rồi tải lại dữ liệu.
+
+b) Phía backend
+
+- Triển khai lớp tầng DataAccess/Model:
+
+File Backend/my-node-app/models/khachsan.model.js cung cấp các hàm: getAll(), getById(), create(), update(), remove(), getLoaiPhong(), createLoaiPhong(), updateLoaiPhong(), removeLoaiPhong(), getKhachSanTienIch(), upsertKhachSanTienIch(), getKhachSanFAQ(), createKhachSanFAQ(), updateKhachSanFAQ(), removeKhachSanFAQ(), getLoaiPhongTienIch(), upsertLoaiPhongTienIch(). Như vậy, model này vừa thao tác với bảng KhachSan, LoaiPhong, vừa thao tác với các bảng liên kết tiện ích và FAQ.
+
+- Triển khai lớp tầng Business/Service:
+
+Chưa tách service riêng; controller xử lý kiểm tra dữ liệu đầu vào rồi gọi model.
+
+- Triển khai lớp tầng Controller:
+
+File Backend/my-node-app/controllers/khachsan.controller.js hiện thực đầy đủ các hàm quản lý khách sạn và loại phòng. Route tại Backend/my-node-app/routes/admin.routes.js gồm:
+
+- GET /api/admin/khach-san
+- GET /api/admin/khach-san/:id
+- POST /api/admin/khach-san
+- PUT /api/admin/khach-san/:id
+- DELETE /api/admin/khach-san/:id
+- GET /api/admin/khach-san/:id/loai-phong
+- POST /api/admin/khach-san/:id/loai-phong
+- PUT /api/admin/khach-san/:id/loai-phong/:phongId
+- DELETE /api/admin/khach-san/:id/loai-phong/:phongId
+- GET /api/admin/khach-san/:id/tien-ich
+- PUT /api/admin/khach-san/:id/tien-ich
+- GET /api/admin/khach-san/:id/faq
+- POST /api/admin/khach-san/:id/faq
+- PUT /api/admin/khach-san/:id/faq/:faqId
+- DELETE /api/admin/khach-san/:id/faq/:faqId
+
+4.2.3. Chức năng quản lý người dùng
+
+Mục đích của chức năng
+
+Cho phép quản trị viên theo dõi, tìm kiếm, khóa/mở khóa tài khoản, thay đổi vai trò, đặt lại mật khẩu hoặc xóa người dùng.
+
+a) Phía frontend
+
+Trang quản lý khách hàng được cấu hình tại route /admin/KhachHang, file Frontend/my-react/src/pages/AdminKhachHang.tsx. Trong adminService.ts, hệ thống có các hàm: adminGetUsers(), adminUpdateUserStatus(), adminUpdateUserRole(), adminDeleteUser(). Điều này cho thấy giao diện quản trị người dùng có hỗ trợ tải danh sách, cập nhật trạng thái, đổi vai trò và xóa tài khoản.
+
+b) Phía backend
+
+- Triển khai lớp tầng DataAccess/Model:
+
+File Backend/my-node-app/models/user.model.js có các hàm: getAll(), getById(), getByIdWithStats(), update(), updateRole(), updateStatus(), changePassword(), resetPassword(), remove().
+
+- Triển khai lớp tầng Controller:
+
+Route quản trị người dùng trong Backend/my-node-app/routes/admin.routes.js:
+
+- GET /api/admin/nguoi-dung
+- GET /api/admin/nguoi-dung/:id
+- PATCH /api/admin/nguoi-dung/:id/status
+- PATCH /api/admin/nguoi-dung/:id/vai-tro
+- PATCH /api/admin/nguoi-dung/:id/reset-password
+- DELETE /api/admin/nguoi-dung/:id
+
+4.2.4. Chức năng quản lý đơn đặt
+
+Mục đích của chức năng
+
+Cho phép quản trị viên theo dõi danh sách đơn đặt, xem chi tiết đơn, cập nhật trạng thái đơn hàng và phối hợp với module thanh toán.
+
+a) Phía frontend
+
+Trang quản lý đơn đặt tương ứng route /admin/DonHang, file Frontend/my-react/src/pages/AdminDonHang.tsx. Trong Frontend/my-react/src/services/adminService.ts, hệ thống cung cấp: adminGetDonDat(), adminGetDonDatById(), adminUpdateDonDatStatus(). Điều này cho thấy giao diện có các thao tác xem danh sách, xem chi tiết và cập nhật trạng thái đơn.
+
+b) Phía backend
+
+- Triển khai lớp tầng DataAccess/Model:
+
+DonDatModel chịu trách nhiệm lấy danh sách đơn, lấy chi tiết đơn và cập nhật trạng thái.
+
+- Triển khai lớp tầng Controller:
+
+File Backend/my-node-app/controllers/dondat.controller.js có: adminGetAll(), adminGetById(), adminUpdateStatus(). Route:
+
+- GET /api/admin/don-dat
+- GET /api/admin/don-dat/:id
+- PATCH /api/admin/don-dat/:id/trang-thai
+
+4.2.5. Chức năng quản lý đánh giá
+
+Mục đích của chức năng
+
+Cho phép quản trị viên kiểm soát nội dung đánh giá của người dùng, đặc biệt là xóa các đánh giá không phù hợp.
+
+a) Phía frontend
+
+Route /admin/DanhGia dùng file Frontend/my-react/src/pages/AdminDanhGia.tsx. Trong adminService.ts, hệ thống có: adminGetDanhGia(), adminDeleteDanhGia(). Như vậy, giao diện ít nhất có chức năng xem danh sách và xóa đánh giá.
+
+b) Phía backend
+
+- Triển khai lớp tầng Controller:
+
+Route trong Backend/my-node-app/routes/admin.routes.js:
+
+- GET /api/admin/danh-gia
+- DELETE /api/admin/danh-gia/:id
+
+Controller tương ứng là DanhGiaController.
+
+4.2.6. Chức năng quản lý khuyến mãi
+
+Mục đích của chức năng
+
+Cho phép quản trị viên tạo và quản lý chương trình giảm giá áp dụng cho đơn đặt.
+
+a) Phía frontend
+
+Route /admin/KhuyenMai dùng file Frontend/my-react/src/pages/AdminKhuyenMai.tsx. Trong adminService.ts, hệ thống có: adminGetKhuyenMai(). Ngoài ra còn có hàm validateKhuyenMai(id) phục vụ phía người dùng kiểm tra mã khuyến mãi.
+
+b) Phía backend
+
+- Triển khai lớp tầng Controller:
+
+Route:
+
+- GET /api/admin/khuyen-mai
+- GET /api/admin/khuyen-mai/:id
+- POST /api/admin/khuyen-mai
+- PUT /api/admin/khuyen-mai/:id
+- PATCH /api/admin/khuyen-mai/:id/status
+- DELETE /api/admin/khuyen-mai/:id
+- GET /api/khuyen-mai/:id/kiem-tra
+
+4.2.7. Chức năng quản lý nhà cung cấp, dịch vụ, tour, vé, loại vé, hình ảnh và cấu hình hệ thống
+
+Trong source code, phân hệ quản trị còn có các trang và API tương ứng sau:
+
+- Nhà cung cấp
+  - Frontend: AdminNhaCungCap.tsx
+  - Backend route:
+    - GET /api/admin/nha-cung-cap
+    - GET /api/admin/nha-cung-cap/:id
+    - POST /api/admin/nha-cung-cap
+    - PUT /api/admin/nha-cung-cap/:id
+    - PATCH /api/admin/nha-cung-cap/:id/status
+    - DELETE /api/admin/nha-cung-cap/:id
+
+- Dịch vụ
+  - Frontend: AdminDichVu.tsx
+  - Backend route:
+    - GET /api/admin/dich-vu
+    - GET /api/admin/dich-vu/:id
+    - POST /api/admin/dich-vu
+    - PUT /api/admin/dich-vu/:id
+    - PATCH /api/admin/dich-vu/:id/status
+    - DELETE /api/admin/dich-vu/:id
+
+- Hình ảnh
+  - Frontend: ImageAdmin.tsx
+  - Backend route:
+    - GET /api/admin/hinh-anh
+    - GET /api/admin/hinh-anh/:id
+    - POST /api/admin/hinh-anh
+    - POST /api/admin/hinh-anh/upload
+    - PUT /api/admin/hinh-anh/:id
+    - DELETE /api/admin/hinh-anh/bulk
+    - DELETE /api/admin/hinh-anh/:id
+
+- Tour
+  - Frontend: AdminTour.tsx
+  - Backend route gồm quản lý tour chính và nhiều tài nguyên con như: gói dịch vụ, mục dịch vụ, lịch trình, lịch khởi hành, review hiển thị.
+
+- Vé và loại vé
+  - Frontend: AdminVe.tsx, AdminVeMayBay.tsx, AdminVeTauHoa.tsx, AdminLoaiVe.tsx
+  - Backend route:
+    - GET /api/admin/ve
+    - GET /api/admin/ve/:id
+    - POST /api/admin/ve/may-bay
+    - POST /api/admin/ve/tau-hoa
+    - POST /api/admin/ve/vui-choi
+    - PUT /api/admin/ve/:id
+    - PATCH /api/admin/ve/:id/status
+    - DELETE /api/admin/ve/:id
+    - quản lý giá vé, tiện ích, khoang tàu, ghế
+    - quản lý loại vé qua /api/admin/loai-ve
+
+- Cấu hình hệ thống
+  - Frontend: AdminCauHinhHeThong.tsx
+  - Backend route:
+    - GET/POST/PUT/DELETE /api/admin/danh-muc-hoat-dong
+    - GET/POST/PUT/DELETE /api/admin/tien-ich
+    - GET/PATCH/DELETE /api/admin/newsletter
+
+Đối với các module trên, do giới hạn phạm vi đọc chi tiết từng file giao diện, có thể xác định chắc chắn rằng hệ thống đã có route frontend, service gọi API và route backend tương ứng; tuy nhiên một số chi tiết hiển thị nội bộ từng form, bảng hoặc cột dữ liệu chưa xác định đầy đủ trong source code đã đọc lần này.
+
+4.3. Kiểm thử và triển khai ứng dụng
+
+4.3.1. Kiểm thử
+
+Dựa trên các chức năng đã xác định trong source code, có thể xây dựng bảng kiểm thử cho những nghiệp vụ chính của hệ thống như sau.
+
+| STT | Chức năng | Trường hợp kiểm thử | Dữ liệu đầu vào | Kết quả mong đợi |
+|---|---|---|---|---|
+| 1 | Đăng ký tài khoản | Nhập đầy đủ thông tin hợp lệ | username, họ tên, email, mật khẩu, xác nhận mật khẩu đúng | Hệ thống tạo tài khoản mới, trả thông báo đăng ký thành công, chuyển sang trang đăng nhập |
+| 2 | Đăng ký tài khoản | Bỏ trống trường bắt buộc | Thiếu username hoặc họ tên hoặc email hoặc mật khẩu | Hệ thống hiển thị thông báo yêu cầu nhập đầy đủ thông tin |
+| 3 | Đăng ký tài khoản | Xác nhận mật khẩu không khớp | password khác confirmPassword | Hệ thống báo lỗi mật khẩu xác nhận không khớp |
+| 4 | Đăng nhập | Nhập đúng tài khoản khách hàng | username, password đúng | Hệ thống đăng nhập thành công, lưu token, chuyển sang khu vực /mua-sam |
+| 5 | Đăng nhập | Nhập đúng tài khoản quản trị | username, password của admin | Hệ thống đăng nhập thành công, chuyển sang /admin/ThongKe |
+| 6 | Đăng nhập | Sai mật khẩu | username đúng, password sai | Hệ thống báo lỗi đăng nhập thất bại |
+| 7 | Xem danh sách khách sạn | Truy cập trang khách sạn | Không cần đầu vào đặc biệt | Hệ thống hiển thị danh sách khách sạn từ API /api/khach-san |
+| 8 | Tìm kiếm khách sạn | Tìm theo vị trí | viTri = Đà Lạt | Hệ thống trả về các khách sạn có vị trí phù hợp |
+| 9 | Lọc khách sạn | Lọc theo khoảng giá | minPrice, maxPrice | Hệ thống chỉ hiển thị khách sạn có phòng trong mức giá yêu cầu |
+| 10 | Xem chi tiết khách sạn | Chọn một khách sạn từ danh sách | id khách sạn hợp lệ | Hệ thống hiển thị đầy đủ thông tin khách sạn, loại phòng, đánh giá |
+| 11 | Đặt phòng khách sạn | Người dùng đã đăng nhập, chọn phòng hợp lệ | maDichVu, maPhanLoaiDichVu, số lượng, ngày sử dụng | Hệ thống tạo đơn đặt thành công, chuyển sang bước thanh toán |
+| 12 | Đặt phòng khách sạn | Người dùng chưa đăng nhập | Chọn phòng rồi bấm tiếp tục | Hệ thống chuyển người dùng về trang đăng nhập |
+| 13 | Xem đặt chỗ | Có dữ liệu đặt chỗ hiện hành | Dữ liệu booking đã lưu | Hệ thống hiển thị vé điện tử và thông tin đặt chỗ |
+| 14 | Quản lý khách sạn | Thêm mới khách sạn | maDichVu, tên, vị trí | Hệ thống tạo khách sạn mới thành công trong trang quản trị |
+| 15 | Quản lý khách sạn | Cập nhật khách sạn | id khách sạn, dữ liệu sửa | Hệ thống cập nhật thông tin khách sạn thành công |
+| 16 | Quản lý khách sạn | Xóa khách sạn | id khách sạn hợp lệ | Hệ thống xóa khách sạn và cập nhật lại danh sách |
+| 17 | Quản lý loại phòng | Thêm loại phòng | tên loại phòng, giá phòng, sức chứa, số lượng phòng | Hệ thống thêm loại phòng mới cho khách sạn |
+| 18 | Quản lý người dùng | Khóa/Mở khóa tài khoản | id người dùng, trạng thái | Hệ thống cập nhật trạng thái tài khoản thành công |
+| 19 | Quản lý đơn đặt | Xem danh sách đơn | page, limit, search, trạng thái | Hệ thống hiển thị danh sách đơn đặt đúng điều kiện |
+| 20 | Quản lý đơn đặt | Cập nhật trạng thái đơn | id đơn, trạng thái mới | Hệ thống cập nhật trạng thái đơn thành công |
+
+4.3.2. Đóng gói ứng dụng
+
+Source code của hệ thống được tổ chức thành hai phần chính là frontend và backend. Mã nguồn có thể được quản lý bằng Git/GitHub nhằm phục vụ theo dõi thay đổi, cộng tác phát triển và triển khai phiên bản. Cấu trúc thư mục tổng quát của dự án gồm:
+
+- Frontend/my-react/: chứa mã nguồn giao diện ReactJS.
+- Backend/my-node-app/: chứa mã nguồn API backend Node.js/Express.
+- Backend/my-node-app/config/: cấu hình kết nối cơ sở dữ liệu.
+- Backend/my-node-app/routes/: định nghĩa các route API.
+- Backend/my-node-app/controllers/: xử lý request/response.
+- Backend/my-node-app/models/: thao tác dữ liệu với MySQL.
+- Backend/my-node-app/middleware/: middleware xác thực và phân quyền.
+- Backend/my-node-app/uploads/: thư mục lưu ảnh upload.
+
+Để cài đặt thư viện, phía frontend sử dụng file package.json với các lệnh:
+
+- npm install
+- npm run dev
+- npm run build
+
+Trong đó lệnh build frontend theo file Frontend/my-react/package.json là:
+
+npm run build
+
+thực chất chạy:
+
+tsc -b && vite build
+
+Phía backend cũng sử dụng package.json riêng. Các lệnh chính là:
+
+npm install
+npm start
+
+hoặc:
+
+npm run dev
+
+Theo source code tại Backend/my-node-app/index.js, backend mặc định chạy ở cổng 5000. Frontend giao tiếp với backend thông qua biến môi trường VITE_API_BASE_URL, nếu không khai báo thì mặc định dùng:
+
+http://localhost:5000
+
+Đối với cơ sở dữ liệu, file Backend/my-node-app/config/db.js cho thấy hệ thống dùng MySQL, với các biến cấu hình:
+
+- DB_HOST
+- DB_USER
+- DB_PASSWORD
+- DB_NAME
+- DB_PORT
+- DB_CONNECTION_LIMIT
+
+Nếu không cấu hình, hệ thống mặc định dùng:
+
+- host: localhost
+- user: root
+- password: 123456
+- database: travel
+- port: 3306
+
+Link GitHub: [Điền link GitHub tại đây]
+
+Hình 4.1. Source code GitHub
+
+4.3.3. Triển khai ứng dụng
+
+a) Yêu cầu phần cứng
+
+Để triển khai và vận hành hệ thống website, cần chuẩn bị cấu hình phần cứng tối thiểu như sau:
+
+- CPU: Intel Core i3 hoặc tương đương trở lên
+- RAM: Tối thiểu 8 GB
+- Ổ cứng: Tối thiểu 10 GB trống để chứa source code, thư viện và cơ sở dữ liệu
+- Kết nối internet: Cần có để tải thư viện, đồng bộ mã nguồn và truy cập hệ thống
+- Băng thông mạng: Đủ ổn định để phục vụ việc gọi API giữa frontend và backend, đặc biệt khi triển khai trên máy chủ thực tế
+
+b) Yêu cầu phần mềm
+
+Hệ thống cần các phần mềm sau để phát triển và triển khai:
+
+- Trình duyệt web: Google Chrome, Microsoft Edge hoặc tương đương
+- Visual Studio Code: để chỉnh sửa và quản lý source code
+- Node.js và npm: để cài đặt thư viện, build frontend và chạy backend
+- MySQL: để lưu trữ dữ liệu hệ thống
+- Git: để quản lý phiên bản mã nguồn
+- Các công cụ khác nếu cần: Postman để kiểm thử API, terminal hoặc PowerShell để chạy lệnh
+
+c) Quy trình triển khai
+
+Quy trình triển khai hệ thống có thể thực hiện theo các bước sau:
+
+Bước 1: Clone source code
+
+git clone <link-repository>
+
+Bước 2: Cài đặt thư viện frontend
+
+cd Frontend/my-react
+npm install
+
+Bước 3: Build frontend
+
+npm run build
+
+Nếu cần chạy ở chế độ phát triển:
+
+npm run dev
+
+Bước 4: Cài đặt thư viện backend
+
+cd Backend/my-node-app
+npm install
+
+Bước 5: Cấu hình biến môi trường
+
+Tạo hoặc chỉnh sửa file .env cho backend để khai báo các thông số:
+
+- PORT
+- DB_HOST
+- DB_USER
+- DB_PASSWORD
+- DB_NAME
+- DB_PORT
+- JWT_SECRET
+- FRONTEND_URL
+
+Phía frontend có thể cấu hình file .env với biến:
+
+- VITE_API_BASE_URL
+
+Bước 6: Khởi chạy backend
+
+npm start
+
+hoặc:
+
+npm run dev
+
+Bước 7: Truy cập website kiểm tra
+
+Sau khi backend chạy thành công tại cổng 5000 và frontend chạy bằng Vite, người dùng có thể mở trình duyệt và truy cập địa chỉ frontend để sử dụng hệ thống. Các request từ giao diện sẽ được gửi đến backend thông qua API REST đã cấu hình.
+
+Kết luận chương
+
+Qua quá trình phân tích source code, có thể thấy hệ thống website được triển khai theo kiến trúc tách biệt frontend và backend. Phần frontend sử dụng ReactJS, TypeScript và Vite để xây dựng giao diện hiện đại, trong khi backend sử dụng Node.js, Express và MySQL để xử lý nghiệp vụ và lưu trữ dữ liệu. Hệ thống đã xây dựng được đầy đủ nhiều chức năng thực tế cho cả phân hệ người dùng và phân hệ quản trị như đăng ký, đăng nhập, xem và tìm kiếm khách sạn, đặt chỗ, quản lý khách sạn, quản lý đơn đặt, thống kê vận hành và nhiều module nội dung khác. Nội dung triển khai trong chương này phản ánh trực tiếp các thành phần, route, controller, model và API có mặt trong source code hiện tại của dự án.

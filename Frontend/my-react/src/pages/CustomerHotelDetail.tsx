@@ -95,8 +95,10 @@ export default function CustomerHotelDetail() {
 
   useEffect(() => {
     if (!id) return;
-    setLoading(true);
-    setError(null);
+    queueMicrotask(() => {
+      setLoading(true);
+      setError(null);
+    });
     getPublicHotelById(id)
       .then((data) => {
         setHotel(data);
@@ -115,7 +117,7 @@ export default function CustomerHotelDetail() {
   useEffect(() => {
     if (!hotel || selectedRoomId) return;
     const firstAvailable = hotel.loaiPhong.find((room) => room.soLuongPhongTrong > 0) ?? hotel.loaiPhong[0];
-    setSelectedRoomId(firstAvailable?.maLoaiPhong ?? null);
+    queueMicrotask(() => setSelectedRoomId(firstAvailable?.maLoaiPhong ?? null));
   }, [hotel, selectedRoomId]);
 
   const selectedRoom = useMemo(

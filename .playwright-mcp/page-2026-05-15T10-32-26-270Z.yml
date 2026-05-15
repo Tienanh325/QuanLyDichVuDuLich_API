@@ -1,0 +1,53 @@
+- generic [ref=e3]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: Đăng ký tài khoản khách hàng
+      - heading "Tạo tài khoản mua sắm" [level=1] [ref=e8]
+      - paragraph [ref=e9]: Trang này chỉ dành cho khách hàng. Tài khoản admin sẽ được thêm thủ công bởi hệ thống.
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]: Tên đăng nhập
+        - generic [ref=e13]:
+          - img [ref=e14]
+          - textbox "Tên đăng nhập" [ref=e17]:
+            - /placeholder: "vd: nguyenvana123"
+      - generic [ref=e18]:
+        - generic [ref=e19]: Họ và tên
+        - generic [ref=e20]:
+          - img [ref=e21]
+          - textbox "Họ và tên" [ref=e25]:
+            - /placeholder: Nguyen Van A
+      - generic [ref=e26]:
+        - generic [ref=e27]: Email
+        - generic [ref=e28]:
+          - img [ref=e29]
+          - textbox "Email" [ref=e32]:
+            - /placeholder: khachhang@email.com
+      - generic [ref=e33]:
+        - generic [ref=e34]: Số điện thoại (tùy chọn)
+        - generic [ref=e35]:
+          - img [ref=e36]
+          - textbox "Số điện thoại (tùy chọn)" [ref=e38]:
+            - /placeholder: 09xxxxxxxx
+      - generic [ref=e39]:
+        - generic [ref=e40]: Mật khẩu
+        - generic [ref=e41]:
+          - img [ref=e42]
+          - textbox "Mật khẩu" [ref=e46]:
+            - /placeholder: Nhập mật khẩu
+      - generic [ref=e47]:
+        - generic [ref=e48]: Xác nhận mật khẩu
+        - generic [ref=e49]:
+          - img [ref=e50]
+          - textbox "Xác nhận mật khẩu" [ref=e54]:
+            - /placeholder: Nhap lai mat khau
+      - button "Đăng ký tài khoản" [ref=e55] [cursor=pointer]
+    - generic [ref=e56]:
+      - text: Đã có tài khoản?
+      - link "Quay lại đăng nhập" [ref=e57] [cursor=pointer]:
+        - /url: /dang-nhap
+  - generic [ref=e58]:
+    - generic [ref=e59]:
+      - generic [ref=e60]: TravelHub Membership
+      - heading "Mua tour, khách sạn và vé du lịch bằng tài khoản cá nhân của bạn." [level=2] [ref=e61]
+    - img "Du lịch TravelHub" [ref=e64]

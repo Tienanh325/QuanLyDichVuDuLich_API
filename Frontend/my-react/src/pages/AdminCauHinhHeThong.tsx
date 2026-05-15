@@ -119,7 +119,7 @@ export default function AdminCauHinhHeThong() {
       setAmenityData(amenities);
       setNewsletterData(newsletters);
       setIsUsingMockData(false);
-    } catch (error) {
+    } catch {
       setCategoryData(mockDanhMuc);
       setAmenityData(mockTienIch);
       setNewsletterData(mockNewsletter);
@@ -328,7 +328,7 @@ export default function AdminCauHinhHeThong() {
 
   return (
     <div style={pageContainerStyle}>
-      <Space direction="vertical" size={20} style={{ width: "100%" }}>
+      <Space orientation="vertical" size={20} style={{ width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
           <div>
             <Title level={3} style={{ margin: 0, color: "#182338" }}>Cấu hình giao diện</Title>
@@ -347,7 +347,7 @@ export default function AdminCauHinhHeThong() {
         </div>
 
         <Card style={cardStyle} styles={{ body: { padding: 20 } }}>
-          <Space direction="vertical" size={16} style={{ width: "100%" }}>
+          <Space orientation="vertical" size={16} style={{ width: "100%" }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
               <Input
                 allowClear
@@ -365,7 +365,7 @@ export default function AdminCauHinhHeThong() {
                   key: "categories",
                   label: "Danh mục hoạt động",
                   children: (
-                    <Space direction="vertical" size={12} style={{ width: "100%" }}>
+                    <Space orientation="vertical" size={12} style={{ width: "100%" }}>
                       <div style={{ display: "flex", justifyContent: "flex-end" }}>
                         <Button type="primary" icon={<Plus size={16} />} onClick={() => openCategoryModal()}>Thêm danh mục</Button>
                       </div>
@@ -377,7 +377,7 @@ export default function AdminCauHinhHeThong() {
                   key: "amenities",
                   label: "Tiện ích",
                   children: (
-                    <Space direction="vertical" size={12} style={{ width: "100%" }}>
+                    <Space orientation="vertical" size={12} style={{ width: "100%" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
                         <Select value={amenityTypeFilter} onChange={setAmenityTypeFilter} style={{ width: 220 }} options={[{ label: "Tất cả loại tiện ích", value: "all" }, { label: "Khách sạn", value: "KHACH_SAN" }, { label: "Phòng", value: "PHONG" }, { label: "Vé", value: "VE" }, { label: "Tour", value: "TOUR" }]} />
                         <Button type="primary" icon={<Plus size={16} />} onClick={() => openAmenityModal()}>Thêm tiện ích</Button>
@@ -390,7 +390,7 @@ export default function AdminCauHinhHeThong() {
                   key: "newsletter",
                   label: "Đăng ký nhận tin",
                   children: (
-                    <Space direction="vertical" size={12} style={{ width: "100%" }}>
+                    <Space orientation="vertical" size={12} style={{ width: "100%" }}>
                       <Select value={newsletterStatusFilter} onChange={setNewsletterStatusFilter} style={{ width: 220 }} options={[{ label: "Tất cả trạng thái", value: "all" }, { label: "Đang nhận tin", value: "ACTIVE" }, { label: "Đã hủy", value: "UNSUBSCRIBED" }]} />
                       <Table<NewsletterItem> rowKey="maDangKy" columns={newsletterColumns} dataSource={filteredNewsletter} loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 860 }} />
                     </Space>

@@ -11,6 +11,25 @@ import 'dayjs/locale/vi';
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
 
+type PendingOrder = {
+  maDon: number | string;
+  maUser?: number | string;
+  maNguoiDung?: number | string;
+  tongGia?: number;
+  ngayTao?: string;
+  trangThai?: string;
+};
+
+type NotificationItem = {
+  id: string;
+  avatar: string;
+  title: string;
+  content: string;
+  time: string;
+  isRead: boolean;
+  rawOrder: PendingOrder;
+};
+
 const TITLE_MAP: Record<string, string> = {
   '/ThongKe': 'thống kê',
   '/DichVu': 'dịch vụ',
@@ -30,28 +49,26 @@ const TITLE_MAP: Record<string, string> = {
 
 export default function HeaderBar() {
   const { pathname } = useLocation();
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
-  
-  // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [selectedOrder, setSelectedOrder] = useState<PendingOrder | null>(null);
   const [processing, setProcessing] = useState(false);
 
   const fetchPendingOrders = async () => {
     try {
       const res = await api.get('/api/admin/don-dat');
-      let list = [];
-      const data = res.data;
+      let list: PendingOrder[] = [];
+      const data = res.data as PendingOrder[] | { data?: PendingOrder[] | { data?: PendingOrder[] } };
       if (Array.isArray(data)) list = data;
-      else if (data && Array.isArray(data.data)) list = data.data;
-      else if (data?.data && Array.isArray(data.data.data)) list = data.data.data;
-      
-      const pending = list.filter((item: any) => 
+      else if (Array.isArray(data.data)) list = data.data;
+      else if (data.data && !Array.isArray(data.data) && Array.isArray(data.data.data)) list = data.data.data;
+
+      const pending = list.filter((item) =>
         String(item.trangThai).toUpperCase() === 'PENDING'
       );
-      
-      const notifs = pending.map((order: any) => ({
+
+      const notifs = pending.map((order) => ({
         id: `order_${order.maDon}`,
         avatar: `https://ui-avatars.com/api/?name=Order+${order.maDon}&background=e0f2fe&color=0369a1&bold=true`,
         title: 'Đơn hàng mới chờ duyệt',
@@ -79,8 +96,7 @@ export default function HeaderBar() {
     Object.entries(TITLE_MAP).find(([p]) => pathname === `/admin${p}` || pathname.startsWith(`/admin${p}/`))?.[1] ||
     'thống kê';
 
-  const handleNotificationClick = (n: any) => {
-    // mark as read visually
+  const handleNotificationClick = (n: NotificationItem) => {
     setNotifications(prev => prev.map(item => item.id === n.id ? { ...item, isRead: true } : item));
     
     if (n.rawOrder) {
@@ -97,7 +113,7 @@ export default function HeaderBar() {
       message.success(`Đã ${status === 'CONFIRMED' ? 'duyệt' : 'hủy'} đơn hàng #${selectedOrder.maDon}`);
       setIsModalOpen(false);
       fetchPendingOrders(); // refresh notifications
-    } catch (error) {
+    } catch {
       message.error("Có lỗi xảy ra, không thể cập nhật đơn hàng.");
     } finally {
       setProcessing(false);

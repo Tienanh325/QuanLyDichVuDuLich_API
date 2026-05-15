@@ -24,13 +24,30 @@ import {
   Ticket,
   Users,
 } from "lucide-react";
+import { DatePicker, Select, Space } from "antd";
+import dayjs from "dayjs";
 import { adminGetDashboardStats } from "../services/adminService";
-import type { DashboardStats } from "../services/adminService";
+import type { DashboardStats, DateRangeParams } from "../services/adminService";
 import { formatVnd } from "../utils/money";
 
 const numberFormatter = new Intl.NumberFormat("vi-VN");
 type ChartValue = number | string | ReadonlyArray<number | string> | undefined;
 type ChartName = number | string | undefined;
+type TimePreset = "7d" | "30d" | "month" | "year" | "custom";
+
+function getPresetRange(preset: TimePreset): DateRangeParams {
+  const today = dayjs();
+  if (preset === "7d") return { from: today.subtract(6, "day").format("YYYY-MM-DD"), to: today.format("YYYY-MM-DD") };
+  if (preset === "30d") return { from: today.subtract(29, "day").format("YYYY-MM-DD"), to: today.format("YYYY-MM-DD") };
+  if (preset === "month") return { from: today.startOf("month").format("YYYY-MM-DD"), to: today.endOf("month").format("YYYY-MM-DD") };
+  if (preset === "year") return { from: today.startOf("year").format("YYYY-MM-DD"), to: today.endOf("year").format("YYYY-MM-DD") };
+  return {};
+}
+
+function formatRangeLabel(range: DateRangeParams): string {
+  if (!range.from || !range.to) return "Tất cả thời gian";
+  return `${dayjs(range.from).format("DD/MM/YYYY")} - ${dayjs(range.to).format("DD/MM/YYYY")}`;
+}
 
 const serviceTypeMeta: Record<string, { label: string; color: string; icon: ReactNode }> = {
   TOUR: { label: "Tour", color: "#2563eb", icon: <Package size={18} color="#2563eb" /> },
@@ -134,9 +151,13 @@ export default function AdminThongKe() {
   const [dashboard, setDashboard] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [timePreset, setTimePreset] = useState<TimePreset>("30d");
+  const [dateRange, setDateRange] = useState<DateRangeParams>(() => getPresetRange("30d"));
 
   useEffect(() => {
-    adminGetDashboardStats()
+    setLoading(true);
+    setErrorMessage("");
+    adminGetDashboardStats(dateRange)
       .then((data) => {
         setDashboard(data);
       })
@@ -145,16 +166,22 @@ export default function AdminThongKe() {
         setErrorMessage("Không tải được dữ liệu thống kê từ API backend.");
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [dateRange]);
 
   const overview = dashboard?.overview ?? null;
+  const rangeLabel = formatRangeLabel(dateRange);
+
+  const handlePresetChange = (preset: TimePreset) => {
+    setTimePreset(preset);
+    if (preset !== "custom") setDateRange(getPresetRange(preset));
+  };
 
   const kpiCards = overview
     ? [
         {
           title: "Doanh thu tổng",
           value: `${numberFormatter.format(Math.round((overview.tongDoanhThu ?? 0) / 1_000_000))} tr`,
-          change: "Tổng tất cả thời gian",
+          change: rangeLabel,
           note: `Hôm nay: ${numberFormatter.format(Math.round((overview.doanhThuHomNay ?? 0) / 1000))} nghìn`,
           icon: <CircleDollarSign size={22} color="#2563eb" />,
           accent: "#2563eb",
@@ -278,6 +305,36 @@ export default function AdminThongKe() {
   return (
     <div style={pageStyle}>
       <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+        <section style={{ ...sectionCardStyle, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+          <div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: "#16233b" }}>Thống kê tổng quan</div>
+            <div style={{ color: "#70809b", marginTop: 6 }}>Khoảng thời gian: {rangeLabel}</div>
+          </div>
+          <Space wrap>
+            <Select<TimePreset>
+              value={timePreset}
+              onChange={handlePresetChange}
+              style={{ width: 150 }}
+              options={[
+                { value: "7d", label: "7 ngày" },
+                { value: "30d", label: "30 ngày" },
+                { value: "month", label: "Tháng này" },
+                { value: "year", label: "Năm nay" },
+                { value: "custom", label: "Tùy chọn" },
+              ]}
+            />
+            <DatePicker.RangePicker
+              value={dateRange.from && dateRange.to ? [dayjs(dateRange.from), dayjs(dateRange.to)] : null}
+              onChange={(dates) => {
+                if (!dates?.[0] || !dates?.[1]) return;
+                setTimePreset("custom");
+                setDateRange({ from: dates[0].format("YYYY-MM-DD"), to: dates[1].format("YYYY-MM-DD") });
+              }}
+              format="DD/MM/YYYY"
+            />
+          </Space>
+        </section>
+
         {errorMessage && (
           <div style={{ ...sectionCardStyle, color: "#b91c1c", background: "#fff7f7" }}>
             {errorMessage}
@@ -342,7 +399,7 @@ export default function AdminThongKe() {
             >
               <div>
                 <div style={{ fontWeight: 800, fontSize: 20, color: "#16233b" }}>
-                  Xu huong doanh thu va don dat
+                  Xu hướng doanh thu và đơn đặt
                 </div>
               </div>
               <div
@@ -394,7 +451,7 @@ export default function AdminThongKe() {
           <div style={{ ...sectionCardStyle, display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
               <div style={{ fontWeight: 800, fontSize: 20, color: "#16233b" }}>
-                Co cau doanh thu theo nhom
+                Cơ cấu doanh thu theo nhóm
               </div>
             </div>
             <div style={{ width: "100%", height: 250 }}>
@@ -455,7 +512,7 @@ export default function AdminThongKe() {
             >
               <div>
                 <div style={{ fontWeight: 800, fontSize: 20, color: "#16233b" }}>
-                  Hieu suat theo nhom dich vu
+                  Hiệu suất theo nhóm dịch vụ
                 </div>
               </div>
             </div>
@@ -481,7 +538,7 @@ export default function AdminThongKe() {
 
           <div style={sectionCardStyle}>
             <div style={{ fontWeight: 800, fontSize: 20, color: "#16233b", marginBottom: 16 }}>
-              San pham / dich vu dang keo tang truong
+              Sản phẩm / dịch vụ đang kéo tăng trưởng
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {topProducts.map((item) => (
@@ -517,7 +574,7 @@ export default function AdminThongKe() {
         <section style={twoColumnSectionStyle}>
           <div style={sectionCardStyle}>
             <div style={{ fontWeight: 800, fontSize: 20, color: "#16233b", marginBottom: 16 }}>
-              Chi so hanh vi nguoi dung
+              Chỉ số hành vi người dùng
             </div>
             <div
               style={{

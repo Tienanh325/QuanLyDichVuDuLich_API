@@ -444,7 +444,7 @@ export default function CustomerHotel() {
           </div>
 
           <div className="hotel-customer__exclusive-grid">
-            {(landingHotels?.data ?? exclusiveOffers).map((offer: any) => {
+            {(landingHotels?.data ?? exclusiveOffers).map((offer: { maKhachSan?: number | string; id?: number | string; ten?: string; name?: string; viTri?: string; location?: string; giaTuKhoang?: number | null; oldPrice?: string | number; newPrice?: string | number; rating?: number; reviews?: number; avatar?: string | null; image?: string; discount?: string | number }) => {
               const id = offer.maKhachSan ?? offer.id;
               const name = offer.ten ?? offer.name;
               const location = offer.viTri ?? offer.location;

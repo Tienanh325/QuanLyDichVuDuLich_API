@@ -1,0 +1,44 @@
+[     462ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   26698ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   27938ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   28192ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "new-password"): (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:5173/dang-ky:0
+[   28193ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "new-password"): (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:5173/dang-ky:0
+[   29320ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   30832ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   32310ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   33997ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   35614ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   37636ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   37792ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5000/api/toi/don-dat?limit=50:0
+[   37795ms] [ERROR] Lỗi khi tải giao dịch: AxiosError: Request failed with status code 401
+    at settle (http://127.0.0.1:5173/node_modules/.vite/deps/axios.js?v=0e4c55fd:1634:14)
+    at XMLHttpRequest.onloadend (http://127.0.0.1:5173/node_modules/.vite/deps/axios.js?v=0e4c55fd:1951:4)
+    at Axios$1.request (http://127.0.0.1:5173/node_modules/.vite/deps/axios.js?v=0e4c55fd:2518:37)
+    at async getMyOrders (http://127.0.0.1:5173/src/services/donDatService.ts:10:19)
+    at async fetchTransactions (http://127.0.0.1:5173/src/pages/CustomerTransactions.tsx:126:16) @ http://127.0.0.1:5173/@vite/client:509
+[   37797ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5000/api/toi/don-dat?limit=50:0
+[   37798ms] [ERROR] Lỗi khi tải giao dịch: AxiosError: Request failed with status code 401
+    at settle (http://127.0.0.1:5173/node_modules/.vite/deps/axios.js?v=0e4c55fd:1634:14)
+    at XMLHttpRequest.onloadend (http://127.0.0.1:5173/node_modules/.vite/deps/axios.js?v=0e4c55fd:1951:4)
+    at Axios$1.request (http://127.0.0.1:5173/node_modules/.vite/deps/axios.js?v=0e4c55fd:2518:37)
+    at async getMyOrders (http://127.0.0.1:5173/src/services/donDatService.ts:10:19)
+    at async fetchTransactions (http://127.0.0.1:5173/src/pages/CustomerTransactions.tsx:126:16) @ http://127.0.0.1:5173/@vite/client:509
+[   37977ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   39219ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   40435ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   41634ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   42840ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   44064ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   45308ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   46789ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   48094ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   49309ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   50630ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   51951ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   53221ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   54560ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   55830ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   57104ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   58349ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   59663ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[   60940ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337

@@ -107,7 +107,7 @@ export default function CustomerTrainSearchResults() {
   });
 
   useEffect(() => {
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     searchTauHoa({ diemKhoiHanh: fromCity, diemDen: toCity, ngayKhoiHanh: date, page: currentPage, limit: pageSize })
       .then((response) => {
         setTickets(response.data.map(mapTrain));
@@ -270,7 +270,7 @@ export default function CustomerTrainSearchResults() {
                 <span className="ctsr-sort-bar__label">SẮP XẾP THEO:</span>
                 <select
                   value={sortKey}
-                  onChange={(e) => setSortKey(e.target.value as any)}
+                  onChange={(e) => setSortKey(e.target.value as SortKey)}
                   className="ctsr-sort-bar__select"
                 >
                   <option value="price_desc">Giá: Cao → Thấp</option>

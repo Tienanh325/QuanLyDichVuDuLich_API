@@ -65,7 +65,8 @@ export default function CustomerFlightSearchResults({
   const pageSize = 5;
   const selectedStops = searchParams.get("soDiemDung");
   const selectedAirline = searchParams.get("hangHangKhong") ?? "";
-  const [activeSort, setActiveSort] = useState("cheapest");
+  type FlightSortKey = "price_desc" | "cheapest" | "duration_asc" | "duration_desc";
+  const [activeSort, setActiveSort] = useState<FlightSortKey>("cheapest");
   const [flights, setFlights] = useState<FlightResult[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -86,7 +87,7 @@ export default function CustomerFlightSearchResults({
   }
 
   useEffect(() => {
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     searchMayBay({
       diemKhoiHanh: searchState.fromTitle || undefined,
       diemDen: searchState.toTitle || undefined,
@@ -277,7 +278,7 @@ export default function CustomerFlightSearchResults({
                 <span className="cfsr-sort-bar__label">SẮP XẾP THEO:</span>
                 <select
                   value={activeSort}
-                  onChange={(e) => setActiveSort(e.target.value as any)}
+                  onChange={(e) => setActiveSort(e.target.value as FlightSortKey)}
                   className="cfsr-sort-bar__select"
                 >
                   <option value="price_desc">Giá: Cao → Thấp</option>

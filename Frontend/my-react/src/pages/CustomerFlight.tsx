@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
+import type { VeMayBayResult } from "../services/veService";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
@@ -412,11 +413,11 @@ export default function CustomerFlight() {
             seeAllHref="#khuyen-mai"
           />
           <div className="flight-promo__grid">
-            {(landingFlights?.data && landingFlights.data.length > 0 ? landingFlights.data : flightPromotions).map((item: any) => {
+            {(landingFlights?.data && landingFlights.data.length > 0 ? landingFlights.data : flightPromotions).map((item: Partial<VeMayBayResult> & { id?: number | string; route?: string; price?: string; badge?: string; image?: string }) => {
               const id = item.maVe ?? item.id;
-              const route = item.diemKhoiHanh ? `${item.diemKhoiHanh} → ${item.diemDen}` : item.route;
+              const route = item.diemKhoiHanh ? `${item.diemKhoiHanh} → ${item.diemDen}` : item.route ?? "Chuyến bay";
               const price = item.giaThapNhat != null ? formatVnd(item.giaThapNhat) : item.price;
-              const badge = item.hangHangKhong ? `${item.hangHangKhong} • ${formatGio(item.thoiGianKhoiHanh)}` : item.badge;
+              const badge = item.hangHangKhong ? `${item.hangHangKhong} • ${formatGio(item.thoiGianKhoiHanh ?? "")}` : item.badge;
               return (
               <article key={id} className="flight-promo__card" onClick={() => navigate(`/mua-sam/chi-tiet-chuyen-bay/${id}`)} style={{ cursor: 'pointer' }}>
                 <div className="flight-promo__card-image">

@@ -111,7 +111,7 @@ export default function CustomerBookings() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    setBooking(readBookingInfo());
+    queueMicrotask(() => setBooking(readBookingInfo()));
   }, []);
 
   return (

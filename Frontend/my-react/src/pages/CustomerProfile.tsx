@@ -48,7 +48,7 @@ function PersonalInfoForm() {
     setIsChanged(true);
   };
 
-  const onFinish = (values: any) => {
+  const onFinish = (values: Record<string, unknown>) => {
     console.log("Success:", values);
     setIsChanged(false); // Reset after save
   };

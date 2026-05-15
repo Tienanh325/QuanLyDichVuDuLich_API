@@ -650,7 +650,7 @@ export default function AdminKhuyenMai() {
 
         <Card style={cardStyle} styles={{ body: { padding: 20 } }}>
           <Space
-            direction="vertical"
+            orientation="vertical"
             size={16}
             style={{ width: "100%" }}
           >

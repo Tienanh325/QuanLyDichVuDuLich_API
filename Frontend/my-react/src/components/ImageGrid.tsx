@@ -34,7 +34,7 @@ export default function ImageGrid({ images, selectedIds, loading, onToggleSelect
               </div>
             }
           >
-            <Space direction="vertical" size={8} style={{ width: "100%" }}>
+            <Space orientation="vertical" size={8} style={{ width: "100%" }}>
               <Space wrap>
                 <Tag>#{item.maHinhAnh}</Tag>
               </Space>

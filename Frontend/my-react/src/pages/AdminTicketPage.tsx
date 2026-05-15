@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import api from "../services/api";
 import { formatVnd } from "../utils/money";
@@ -41,6 +41,30 @@ interface AdminTicketPageProps {
   description: string;
 }
 
+interface TicketReportRow {
+  label: string;
+  count: number;
+  revenue: number;
+  cancelRate: string;
+  completeRate: string;
+}
+
+interface TicketTopRoute {
+  label: string;
+  type: string;
+  count: number;
+  revenue: number;
+}
+
+interface TicketSummary {
+  sold: number;
+  revenue: number;
+  available: number;
+  cancelled: number;
+  reportRows: TicketReportRow[];
+  topRoutes: TicketTopRoute[];
+}
+
 const formatCurrency = formatVnd;
 const inferStatus = (item: Pick<TicketItem, "trangThai" | "ngayKhoiHanh" | "soChoTrong">): TicketStatus => {
   const status = String(item.trangThai ?? "").toUpperCase();
@@ -66,14 +90,15 @@ const inferType = (v: Record<string, unknown>): TicketType => {
   if (raw.includes("VUI")) return "VUI_CHOI";
   return "MAY_BAY";
 };
-const toTicketItem = (v: any): TicketItem => {
+const toTicketItem = (value: unknown): TicketItem => {
+  const v = value as Record<string, unknown>;
   const loaiVeCon = inferType(v);
   const tenHienThi = String(v.hangHangKhong ?? v.hangTau ?? v.tenNhaCungCap ?? v.tenDichVu ?? v.soHieuChuyenBay ?? v.soHieuChuyenTau ?? v.tenVe ?? `Vé ${v.maVe ?? ""}`);
   return {
     maVe: Number(v.maVe ?? v.id ?? v.ma ?? 0),
     maDichVu: Number(v.maDichVu ?? v.serviceId ?? 0),
     loaiVeCon,
-    trangThai: v.trangThai ?? v.status ?? "",
+    trangThai: String(v.trangThai ?? v.status ?? ""),
     tenHienThi,
     originalPrice: Number(v.thuePhiSanBay ?? v.gia ?? v.price ?? 0),
     promo: String(v.goiGia ?? v.loaiChoMacDinh ?? v.promo ?? ""),
@@ -90,19 +115,20 @@ const toTicketItem = (v: any): TicketItem => {
     danhGia: Number(v.danhGia ?? 0),
   };
 };
-const isRecent = (date: string, filter: TimeFilter) => {
-  const d = dayjs(date);
-  if (filter === "today") return d.isSame(dayjs(), "day");
-  if (filter === "7d") return d.isAfter(dayjs().subtract(7, "day"));
-  if (filter === "30d") return d.isAfter(dayjs().subtract(30, "day"));
-  return true;
+const getTimeRange = (filter: TimeFilter) => {
+  const today = dayjs();
+  if (filter === "today") return { from: today.format("YYYY-MM-DD"), to: today.format("YYYY-MM-DD") };
+  if (filter === "7d") return { from: today.subtract(6, "day").format("YYYY-MM-DD"), to: today.format("YYYY-MM-DD") };
+  if (filter === "30d") return { from: today.subtract(29, "day").format("YYYY-MM-DD"), to: today.format("YYYY-MM-DD") };
+  return {};
 };
+const ticketTypeLabel = (type: string) => type === "MAY_BAY" ? "Vé máy bay" : type === "TAU_HOA" ? "Vé tàu hoả" : type === "VUI_CHOI" ? "Vui chơi" : type;
 export default function AdminTicketPage({ title, description, category }: AdminTicketPageProps) {
   const pageType: TicketType | null = category === "flight" ? "MAY_BAY" : category === "train" ? "TAU_HOA" : category === "park" ? "VUI_CHOI" : null;
   const isValidTicket = (v: TicketItem) => v.maVe > 0 && [v.tenHienThi, v.TenVe, v.hang, v.diemKhoiHanh, v.diemDen].some(Boolean);
-  const matchesPageCategory = (v: TicketItem) => !pageType || v.loaiVeCon === pageType;
 
   const [data, setData] = useState<TicketItem[]>(mockData);
+  const [summary, setSummary] = useState<TicketSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
@@ -112,25 +138,29 @@ export default function AdminTicketPage({ title, description, category }: AdminT
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<TicketCategory>("all");
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
+      const params = { limit: 1000, ...(pageType ? { loaiVeCon: pageType } : {}), ...getTimeRange(timeFilter) };
       const [allResp] = await Promise.all([
-        api.get("/api/admin/ve", { params: { limit: 1000 } }),
+        api.get("/api/admin/ve", { params }),
       ]);
-      const all = extractArray(allResp.data)
+      const payload = allResp.data?.data ?? allResp.data;
+      const all = extractArray(payload)
         .map((v) => toTicketItem(v))
-        .filter((v): v is TicketItem => isValidTicket(v) && matchesPageCategory(v));
+        .filter((v): v is TicketItem => isValidTicket(v) && (!pageType || v.loaiVeCon === pageType));
       setData(all);
+      setSummary((payload as { summary?: TicketSummary })?.summary ?? null);
     } catch (e) {
       message.warning(axios.isAxiosError(e) ? "Không kết nối được API thống kê." : "Lỗi tải dữ liệu thống kê.");
       setData(mockData);
+      setSummary(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, [pageType, timeFilter]);
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   const scopedData = useMemo(() => data.filter((item: TicketItem) => category === "all" ? true : category === "flight" ? item.loaiVeCon === "MAY_BAY" : category === "train" ? item.loaiVeCon === "TAU_HOA" : item.loaiVeCon === "VUI_CHOI"), [data, category]);
 
@@ -146,26 +176,30 @@ export default function AdminTicketPage({ title, description, category }: AdminT
     });
   }, [scopedData, search, categoryFilter]);
 
-  const recentCount = useMemo(() => scopedData.filter((item) => isRecent(item.ngayKhoiHanh, timeFilter)).length, [scopedData, timeFilter]);
+  const recentCount = scopedData.length;
 
   const stats = useMemo(() => {
-    const total = scopedData.length;
-    const available = scopedData.filter((item: TicketItem) => inferStatus(item) === "available").length;
-    const soldout = scopedData.filter((item: TicketItem) => inferStatus(item) === "soldout").length;
+    const available = scopedData.reduce((sum, item) => sum + Number(item.soChoTrong || 0), 0);
     const cancelled = scopedData.filter((item: TicketItem) => inferStatus(item) === "cancelled").length;
-    return { total, available, soldout, cancelled, sold: total, revenue: scopedData.reduce((sum: number, i: TicketItem) => sum + (i.gia || i.originalPrice || 0), 0), today: 12, week: 84, month: 310 };
-  }, [scopedData]);
+    return {
+      sold: summary?.sold ?? scopedData.length,
+      revenue: summary?.revenue ?? scopedData.reduce((sum: number, i: TicketItem) => sum + (i.gia || i.originalPrice || 0), 0),
+      available: summary?.available ?? available,
+      cancelled: summary?.cancelled ?? cancelled,
+      newCount: scopedData.length,
+    };
+  }, [scopedData, summary]);
 
-  const reportRows = useMemo(() => [
-    { label: "Vé máy bay", revenue: formatCurrency(124500000), cancelRate: "6.2%", completeRate: "91.8%" },
-    { label: "Vé tàu hoả", revenue: formatCurrency(84500000), cancelRate: "3.1%", completeRate: "95.4%" },
-  ], []);
-  const topRoutes = useMemo(() => [
-    { label: "Hà Nội → TP.HCM", type: "Máy bay", count: 182, revenue: formatCurrency(98000000) },
-    { label: "Hà Nội → Đà Nẵng", type: "Tàu hoả", count: 140, revenue: formatCurrency(61000000) },
-    { label: "Đà Nẵng → Phú Quốc", type: "Máy bay", count: 96, revenue: formatCurrency(52000000) },
-    { label: "TP.HCM → Nha Trang", type: "Tàu hoả", count: 88, revenue: formatCurrency(42000000) },
-  ], []);
+  const reportRows = useMemo(() => (summary?.reportRows ?? []).map((item) => ({
+    ...item,
+    label: ticketTypeLabel(item.label),
+    revenue: formatCurrency(Number(item.revenue || 0)),
+  })), [summary]);
+  const topRoutes = useMemo(() => (summary?.topRoutes ?? []).map((item) => ({
+    ...item,
+    type: ticketTypeLabel(item.type),
+    revenue: formatCurrency(Number(item.revenue || 0)),
+  })), [summary]);
 
   const cardStyle: CSSProperties = { borderRadius: 20, border: "1px solid #eceef5", boxShadow: "0 18px 45px rgba(15, 23, 42, 0.06)" };
 
@@ -182,7 +216,7 @@ export default function AdminTicketPage({ title, description, category }: AdminT
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
-          {[{ label: "Tổng vé đã bán", value: stats.sold, icon: <Ticket size={16} color="#7c3aed" /> }, { label: "Tổng doanh thu", value: formatCurrency(stats.revenue), icon: <CircleDollarSign size={16} color="#16a34a" /> }, { label: "Vé còn lại", value: stats.available, icon: <Badge color="#16a34a" /> }, { label: "Vé đã sử dụng", value: stats.sold, icon: <ShieldCheck size={16} color="#2563eb" /> }, { label: "Vé hủy", value: stats.cancelled, icon: <Trash2 size={16} color="#ef4444" /> }, { label: "Đặt mới", value: `${stats.today} / ${stats.week} / ${stats.month}`, icon: <Clock3 size={16} color="#f59e0b" /> }].map((item) => <Card key={item.label} style={{ ...cardStyle, background: "#fff" }}><Space align="start"><div>{item.icon}</div><div><Text type="secondary">{item.label}</Text><Title level={3} style={{ margin: "4px 0 0" }}>{item.value}</Title></div></Space></Card>)}
+          {[{ label: "Tổng vé", value: stats.sold, icon: <Ticket size={16} color="#7c3aed" /> }, { label: "Tổng doanh thu", value: formatCurrency(stats.revenue), icon: <CircleDollarSign size={16} color="#16a34a" /> }, { label: "Chỗ còn lại", value: stats.available, icon: <Badge color="#16a34a" /> }, { label: "Vé hiệu lực", value: Math.max(stats.sold - stats.cancelled, 0), icon: <ShieldCheck size={16} color="#2563eb" /> }, { label: "Vé hủy", value: stats.cancelled, icon: <Trash2 size={16} color="#ef4444" /> }, { label: "Trong kỳ", value: stats.newCount, icon: <Clock3 size={16} color="#f59e0b" /> }].map((item) => <Card key={item.label} style={{ ...cardStyle, background: "#fff" }}><Space align="start"><div>{item.icon}</div><div><Text type="secondary">{item.label}</Text><Title level={3} style={{ margin: "4px 0 0" }}>{item.value}</Title></div></Space></Card>)}
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1.1fr .9fr", gap: 16 }}>
@@ -218,7 +252,7 @@ export default function AdminTicketPage({ title, description, category }: AdminT
         </Card>
       </div>
 
-      <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} width={760} title={editingItem ? "Cập nhật vé" : "Thêm vé"}>
+      <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} size="large" title={editingItem ? "Cập nhật vé" : "Thêm vé"}>
         <Tabs items={[{ key: "ticket", label: "Thông tin vé", children: <div /> }, { key: "detail", label: "Chi tiết loại vé", children: <div /> }, { key: "service", label: "Giá & tiện ích", children: <div /> }]} />
       </Drawer>
       <Modal open={manageOpen} onCancel={() => setManageOpen(false)} footer={null} width={1000} title={managingTicket ? `Quản lý vé: ${managingTicket.TenVe}` : "Quản lý vé"}>

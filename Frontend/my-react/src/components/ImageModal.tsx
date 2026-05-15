@@ -28,25 +28,26 @@ export default function ImageModal({ open, mode, editingImage, loading, onClose,
 
   useEffect(() => {
     if (!open) return;
-    setFlow(mode === "upload" ? "upload" : "url");
-    setFileList([]);
-    setPreviewUrl("");
-    if (editingImage) {
-      form.setFieldsValue({
-        urlAnh: editingImage.urlAnh,
-        altText: editingImage.altText ?? "",
-        thuTu: editingImage.thuTu,
-      });
-      setPreviewUrl(editingImage.urlAnh);
-    } else {
-      form.resetFields();
-      form.setFieldsValue({ thuTu: 0 });
-    }
+    queueMicrotask(() => {
+      setFlow(mode === "upload" ? "upload" : "url");
+      setFileList([]);
+      setPreviewUrl(editingImage?.urlAnh ?? "");
+      if (editingImage) {
+        form.setFieldsValue({
+          urlAnh: editingImage.urlAnh,
+          altText: editingImage.altText ?? "",
+          thuTu: editingImage.thuTu,
+        });
+      } else {
+        form.resetFields();
+        form.setFieldsValue({ thuTu: 0 });
+      }
+    });
   }, [editingImage, form, mode, open]);
 
   useEffect(() => {
     if (isEdit || flow === "url") {
-      setPreviewUrl(typeof watchedUrl === "string" ? watchedUrl.trim() : "");
+      queueMicrotask(() => setPreviewUrl(typeof watchedUrl === "string" ? watchedUrl.trim() : ""));
     }
   }, [flow, isEdit, watchedUrl]);
 

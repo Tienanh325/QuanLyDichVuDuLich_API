@@ -66,6 +66,11 @@ export interface DashboardDonGanDay {
   emailUser: string | null;
 }
 
+export interface DateRangeParams {
+  from?: string;
+  to?: string;
+}
+
 export interface DashboardStats {
   overview: ThongKeOverview;
   doanhThuTheoThang: DoanhThuThang[];
@@ -73,6 +78,7 @@ export interface DashboardStats {
   dichVuTheLoai: DashboardLoaiDichVu[];
   topDichVu: DashboardTopDichVu[];
   canhBaoVanHanh: DashboardCanhBao[];
+  meta?: DateRangeParams;
 }
 
 export interface DonDatItem {
@@ -181,8 +187,8 @@ export async function adminDeleteNewsletter(id: number) {
 // ─── Dashboard & Thống kê ────────────────────────────────────────────────────
 
 /** Admin: Thống kê tổng quan — API trả về { data: { overview, doanhThuTheoThang, ... } } */
-export async function adminGetDashboardStats(): Promise<DashboardStats> {
-  const response = await api.get<{ status: string; data: DashboardStats }>('/api/admin/thong-ke');
+export async function adminGetDashboardStats(params?: DateRangeParams): Promise<DashboardStats> {
+  const response = await api.get<{ status: string; data: DashboardStats }>('/api/admin/thong-ke', { params });
   return response.data.data;
 }
 

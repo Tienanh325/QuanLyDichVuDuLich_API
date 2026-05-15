@@ -1,0 +1,39 @@
+- generic [ref=e3]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - img [ref=e7]
+      - text: Đăng nhập cho admin và khách hàng TravelHub
+    - generic [ref=e10]:
+      - heading "Một trang đăng nhập, hai luồng điều hướng riêng cho quản trị và mua sắm khách hàng." [level=1] [ref=e11]
+      - paragraph
+  - generic [ref=e13]:
+    - generic [ref=e14]:
+      - generic [ref=e15]: Đăng nhập hệ thống
+      - heading "Chào mừng quay lại" [level=2] [ref=e16]
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]: Tên đăng nhập
+        - generic [ref=e20]:
+          - img [ref=e21]
+          - textbox "Tên đăng nhập" [ref=e24]:
+            - /placeholder: Nhập tên đăng nhập (username)
+      - generic [ref=e25]:
+        - generic [ref=e26]: Mật khẩu
+        - generic [ref=e27]:
+          - img [ref=e28]
+          - textbox "Mật khẩu Hiện mật khẩu" [ref=e32]:
+            - /placeholder: Nhập mật khẩu
+          - button "Hiện mật khẩu" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+      - generic [ref=e38]:
+        - checkbox "Ghi nhớ đăng nhập" [checked] [ref=e39]
+        - text: Ghi nhớ đăng nhập
+      - button "Đăng nhập" [ref=e40] [cursor=pointer]
+    - generic [ref=e41]:
+      - generic [ref=e42]:
+        - text: Chưa có tài khoản khách hàng?
+        - generic [ref=e43]: Link đăng ký này chỉ tạo tài khoản user mua sắm.
+      - link "Đăng ký user" [ref=e44] [cursor=pointer]:
+        - /url: /dang-ky
+        - img [ref=e45]
+        - text: Đăng ký user

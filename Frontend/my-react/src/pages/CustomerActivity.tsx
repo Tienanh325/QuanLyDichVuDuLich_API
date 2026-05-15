@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { ComponentType } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { formatVnd } from '../utils/money';
@@ -24,11 +25,33 @@ import { getPublicTours } from '../services/tourService';
 
 const images = {
   hero: baibienImage,
-  onsen: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=800&q=80",
-  vinwonders: "https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=800&q=80",
-  dalat: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80",
-  food: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80",
-  friends: "https://images.unsplash.com/photo-1529156069898-49953eb1b5ae?auto=format&fit=crop&w=800&q=80"
+  onsen: baibienImage,
+  vinwonders: baibienImage,
+  dalat: baibienImage,
+  food: baibienImage,
+  friends: baibienImage
+};
+
+type ActivityCardItem = {
+  maTour?: number | string;
+  id?: number | string;
+  tenTour?: string | null;
+  title?: string;
+  diaDiem?: string | null;
+  viTri?: string | null;
+  location?: string;
+  giaGoc?: number | null;
+  oldPrice?: string;
+  giaKhuyenMai?: number | null;
+  giaTour?: number | null;
+  newPrice?: string;
+  avatar?: string | null;
+  image?: string;
+  badgeIcon?: ComponentType;
+  isBestSeller?: boolean | number;
+  badgeColor?: string;
+  highlight?: string | null;
+  badge?: string;
 };
 
 const categories = [
@@ -174,7 +197,7 @@ export default function CustomerActivity() {
           </div>
 
           <div className="ca-recommended__grid">
-            {(activityCards.length > 0 ? activityCards : recommended).map((item: any) => {
+            {(activityCards.length > 0 ? activityCards : recommended).map((item: ActivityCardItem) => {
               const id = item.maTour ?? item.id;
               const title = item.tenTour ?? item.title;
               const location = item.diaDiem ?? item.viTri ?? item.location;

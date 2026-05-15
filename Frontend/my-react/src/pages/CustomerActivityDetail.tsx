@@ -17,7 +17,7 @@ const CustomerActivityDetail = () => {
 
   useEffect(() => {
     if (!id) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     getTourById(id).then(setTour).catch(() => setTour(null)).finally(() => setLoading(false));
   }, [id]);
 

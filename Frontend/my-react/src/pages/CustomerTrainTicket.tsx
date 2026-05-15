@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 import {
   CalendarDays,
   MapPinned,
@@ -28,7 +28,7 @@ type HotelFieldButtonProps = {
   label: string;
   value?: string;
   placeholder?: string;
-  icon: any;
+  icon: ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
   isOpen?: boolean;
   onClick?: () => void;
   className?: string;

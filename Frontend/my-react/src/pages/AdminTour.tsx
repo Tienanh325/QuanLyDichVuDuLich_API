@@ -1075,7 +1075,7 @@ export default function AdminTour() {
               key: "goi",
               label: "Gói dịch vụ",
               children: (
-                <Space direction="vertical" size={16} style={{ width: "100%" }}>
+                <Space orientation="vertical" size={16} style={{ width: "100%" }}>
                   {goiFormVisible ? (
                     <Card size="small" title={editingGoi ? "Sửa gói dịch vụ" : "Thêm gói dịch vụ"}>
                       <Form form={goiForm} layout="vertical">
@@ -1153,7 +1153,7 @@ export default function AdminTour() {
               key: "muc",
               label: "Mục dịch vụ",
               children: (
-                <Space direction="vertical" size={16} style={{ width: "100%" }}>
+                <Space orientation="vertical" size={16} style={{ width: "100%" }}>
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <Button type="primary" size="small" icon={<Plus size={16} />} onClick={openCreateMuc}>Thêm mục</Button>
                   </div>
@@ -1187,7 +1187,7 @@ export default function AdminTour() {
               key: "lich-trinh",
               label: "Lịch trình",
               children: (
-                <Space direction="vertical" size={16} style={{ width: "100%" }}>
+                <Space orientation="vertical" size={16} style={{ width: "100%" }}>
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <Button type="primary" size="small" icon={<Plus size={16} />} onClick={openCreateLichTrinh}>Thêm lịch trình</Button>
                   </div>
@@ -1222,7 +1222,7 @@ export default function AdminTour() {
               key: "khoi-hanh",
               label: "Lịch khởi hành",
               children: (
-                <Space direction="vertical" size={16} style={{ width: "100%" }}>
+                <Space orientation="vertical" size={16} style={{ width: "100%" }}>
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <Button type="primary" size="small" icon={<Plus size={16} />} onClick={openCreateLichKhoiHanh}>Thêm lịch khởi hành</Button>
                   </div>
@@ -1258,7 +1258,7 @@ export default function AdminTour() {
               key: "review",
               label: "Review hiển thị",
               children: (
-                <Space direction="vertical" size={16} style={{ width: "100%" }}>
+                <Space orientation="vertical" size={16} style={{ width: "100%" }}>
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <Button type="primary" size="small" icon={<Plus size={16} />} onClick={openCreateReview}>Thêm review</Button>
                   </div>
