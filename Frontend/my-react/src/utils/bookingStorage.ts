@@ -1,3 +1,5 @@
+import { formatVnd } from "./money";
+
 export type BookingServiceType = "hotel" | "flight" | "train" | "tour";
 
 export interface StoredBookingInfo {
@@ -14,6 +16,8 @@ export interface StoredBookingInfo {
   endDate?: string;
   quantityLabel?: string;
   priceLabel?: string;
+  baseAmount?: number;
+  taxFee?: number;
   tenKhachSan?: string;
   tenLoaiPhong?: string;
   checkIn?: string;
@@ -32,9 +36,7 @@ export interface StoredBookingInfo {
 const BOOKING_INFO_KEY = "travelhub_booking_info";
 const BOOKING_ORDER_KEY = "travelhub_maDon";
 
-export function formatVnd(n: number) {
-  return n.toLocaleString("vi-VN") + " VND";
-}
+export { formatVnd };
 
 export function formatDate(dateStr?: string) {
   if (!dateStr) return "Chưa chọn";
@@ -79,6 +81,8 @@ export function readBookingInfo(): StoredBookingInfo | null {
       endDate: parsed.endDate ?? parsed.checkOut,
       quantityLabel: parsed.quantityLabel,
       priceLabel: parsed.priceLabel,
+      baseAmount: Number(parsed.baseAmount ?? 0),
+      taxFee: Number(parsed.taxFee ?? 0),
       tenKhachSan: parsed.tenKhachSan,
       tenLoaiPhong: parsed.tenLoaiPhong,
       checkIn: parsed.checkIn,

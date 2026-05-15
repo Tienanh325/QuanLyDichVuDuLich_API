@@ -114,8 +114,8 @@ function PaymentMethod({
 // ─── BookingSummary ───────────────────────────────────────────────
 function BookingSummary({ info, onPay, isLoading }: { info: StoredBookingInfo | null; onPay: () => void; isLoading: boolean }) {
   const total = info?.tongGia ?? 0;
-  const roomCharge = info?.giaPhong && info?.nights && info?.rooms ? info.giaPhong * info.nights * Number(info.rooms) : Math.round(total / 1.1);
-  const taxFee = Math.max(0, total - roomCharge);
+  const roomCharge = info?.baseAmount ?? (info?.giaPhong && info?.nights && info?.rooms ? info.giaPhong * info.nights * Number(info.rooms) : Math.round(total / 1.1));
+  const taxFee = info?.taxFee ?? Math.max(0, total - roomCharge);
   const durationLabel = info?.secondaryDetail ?? (info?.nights ? `${info.nights} đêm (${info.rooms ?? 1} phòng, ${info.adults ?? 1} khách)` : "—");
 
   return (
@@ -233,7 +233,7 @@ export default function PaymentKhachSan() {
         ghiChu: `Thanh toán ${bookingInfo.serviceLabel.toLowerCase()} ${bookingInfo.subtitle ?? bookingInfo.title}`,
       });
 
-      const paidBookingInfo = { ...bookingInfo, tongGia: total };
+      const paidBookingInfo = { ...bookingInfo, tongGia: total, baseAmount: bookingInfo.baseAmount, taxFee: bookingInfo.taxFee };
       localStorage.setItem("travelhub_booking_info", JSON.stringify(paidBookingInfo));
 
       navigate("/mua-sam/thanh-toan-thanh-cong", {

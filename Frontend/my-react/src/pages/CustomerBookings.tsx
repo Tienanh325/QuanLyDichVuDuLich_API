@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Divider } from "antd";
 import { Briefcase, CalendarDays, CreditCard, Hash, MapPin, Ticket } from "lucide-react";
 import CustomerSidebar from "../components/Sidebar/CustomerSidebar";
 import { formatDate, formatVnd, getBookingCode, readBookingInfo } from "../utils/bookingStorage";
@@ -124,10 +123,6 @@ export default function CustomerBookings() {
           <CurrentBookingSection booking={booking} />
           
           <TransactionHistorySection />
-          
-          <Divider className="bookings-divider">
-            BookingHistory.mercBottomTitle
-          </Divider>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { formatVnd } from '../utils/money';
 import "../assets/css/CustomerActivityDetail.css";
 import { MapPin, Star, Share2, Heart, Check, X, Calendar, Users } from 'lucide-react';
 import { getTourById, type TourDetail } from '../services/tourService';
@@ -23,7 +24,7 @@ const CustomerActivityDetail = () => {
   const price = Number(tour?.giaKhuyenMai || tour?.giaTour || 0);
   const originalPrice = tour?.giaGoc;
   const totalPrice = price * guestCount;
-  const formatCurrency = (amount: number) => new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
+  const formatCurrency = formatVnd;
   const checkoutParams = new URLSearchParams({
     serviceType: 'tour',
     serviceLabel: 'Tour & Hoạt động',

@@ -20,6 +20,7 @@ import {
 import type { TableProps } from "antd";
 import { BedDouble, MapPinned, PencilLine, Plus, Search, Trash2, Home } from "lucide-react";
 import api from "../services/api";
+import { formatVnd } from "../utils/money";
 import axios from "axios";
 import * as adminApi from "../services/adminService";
 
@@ -66,10 +67,8 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000
 const HOTEL_API_PATH = "/api/admin/khach-san";
 const DICH_VU_API_PATH = "/api/admin/dich-vu";
 
-const currencyFormatter = new Intl.NumberFormat("vi-VN");
-
 function formatCurrency(value: number): string {
-  return `${currencyFormatter.format(value)} đ`;
+  return formatVnd(value);
 }
 
 function normalizeHotel(input: unknown): HotelItem {

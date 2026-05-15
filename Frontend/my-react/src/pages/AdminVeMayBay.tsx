@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import api from "../services/api";
 import axios from "axios";
 import dayjs, { Dayjs } from "dayjs";
+import { formatVnd } from "../utils/money";
 import { Badge, Button, Card, DatePicker, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Tag, Typography, message } from "antd";
 import type { TableProps } from "antd";
 import { MapPinned, PencilLine, Plane, Plus, Search, Trash2 } from "lucide-react";
@@ -112,7 +113,7 @@ const mockData: FlightItem[] = [
   },
 ];
 
-const fmt = (v: number) => `${new Intl.NumberFormat("vi-VN").format(v)} đ`;
+const fmt = formatVnd;
 const fmtDate = (v?: string | null) => (v ? dayjs(v).format("DD/MM/YYYY HH:mm") : "--");
 
 function inferStatus(item: Pick<FlightItem, "thoiGianKhoiHanh" | "thoiGianDen">): TicketStatus {

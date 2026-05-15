@@ -4,11 +4,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Card, Button, Slider, Pagination, Rate, Row, Col, Typography, Tag, Space, Spin, Empty } from "antd";
 import { Edit2, Map, MapPin, Star } from "lucide-react";
 import { type HotelSearchState, formatHotelDateRange, formatHotelGuestSummary } from "../utils/hotelSearch";
+import { formatVnd } from "../utils/money";
 import { clampPage, getPaginationState } from "../utils/pagination";
 import { getPublicHotels, type KhachSanListItem } from "../services/hotelService";
 
 function formatCurrencyVnd(value: number): string {
-  return value.toLocaleString("vi-VN") + " VND";
+  return formatVnd(value);
 }
 
 
@@ -166,7 +167,7 @@ export default function CustomerHotelSearchResults({
                   onChangeComplete={(val) => navigateWithFilters({ minPrice: (val as [number, number])[0], maxPrice: (val as [number, number])[1] })}
                   max={20_000_000}
                   step={100_000}
-                  tooltip={{ formatter: (value) => value ? formatCurrencyVnd(value) : "0 VND" }}
+                  tooltip={{ formatter: (value) => value ? formatCurrencyVnd(value) : "0 VN?" }}
                 />
                 <Row justify="space-between" style={{ marginTop: 8 }}>
                   <Text type="secondary" style={{ fontSize: 12, fontWeight: 600 }}>{formatCurrencyVnd(priceRange[0])}</Text>

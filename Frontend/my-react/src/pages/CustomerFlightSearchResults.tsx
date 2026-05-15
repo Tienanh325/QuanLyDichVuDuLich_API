@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { clampPage, getPageItems, getPaginationState } from "../utils/pagination";
+import { formatVnd } from "../utils/money";
 import "../assets/css/CustomerFlightSearchResults.css";
 import {
   PlaneTakeoff,
@@ -335,11 +336,11 @@ export default function CustomerFlightSearchResults({
                     <div className="cfsr-card__pricing">
                       {flight.originalPrice && (
                         <span className="cfsr-card__old-price">
-                          {flight.originalPrice.toLocaleString('vi-VN')} VND
+                          {formatVnd(flight.originalPrice)}
                         </span>
                       )}
                       <span className="cfsr-card__price">
-                        {flight.price.toLocaleString('vi-VN')} VND
+                        {formatVnd(flight.price)}
                       </span>
                       <button className="cfsr-card__book-btn" onClick={() => navigate(`/mua-sam/chi-tiet-chuyen-bay/${flight.id}`)}>Chọn</button>
                       <button className="cfsr-card__detail-link" onClick={() => navigate(`/mua-sam/chi-tiet-chuyen-bay/${flight.id}`)}>Chi tiết chuyến bay</button>

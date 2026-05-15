@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { getPublicTours, type TourListItem } from "../services/tourService";
 import { clampPage, getPageItems, getPaginationState } from "../utils/pagination";
+import { formatVnd } from "../utils/money";
 
 type ActivityResult = {
   id: string;
@@ -200,7 +201,7 @@ export default function CustomerActivitySearchResults() {
                   />
                   <div className="casr-sidebar__slider-labels">
                     <span>0đ</span>
-                    <span className="casr-sidebar__slider-value">{priceRange.toLocaleString('vi-VN')}đ</span>
+                    <span className="casr-sidebar__slider-value">{formatVnd(priceRange)}</span>
                     <span>5.000.000đ+</span>
                   </div>
                 </div>
@@ -342,11 +343,11 @@ export default function CustomerActivitySearchResults() {
                         <div className="casr-card__price-wrap">
                           {activity.originalPrice && (
                             <div className="casr-card__old-price">
-                              {activity.originalPrice.toLocaleString('vi-VN')} VND
+                              {formatVnd(activity.originalPrice)}
                             </div>
                           )}
                           <div className="casr-card__price">
-                            {activity.price.toLocaleString('vi-VN')} VND
+                            {formatVnd(activity.price)}
                           </div>
                         </div>
                         <button className="casr-card__book-btn" onClick={() => navigate(`/mua-sam/hoat-dong-vui-choi/${activity.id}`)}>

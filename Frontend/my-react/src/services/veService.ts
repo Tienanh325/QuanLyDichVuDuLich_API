@@ -1,4 +1,5 @@
 import api from './api';
+import { formatVnd as formatMoneyVnd } from '../utils/money';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -164,7 +165,7 @@ export function formatNgay(datetime: string): string {
 /** Format VND */
 export function formatVnd(value: number | null | undefined): string {
   if (value == null) return 'Liên hệ';
-  return new Intl.NumberFormat('vi-VN').format(value) + ' VND';
+  return formatMoneyVnd(value);
 }
 
 // ─── Admin child resources ────────────────────────────────────────────────────

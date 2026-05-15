@@ -1,3 +1,5 @@
+import { formatVnd } from "./money";
+
 export type FlightTripType = "oneWay" | "roundTrip" | "multiCity";
 
 export type FlightSearchState = {
@@ -112,7 +114,7 @@ export function addFlightDays(dateString: string, amount: number) {
 }
 
 export function formatCurrencyVnd(value: number) {
-  return `${value.toLocaleString("vi-VN")} VND`;
+  return formatVnd(value);
 }
 
 export function extractAirportCode(value: string) {

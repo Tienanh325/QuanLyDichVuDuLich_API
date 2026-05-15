@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicTours } from "../services/tourService";
 import { getPublicHotels } from "../services/hotelService";
+import { formatVnd } from "../utils/money";
 import baibienImage from "../assets/images/baibien.jpg";
 import {
 
@@ -584,7 +585,7 @@ export default function CustomerHome() {
                 <div style={{ padding: 24 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                     <h3 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', margin: 0, flex: 1, paddingRight: 16, lineHeight: 1.4 }}>{acc.ten ?? acc.name}</h3>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a' }}>{acc.giaTuKhoang ? `${new Intl.NumberFormat('vi-VN').format(acc.giaTuKhoang)}đ/đêm` : acc.price}</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a' }}>{acc.giaTuKhoang ? `${formatVnd(acc.giaTuKhoang)}/đêm` : acc.price}</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 14 }}>
                     <MapPinned size={16} /> {acc.viTri ?? acc.location}

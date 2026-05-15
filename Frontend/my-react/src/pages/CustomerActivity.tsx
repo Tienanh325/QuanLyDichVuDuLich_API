@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { formatVnd } from '../utils/money';
 import { 
   MapPin, 
   Search, 
@@ -177,8 +178,8 @@ export default function CustomerActivity() {
               const id = item.maTour ?? item.id;
               const title = item.tenTour ?? item.title;
               const location = item.diaDiem ?? item.viTri ?? item.location;
-              const oldPrice = item.giaGoc ? Number(item.giaGoc).toLocaleString('vi-VN') : item.oldPrice;
-              const newPrice = Number(item.giaKhuyenMai ?? item.giaTour ?? String(item.newPrice).replace(/\D/g, '')).toLocaleString('vi-VN');
+              const oldPrice = item.giaGoc ? formatVnd(item.giaGoc) : item.oldPrice;
+              const newPrice = formatVnd(item.giaKhuyenMai ?? item.giaTour ?? String(item.newPrice).replace(/\D/g, ''));
               const image = item.avatar ?? item.image;
               const BadgeIcon = item.badgeIcon ?? (item.isBestSeller ? Flame : Ticket);
               return (
@@ -198,8 +199,8 @@ export default function CustomerActivity() {
                   </div>
                   <h3 className="ca-activity-card__title">{title}</h3>
                   <div className="ca-activity-card__pricing">
-                    {oldPrice ? <span className="ca-activity-card__old-price">{oldPrice} VND</span> : null}
-                    <div className="ca-activity-card__new-price"><span>{newPrice}</span><span>VND</span></div>
+                    {oldPrice ? <span className="ca-activity-card__old-price">{oldPrice}</span> : null}
+                    <div className="ca-activity-card__new-price"><span>{newPrice}</span></div>
                   </div>
                 </div>
               </div>

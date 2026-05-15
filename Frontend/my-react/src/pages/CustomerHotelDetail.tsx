@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { formatVnd } from "../utils/money";
 import {
   MapPin,
   Star,
@@ -50,9 +51,6 @@ const defaultFaqs = [
 ];
 
 /* ─── Helper ────────────────────────────────────────────────── */
-function formatVnd(n: number | string) {
-  return "VND " + Number(n).toLocaleString("vi-VN");
-}
 
 function todayInputValue() {
   return new Date().toISOString().slice(0, 10);

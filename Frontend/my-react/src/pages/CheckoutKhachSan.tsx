@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { formatVnd } from "../utils/money";
 import {
   Contact,
   UserCircle,
@@ -25,9 +26,6 @@ function calculateNights(checkIn: string, checkOut: string): number {
   return Math.max(1, diff);
 }
 
-function formatVnd(n: number) {
-  return n.toLocaleString("vi-VN") + " VND";
-}
 
 function formatDate(dateStr: string) {
   if (!dateStr) return "Chưa chọn";
@@ -332,6 +330,8 @@ export default function CheckoutKhachSan() {
         endDate,
         quantityLabel,
         priceLabel: formatVnd(donDat.tongGia),
+        baseAmount,
+        taxFee,
         tenKhachSan,
         tenLoaiPhong,
         checkIn,

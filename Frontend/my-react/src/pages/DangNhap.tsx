@@ -126,7 +126,7 @@ export default function DangNhap() {
     if (apiResult.ok && apiResult.session) {
       setIsLoading(false);
       const dest = apiResult.session.role === "admin" ? "/admin/ThongKe" : "/mua-sam";
-      navigate(dest, { replace: true });
+      navigate(registerState?.from ?? dest, { replace: true });
       return;
     }
 

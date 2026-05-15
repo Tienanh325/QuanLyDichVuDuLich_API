@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import api from "../services/api";
+import { formatVnd } from "../utils/money";
 import axios from "axios";
 import dayjs from "dayjs";
 import { Badge, Button, Card, Drawer, Input, Modal, Select, Space, Table, Tabs, Typography, message } from "antd";
@@ -40,8 +41,7 @@ interface AdminTicketPageProps {
   description: string;
 }
 
-const currencyFormatter = new Intl.NumberFormat("vi-VN");
-const formatCurrency = (value: number) => `${currencyFormatter.format(value)} đ`;
+const formatCurrency = formatVnd;
 const inferStatus = (item: Pick<TicketItem, "trangThai" | "ngayKhoiHanh" | "soChoTrong">): TicketStatus => {
   const status = String(item.trangThai ?? "").toUpperCase();
   if (status.includes("CANCEL")) return "cancelled";

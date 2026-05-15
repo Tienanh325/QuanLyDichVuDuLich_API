@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Badge, Tooltip, Popover, Modal, message, Button, Descriptions } from 'antd';
 import { BellOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { formatVnd } from '../../utils/money';
 import api from '../../services/api';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -54,7 +55,7 @@ export default function HeaderBar() {
         id: `order_${order.maDon}`,
         avatar: `https://ui-avatars.com/api/?name=Order+${order.maDon}&background=e0f2fe&color=0369a1&bold=true`,
         title: 'Đơn hàng mới chờ duyệt',
-        content: `Đơn hàng #${order.maDon} trị giá ${new Intl.NumberFormat('vi-VN').format(order.tongGia || 0)}đ đang chờ xác nhận.`,
+        content: `Đơn hàng #${order.maDon} trị giá ${formatVnd(order.tongGia || 0)} đang chờ xác nhận.`,
         time: dayjs(order.ngayTao).fromNow(),
         isRead: false,
         rawOrder: order
@@ -273,7 +274,7 @@ export default function HeaderBar() {
               <Descriptions.Item label="Ngày đặt">{dayjs(selectedOrder.ngayTao).format('DD/MM/YYYY HH:mm')}</Descriptions.Item>
               <Descriptions.Item label="Tổng tiền">
                 <span style={{ fontWeight: 700, color: '#ef4444', fontSize: 16 }}>
-                  {new Intl.NumberFormat('vi-VN').format(selectedOrder.tongGia || 0)} đ
+                  {formatVnd(selectedOrder.tongGia || 0)}
                 </span>
               </Descriptions.Item>
               <Descriptions.Item label="Trạng thái hiện tại">

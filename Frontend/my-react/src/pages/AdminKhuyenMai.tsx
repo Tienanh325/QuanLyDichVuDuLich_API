@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import axios from "axios";
 import api from "../services/api";
+import { formatVnd } from "../utils/money";
 import dayjs, { Dayjs } from "dayjs";
 import {
   Badge,
@@ -116,10 +117,8 @@ const mockVouchers: VoucherItem[] = [
   },
 ];
 
-const currencyFormatter = new Intl.NumberFormat("vi-VN");
-
 function formatCurrency(value: number): string {
-  return `${currencyFormatter.format(value)} đ`;
+  return formatVnd(value);
 }
 
 function formatDate(value?: string | null): string {

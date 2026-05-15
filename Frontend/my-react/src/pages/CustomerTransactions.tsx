@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { formatVnd } from "../utils/money";
 import {
   Info,
   SlidersHorizontal,
@@ -54,9 +55,6 @@ export default function CustomerTransactions() {
     }
   }
 
-  function formatVnd(n: number) {
-    return n.toLocaleString("vi-VN") + " VND";
-  }
 
   function formatDate(d: string) {
     return new Date(d).toLocaleDateString("vi-VN", {

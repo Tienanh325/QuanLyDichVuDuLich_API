@@ -29,6 +29,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import viVN from "antd/locale/vi_VN";
 import { getPublicHotels } from "../services/hotelService";
+import { formatVnd } from "../utils/money";
 
 dayjs.locale("vi");
 
@@ -487,10 +488,10 @@ export default function CustomerHotel() {
                   </div>
                   <div className="hotel-customer__price">
                     <span className="hotel-customer__old-price">
-                      {new Intl.NumberFormat("vi-VN").format(oldPrice)}đ
+                      {formatVnd(oldPrice)}
                     </span>
                     <span className="hotel-customer__new-price">
-                      {new Intl.NumberFormat("vi-VN").format(newPrice)}đ
+                      {formatVnd(newPrice)}
                     </span>
                   </div>
                 </div>

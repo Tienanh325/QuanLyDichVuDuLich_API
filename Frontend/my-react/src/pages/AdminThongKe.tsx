@@ -26,8 +26,8 @@ import {
 } from "lucide-react";
 import { adminGetDashboardStats } from "../services/adminService";
 import type { DashboardStats } from "../services/adminService";
+import { formatVnd } from "../utils/money";
 
-const moneyFormatter = new Intl.NumberFormat("vi-VN");
 const numberFormatter = new Intl.NumberFormat("vi-VN");
 type ChartValue = number | string | ReadonlyArray<number | string> | undefined;
 type ChartName = number | string | undefined;
@@ -77,7 +77,7 @@ const twoColumnSectionStyle: CSSProperties = {
 };
 
 function formatMoney(value: number): string {
-  return `${moneyFormatter.format(value)} đ`;
+  return formatVnd(value);
 }
 
 function getServiceMeta(type: string) {
@@ -153,9 +153,9 @@ export default function AdminThongKe() {
     ? [
         {
           title: "Doanh thu tổng",
-          value: `${moneyFormatter.format(Math.round((overview.tongDoanhThu ?? 0) / 1_000_000))} tr`,
+          value: `${numberFormatter.format(Math.round((overview.tongDoanhThu ?? 0) / 1_000_000))} tr`,
           change: "Tổng tất cả thời gian",
-          note: `Hôm nay: ${moneyFormatter.format(Math.round((overview.doanhThuHomNay ?? 0) / 1000))} nghìn`,
+          note: `Hôm nay: ${numberFormatter.format(Math.round((overview.doanhThuHomNay ?? 0) / 1000))} nghìn`,
           icon: <CircleDollarSign size={22} color="#2563eb" />,
           accent: "#2563eb",
         },

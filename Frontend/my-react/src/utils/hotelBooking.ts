@@ -1,5 +1,6 @@
 import baibienImage from "../assets/images/baibien.jpg";
 import thuongHieuImage from "../assets/images/thuonghieu.jpg";
+import { formatVnd } from "./money";
 
 export type HotelTagId = "sale" | "breakfast" | "family" | "freeCancel";
 export type HotelAmenityId = "breakfast" | "airport" | "family" | "parking" | "mountain" | "balcony";
@@ -225,7 +226,7 @@ function buildFaqItems(name: string, nightlyPrice: number): HotelFaqItem[] {
     },
     {
       question: `${name} có mức giá khoảng bao nhiêu?`,
-      answer: `Các lựa chọn phòng hiện bắt đầu từ khoảng ${roundCurrency(nightlyPrice).toLocaleString("vi-VN")} VND mỗi đêm, chưa bao gồm thuế và phí.`,
+      answer: `Các lựa chọn phòng hiện bắt đầu từ khoảng ${formatVnd(roundCurrency(nightlyPrice))} mỗi đêm, chưa bao gồm thuế và phí.`,
     },
     {
       question: `Thời gian nhận phòng và trả phòng của ${name}?`,

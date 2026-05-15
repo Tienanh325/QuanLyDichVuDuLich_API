@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Clock, Filter, Wifi, Wind, Utensils, SlidersHorizontal } from "lucide-react";
 import { searchTauHoa, formatGio, type VeTauHoaResult } from "../services/veService";
 import { clampPage, getPageItems, getPaginationState } from "../utils/pagination";
+import { formatVnd } from "../utils/money";
 
 /* ─── Types ─────────────────────────────────────────────────── */
 type SeatClass = "Ngồi mềm" | "Ngồi cứng" | "Nằm mềm" | "Nằm cứng";
@@ -75,7 +76,7 @@ function getTimeSlot(timeStr: string): TimeSlot {
 }
 
 function formatPrice(price: number) {
-  return new Intl.NumberFormat("vi-VN").format(price) + " ₫";
+  return formatVnd(price);
 }
 
 /* ─── Main Component ─────────────────────────────────────────── */
