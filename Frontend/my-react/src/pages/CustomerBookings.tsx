@@ -1,13 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Divider } from "antd";
-import { Briefcase } from "lucide-react";
+import { Briefcase, CalendarDays, CreditCard, Hash, MapPin, Ticket } from "lucide-react";
 import CustomerSidebar from "../components/Sidebar/CustomerSidebar";
+import { formatDate, formatVnd, getBookingCode, readBookingInfo } from "../utils/bookingStorage";
+import type { StoredBookingInfo } from "../utils/bookingStorage";
 import "../assets/css/CustomerBookings.css";
-
-// --- MOCK DATA ---
-const bookings: any[] = [];
-// const transactions: any[] = []; // Not used directly in this UI as requested, just linking to history
 
 function EmptyBookingCard() {
   return (
@@ -27,18 +25,71 @@ function EmptyBookingCard() {
   );
 }
 
-function CurrentBookingSection() {
+function CurrentBookingSection({ booking }: { booking: StoredBookingInfo | null }) {
   return (
     <div className="bookings-section">
       <h2 className="bookings-section-title">Vé điện tử & phiếu thanh toán hiện hành</h2>
-      {bookings.length === 0 ? (
-        <EmptyBookingCard />
-      ) : (
-        <div className="bookings-card">
-          {/* List of bookings would go here */}
-          <p>Danh sách vé điện tử...</p>
+      {booking ? <ElectronicTicket booking={booking} /> : <EmptyBookingCard />}
+    </div>
+  );
+}
+
+function ElectronicTicket({ booking }: { booking: StoredBookingInfo }) {
+  const detailDate = booking.primaryDetail ?? `${formatDate(booking.startDate ?? booking.checkIn)} → ${formatDate(booking.endDate ?? booking.checkOut)}`;
+  const title = booking.title ?? booking.serviceName;
+  const subtitle = booking.subtitle ?? booking.tenLoaiPhong ?? booking.secondaryDetail;
+
+  return (
+    <div className="booking-ticket-card">
+      <div className="booking-ticket-header">
+        <div>
+          <span className="booking-ticket-badge">{booking.serviceLabel}</span>
+          <h3>{title}</h3>
+          {subtitle && <p>{subtitle}</p>}
         </div>
-      )}
+        <div className="booking-ticket-code">
+          <span>Mã đặt chỗ</span>
+          <strong>{getBookingCode(booking)}</strong>
+        </div>
+      </div>
+
+      <div className="booking-ticket-body">
+        <div className="booking-ticket-main">
+          <div className="booking-ticket-qr">
+            <Ticket size={44} />
+            <span>VÉ ĐIỆN TỬ</span>
+          </div>
+          <div className="booking-ticket-status">Đã thanh toán</div>
+        </div>
+
+        <div className="booking-ticket-details">
+          <div className="booking-ticket-row">
+            <CalendarDays size={18} />
+            <span>Thời gian</span>
+            <strong>{detailDate}</strong>
+          </div>
+          <div className="booking-ticket-row">
+            <MapPin size={18} />
+            <span>Chi tiết</span>
+            <strong>{booking.secondaryDetail ?? booking.quantityLabel ?? "Đã xác nhận"}</strong>
+          </div>
+          <div className="booking-ticket-row">
+            <CreditCard size={18} />
+            <span>Thanh toán</span>
+            <strong>{booking.priceLabel ?? formatVnd(booking.tongGia)}</strong>
+          </div>
+          <div className="booking-ticket-row">
+            <Hash size={18} />
+            <span>Loại vé</span>
+            <strong>{booking.serviceLabel}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div className="booking-ticket-actions">
+        <button type="button" className="booking-ticket-primary">Xem phiếu</button>
+        <Link to="/mua-sam/giao-dich" className="booking-ticket-secondary">Lịch sử giao dịch</Link>
+      </div>
     </div>
   );
 }
@@ -57,8 +108,11 @@ function TransactionHistorySection() {
 }
 
 export default function CustomerBookings() {
+  const [booking, setBooking] = useState<StoredBookingInfo | null>(null);
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    setBooking(readBookingInfo());
   }, []);
 
   return (
@@ -67,7 +121,7 @@ export default function CustomerBookings() {
         <CustomerSidebar activeKey="bookings" />
 
         <div className="bookings-content">
-          <CurrentBookingSection />
+          <CurrentBookingSection booking={booking} />
           
           <TransactionHistorySection />
           

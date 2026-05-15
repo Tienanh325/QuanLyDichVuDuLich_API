@@ -16,32 +16,8 @@ import {
 import "../assets/css/paymentkhachsan.css";
 import hotelHeroImg from "../assets/images/hotel_hero_city.png";
 import { createThanhToan } from "../services/hotelService";
-
-// ─── Types ──────────────────────────────────────────────────────
-interface BookingInfo {
-  maDon: number;
-  tongGia: number;
-  tenKhachSan: string;
-  tenLoaiPhong: string;
-  checkIn: string;
-  checkOut: string;
-  nights: number;
-  giaPhong: number;
-  rooms: number;
-  adults: number;
-}
-
-// ─── Helpers ────────────────────────────────────────────────────
-function formatVnd(n: number) {
-  return n.toLocaleString("vi-VN") + " VND";
-}
-
-function formatDate(dateStr: string) {
-  if (!dateStr) return "Chưa chọn";
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return dateStr;
-  return d.toLocaleDateString("vi-VN", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
-}
+import { formatDate, formatVnd, readBookingInfo } from "../utils/bookingStorage";
+import type { StoredBookingInfo } from "../utils/bookingStorage";
 
 const PAYMENT_METHOD_MAP: Record<string, string> = {
   credit_card: "VNPAY",
@@ -136,10 +112,11 @@ function PaymentMethod({
 }
 
 // ─── BookingSummary ───────────────────────────────────────────────
-function BookingSummary({ info, onPay, isLoading }: { info: BookingInfo | null; onPay: () => void; isLoading: boolean }) {
-  const taxFee = info ? Math.round(info.giaPhong * info.nights * info.rooms * 0.1) : 0;
-  const roomCharge = info ? info.giaPhong * info.nights * info.rooms : 0;
+function BookingSummary({ info, onPay, isLoading }: { info: StoredBookingInfo | null; onPay: () => void; isLoading: boolean }) {
+  const roomCharge = info?.giaPhong && info?.nights && info?.rooms ? info.giaPhong * info.nights * Number(info.rooms) : 0;
+  const taxFee = roomCharge ? Math.round(roomCharge * 0.1) : 0;
   const total = info?.tongGia ?? roomCharge + taxFee;
+  const durationLabel = info?.secondaryDetail ?? (info?.nights ? `${info.nights} đêm (${info.rooms ?? 1} phòng, ${info.adults ?? 1} khách)` : "—");
 
   return (
     <>
@@ -147,8 +124,8 @@ function BookingSummary({ info, onPay, isLoading }: { info: BookingInfo | null; 
         <div className="payment-hotel-hero">
           <img src={hotelHeroImg} alt="Hotel Hero" />
           <div className="payment-hotel-hero-overlay">
-            <div className="payment-hotel-type">HOTELS</div>
-            <h3 className="payment-hotel-name">{info?.tenKhachSan ?? "Khách sạn"}</h3>
+            <div className="payment-hotel-type">{info?.serviceLabel ?? "Đặt chỗ"}</div>
+            <h3 className="payment-hotel-name">{info?.title ?? info?.serviceName ?? "Đặt chỗ"}</h3>
           </div>
         </div>
 
@@ -156,24 +133,24 @@ function BookingSummary({ info, onPay, isLoading }: { info: BookingInfo | null; 
           <div className="payment-detail-row">
             <CalendarDays size={20} className="payment-detail-icon" />
             <div className="payment-detail-content">
-              <span className="payment-detail-label">Ngày nhận phòng</span>
-              <span className="payment-detail-value">{info ? formatDate(info.checkIn) : "—"}</span>
+              <span className="payment-detail-label">Ngày sử dụng</span>
+              <span className="payment-detail-value">{info?.primaryDetail ?? (info ? formatDate(info.startDate ?? info.checkIn) : "—")}</span>
             </div>
           </div>
 
           <div className="payment-detail-row">
             <Moon size={20} className="payment-detail-icon" />
             <div className="payment-detail-content">
-              <span className="payment-detail-label">Thời gian lưu trú</span>
-              <span className="payment-detail-value">{info ? `${info.nights} đêm (${info.rooms} phòng, ${info.adults} khách)` : "—"}</span>
+              <span className="payment-detail-label">Chi tiết đặt chỗ</span>
+              <span className="payment-detail-value">{durationLabel}</span>
             </div>
           </div>
 
           <div className="payment-detail-row">
             <BedDouble size={20} className="payment-detail-icon" />
             <div className="payment-detail-content">
-              <span className="payment-detail-label">Loại phòng</span>
-              <span className="payment-detail-value">{info?.tenLoaiPhong ?? "—"}</span>
+              <span className="payment-detail-label">Dịch vụ</span>
+              <span className="payment-detail-value">{info?.subtitle ?? info?.serviceLabel ?? "—"}</span>
             </div>
           </div>
         </div>
@@ -182,7 +159,7 @@ function BookingSummary({ info, onPay, isLoading }: { info: BookingInfo | null; 
           <div className="payment-price-title">Chi tiết giá</div>
 
           <div className="payment-price-row">
-            <span className="payment-price-label">Giá phòng ({info?.nights ?? 1} đêm)</span>
+            <span className="payment-price-label">{info?.quantityLabel ?? `Giá dịch vụ (${info?.nights ?? 1} đêm)`}</span>
             <span className="payment-price-value">{formatVnd(roomCharge)}</span>
           </div>
 
@@ -228,21 +205,13 @@ function BookingSummary({ info, onPay, isLoading }: { info: BookingInfo | null; 
 export default function PaymentKhachSan() {
   const navigate = useNavigate();
   const [activeMethod, setActiveMethod] = useState("credit_card");
-  const [bookingInfo, setBookingInfo] = useState<BookingInfo | null>(null);
+  const [bookingInfo, setBookingInfo] = useState<StoredBookingInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    // Đọc thông tin đặt phòng từ localStorage
-    const raw = localStorage.getItem("travelhub_booking_info");
-    if (raw) {
-      try {
-        setBookingInfo(JSON.parse(raw) as BookingInfo);
-      } catch {
-        // ignore parse error
-      }
-    }
+    setBookingInfo(readBookingInfo());
   }, []);
 
   async function handlePayment() {
@@ -254,8 +223,8 @@ export default function PaymentKhachSan() {
     setIsLoading(true);
     setErrorMsg("");
 
-    const roomCharge = bookingInfo.giaPhong * bookingInfo.nights * bookingInfo.rooms;
-    const taxFee = Math.round(roomCharge * 0.1);
+    const roomCharge = bookingInfo.giaPhong && bookingInfo.nights && bookingInfo.rooms ? bookingInfo.giaPhong * bookingInfo.nights * Number(bookingInfo.rooms) : 0;
+    const taxFee = roomCharge ? Math.round(roomCharge * 0.1) : 0;
     const total = bookingInfo.tongGia ?? roomCharge + taxFee;
 
     try {
@@ -263,19 +232,14 @@ export default function PaymentKhachSan() {
         maDon: bookingInfo.maDon,
         phuongThuc: (PAYMENT_METHOD_MAP[activeMethod] as 'VNPAY' | 'MOMO' | 'COD' | 'BANK_TRANSFER' | 'WALLET') ?? "VNPAY",
         soTien: total,
-        ghiChu: `Thanh toán phòng ${bookingInfo.tenLoaiPhong} tại ${bookingInfo.tenKhachSan}`,
+        ghiChu: `Thanh toán ${bookingInfo.serviceLabel.toLowerCase()} ${bookingInfo.subtitle ?? bookingInfo.title}`,
       });
 
-      // Xóa booking info khỏi localStorage sau khi thanh toán thành công
-      localStorage.removeItem("travelhub_booking_info");
-      localStorage.removeItem("travelhub_maDon");
+      const paidBookingInfo = { ...bookingInfo, tongGia: total };
+      localStorage.setItem("travelhub_booking_info", JSON.stringify(paidBookingInfo));
 
       navigate("/mua-sam/thanh-toan-thanh-cong", {
-        state: {
-          maDon: bookingInfo.maDon,
-          tenKhachSan: bookingInfo.tenKhachSan,
-          tongGia: total,
-        },
+        state: paidBookingInfo,
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Có lỗi xảy ra khi thanh toán.";

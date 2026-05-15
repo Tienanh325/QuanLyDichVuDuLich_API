@@ -41,6 +41,8 @@ router.get('/loai-ve', LoaiVeController.getAllLoaiVe);
 
 // Đánh giá (public)
 router.get('/danh-gia', DanhGiaController.publicGetAll);
+router.get('/danh-gia/:maDichVu/tom-tat', DanhGiaController.publicGetSummary);
+router.get('/danh-gia/:maDichVu/tieu-chi', DanhGiaController.publicGetCriteria);
 
 // ==========================================
 // 2. AUTHENTICATED ROUTES (Cần đăng nhập)
@@ -65,6 +67,7 @@ router.post('/thanh-toan', requireAuth, ThanhToanController.customerThanhToan);
 router.get('/toi/don-dat/:donId/thanh-toan', requireAuth, ThanhToanController.customerGetByDon);
 
 // Đánh giá
+router.get('/toi/danh-gia/:maDichVu', requireAuth, DanhGiaController.customerGetMine);
 router.post('/danh-gia', requireAuth, DanhGiaController.customerCreate);
 router.put('/danh-gia/:id', requireAuth, DanhGiaController.customerUpdate);
 router.delete('/danh-gia/:id', requireAuth, DanhGiaController.customerRemove);

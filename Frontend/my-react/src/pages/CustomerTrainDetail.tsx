@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import "../assets/css/CustomerTrainDetail.css";
 import { Train, Wifi, Snowflake, Utensils, Plug, Calendar, Bed, CheckSquare, Square } from 'lucide-react';
 import { formatGio, formatNgay, formatVnd, getVeById, type VeDetail } from '../services/veService';
+import ReviewSection from '../components/ReviewSection';
 
 interface Seat { id: string; number: string; status: 'available' | 'booked'; }
 interface Cabin { id: string; name: string; seats: Seat[]; }
@@ -87,6 +88,7 @@ const CustomerTrainDetail = () => {
 
         <div className="ctd-main__right"><div className="ctd-booking-widget"><div className="ctd-booking__header"><div className="ctd-booking__price-label">GIÁ TỪ</div><div className="ctd-booking__price">{formatVnd(basePrice)}</div><div className="ctd-booking__price-unit">/ khách / lượt</div></div><div className="ctd-booking__form"><div className="ctd-booking__fields"><div><label className="ctd-booking__field-label">LOẠI CHỖ</label><div className="ctd-booking__field-box"><Bed className="ctd-booking__field-icon" /><span className="ctd-booking__field-value">{detail.loaiChoMacDinh || ticket.bảngGia?.[0]?.tenLoaiVe || 'Chỗ ngồi'}</span></div></div><div><label className="ctd-booking__field-label">NGÀY ĐI</label><div className="ctd-booking__field-box"><Calendar className="ctd-booking__field-icon" /><span className="ctd-booking__field-value">{formatNgay(detail.thoiGianKhoiHanh || '')}</span></div></div></div><div className="ctd-booking__breakdown"><div className="ctd-booking__row"><span className="ctd-booking__row-label">Hành khách ({selectedSeats.length}x)</span><span className="ctd-booking__row-value">{formatVnd(totalPrice)}</span></div><div className="ctd-booking__row"><span className="ctd-booking__row-label">Chính sách hoàn</span><span className="ctd-booking__row-value--free">{detail.chinhSachHoan || 'Theo nhà cung cấp'}</span></div></div><div className="ctd-booking__divider"></div><div className="ctd-booking__total"><span className="ctd-booking__total-label">Tổng cộng</span><span className="ctd-booking__total-price">{selectedSeats.length > 0 ? formatVnd(totalPrice) : '0 VND'}</span></div><button disabled={selectedSeats.length === 0} className={`ctd-booking__cta ${selectedSeats.length > 0 ? 'ctd-booking__cta--active' : 'ctd-booking__cta--disabled'}`}>ĐẶT VÉ NGAY</button><p className="ctd-booking__guarantee">{detail.chinhSachHoan || 'Đảm bảo theo chính sách nhà cung cấp'}</p></div></div></div>
       </main>
+      <main className="ctd-main"><ReviewSection maDichVu={ticket.maDichVu ?? ticket.maVe} serviceName={ticket.tenDichVu || detail.soHieuChuyenTau || 'chuyến tàu'} serviceType="train" /></main>
     </div>
   );
 };

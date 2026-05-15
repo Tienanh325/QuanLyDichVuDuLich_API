@@ -366,11 +366,23 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: box-shadow 0.2s;
+  animation: casr-card-enter 520ms var(--motion-ease) both;
+  transition: transform var(--motion-base) var(--motion-ease), box-shadow var(--motion-base) var(--motion-ease), border-color var(--motion-base) ease;
 }
 
+.casr-card:nth-child(2) { animation-delay: 70ms; }
+.casr-card:nth-child(3) { animation-delay: 140ms; }
+.casr-card:nth-child(4) { animation-delay: 210ms; }
+
 .casr-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+  box-shadow: var(--motion-shadow-soft);
+  border-color: #dbeafe;
+}
+
+@keyframes casr-card-enter {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 @media (min-width: 768px) {
@@ -401,11 +413,12 @@
   object-fit: cover;
   position: absolute;
   inset: 0;
-  transition: transform 0.5s;
+  transition: transform 650ms var(--motion-ease), filter 650ms var(--motion-ease);
 }
 
 .casr-card:hover .casr-card__image {
-  transform: scale(1.05);
+  transform: scale(1.055);
+  filter: saturate(1.06);
 }
 
 .casr-card__badge {

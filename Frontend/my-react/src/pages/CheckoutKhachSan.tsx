@@ -13,6 +13,7 @@ import "../assets/css/checkoutkhachsan.css";
 import hotelRoomImg from "../assets/images/hotel_room_deluxe.png";
 import { getCurrentSession } from "../utils/auth";
 import { createDonDat } from "../services/hotelService";
+import { saveBookingInfo } from "../utils/bookingStorage";
 
 // --- HELPERS ---
 
@@ -307,11 +308,20 @@ export default function CheckoutKhachSan() {
         }],
       });
 
-      // Lưu maDon để dùng ở trang payment
-      localStorage.setItem("travelhub_maDon", String(donDat.maDon));
-      localStorage.setItem("travelhub_booking_info", JSON.stringify({
+      saveBookingInfo({
         maDon: donDat.maDon,
         tongGia: donDat.tongGia,
+        serviceType: "hotel",
+        serviceLabel: "Khách sạn",
+        serviceName: tenKhachSan,
+        title: tenKhachSan,
+        subtitle: tenLoaiPhong,
+        primaryDetail: `${formatDate(checkIn)} → ${formatDate(checkOut)}`,
+        secondaryDetail: `${nights} đêm • ${rooms} phòng • ${adults} khách`,
+        startDate: checkIn,
+        endDate: checkOut,
+        quantityLabel: `${rooms} phòng, ${adults} khách`,
+        priceLabel: formatVnd(donDat.tongGia),
         tenKhachSan,
         tenLoaiPhong,
         checkIn,
@@ -321,7 +331,7 @@ export default function CheckoutKhachSan() {
         rooms,
         adults,
         khachSanId,
-      }));
+      });
 
       navigate("/mua-sam/thanh-toan-dat-cho");
     } catch (err: unknown) {

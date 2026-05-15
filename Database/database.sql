@@ -549,7 +549,9 @@ CREATE TABLE DanhGia (
   maDichVu INT NOT NULL,
   maDon INT NULL,
   soSao INT NOT NULL,
+  tieuDe VARCHAR(150) NULL,
   binhLuan TEXT,
+  trangThai ENUM('CHO_DUYET','DA_DUYET','TU_CHOI') NOT NULL DEFAULT 'DA_DUYET',
   ngayDanhGia DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   ngayCapNhat DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_dg_user FOREIGN KEY (maUser)
@@ -559,7 +561,40 @@ CREATE TABLE DanhGia (
   CONSTRAINT fk_dg_don FOREIGN KEY (maDon)
     REFERENCES DonDat(maDon) ON DELETE SET NULL ON UPDATE CASCADE,
   UNIQUE KEY uq_dg_user_dichvu (maUser, maDichVu),
+  INDEX idx_dg_dichvu_status (maDichVu, trangThai),
   CHECK (soSao BETWEEN 1 AND 5)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE TieuChiDanhGia (
+  maTieuChi INT AUTO_INCREMENT PRIMARY KEY,
+  loaiDichVu ENUM('KHACH_SAN','MAY_BAY','TAU','TOUR') NOT NULL,
+  tenTieuChi VARCHAR(100) NOT NULL,
+  moTa VARCHAR(255) NULL,
+  thuTu INT NOT NULL DEFAULT 0,
+  UNIQUE KEY uq_tcdg_loai_ten (loaiDichVu, tenTieuChi)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE ChiTietDanhGia (
+  maDanhGia INT NOT NULL,
+  maTieuChi INT NOT NULL,
+  diem INT NOT NULL,
+  PRIMARY KEY (maDanhGia, maTieuChi),
+  CONSTRAINT fk_ctdg_danhgia FOREIGN KEY (maDanhGia)
+    REFERENCES DanhGia(maDanhGia) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_ctdg_tieuchi FOREIGN KEY (maTieuChi)
+    REFERENCES TieuChiDanhGia(maTieuChi) ON DELETE CASCADE ON UPDATE CASCADE,
+  CHECK (diem BETWEEN 1 AND 5)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE AnhDanhGia (
+  maAnh INT AUTO_INCREMENT PRIMARY KEY,
+  maDanhGia INT NOT NULL,
+  urlAnh VARCHAR(500) NOT NULL,
+  thuTu INT NOT NULL DEFAULT 0,
+  ngayTao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_adg_danhgia FOREIGN KEY (maDanhGia)
+    REFERENCES DanhGia(maDanhGia) ON DELETE CASCADE ON UPDATE CASCADE,
+  INDEX idx_adg_danhgia (maDanhGia)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE ThanhToan (
@@ -643,7 +678,10 @@ DELIMITER ;
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE HoaDonVAT;
 TRUNCATE TABLE ThanhToan;
+TRUNCATE TABLE AnhDanhGia;
+TRUNCATE TABLE ChiTietDanhGia;
 TRUNCATE TABLE DanhGia;
+TRUNCATE TABLE TieuChiDanhGia;
 TRUNCATE TABLE YeuCauDacBiet;
 TRUNCATE TABLE ThongTinDatCho;
 TRUNCATE TABLE ChiTietDon;
@@ -677,16 +715,16 @@ TRUNCATE TABLE Users;
 SET FOREIGN_KEY_CHECKS = 1;
 
 INSERT INTO Users (username, password, ten, email, sdt, vaiTro, trangThai, gioiTinh, ngaySinh, diaChi, thanhPho, quocGia, avatar) VALUES
-('admin01', '$2b$10$demoHash01', 'Nguyễn Quản Trị', 'admin01@example.com', '0901000001', 'ADMIN', 1, 'NAM', '1990-01-10', '1 Lê Lợi', 'Hà Nội', 'Việt Nam', 'https://example.com/avatar/admin01.jpg'),
-('khach01', '$2b$10$demoHash02', 'Trần Minh Anh', 'khach01@example.com', '0901000002', 'CUSTOMER', 1, 'NU', '1998-03-12', '12 Nguyễn Huệ', 'TP.HCM', 'Việt Nam', 'https://example.com/avatar/khach01.jpg'),
-('khach02', '$2b$10$demoHash03', 'Lê Hoàng Nam', 'khach02@example.com', '0901000003', 'CUSTOMER', 1, 'NAM', '1995-05-20', '25 Trần Phú', 'Đà Nẵng', 'Việt Nam', 'https://example.com/avatar/khach02.jpg'),
-('khach03', '$2b$10$demoHash04', 'Phạm Thu Hà', 'khach03@example.com', '0901000004', 'CUSTOMER', 1, 'NU', '1997-07-08', '8 Hùng Vương', 'Nha Trang', 'Việt Nam', 'https://example.com/avatar/khach03.jpg'),
-('khach04', '$2b$10$demoHash05', 'Vũ Đức Tài', 'khach04@example.com', '0901000005', 'CUSTOMER', 1, 'NAM', '1994-09-15', '30 Bạch Đằng', 'Hải Phòng', 'Việt Nam', 'https://example.com/avatar/khach04.jpg'),
-('khach05', '$2b$10$demoHash06', 'Đỗ Ngọc Linh', 'khach05@example.com', '0901000006', 'CUSTOMER', 1, 'NU', '1999-11-22', '18 Lý Thường Kiệt', 'Huế', 'Việt Nam', 'https://example.com/avatar/khach05.jpg'),
-('khach06', '$2b$10$demoHash07', 'Bùi Quốc Huy', 'khach06@example.com', '0901000007', 'CUSTOMER', 1, 'NAM', '1993-02-17', '44 Điện Biên Phủ', 'Cần Thơ', 'Việt Nam', 'https://example.com/avatar/khach06.jpg'),
-('khach07', '$2b$10$demoHash08', 'Hoàng Mai Chi', 'khach07@example.com', '0901000008', 'CUSTOMER', 1, 'NU', '2000-04-25', '9 Nguyễn Trãi', 'Đà Lạt', 'Việt Nam', 'https://example.com/avatar/khach07.jpg'),
-('khach08', '$2b$10$demoHash09', 'Ngô Gia Bảo', 'khach08@example.com', '0901000009', 'CUSTOMER', 1, 'NAM', '1996-06-30', '60 Phan Chu Trinh', 'Quảng Ninh', 'Việt Nam', 'https://example.com/avatar/khach08.jpg'),
-('khach09', '$2b$10$demoHash10', 'Đặng Yến Nhi', 'khach09@example.com', '0901000010', 'CUSTOMER', 1, 'NU', '2001-08-19', '75 Nguyễn Du', 'Phú Quốc', 'Việt Nam', 'https://example.com/avatar/khach09.jpg');
+('admin01', '123456', 'Nguyễn Quản Trị', 'admin01@example.com', '0901000001', 'ADMIN', 1, 'NAM', '1990-01-10', '1 Lê Lợi', 'Hà Nội', 'Việt Nam', 'https://example.com/avatar/admin01.jpg'),
+('khach01', '123456', 'Trần Minh Anh', 'khach01@example.com', '0901000002', 'CUSTOMER', 1, 'NU', '1998-03-12', '12 Nguyễn Huệ', 'TP.HCM', 'Việt Nam', 'https://example.com/avatar/khach01.jpg'),
+('khach02', '123456', 'Lê Hoàng Nam', 'khach02@example.com', '0901000003', 'CUSTOMER', 1, 'NAM', '1995-05-20', '25 Trần Phú', 'Đà Nẵng', 'Việt Nam', 'https://example.com/avatar/khach02.jpg'),
+('khach03', '123456', 'Phạm Thu Hà', 'khach03@example.com', '0901000004', 'CUSTOMER', 1, 'NU', '1997-07-08', '8 Hùng Vương', 'Nha Trang', 'Việt Nam', 'https://example.com/avatar/khach03.jpg'),
+('khach04', '123456', 'Vũ Đức Tài', 'khach04@example.com', '0901000005', 'CUSTOMER', 1, 'NAM', '1994-09-15', '30 Bạch Đằng', 'Hải Phòng', 'Việt Nam', 'https://example.com/avatar/khach04.jpg'),
+('khach05', '123456', 'Đỗ Ngọc Linh', 'khach05@example.com', '0901000006', 'CUSTOMER', 1, 'NU', '1999-11-22', '18 Lý Thường Kiệt', 'Huế', 'Việt Nam', 'https://example.com/avatar/khach05.jpg'),
+('khach06', '123456', 'Bùi Quốc Huy', 'khach06@example.com', '0901000007', 'CUSTOMER', 1, 'NAM', '1993-02-17', '44 Điện Biên Phủ', 'Cần Thơ', 'Việt Nam', 'https://example.com/avatar/khach06.jpg'),
+('khach07', '123456', 'Hoàng Mai Chi', 'khach07@example.com', '0901000008', 'CUSTOMER', 1, 'NU', '2000-04-25', '9 Nguyễn Trãi', 'Đà Lạt', 'Việt Nam', 'https://example.com/avatar/khach07.jpg'),
+('khach08', '123456', 'Ngô Gia Bảo', 'khach08@example.com', '0901000009', 'CUSTOMER', 1, 'NAM', '1996-06-30', '60 Phan Chu Trinh', 'Quảng Ninh', 'Việt Nam', 'https://example.com/avatar/khach08.jpg'),
+('khach09', '123456', 'Đặng Yến Nhi', 'khach09@example.com', '0901000010', 'CUSTOMER', 1, 'NU', '2001-08-19', '75 Nguyễn Du', 'Phú Quốc', 'Việt Nam', 'https://example.com/avatar/khach09.jpg');
 
 INSERT INTO NhaCungCap (ten, email, sdt, diaChi, loai, trangThai) VALUES
 ('Vietnam Airlines', 'contact@vna.example.com', '19001101', 'Hà Nội', 'MAY_BAY', 1),
@@ -1017,17 +1055,59 @@ INSERT INTO YeuCauDacBiet (maDon, maChiTiet, loaiYeuCau, noiDung, trangThai) VAL
 (9, 9, 'Vé', 'In vé giấy', 'DONE'),
 (10, 10, 'Phòng', 'View biển', 'ACCEPTED');
 
-INSERT INTO DanhGia (maUser, maDichVu, maDon, soSao, binhLuan) VALUES
-(2, 1, 1, 5, 'Dịch vụ tốt'),
-(3, 6, 2, 4, 'Phòng sạch'),
-(4, 8, 3, 5, 'Bay đúng giờ'),
-(5, 9, 4, 4, 'Tàu ổn'),
-(6, 2, 5, 5, 'Phú Quốc đẹp'),
-(7, 7, 6, 4, 'Khách sạn đẹp'),
-(8, 10, 7, 5, 'Vui chơi hấp dẫn'),
-(9, 3, 8, 4, 'Hạ Long đẹp'),
-(10, 4, NULL, 5, 'Nha Trang rất vui'),
-(2, 5, NULL, 4, 'Đà Lạt mát mẻ');
+INSERT INTO TieuChiDanhGia (loaiDichVu, tenTieuChi, moTa, thuTu) VALUES
+('KHACH_SAN', 'Sạch sẽ', 'Phòng, nhà tắm, ga giường và khu vực chung', 1),
+('KHACH_SAN', 'Vị trí', 'Dễ di chuyển, gần trung tâm hoặc điểm tham quan', 2),
+('KHACH_SAN', 'Tiện nghi', 'Wifi, điều hòa, hồ bơi, nhà hàng và tiện ích phòng', 3),
+('KHACH_SAN', 'Dịch vụ nhân viên', 'Thái độ, tốc độ hỗ trợ, check-in/check-out', 4),
+('KHACH_SAN', 'Đáng tiền', 'Chất lượng nhận được so với giá', 5),
+('KHACH_SAN', 'Thoải mái', 'Giường, cách âm và không gian nghỉ ngơi', 6),
+('MAY_BAY', 'Đúng giờ', 'Cất cánh và hạ cánh đúng lịch', 1),
+('MAY_BAY', 'Check-in', 'Quy trình check-in online/offline', 2),
+('MAY_BAY', 'Ghế ngồi', 'Khoảng để chân và độ thoải mái', 3),
+('MAY_BAY', 'Dịch vụ tiếp viên', 'Thái độ và mức độ hỗ trợ trên chuyến bay', 4),
+('MAY_BAY', 'Hành lý', 'Xử lý và thời gian nhận hành lý', 5),
+('MAY_BAY', 'Đáng tiền', 'Giá vé so với trải nghiệm', 6),
+('TAU', 'Đúng giờ', 'Xuất phát và đến nơi đúng lịch', 1),
+('TAU', 'Sạch sẽ', 'Toa tàu, ghế/giường và toilet', 2),
+('TAU', 'Thoải mái', 'Ghế, giường, điều hòa và độ ồn', 3),
+('TAU', 'An toàn', 'Cảm giác an toàn và hướng dẫn rõ ràng', 4),
+('TAU', 'Dịch vụ trên tàu', 'Nhân viên, hỗ trợ và tiện ích trên tàu', 5),
+('TAU', 'Đáng tiền', 'Giá vé so với chất lượng', 6),
+('TOUR', 'Lịch trình', 'Điểm đến hợp lý, không quá dày', 1),
+('TOUR', 'Hướng dẫn viên', 'Kiến thức, thái độ và hỗ trợ khách', 2),
+('TOUR', 'Phương tiện', 'Xe đưa đón, tàu/thuyền và độ thoải mái', 3),
+('TOUR', 'Ăn uống', 'Chất lượng bữa ăn, vệ sinh, phù hợp khẩu vị', 4),
+('TOUR', 'Tổ chức', 'Đúng giờ, rõ ràng và chuyên nghiệp', 5),
+('TOUR', 'Đáng tiền', 'Trải nghiệm so với giá tour', 6);
+
+INSERT INTO DanhGia (maUser, maDichVu, maDon, soSao, tieuDe, binhLuan) VALUES
+(2, 1, 1, 5, 'Dịch vụ rất đáng tiền', 'Dịch vụ tốt, đặt nhanh và thông tin rõ ràng.'),
+(3, 6, 2, 4, 'Phòng sạch, vị trí thuận tiện', 'Phòng sạch, nhân viên hỗ trợ tốt.'),
+(4, 8, 3, 5, 'Bay đúng giờ', 'Check-in nhanh, chuyến bay đúng giờ.'),
+(5, 9, 4, 4, 'Chuyến tàu ổn', 'Tàu sạch, ghế ngồi ổn, lên tàu dễ.'),
+(6, 2, 5, 5, 'Phú Quốc đẹp', 'Lịch trình hợp lý, cảnh đẹp và hướng dẫn viên nhiệt tình.'),
+(7, 7, 6, 4, 'Khách sạn đẹp', 'Không gian đẹp, tiện nghi ổn.'),
+(8, 10, 7, 5, 'Vui chơi hấp dẫn', 'Hoạt động thú vị, phù hợp gia đình.'),
+(9, 3, 8, 4, 'Hạ Long đẹp', 'Tour tổ chức tốt, cảnh rất đẹp.'),
+(10, 4, NULL, 5, 'Nha Trang rất vui', 'Biển đẹp, dịch vụ chu đáo.'),
+(2, 5, NULL, 4, 'Đà Lạt mát mẻ', 'Trải nghiệm dễ chịu, đáng quay lại.');
+
+INSERT INTO ChiTietDanhGia (maDanhGia, maTieuChi, diem)
+SELECT dg.maDanhGia, tc.maTieuChi, LEAST(5, GREATEST(1, dg.soSao - IF(tc.thuTu IN (3,5), 1, 0)))
+FROM DanhGia dg
+JOIN DichVu dv ON dg.maDichVu = dv.maDichVu
+JOIN TieuChiDanhGia tc ON tc.loaiDichVu = CASE
+  WHEN dv.loaiDichVu = 'KHACH_SAN' THEN 'KHACH_SAN'
+  WHEN dv.loaiDichVu = 'VE_MAY_BAY' THEN 'MAY_BAY'
+  WHEN dv.loaiDichVu = 'VE_TAU' THEN 'TAU'
+  ELSE 'TOUR'
+END;
+
+INSERT INTO AnhDanhGia (maDanhGia, urlAnh, thuTu) VALUES
+(2, 'https://images.unsplash.com/photo-1566073771259-6a8506099945', 1),
+(3, 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05', 1),
+(5, 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3', 1);
 
 INSERT INTO ThanhToan (maDon, maUser, soTien, phuongThuc, paymentProvider, maGiaoDichNgoai, providerTransactionId, redirectUrl, failureReason, ghiChu, trangThai, ngayThanhToan) VALUES
 (1, 2, 3500000, 'VNPAY', 'VNPAY', 'GD001', 'VNP001', 'https://example.com/pay/1', NULL, 'Chờ thanh toán', 'PENDING', NULL),

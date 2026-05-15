@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import "../assets/css/CustomerFlightDetail.css";
 import { ArrowRight, Plane, Briefcase, Shield, XCircle, Calendar, Info } from 'lucide-react';
 import { formatGio, formatVnd, getVeById, tinhThoiGianBay, type VeDetail } from '../services/veService';
+import ReviewSection from '../components/ReviewSection';
 
 type FlightDetailData = {
   hangHangKhong?: string;
@@ -127,6 +128,8 @@ const CustomerFlightDetail = () => {
             </div></div>
           </div>
         </div>
+
+        <ReviewSection maDichVu={ticket.maDichVu ?? ticket.maVe} serviceName={ticket.tenDichVu || detail.hangHangKhong || 'chuyến bay'} serviceType="flight" />
       </main>
     </div>
   );

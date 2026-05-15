@@ -91,6 +91,7 @@ export default function ImageModal({ open, mode, editingImage, loading, onClose,
 
   return (
     <Modal
+      className="motion-modal"
       title={title}
       open={open}
       onOk={() => void handleSubmit()}

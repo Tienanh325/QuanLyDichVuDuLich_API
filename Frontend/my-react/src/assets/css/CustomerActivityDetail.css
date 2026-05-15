@@ -107,3 +107,56 @@
   position: sticky;
   top: 6rem;
 }
+
+.cad-motion-title,
+.cad-motion-gallery,
+.cad-motion-card,
+.cad-motion-booking {
+  animation: cad-fade-up 560ms var(--motion-ease) both;
+}
+
+.cad-motion-gallery { animation-delay: 80ms; }
+.cad-motion-card:nth-child(2) { animation-delay: 120ms; }
+.cad-motion-card:nth-child(3) { animation-delay: 200ms; }
+.cad-motion-booking { animation-delay: 160ms; }
+
+.cad-motion-gallery img {
+  transition: transform 700ms var(--motion-ease), filter 700ms var(--motion-ease);
+}
+
+.cad-motion-gallery img:hover {
+  transform: scale(1.055);
+  filter: saturate(1.06);
+}
+
+.cad-motion-card,
+.cad-motion-booking {
+  transition: transform var(--motion-base) var(--motion-ease), box-shadow var(--motion-base) var(--motion-ease), border-color var(--motion-base) ease;
+}
+
+.cad-motion-card:hover,
+.cad-motion-booking:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--motion-shadow-soft);
+  border-color: #dbeafe;
+}
+
+.cad-motion-booking button,
+.cad-motion-title button {
+  transition: transform var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) ease, color var(--motion-fast) ease;
+}
+
+.cad-motion-booking button:hover,
+.cad-motion-title button:hover {
+  transform: translateY(-2px);
+}
+
+.cad-motion-booking button:active,
+.cad-motion-title button:active {
+  transform: scale(0.97);
+}
+
+@keyframes cad-fade-up {
+  from { opacity: 0; transform: translate3d(0, 20px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}

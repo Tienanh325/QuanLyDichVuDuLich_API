@@ -12,7 +12,7 @@ class KhachSanModel {
             whereClause += ` AND ks.viTri LIKE ?`;
             whereParams.push(`%${viTri}%`);
         }
-        if (search) {
+        if (search) {a
             whereClause += ` AND (dv.ten LIKE ? OR ks.viTri LIKE ? OR ks.tenkhachsan LIKE ?)`;
             const s = `%${search}%`;
             whereParams.push(s, s, s);

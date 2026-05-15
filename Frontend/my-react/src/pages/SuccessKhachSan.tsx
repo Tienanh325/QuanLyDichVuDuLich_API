@@ -11,12 +11,10 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import "../assets/css/successkhachsan.css";
 import hotelHeroImg from "../assets/images/hotel_hero_city.png";
+import { formatVnd, readBookingInfo } from "../utils/bookingStorage";
+import type { StoredBookingInfo } from "../utils/bookingStorage";
 
-interface SuccessState {
-  maDon?: number;
-  tenKhachSan?: string;
-  tongGia?: number;
-}
+type SuccessState = Partial<StoredBookingInfo>;
 
 // --- SUB-COMPONENTS ---
 
@@ -45,8 +43,9 @@ function StepProgress() {
   );
 }
 
-function SuccessMessage({ maDon }: { maDon?: number }) {
+function SuccessMessage({ booking }: { booking: SuccessState | null }) {
   const navigate = useNavigate();
+  const maDon = booking?.maDon;
 
   return (
     <div className="success-left">
@@ -67,7 +66,7 @@ function SuccessMessage({ maDon }: { maDon?: number }) {
       </p>
 
       <div className="success-actions">
-        <button type="button" className="success-btn-primary">
+        <button type="button" className="success-btn-primary" onClick={() => navigate("/mua-sam/dat-cho-cua-toi", { state: booking })}>
           <Ticket size={18} />
           Xem vé điện tử / Phiếu thanh toán
         </button>
@@ -90,7 +89,10 @@ function SuccessMessage({ maDon }: { maDon?: number }) {
   );
 }
 
-function BookingSummary({ tenKhachSan, tongGia }: { tenKhachSan?: string; tongGia?: number }) {
+function BookingSummary({ booking }: { booking: SuccessState | null }) {
+  const title = booking?.title ?? booking?.serviceName ?? booking?.tenKhachSan ?? "Đặt chỗ";
+  const subtitle = booking?.subtitle ?? booking?.tenLoaiPhong;
+  const tongGia = booking?.tongGia;
   return (
     <div className="success-right">
       <div className="success-summary-card">
@@ -100,7 +102,8 @@ function BookingSummary({ tenKhachSan, tongGia }: { tenKhachSan?: string; tongGi
         </div>
 
         <div className="success-hotel-info">
-          <h3 className="success-hotel-name">{tenKhachSan ?? "Khách sạn"}</h3>
+          <h3 className="success-hotel-name">{title}</h3>
+          {subtitle && <div style={{ color: "#64748b", fontSize: 14, marginTop: 6 }}>{subtitle}</div>}
           <div className="success-hotel-rating">
             <div className="success-hotel-rating-stars">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -114,7 +117,7 @@ function BookingSummary({ tenKhachSan, tongGia }: { tenKhachSan?: string; tongGi
           <div className="success-price-details">
             <div className="success-total-row">
               <span className="success-total-label">Tổng thanh toán</span>
-              <span className="success-total-value">{tongGia.toLocaleString("vi-VN")} VND</span>
+              <span className="success-total-value">{formatVnd(tongGia)}</span>
             </div>
           </div>
         )}
@@ -142,7 +145,7 @@ function BookingSummary({ tenKhachSan, tongGia }: { tenKhachSan?: string; tongGi
 
 export default function SuccessKhachSan() {
   const location = useLocation();
-  const state = location.state as SuccessState | null;
+  const state = (location.state as SuccessState | null) ?? readBookingInfo();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -154,8 +157,8 @@ export default function SuccessKhachSan() {
         <StepProgress />
 
         <div className="success-layout">
-          <SuccessMessage maDon={state?.maDon} />
-          <BookingSummary tenKhachSan={state?.tenKhachSan} tongGia={state?.tongGia} />
+          <SuccessMessage booking={state} />
+          <BookingSummary booking={state} />
         </div>
       </div>
     </div>

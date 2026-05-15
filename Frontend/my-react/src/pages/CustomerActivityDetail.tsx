@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import "../assets/css/CustomerActivityDetail.css";
 import { MapPin, Star, Share2, Heart, Check, X, Calendar, Users } from 'lucide-react';
 import { getTourById, type TourDetail } from '../services/tourService';
+import ReviewSection from '../components/ReviewSection';
 
 const PLACEHOLDER_IMAGE = "https://images.unsplash.com/photo-1596522354195-e83ae3a4c514?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80";
 
@@ -33,7 +34,7 @@ const CustomerActivityDetail = () => {
           Trang chủ &gt; {tour.diaDiem || tour.viTri || 'Việt Nam'} &gt; <span className="text-gray-800">{tour.tenTour || tour.ten}</span>
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+        <div className="cad-motion-title flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-3">{tour.tenTour || tour.ten}</h1>
             <div className="flex items-center flex-wrap gap-4 text-sm">
@@ -50,7 +51,7 @@ const CustomerActivityDetail = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-12 gap-2 h-[300px] md:h-[400px] rounded-2xl overflow-hidden mt-6 shadow-sm">
+        <div className="cad-motion-gallery grid grid-cols-12 gap-2 h-[300px] md:h-[400px] rounded-2xl overflow-hidden mt-6 shadow-sm">
           <div className="col-span-12 md:col-span-8 h-full"><img src={tour.avatar || tour.hinhAnh?.[0]?.urlAnh || PLACEHOLDER_IMAGE} alt={tour.tenTour || tour.ten} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700 cursor-pointer" /></div>
           <div className="col-span-12 md:col-span-4 grid grid-rows-2 gap-2 h-full hidden md:grid">
             <img src={tour.avatar || PLACEHOLDER_IMAGE} alt={tour.tenTour || tour.ten} className="w-full h-full object-cover" />
@@ -60,12 +61,12 @@ const CustomerActivityDetail = () => {
 
         <div className="flex flex-col lg:flex-row gap-8 mt-8">
           <div className="lg:w-[65%] space-y-10">
-            <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <section className="cad-motion-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center"><span className="w-1.5 h-6 bg-[#0194F3] rounded-full mr-3 inline-block"></span>Mô tả hoạt động</h2>
               <p className="text-gray-600 leading-relaxed">{tour.moTaHoatDong || tour.moTa || 'Thông tin hoạt động đang được cập nhật.'}</p>
             </section>
 
-            <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <section className="cad-motion-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center"><span className="w-1.5 h-6 bg-[#0194F3] rounded-full mr-3 inline-block"></span>Thông tin chuyến đi</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-600">
                 <div><b>Thời gian:</b> {tour.thoiGian || 'Đang cập nhật'}</div>
@@ -75,7 +76,7 @@ const CustomerActivityDetail = () => {
               </div>
             </section>
 
-            <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <section className="cad-motion-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center"><span className="w-1.5 h-6 bg-[#0194F3] rounded-full mr-3 inline-block"></span>Dịch vụ bao gồm & chính sách</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div><h3 className="font-semibold text-gray-800 mb-4 flex items-center text-lg"><span className="bg-green-100 p-1 rounded-full mr-2"><Check className="w-4 h-4 text-green-600" /></span>Bao gồm</h3><ul className="space-y-3 text-gray-600"><li className="flex items-start"><Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" /> Dịch vụ theo mô tả tour</li><li className="flex items-start"><Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" /> Hỗ trợ đặt chỗ nhanh</li></ul></div>
@@ -85,7 +86,7 @@ const CustomerActivityDetail = () => {
           </div>
 
           <div className="lg:w-[35%] relative">
-            <div className="sticky top-24 bg-white p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100">
+            <div className="cad-motion-booking sticky top-24 bg-white p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100">
               <div className="mb-6"><div className="text-gray-500 text-sm font-medium mb-1">Giá từ</div><div className="flex items-end space-x-3"><div className="text-3xl font-bold text-[#0194F3]">{formatCurrency(price)}</div>{originalPrice ? <div className="text-gray-400 line-through text-sm mb-1.5">{formatCurrency(originalPrice)}</div> : null}</div></div>
               <div className="space-y-3 mb-6">
                 <div className="w-full border border-gray-200 rounded-xl p-3.5 flex items-center hover:border-[#0194F3] transition-colors cursor-pointer group"><div className="bg-blue-50 p-2 rounded-lg text-[#0194F3] mr-4 group-hover:bg-[#0194F3] group-hover:text-white transition-colors"><Calendar className="w-5 h-5" /></div><div><div className="text-xs text-gray-500 font-medium">Ngày khởi hành</div><div className="font-semibold text-gray-900">{tour.ngayBatDau ? new Date(tour.ngayBatDau).toLocaleDateString('vi-VN') : 'Linh hoạt'}</div></div></div>
@@ -97,6 +98,7 @@ const CustomerActivityDetail = () => {
             </div>
           </div>
         </div>
+        <ReviewSection maDichVu={tour.maDichVu} serviceName={tour.tenTour || tour.ten || 'tour'} serviceType="tour" />
       </main>
     </div>
   );

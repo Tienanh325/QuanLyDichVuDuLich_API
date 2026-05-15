@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   MapPin,
@@ -24,6 +24,7 @@ import "../assets/css/CustomerHotelDetail.css";
 import heroCityImg from "../assets/images/hotel_hero_city.png";
 import hotelRoomImg from "../assets/images/hotel_room_deluxe.png";
 import { getPublicHotelById, type KhachSanDetail, type LoaiPhong } from "../services/hotelService";
+import ReviewSection from "../components/ReviewSection";
 
 /* ─── Static Data ─────────────────────────────────────────────── */
 const defaultAmenities = [
@@ -53,7 +54,22 @@ function formatVnd(n: number | string) {
   return "VND " + Number(n).toLocaleString("vi-VN");
 }
 
+function todayInputValue() {
+  return new Date().toISOString().slice(0, 10);
+}
 
+function addDaysInputValue(date: string, days: number) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next.toISOString().slice(0, 10);
+}
+
+function calculateNights(checkIn: string, checkOut: string) {
+  const start = new Date(checkIn);
+  const end = new Date(checkOut);
+  const diff = end.getTime() - start.getTime();
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
 
 /* ════════════════════════════════════════════════════════════════
    COMPONENT
@@ -67,11 +83,13 @@ export default function CustomerHotelDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Lấy params từ URL (truyền từ trang search)
-  const checkIn = searchParams.get("checkIn") ?? "";
-  const checkOut = searchParams.get("checkOut") ?? "";
-  const adults = searchParams.get("adults") ?? "2";
-  const rooms = searchParams.get("rooms") ?? "1";
+  const initialCheckIn = searchParams.get("checkIn") || todayInputValue();
+  const initialCheckOut = searchParams.get("checkOut") || addDaysInputValue(initialCheckIn, 1);
+  const [bookingCheckIn, setBookingCheckIn] = useState(initialCheckIn);
+  const [bookingCheckOut, setBookingCheckOut] = useState(initialCheckOut);
+  const [bookingAdults, setBookingAdults] = useState(Math.max(1, Number(searchParams.get("adults") || 2)));
+  const [bookingRooms, setBookingRooms] = useState(Math.max(1, Number(searchParams.get("rooms") || 1)));
+  const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -96,18 +114,37 @@ export default function CustomerHotelDetail() {
     setOpenFaq((prev) => (prev === index ? null : index));
   }
 
+  useEffect(() => {
+    if (!hotel || selectedRoomId) return;
+    const firstAvailable = hotel.loaiPhong.find((room) => room.soLuongPhongTrong > 0) ?? hotel.loaiPhong[0];
+    setSelectedRoomId(firstAvailable?.maLoaiPhong ?? null);
+  }, [hotel, selectedRoomId]);
+
+  const selectedRoom = useMemo(
+    () => hotel?.loaiPhong.find((room) => room.maLoaiPhong === selectedRoomId) ?? null,
+    [hotel, selectedRoomId],
+  );
+  const nights = calculateNights(bookingCheckIn, bookingCheckOut);
+  const hasValidDates = nights > 0;
+  const bookingTotal = selectedRoom && hasValidDates ? selectedRoom.giaPhong * nights * bookingRooms : 0;
+  const canBook = Boolean(selectedRoom && selectedRoom.soLuongPhongTrong > 0 && hasValidDates && bookingAdults >= 1 && bookingRooms >= 1);
+
   function handleSelectRoom(room: LoaiPhong) {
-    if (!hotel) return;
+    setSelectedRoomId(room.maLoaiPhong);
+  }
+
+  function handleBookNow() {
+    if (!hotel || !selectedRoom || !canBook) return;
     const params = new URLSearchParams({
       khachSanId: String(hotel.maKhachSan),
       maDichVu: String(hotel.maDichVu),
-      loaiPhongId: String(room.maLoaiPhong),
-      tenLoaiPhong: room.tenLoaiPhong,
-      giaPhong: String(room.giaPhong),
-      checkIn,
-      checkOut,
-      adults,
-      rooms,
+      loaiPhongId: String(selectedRoom.maLoaiPhong),
+      tenLoaiPhong: selectedRoom.tenLoaiPhong,
+      giaPhong: String(selectedRoom.giaPhong),
+      checkIn: bookingCheckIn,
+      checkOut: bookingCheckOut,
+      adults: String(bookingAdults),
+      rooms: String(bookingRooms),
       tenKhachSan: hotel.ten,
       viTri: hotel.viTri,
     });
@@ -262,7 +299,7 @@ export default function CustomerHotelDetail() {
                   <p style={{ color: "#647b92" }}>Hiện chưa có thông tin loại phòng. Vui lòng liên hệ khách sạn.</p>
                 ) : (
                   hotel.loaiPhong.map((room) => (
-                    <article key={room.maLoaiPhong} className="hd__room-card">
+                    <article key={room.maLoaiPhong} className={`hd__room-card${selectedRoomId === room.maLoaiPhong ? " hd__room-card--selected" : ""}`}>
                       {room.soLuongPhongTrong > 0 && room.soLuongPhongTrong <= 3 && (
                         <span className="hd__room-badge">Còn {room.soLuongPhongTrong} phòng</span>
                       )}
@@ -313,7 +350,7 @@ export default function CustomerHotelDetail() {
                             disabled={room.soLuongPhongTrong <= 0}
                             onClick={() => handleSelectRoom(room)}
                           >
-                            {room.soLuongPhongTrong > 0 ? "Chọn phòng" : "Hết phòng"}
+                            {room.soLuongPhongTrong <= 0 ? "Hết phòng" : selectedRoomId === room.maLoaiPhong ? "Đã chọn" : "Chọn phòng"}
                           </button>
                         </div>
                       </div>
@@ -321,6 +358,8 @@ export default function CustomerHotelDetail() {
                   ))
                 )}
               </section>
+
+              <ReviewSection maDichVu={hotel.maDichVu} serviceName={hotel.ten} serviceType="hotel" />
 
               {/* ── FAQ ── */}
               <section className="hd__faq-section" id="faq">
@@ -340,7 +379,7 @@ export default function CustomerHotelDetail() {
                         {item.q}
                         <ChevronDown size={18} className="hd__faq-chevron" />
                       </button>
-                      <div className="hd__faq-answer">{item.a}</div>
+                      <div className="hd__faq-answer"><span>{item.a}</span></div>
                     </div>
                   ))}
                 </div>
@@ -351,34 +390,56 @@ export default function CustomerHotelDetail() {
             <aside className="hd__sidebar">
               {/* Booking Box */}
               <div className="hd__booking-box">
-                <div className="hd__booking-label">Giá tốt nhất từ</div>
+                <div className="hd__booking-label">Giá phòng đã chọn</div>
                 <div className="hd__booking-price">
-                  {minPrice ? formatVnd(minPrice) : "Liên hệ"}
-                  {minPrice && <span> VND / đêm</span>}
+                  {selectedRoom ? formatVnd(selectedRoom.giaPhong) : minPrice ? formatVnd(minPrice) : "Liên hệ"}
+                  {(selectedRoom || minPrice) && <span> / đêm</span>}
                 </div>
 
                 <div className="hd__booking-fields">
+                  <label className="hd__booking-field">
+                    <span className="hd__booking-field-label">Loại phòng</span>
+                    <select className="hd__booking-input" value={selectedRoomId ?? ""} onChange={(e) => setSelectedRoomId(Number(e.target.value) || null)}>
+                      <option value="" disabled>Chọn loại phòng</option>
+                      {hotel.loaiPhong.map((room) => (
+                        <option key={room.maLoaiPhong} value={room.maLoaiPhong} disabled={room.soLuongPhongTrong <= 0}>
+                          {room.tenLoaiPhong} · {formatVnd(room.giaPhong)}{room.soLuongPhongTrong <= 0 ? " · Hết phòng" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                   <div className="hd__booking-row">
-                    <div className="hd__booking-field">
-                      <div className="hd__booking-field-label">Nhận phòng</div>
-                      <div className="hd__booking-field-value">{checkIn || "Chưa chọn"}</div>
-                    </div>
-                    <div className="hd__booking-field">
-                      <div className="hd__booking-field-label">Trả phòng</div>
-                      <div className="hd__booking-field-value">{checkOut || "Chưa chọn"}</div>
-                    </div>
+                    <label className="hd__booking-field">
+                      <span className="hd__booking-field-label">Nhận phòng</span>
+                      <input className="hd__booking-input" type="date" min={todayInputValue()} value={bookingCheckIn} onChange={(e) => setBookingCheckIn(e.target.value)} />
+                    </label>
+                    <label className="hd__booking-field">
+                      <span className="hd__booking-field-label">Trả phòng</span>
+                      <input className="hd__booking-input" type="date" min={addDaysInputValue(bookingCheckIn, 1)} value={bookingCheckOut} onChange={(e) => setBookingCheckOut(e.target.value)} />
+                    </label>
                   </div>
-                  <div className="hd__booking-field">
-                    <div className="hd__booking-field-label">Khách & Phòng</div>
-                    <div className="hd__booking-field-value">{adults} người lớn · {rooms} phòng</div>
+                  <div className="hd__booking-row">
+                    <label className="hd__booking-field">
+                      <span className="hd__booking-field-label">Người lớn</span>
+                      <input className="hd__booking-input" type="number" min={1} max={20} value={bookingAdults} onChange={(e) => setBookingAdults(Math.max(1, Number(e.target.value) || 1))} />
+                    </label>
+                    <label className="hd__booking-field">
+                      <span className="hd__booking-field-label">Số phòng</span>
+                      <input className="hd__booking-input" type="number" min={1} max={selectedRoom?.soLuongPhongTrong || 20} value={bookingRooms} onChange={(e) => setBookingRooms(Math.max(1, Number(e.target.value) || 1))} />
+                    </label>
                   </div>
+                </div>
+
+                <div className="hd__booking-total">
+                  <span>{hasValidDates ? `${nights} đêm · ${bookingRooms} phòng` : "Vui lòng chọn ngày hợp lệ"}</span>
+                  <strong>{bookingTotal ? formatVnd(bookingTotal) : "—"}</strong>
                 </div>
 
                 <button
                   type="button"
                   className="hd__booking-btn"
-                  disabled={hotel.loaiPhong.length === 0}
-                  onClick={() => hotel.loaiPhong[0] && handleSelectRoom(hotel.loaiPhong[0])}
+                  disabled={!canBook}
+                  onClick={handleBookNow}
                 >
                   Đặt phòng ngay
                 </button>

@@ -21,6 +21,7 @@ import "../assets/css/CustomerHome.css";
 import { buildFlightSearchQuery } from "../utils/flightSearch";
 import { buildHotelSearchQuery } from "../utils/hotelSearch";
 import { ConfigProvider, DatePicker } from "antd";
+import { CountUp, Reveal } from "../components/animation/Motion";
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import viVN from "antd/locale/vi_VN";
@@ -388,11 +389,11 @@ export default function CustomerHome() {
         }}
       >
         <div className="customer-shell__container">
-          <div className="home-customer__hero-copy">
+          <div className="home-customer__hero-copy anim-hero-copy">
             <h1>App du lịch hàng đầu, một chạm đi bất cứ đâu</h1>
           </div>
 
-          <section className="travel-search" id="tim-kiem">
+          <section className="travel-search anim-search-shell" id="tim-kiem">
             <div className="travel-search__services">
               {serviceTabs.map((item) => {
                 const Icon = item.icon;
@@ -402,7 +403,7 @@ export default function CustomerHome() {
                   <button
                     key={item.id}
                     type="button"
-                    className={isActive ? "travel-service is-active" : "travel-service"}
+                    className={isActive ? "travel-service is-active motion-pressable" : "travel-service motion-pressable"}
                     onClick={() => {
                       setActiveTab(item.id);
                     }}
@@ -418,8 +419,25 @@ export default function CustomerHome() {
           </section>
         </div>
       </section>
+      <Reveal as="section" className="home-stats" direction="up">
+        <div className="customer-shell__container home-stats__grid">
+          <div className="home-stat-card motion-hover-lift">
+            <strong><CountUp value={120} suffix="+" /></strong>
+            <span>Điểm đến nổi bật</span>
+          </div>
+          <div className="home-stat-card motion-hover-lift">
+            <strong><CountUp value={8600} suffix="+" /></strong>
+            <span>Khách hàng hài lòng</span>
+          </div>
+          <div className="home-stat-card motion-hover-lift">
+            <strong><CountUp value={98} suffix="%" /></strong>
+            <span>Đặt dịch vụ thành công</span>
+          </div>
+        </div>
+      </Reveal>
+
       {/* Promos Section ('Ưu đãi chọn lọc') */}
-      <section style={{ padding: '64px 0', background: '#fff' }}>
+      <Reveal as="section" className="home-motion-section" direction="up" style={{ padding: '64px 0', background: '#fff' }}>
         <div className="customer-shell__container" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 32 }}>
             <div>
@@ -484,10 +502,10 @@ export default function CustomerHome() {
             </div>
           </div>
         </div>
-      </section>
+      </Reveal>
 
       {/* Destinations Section ('Điểm đến truyền cảm hứng') */}
-      <section style={{ padding: '64px 0', background: '#f8fafc' }}>
+      <Reveal as="section" className="home-motion-section" direction="up" style={{ padding: '64px 0', background: '#f8fafc' }}>
         <div className="customer-shell__container" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 32 }}>
             <div>
@@ -512,6 +530,7 @@ export default function CustomerHome() {
                   key={dest.maTour}
                   type="button"
                   onClick={() => navigate(`/mua-sam/ket-qua-hoat-dong?q=${encodeURIComponent(destination)}`)}
+                  className="home-destination-card motion-hover-lift"
                   style={{ cursor: 'pointer', border: 'none', background: 'transparent', padding: 0, textAlign: 'left' }}
                 >
                   <div style={{
@@ -531,10 +550,10 @@ export default function CustomerHome() {
             })}
           </div>
         </div>
-      </section>
+      </Reveal>
 
       {/* Accommodations Section ('Chỗ nghỉ đẳng cấp') */}
-      <section style={{ padding: '80px 0', background: '#fff' }}>
+      <Reveal as="section" className="home-motion-section" direction="up" style={{ padding: '80px 0', background: '#fff' }}>
         <div className="customer-shell__container" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <h2 style={{ fontSize: 32, fontWeight: 800, color: '#0f172a', margin: '0 0 12px 0' }}>Chỗ nghỉ đẳng cấp</h2>
@@ -547,7 +566,7 @@ export default function CustomerHome() {
               { maKhachSan: 0, ten: "Four Seasons Resort Bali at Sayan", giaTuKhoang: 15000000, viTri: "Ubud, Bali", rating: "4.9", reviews: "2.1k", avatar: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80" },
               { maKhachSan: 0, ten: "Aman Tokyo", giaTuKhoang: 20000000, viTri: "Otemachi, Tokyo", rating: "4.8", reviews: "940", avatar: "https://images.unsplash.com/photo-1542314831-c6a4d14d8835?w=800&q=80" },
             ]).map((acc: any) => (
-              <div key={acc.maKhachSan || acc.ten} onClick={() => acc.maKhachSan && navigate(`/mua-sam/khach-san/${acc.maKhachSan}`)} style={{ borderRadius: 20, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', transition: 'box-shadow 0.3s ease' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}>
+              <div key={acc.maKhachSan || acc.ten} className="home-accommodation-card motion-hover-lift" onClick={() => acc.maKhachSan && navigate(`/mua-sam/khach-san/${acc.maKhachSan}`)} style={{ borderRadius: 20, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer' }}>
                 <div style={{ 
                   height: 240, 
                   position: 'relative',
@@ -575,7 +594,7 @@ export default function CustomerHome() {
             ))}
           </div>
         </div>
-      </section>
+      </Reveal>
     </div>
   );
 }

@@ -12,6 +12,13 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  animation: hero-parallax 18s var(--motion-ease) infinite alternate;
+  overflow: hidden;
+}
+
+@keyframes hero-parallax {
+  from { background-position: center 48%; }
+  to { background-position: center 58%; }
 }
 
 .home-customer__hero-copy {
@@ -68,12 +75,40 @@
   font-weight: 800;
   cursor: pointer;
   white-space: nowrap;
+  position: relative;
+}
+
+.travel-service svg {
+  transition: transform var(--motion-base) var(--motion-ease);
+}
+
+.travel-service:hover svg {
+  transform: translateY(-2px) rotate(-4deg) scale(1.08);
 }
 
 .travel-service.is-active {
   background: #fff;
   color: #102c47;
   box-shadow: 0 12px 30px rgba(15, 28, 47, 0.18);
+}
+
+.anim-hero-copy {
+  animation: home-fade-up 620ms var(--motion-ease) both;
+}
+
+.anim-search-shell {
+  animation: home-scale-in 680ms var(--motion-ease) 120ms both;
+  backdrop-filter: blur(10px);
+}
+
+@keyframes home-fade-up {
+  from { opacity: 0; transform: translate3d(0, 24px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes home-scale-in {
+  from { opacity: 0; transform: translate3d(0, 18px, 0) scale(0.985); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
 
 .travel-form {
@@ -250,17 +285,93 @@
   color: #fff;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(255, 94, 31, 0.3);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease), filter var(--motion-fast) ease;
 }
 
 .travel-search__submit:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 94, 31, 0.4);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 24px rgba(255, 94, 31, 0.35);
+  filter: saturate(1.06);
+}
+
+.travel-search__submit:active {
+  transform: scale(0.97);
+}
+
+.travel-panel {
+  animation: home-panel-enter 360ms var(--motion-ease) both;
+}
+
+@keyframes home-panel-enter {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 .travel-panel--hotel {
   position: relative;
   z-index: 5;
+}
+
+.home-stats {
+  margin-top: -28px;
+  position: relative;
+  z-index: 4;
+  padding: 0 0 26px;
+}
+
+.home-stats__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.home-stat-card {
+  padding: 22px 24px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+  text-align: center;
+  backdrop-filter: blur(12px);
+}
+
+.home-stat-card strong {
+  display: block;
+  color: #0f172a;
+  font-size: clamp(26px, 4vw, 38px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.home-stat-card span {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.home-motion-section {
+  overflow: hidden;
+}
+
+.home-destination-card,
+.home-accommodation-card {
+  border-radius: 20px;
+}
+
+.home-destination-card > div,
+.home-accommodation-card > div:first-child {
+  transition: transform 650ms var(--motion-ease), filter 650ms var(--motion-ease);
+}
+
+.home-destination-card:hover > div,
+.home-accommodation-card:hover > div:first-child {
+  transform: scale(1.035);
+  filter: saturate(1.05);
 }
 
 .travel-hotel-field-wrap {
@@ -294,6 +405,14 @@
   color: #242628;
   cursor: pointer;
   text-align: left;
+  transition: transform var(--motion-base) var(--motion-ease), border-color var(--motion-base) ease, box-shadow var(--motion-base) var(--motion-ease);
+}
+
+.travel-hotel-field:focus-within,
+.travel-hotel-field:hover {
+  border-color: #1091ff;
+  box-shadow: 0 12px 28px rgba(14, 27, 46, 0.14), 0 0 0 3px rgba(16, 145, 255, 0.12);
+  transform: translateY(-2px);
 }
 
 .travel-hotel-field__helper {

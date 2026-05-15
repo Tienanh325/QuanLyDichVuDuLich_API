@@ -24,6 +24,7 @@ export default function ImageGrid({ images, selectedIds, loading, onToggleSelect
       {images.map((item) => (
         <Col key={item.maHinhAnh} xs={24} sm={12} lg={8} xl={6}>
           <Card
+            className="motion-admin-image-card"
             hoverable
             styles={{ body: { padding: 14 } }}
             cover={

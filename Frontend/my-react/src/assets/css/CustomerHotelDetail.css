@@ -52,6 +52,12 @@
   border-radius: 12px;
   overflow: hidden;
   position: relative;
+  animation: hd-gallery-enter 620ms var(--motion-ease) both;
+}
+
+@keyframes hd-gallery-enter {
+  from { opacity: 0; transform: translate3d(0, 18px, 0) scale(0.985); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
 .hd__gallery-main {
   grid-row: 1 / 3;
@@ -63,11 +69,12 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.35s ease;
+  transition: transform 650ms var(--motion-ease), filter 650ms var(--motion-ease);
 }
 .hd__gallery-main:hover img,
 .hd__gallery-thumb:hover img {
-  transform: scale(1.03);
+  transform: scale(1.055);
+  filter: saturate(1.05);
 }
 .hd__gallery-main,
 .hd__gallery-thumb {
@@ -124,6 +131,12 @@
   border-radius: 12px;
   padding: 28px 32px;
   box-shadow: 0 2px 12px rgba(30,50,80,0.06);
+  animation: hd-fade-up 520ms var(--motion-ease) 80ms both;
+}
+
+@keyframes hd-fade-up {
+  from { opacity: 0; transform: translate3d(0, 22px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 /* Badge & Stars */
@@ -290,6 +303,14 @@
   padding: 22px;
   box-shadow: 0 2px 16px rgba(30,50,80,0.08);
   border: 1px solid #e8edf2;
+  animation: hd-fade-up 520ms var(--motion-ease) 160ms both;
+  transition: transform var(--motion-base) var(--motion-ease), box-shadow var(--motion-base) var(--motion-ease);
+  overflow: hidden;
+}
+
+.hd__booking-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 42px rgba(30,50,80,0.12);
 }
 .hd__booking-label {
   font-size: 12px;
@@ -336,10 +357,13 @@
   border: 1.5px solid #d6e0ea;
   border-radius: 8px;
   padding: 10px 14px;
-  cursor: pointer;
   transition: border-color 0.2s;
+  display: block;
+  min-width: 0;
+  overflow: hidden;
 }
-.hd__booking-field:hover { border-color: #1a73e8; }
+.hd__booking-field:hover,
+.hd__booking-field:focus-within { border-color: #1a73e8; }
 .hd__booking-field-label {
   font-size: 11px;
   font-weight: 600;
@@ -353,9 +377,52 @@
   font-weight: 600;
   color: #0d1b2e;
 }
+.hd__booking-input {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #0d1b2e;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 2px 0 0;
+}
+.hd__booking-input:disabled { color: #9ca8b4; }
+.hd__booking-input[type="date"] {
+  font-size: 13px;
+}
+.hd__booking-input[type="date"]::-webkit-calendar-picker-indicator {
+  margin-left: 0;
+  padding: 0;
+}
+.hd__booking-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #f6f9fd;
+  border: 1px solid #e3edf8;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 2px 0 14px;
+}
+.hd__booking-total span {
+  color: #647b92;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.hd__booking-total strong {
+  color: #e53935;
+  font-size: 16px;
+  white-space: nowrap;
+}
 .hd__booking-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 8px;
 }
 .hd__booking-btn {
@@ -371,10 +438,15 @@
   transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
   margin-bottom: 10px;
 }
-.hd__booking-btn:hover {
+.hd__booking-btn:hover:not(:disabled) {
   background: #1557b0;
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(26,115,232,0.32);
+}
+.hd__booking-btn:disabled {
+  background: #a8b7c8;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 .hd__booking-note {
   font-size: 12px;
@@ -477,6 +549,10 @@
   box-shadow: 0 8px 32px rgba(26,115,232,0.12);
   border-color: #a8c7f8;
   transform: translateY(-2px);
+}
+.hd__room-card--selected {
+  border-color: #1a73e8;
+  box-shadow: 0 12px 32px rgba(26,115,232,0.16);
 }
 .hd__room-badge {
   position: absolute;
@@ -649,9 +725,17 @@
   border: 1px solid #edf1f5;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(30,50,80,0.05);
-  transition: box-shadow 0.2s;
+  animation: hd-fade-up 560ms var(--motion-ease) both;
+  transition: box-shadow var(--motion-base) var(--motion-ease), transform var(--motion-base) var(--motion-ease), border-color var(--motion-base) ease;
 }
-.hd__review-card:hover { box-shadow: 0 6px 22px rgba(26,115,232,0.1); }
+.hd__review-card:nth-child(2) { animation-delay: 90ms; }
+.hd__review-card:nth-child(3) { animation-delay: 180ms; }
+.hd__review-card:nth-child(4) { animation-delay: 270ms; }
+.hd__review-card:hover {
+  box-shadow: 0 14px 34px rgba(26,115,232,0.13);
+  border-color: #c5d8fb;
+  transform: translateY(-4px);
+}
 .hd__review-top {
   display: flex;
   align-items: center;
@@ -675,6 +759,15 @@
 .hd__review-author { font-size: 14px; font-weight: 700; color: #0d1b2e; }
 .hd__review-date { font-size: 12px; color: #9eaab6; margin-top: 1px; }
 .hd__review-stars { display: flex; gap: 2px; color: #f5a623; }
+.hd__review-stars svg,
+.hd__stars svg {
+  transition: transform var(--motion-fast) var(--motion-spring), filter var(--motion-fast) ease;
+}
+.hd__review-stars:hover svg,
+.hd__stars:hover svg {
+  transform: translateY(-2px) scale(1.12);
+  filter: drop-shadow(0 4px 8px rgba(245, 166, 35, 0.28));
+}
 .hd__review-text { font-size: 13.5px; line-height: 1.7; color: #4a5a6a; }
 
 /* ════════════════════════════════════════
@@ -719,13 +812,21 @@
 .hd__faq-item--open .hd__faq-chevron { transform: rotate(180deg); color: #1a73e8; }
 .hd__faq-item--open .hd__faq-question { color: #1a73e8; background: #f0f6ff; }
 .hd__faq-answer {
-  display: none;
-  padding: 0 24px 18px;
+  display: grid;
+  grid-template-rows: 0fr;
+  padding: 0 24px;
   font-size: 14px;
   line-height: 1.7;
   color: #4a5a6a;
+  opacity: 0;
+  transition: grid-template-rows var(--motion-base) var(--motion-ease), opacity var(--motion-base) ease, padding var(--motion-base) ease;
 }
-.hd__faq-item--open .hd__faq-answer { display: block; }
+.hd__faq-answer > * { overflow: hidden; }
+.hd__faq-item--open .hd__faq-answer {
+  grid-template-rows: 1fr;
+  padding: 0 24px 18px;
+  opacity: 1;
+}
 
 /* ════════════════════════════════════════
    RESPONSIVE

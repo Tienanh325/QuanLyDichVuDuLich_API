@@ -18,12 +18,26 @@
   position: relative;
   width: 100%;
   height: 400px;
+  overflow: hidden;
+  animation: ctd-hero-enter 720ms var(--motion-ease) both;
+}
+
+@keyframes ctd-hero-enter {
+  from { opacity: 0; transform: scale(1.02); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .ctd-hero__image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  animation: ctd-hero-pan 18s var(--motion-ease) infinite alternate;
+  will-change: transform;
+}
+
+@keyframes ctd-hero-pan {
+  from { transform: scale(1.04) translate3d(0, -4px, 0); }
+  to { transform: scale(1.08) translate3d(0, 8px, 0); }
 }
 
 .ctd-hero__overlay {
@@ -140,6 +154,19 @@
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   padding: 1.5rem;
+  animation: ctd-fade-up 560ms var(--motion-ease) both;
+  transition: transform var(--motion-base) var(--motion-ease), box-shadow var(--motion-base) var(--motion-ease);
+}
+
+.ctd-card:nth-child(2) { animation-delay: 90ms; }
+.ctd-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--motion-shadow-soft);
+}
+
+@keyframes ctd-fade-up {
+  from { opacity: 0; transform: translate3d(0, 20px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 .ctd-card__title {
@@ -436,6 +463,8 @@
 .ctd-seatmap__seat--available:hover {
   border-color: #0194F3;
   color: #0194F3;
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 10px 20px rgba(1, 148, 243, 0.16);
 }
 
 .ctd-seatmap__seat--selected {
@@ -465,6 +494,13 @@
   border: 1px solid #f3f4f6;
   display: flex;
   flex-direction: column;
+  animation: ctd-fade-up 560ms var(--motion-ease) 140ms both;
+  transition: transform var(--motion-base) var(--motion-ease), box-shadow var(--motion-base) var(--motion-ease);
+}
+
+.ctd-booking-widget:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--motion-shadow);
 }
 
 .ctd-booking__header {

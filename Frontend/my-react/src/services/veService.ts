@@ -50,6 +50,7 @@ export interface VeTauHoaResult {
 
 export interface VeDetail {
   maVe: number;
+  maDichVu?: number;
   loaiVeCon: 'MAY_BAY' | 'TAU_HOA' | 'VUI_CHOI';
   trangThai: string;
   tenDichVu: string | null;
