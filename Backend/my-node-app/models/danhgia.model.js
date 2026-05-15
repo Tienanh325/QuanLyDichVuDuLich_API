@@ -3,11 +3,23 @@ const { pool } = require('../config/db');
 const serviceTypeMapSql = `
     CASE
         WHEN dv.loaiDichVu = 'KHACH_SAN' THEN 'KHACH_SAN'
-        WHEN dv.loaiDichVu = 'VE_MAY_BAY' THEN 'MAY_BAY'
-        WHEN dv.loaiDichVu = 'VE_TAU' THEN 'TAU'
+        WHEN dv.loaiDichVu = 'VE' AND v.loaiVeCon = 'MAY_BAY' THEN 'MAY_BAY'
+        WHEN dv.loaiDichVu = 'VE' AND v.loaiVeCon = 'TAU_HOA' THEN 'TAU'
         ELSE 'TOUR'
     END
 `;
+
+const tableExistsCache = new Map();
+
+async function hasTable(tableName) {
+    if (!tableExistsCache.has(tableName)) {
+        tableExistsCache.set(tableName, (async () => {
+            const [rows] = await pool.query('SHOW TABLES LIKE ?', [tableName]);
+            return rows.length > 0;
+        })());
+    }
+    return tableExistsCache.get(tableName);
+}
 
 class DanhGiaModel {
     static async getAll({ page = 1, limit = 10, maDichVu, maUser, soSao, sort = 'newest', hasImages, verified } = {}) {
@@ -17,6 +29,7 @@ class DanhGiaModel {
             FROM DanhGia dg
             LEFT JOIN Users u ON dg.maUser = u.maUser
             LEFT JOIN DichVu dv ON dg.maDichVu = dv.maDichVu
+            LEFT JOIN Ve v ON v.maDichVu = dv.maDichVu
             WHERE 1=1
         `;
         if (maDichVu) { baseQuery += ` AND dg.maDichVu = ?`; queryParams.push(Number(maDichVu)); }
@@ -42,6 +55,11 @@ class DanhGiaModel {
             LIMIT ? OFFSET ?
         `, dataParams);
 
+        for (const row of rows) {
+            if (typeof row.tieuDe === 'undefined') row.tieuDe = null;
+            if (typeof row.trangThai === 'undefined') row.trangThai = 'DA_DUYET';
+        }
+
         await this.attachReviewDetails(rows);
         const thongKeSao = maDichVu ? await this.getSummary(maDichVu) : null;
         return { data: rows, totalRecords, totalPages: Math.ceil(totalRecords / Number(limit)), currentPage: Number(page), thongKeSao };
@@ -56,7 +74,7 @@ class DanhGiaModel {
             `SELECT soSao, COUNT(*) AS soLuong FROM DanhGia WHERE maDichVu = ? GROUP BY soSao`,
             [maDichVu]
         );
-        const subRatings = [];
+        const subRatings = await this.getCriteriaSummary(maDichVu);
         const phanPhoi = [5, 4, 3, 2, 1].map((star) => ({
             soSao: star,
             soLuong: distribution.find((item) => Number(item.soSao) === star)?.soLuong ?? 0,
@@ -64,14 +82,81 @@ class DanhGiaModel {
         return { ...avg[0], phanPhoi, tieuChi: subRatings };
     }
 
-    static async getCriteriaByService() {
-        return [];
+    static async getCriteriaByService(maDichVu) {
+        if (!(await hasTable('TieuChiDanhGia'))) return [];
+        const [serviceRows] = await pool.query(
+            `SELECT dv.loaiDichVu, v.loaiVeCon
+             FROM DichVu dv
+             LEFT JOIN Ve v ON v.maDichVu = dv.maDichVu
+             WHERE dv.maDichVu = ?
+             LIMIT 1`,
+            [maDichVu]
+        );
+        const service = serviceRows[0];
+        if (!service?.loaiDichVu) return [];
+
+        const reviewType = service.loaiDichVu === 'KHACH_SAN'
+            ? 'KHACH_SAN'
+            : service.loaiDichVu === 'VE' && service.loaiVeCon === 'MAY_BAY'
+                ? 'MAY_BAY'
+                : service.loaiDichVu === 'VE' && service.loaiVeCon === 'TAU_HOA'
+                    ? 'TAU'
+                    : 'TOUR';
+
+        const [rows] = await pool.query(
+            `SELECT maTieuChi, tenTieuChi, moTa, thuTu
+             FROM TieuChiDanhGia
+             WHERE loaiDichVu = ?
+             ORDER BY thuTu ASC, maTieuChi ASC`,
+            [reviewType]
+        );
+        return rows;
+    }
+
+    static async getCriteriaSummary(maDichVu) {
+        if (!(await hasTable('TieuChiDanhGia')) || !(await hasTable('ChiTietDanhGia'))) return [];
+        const [rows] = await pool.query(
+            `SELECT ct.maTieuChi, tc.tenTieuChi, AVG(ct.diem) AS diemTrungBinh
+             FROM ChiTietDanhGia ct
+             JOIN DanhGia dg ON dg.maDanhGia = ct.maDanhGia
+             JOIN TieuChiDanhGia tc ON tc.maTieuChi = ct.maTieuChi
+             WHERE dg.maDichVu = ?
+             GROUP BY ct.maTieuChi, tc.tenTieuChi
+             ORDER BY tc.thuTu ASC, ct.maTieuChi ASC`,
+            [maDichVu]
+        );
+        return rows;
+    }
+
+    static async getReviewWithRelations(maDanhGia) {
+        const [rows] = await pool.query(
+            `SELECT dg.*, u.ten AS tenUser, u.username, dv.ten AS tenDichVu,
+                    ${serviceTypeMapSql} AS loaiReview,
+                    dg.maDon IS NOT NULL AS daXacMinh
+             FROM DanhGia dg
+             LEFT JOIN Users u ON dg.maUser = u.maUser
+             LEFT JOIN DichVu dv ON dg.maDichVu = dv.maDichVu
+             LEFT JOIN Ve v ON v.maDichVu = dv.maDichVu
+             WHERE dg.maDanhGia = ?
+             LIMIT 1`,
+            [maDanhGia]
+        );
+        for (const row of rows) {
+            if (typeof row.tieuDe === 'undefined') row.tieuDe = null;
+            if (typeof row.trangThai === 'undefined') row.trangThai = 'DA_DUYET';
+        }
+        await this.attachReviewDetails(rows);
+        return rows[0] ?? null;
     }
 
     static async getMyReview(maUser, maDichVu) {
         const [rows] = await pool.query(`
             SELECT dg.* FROM DanhGia dg WHERE dg.maUser = ? AND dg.maDichVu = ? LIMIT 1
         `, [maUser, maDichVu]);
+        for (const row of rows) {
+            if (typeof row.tieuDe === 'undefined') row.tieuDe = null;
+            if (typeof row.trangThai === 'undefined') row.trangThai = 'DA_DUYET';
+        }
         await this.attachReviewDetails(rows);
         return rows[0] ?? null;
     }
@@ -92,12 +177,12 @@ class DanhGiaModel {
                 [maUser, maDichVu]
             );
             const [result] = await conn.query(
-                `INSERT INTO DanhGia (maUser, maDichVu, maDon, soSao, tieuDe, binhLuan) VALUES (?, ?, ?, ?, ?, ?)`,
-                [maUser, maDichVu, ordered[0]?.maDon ?? null, soSao, tieuDe || null, binhLuan || null]
+                `INSERT INTO DanhGia (maUser, maDichVu, maDon, soSao, binhLuan) VALUES (?, ?, ?, ?, ?)`,
+                [maUser, maDichVu, ordered[0]?.maDon ?? null, soSao, binhLuan || null]
             );
             await this.replaceDetails(conn, result.insertId, tieuChi, hinhAnh);
             await conn.commit();
-            return this.getMyReview(maUser, maDichVu);
+            return this.getReviewWithRelations(result.insertId);
         } catch (error) {
             await conn.rollback();
             throw error;
@@ -112,8 +197,8 @@ class DanhGiaModel {
         try {
             await conn.beginTransaction();
             const [result] = await conn.query(
-                `UPDATE DanhGia SET soSao=?, tieuDe=?, binhLuan=? WHERE maDanhGia=? AND maUser=?`,
-                [soSao, tieuDe || null, binhLuan || null, maDanhGia, maUser]
+                `UPDATE DanhGia SET soSao=?, binhLuan=? WHERE maDanhGia=? AND maUser=?`,
+                [soSao, binhLuan || null, maDanhGia, maUser]
             );
             if (result.affectedRows === 0) {
                 await conn.rollback();
@@ -131,30 +216,53 @@ class DanhGiaModel {
     }
 
     static async replaceDetails(conn, maDanhGia, tieuChi = [], hinhAnh = []) {
-        await conn.query(`DELETE FROM ChiTietDanhGia WHERE maDanhGia = ?`, [maDanhGia]);
-        await conn.query(`DELETE FROM AnhDanhGia WHERE maDanhGia = ?`, [maDanhGia]);
+        const hasCriteriaTable = await hasTable('ChiTietDanhGia');
+        const hasImagesTable = await hasTable('AnhDanhGia');
 
-        for (const item of tieuChi) {
-            if (!item?.maTieuChi || !item?.diem) continue;
-            await conn.query(
-                `INSERT INTO ChiTietDanhGia (maDanhGia, maTieuChi, diem) VALUES (?, ?, ?)`,
-                [maDanhGia, item.maTieuChi, item.diem]
-            );
+        if (hasCriteriaTable) {
+            await conn.query(`DELETE FROM ChiTietDanhGia WHERE maDanhGia = ?`, [maDanhGia]);
+            for (const item of tieuChi) {
+                if (!item?.maTieuChi || !item?.diem) continue;
+                await conn.query(
+                    `INSERT INTO ChiTietDanhGia (maDanhGia, maTieuChi, diem) VALUES (?, ?, ?)`,
+                    [maDanhGia, item.maTieuChi, item.diem]
+                );
+            }
         }
 
-        for (const [index, urlAnh] of hinhAnh.filter(Boolean).slice(0, 5).entries()) {
-            await conn.query(
-                `INSERT INTO AnhDanhGia (maDanhGia, urlAnh, thuTu) VALUES (?, ?, ?)`,
-                [maDanhGia, urlAnh, index]
-            );
+        if (hasImagesTable) {
+            await conn.query(`DELETE FROM AnhDanhGia WHERE maDanhGia = ?`, [maDanhGia]);
+            for (const [index, urlAnh] of hinhAnh.filter(Boolean).slice(0, 5).entries()) {
+                await conn.query(
+                    `INSERT INTO AnhDanhGia (maDanhGia, urlAnh, thuTu) VALUES (?, ?, ?)`,
+                    [maDanhGia, urlAnh, index]
+                );
+            }
         }
     }
 
     static async attachReviewDetails(rows) {
         if (!rows.length) return;
         const ids = rows.map((row) => row.maDanhGia);
-        const [criteria] = await pool.query(`SELECT * FROM ChiTietDanhGia WHERE maDanhGia IN (?)`, [ids]);
-        const [images] = await pool.query(`SELECT * FROM AnhDanhGia WHERE maDanhGia IN (?) ORDER BY thuTu ASC`, [ids]);
+        let criteria = [];
+        let images = [];
+
+        if (await hasTable('ChiTietDanhGia')) {
+            const [criteriaRows] = await pool.query(
+                `SELECT ct.maDanhGia, ct.maTieuChi, ct.diem, tc.tenTieuChi, tc.moTa, tc.thuTu
+                 FROM ChiTietDanhGia ct
+                 LEFT JOIN TieuChiDanhGia tc ON tc.maTieuChi = ct.maTieuChi
+                 WHERE ct.maDanhGia IN (?)
+                 ORDER BY tc.thuTu ASC, ct.maTieuChi ASC`,
+                [ids]
+            );
+            criteria = criteriaRows;
+        }
+
+        if (await hasTable('AnhDanhGia')) {
+            const [imageRows] = await pool.query(`SELECT * FROM AnhDanhGia WHERE maDanhGia IN (?) ORDER BY thuTu ASC`, [ids]);
+            images = imageRows;
+        }
 
         for (const row of rows) {
             row.tieuChi = criteria.filter((item) => item.maDanhGia === row.maDanhGia);

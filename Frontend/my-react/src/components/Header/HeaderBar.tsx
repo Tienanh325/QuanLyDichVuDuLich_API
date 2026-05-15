@@ -71,7 +71,7 @@ export default function HeaderBar() {
       const notifs = pending.map((order) => ({
         id: `order_${order.maDon}`,
         avatar: `https://ui-avatars.com/api/?name=Order+${order.maDon}&background=e0f2fe&color=0369a1&bold=true`,
-        title: 'Đơn hàng mới chờ duyệt',
+        title: 'Đơn hàng mới chờ xác nhận',
         content: `Đơn hàng #${order.maDon} trị giá ${formatVnd(order.tongGia || 0)} đang chờ xác nhận.`,
         time: dayjs(order.ngayTao).fromNow(),
         isRead: false,
@@ -110,7 +110,7 @@ export default function HeaderBar() {
     setProcessing(true);
     try {
       await api.patch(`/api/admin/don-dat/${selectedOrder.maDon}/trang-thai`, { trangThai: status });
-      message.success(`Đã ${status === 'CONFIRMED' ? 'duyệt' : 'hủy'} đơn hàng #${selectedOrder.maDon}`);
+      message.success(`Đã ${status === 'CONFIRMED' ? 'xác nhận hoàn tất' : 'hủy'} đơn hàng #${selectedOrder.maDon}`);
       setIsModalOpen(false);
       fetchPendingOrders(); // refresh notifications
     } catch {
@@ -255,7 +255,7 @@ export default function HeaderBar() {
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 18 }}>
             <div style={{ width: 4, height: 20, background: '#1890ff', borderRadius: 4 }} />
-            Duyệt đơn hàng #{selectedOrder?.maDon}
+            Xác nhận hoàn tất đơn hàng #{selectedOrder?.maDon}
           </div>
         }
         open={isModalOpen}
@@ -270,15 +270,15 @@ export default function HeaderBar() {
           >
             Hủy đơn
           </Button>,
-          <Button 
-            key="approve" 
-            type="primary" 
-            icon={<CheckCircleOutlined />} 
+          <Button
+            key="approve"
+            type="primary"
+            icon={<CheckCircleOutlined />}
             loading={processing}
             onClick={() => handleUpdateStatus('CONFIRMED')}
             style={{ background: '#10b981', borderColor: '#10b981' }}
           >
-            Duyệt đơn
+            Xác nhận hoàn tất
           </Button>
         ]}
       >
@@ -294,12 +294,12 @@ export default function HeaderBar() {
                 </span>
               </Descriptions.Item>
               <Descriptions.Item label="Trạng thái hiện tại">
-                <Badge status="warning" text="Chờ duyệt (PENDING)" />
+                <Badge status="warning" text="Chờ xác nhận" />
               </Descriptions.Item>
             </Descriptions>
             
             <div style={{ marginTop: 16, padding: '12px 16px', background: '#fffbeb', border: '1px solid #fef3c7', borderRadius: 8, color: '#92400e' }}>
-              <strong>Lưu ý:</strong> Hành động này không thể hoàn tác. Khi duyệt, khách hàng có thể tiến hành thanh toán cho đơn hàng này.
+              <strong>Lưu ý:</strong> Hành động này không thể hoàn tác. Khi xác nhận, hệ thống sẽ tự ghi nhận doanh thu và đơn hàng của khách sẽ chuyển sang trạng thái thành công.
             </div>
           </div>
         )}

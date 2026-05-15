@@ -67,7 +67,7 @@ class UserModel {
      */
     static async getById(id) {
         const [rows] = await pool.query(
-            `SELECT maUser, username, ten, email, sdt, vaiTro, trangThai FROM Users WHERE maUser = ?`,
+            `SELECT maUser, username, ten, email, sdt, gioiTinh, ngaySinh, thanhPho, vaiTro, trangThai FROM Users WHERE maUser = ?`,
             [id]
         );
         return rows[0] || null;
@@ -99,10 +99,10 @@ class UserModel {
      * Cập nhật thông tin cá nhân
      */
     static async update(id, data) {
-        const { ten, email, sdt } = data;
+        const { ten, email, sdt, gioiTinh, ngaySinh, thanhPho } = data;
         const [result] = await pool.query(
-            `UPDATE Users SET ten = ?, email = ?, sdt = ? WHERE maUser = ?`,
-            [ten, email, sdt, id]
+            `UPDATE Users SET ten = ?, email = ?, sdt = ?, gioiTinh = ?, ngaySinh = ?, thanhPho = ? WHERE maUser = ?`,
+            [ten, email, sdt, gioiTinh, ngaySinh, thanhPho, id]
         );
         return result.affectedRows > 0;
     }

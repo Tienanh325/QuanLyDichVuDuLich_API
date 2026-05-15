@@ -39,23 +39,39 @@ class DonDatController {
     /** Customer: Đặt dịch vụ */
     static async customerCreate(req, res) {
         try {
-            const { maKhuyenMai, chiTietList } = req.body;
+            const { maKhuyenMai, chiTietList, loaiDon, thongTinDatCho } = req.body;
             const maUser = req.user.maUser;
+            console.log('[DonDatController.customerCreate] payload:', JSON.stringify({ maUser, maKhuyenMai, loaiDon, thongTinDatCho, chiTietList }));
 
             if (!chiTietList || !Array.isArray(chiTietList) || chiTietList.length === 0) {
                 return res.status(400).json({ status: 'error', data: null, message: 'Danh sách dịch vụ đặt (chiTietList) không được rỗng!' });
             }
 
-            // Kiểm tra từng chi tiết
+            const validOrderTypes = ['HOTEL', 'TOUR', 'FLIGHT', 'TRAIN', 'ACTIVITY', 'MIXED'];
+            if (loaiDon && !validOrderTypes.includes(String(loaiDon).toUpperCase())) {
+                return res.status(400).json({ status: 'error', data: null, message: 'loaiDon không hợp lệ!' });
+            }
+
             for (const ct of chiTietList) {
-                if (!ct.maDichVu || !ct.soLuong || !ct.giaTaiThoiDiemMua) {
+                if (!ct.maDichVu || !ct.soLuong || ct.giaTaiThoiDiemMua === undefined || ct.giaTaiThoiDiemMua === null) {
                     return res.status(400).json({ status: 'error', data: null, message: 'Mỗi mục đặt cần có: maDichVu, soLuong, giaTaiThoiDiemMua!' });
+                }
+                if (Number(ct.soLuong) <= 0) {
+                    return res.status(400).json({ status: 'error', data: null, message: 'soLuong phải lớn hơn 0!' });
+                }
+                if (Number(ct.giaTaiThoiDiemMua) < 0) {
+                    return res.status(400).json({ status: 'error', data: null, message: 'giaTaiThoiDiemMua không hợp lệ!' });
                 }
             }
 
-            const newDon = await DonDatModel.create(maUser, maKhuyenMai || null, chiTietList);
+            if (thongTinDatCho && (!thongTinDatCho.hoTenLienHe || !thongTinDatCho.emailLienHe)) {
+                return res.status(400).json({ status: 'error', data: null, message: 'Thông tin liên hệ không hợp lệ!' });
+            }
+
+            const newDon = await DonDatModel.create(maUser, maKhuyenMai || null, chiTietList, loaiDon || null, thongTinDatCho || null);
             return res.status(201).json({ status: 'success', data: newDon, message: 'Đặt dịch vụ thành công!' });
         } catch (error) {
+            console.error('[DonDatController.customerCreate] error:', error);
             return res.status(500).json({ status: 'error', data: null, message: error.message });
         }
     }

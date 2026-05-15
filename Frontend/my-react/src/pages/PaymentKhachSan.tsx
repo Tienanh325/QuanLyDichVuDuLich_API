@@ -25,7 +25,6 @@ const PAYMENT_METHOD_MAP: Record<string, string> = {
   e_wallet: "MOMO",
 };
 
-// ─── StepProgress ────────────────────────────────────────────────
 function StepProgress() {
   return (
     <div className="payment-step-progress">
@@ -49,7 +48,6 @@ function StepProgress() {
   );
 }
 
-// ─── PaymentMethod ───────────────────────────────────────────────
 function PaymentMethod({
   activeMethod,
   onMethodChange,
@@ -111,18 +109,77 @@ function PaymentMethod({
   );
 }
 
-// ─── BookingSummary ───────────────────────────────────────────────
+function getPaymentTitle(serviceType?: string) {
+  switch (serviceType) {
+    case "flight":
+      return "Thanh toán vé máy bay";
+    case "train":
+      return "Thanh toán vé tàu";
+    case "tour":
+      return "Thanh toán tour & hoạt động";
+    default:
+      return "Thanh toán đặt chỗ";
+  }
+}
+
+function getSummaryMeta(info: StoredBookingInfo | null) {
+  const total = info?.tongGia ?? 0;
+  const baseAmount = info?.baseAmount ?? (info?.giaPhong && info?.nights && info?.rooms ? info.giaPhong * info.nights * Number(info.rooms) : Math.round(total / 1.1));
+  const taxFee = info?.taxFee ?? Math.max(0, total - baseAmount);
+
+  switch (info?.serviceType) {
+    case "flight":
+      return {
+        detailLabel: "Thông tin hành trình",
+        detailValue: info?.secondaryDetail ?? "1 hành khách",
+        serviceLabel: "Hạng vé",
+        serviceValue: info?.subtitle ?? info?.serviceLabel ?? "—",
+        quantityLabel: info?.quantityLabel ?? "Vé máy bay (x1)",
+        baseAmount,
+        taxFee,
+      };
+    case "train":
+      return {
+        detailLabel: "Thông tin chuyến tàu",
+        detailValue: info?.secondaryDetail ?? "—",
+        serviceLabel: "Ghế / loại vé",
+        serviceValue: info?.subtitle ?? info?.serviceLabel ?? "—",
+        quantityLabel: info?.quantityLabel ?? "Vé tàu",
+        baseAmount,
+        taxFee,
+      };
+    case "tour":
+      return {
+        detailLabel: "Thông tin hoạt động",
+        detailValue: info?.secondaryDetail ?? "—",
+        serviceLabel: "Điểm đến",
+        serviceValue: info?.subtitle ?? info?.serviceLabel ?? "—",
+        quantityLabel: info?.quantityLabel ?? "Tour",
+        baseAmount,
+        taxFee,
+      };
+    default:
+      return {
+        detailLabel: "Chi tiết đặt chỗ",
+        detailValue: info?.secondaryDetail ?? (info?.nights ? `${info.nights} đêm (${info.rooms ?? 1} phòng, ${info.adults ?? 1} khách)` : "—"),
+        serviceLabel: "Dịch vụ",
+        serviceValue: info?.subtitle ?? info?.serviceLabel ?? "—",
+        quantityLabel: info?.quantityLabel ?? `Giá dịch vụ (${info?.nights ?? 1} đêm)`,
+        baseAmount,
+        taxFee,
+      };
+  }
+}
+
 function BookingSummary({ info, onPay, isLoading }: { info: StoredBookingInfo | null; onPay: () => void; isLoading: boolean }) {
   const total = info?.tongGia ?? 0;
-  const roomCharge = info?.baseAmount ?? (info?.giaPhong && info?.nights && info?.rooms ? info.giaPhong * info.nights * Number(info.rooms) : Math.round(total / 1.1));
-  const taxFee = info?.taxFee ?? Math.max(0, total - roomCharge);
-  const durationLabel = info?.secondaryDetail ?? (info?.nights ? `${info.nights} đêm (${info.rooms ?? 1} phòng, ${info.adults ?? 1} khách)` : "—");
+  const summaryMeta = getSummaryMeta(info);
 
   return (
-    <>
+    <div>
       <div className="payment-summary-card">
         <div className="payment-hotel-hero">
-          <img src={hotelHeroImg} alt="Hotel Hero" />
+          <img src={hotelHeroImg} alt="Service Hero" />
           <div className="payment-hotel-hero-overlay">
             <div className="payment-hotel-type">{info?.serviceLabel ?? "Đặt chỗ"}</div>
             <h3 className="payment-hotel-name">{info?.title ?? info?.serviceName ?? "Đặt chỗ"}</h3>
@@ -141,16 +198,16 @@ function BookingSummary({ info, onPay, isLoading }: { info: StoredBookingInfo | 
           <div className="payment-detail-row">
             <Moon size={20} className="payment-detail-icon" />
             <div className="payment-detail-content">
-              <span className="payment-detail-label">Chi tiết đặt chỗ</span>
-              <span className="payment-detail-value">{durationLabel}</span>
+              <span className="payment-detail-label">{summaryMeta.detailLabel}</span>
+              <span className="payment-detail-value">{summaryMeta.detailValue}</span>
             </div>
           </div>
 
           <div className="payment-detail-row">
             <BedDouble size={20} className="payment-detail-icon" />
             <div className="payment-detail-content">
-              <span className="payment-detail-label">Dịch vụ</span>
-              <span className="payment-detail-value">{info?.subtitle ?? info?.serviceLabel ?? "—"}</span>
+              <span className="payment-detail-label">{summaryMeta.serviceLabel}</span>
+              <span className="payment-detail-value">{summaryMeta.serviceValue}</span>
             </div>
           </div>
         </div>
@@ -159,13 +216,13 @@ function BookingSummary({ info, onPay, isLoading }: { info: StoredBookingInfo | 
           <div className="payment-price-title">Chi tiết giá</div>
 
           <div className="payment-price-row">
-            <span className="payment-price-label">{info?.quantityLabel ?? `Giá dịch vụ (${info?.nights ?? 1} đêm)`}</span>
-            <span className="payment-price-value">{formatVnd(roomCharge)}</span>
+            <span className="payment-price-label">{summaryMeta.quantityLabel}</span>
+            <span className="payment-price-value">{formatVnd(summaryMeta.baseAmount)}</span>
           </div>
 
           <div className="payment-price-row">
             <span className="payment-price-label">Thuế và phí dịch vụ (10%)</span>
-            <span className="payment-price-value">{formatVnd(taxFee)}</span>
+            <span className="payment-price-value">{formatVnd(summaryMeta.taxFee)}</span>
           </div>
 
           <div className="payment-total-divider" />
@@ -177,11 +234,11 @@ function BookingSummary({ info, onPay, isLoading }: { info: StoredBookingInfo | 
         </div>
       </div>
 
-      {info?.maDon && (
+      {info?.maDon ? (
         <div style={{ marginBottom: 12, padding: "10px 16px", background: "#f0f9ff", borderRadius: 10, fontSize: 13, color: "#0369a1" }}>
           Mã đặt chỗ: <strong>#{info.maDon}</strong>
         </div>
-      )}
+      ) : null}
 
       <button
         type="button"
@@ -190,17 +247,23 @@ function BookingSummary({ info, onPay, isLoading }: { info: StoredBookingInfo | 
         disabled={isLoading}
         style={{ opacity: isLoading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
       >
-        {isLoading ? <><Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> Đang xử lý...</> : <><Lock size={18} /> Thanh toán an toàn</>}
+        {isLoading ? (
+          <>
+            <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> Đang xử lý...
+          </>
+        ) : (
+          <>
+            <Lock size={18} /> Thanh toán an toàn
+          </>
+        )}
       </button>
 
       <div className="payment-terms">
         Bằng cách nhấn nút, bạn đồng ý với <a href="#">Điều khoản &amp; Chính sách</a> của chúng tôi.
       </div>
-    </>
+    </div>
   );
 }
-
-// --- MAIN COMPONENT ---
 
 export default function PaymentKhachSan() {
   const navigate = useNavigate();
@@ -216,7 +279,7 @@ export default function PaymentKhachSan() {
 
   async function handlePayment() {
     if (!bookingInfo?.maDon) {
-      setErrorMsg("Không tìm thấy thông tin đặt phòng. Vui lòng quay lại và thực hiện lại.");
+      setErrorMsg("Không tìm thấy thông tin đơn hàng. Vui lòng quay lại và thực hiện lại.");
       return;
     }
 
@@ -228,7 +291,7 @@ export default function PaymentKhachSan() {
     try {
       await createThanhToan({
         maDon: bookingInfo.maDon,
-        phuongThuc: (PAYMENT_METHOD_MAP[activeMethod] as 'VNPAY' | 'MOMO' | 'COD' | 'BANK_TRANSFER' | 'WALLET') ?? "VNPAY",
+        phuongThuc: (PAYMENT_METHOD_MAP[activeMethod] as "VNPAY" | "MOMO" | "COD" | "BANK_TRANSFER" | "WALLET") ?? "VNPAY",
         soTien: total,
         ghiChu: `Thanh toán ${bookingInfo.serviceLabel.toLowerCase()} ${bookingInfo.subtitle ?? bookingInfo.title}`,
       });
@@ -236,7 +299,7 @@ export default function PaymentKhachSan() {
       const paidBookingInfo = { ...bookingInfo, tongGia: total, baseAmount: bookingInfo.baseAmount, taxFee: bookingInfo.taxFee };
       localStorage.setItem("travelhub_booking_info", JSON.stringify(paidBookingInfo));
 
-      navigate("/mua-sam/thanh-toan-thanh-cong", {
+      navigate("/mua-sam/hoan-tat", {
         state: paidBookingInfo,
       });
     } catch (err: unknown) {
@@ -257,9 +320,8 @@ export default function PaymentKhachSan() {
         <StepProgress />
 
         <div className="payment-layout">
-          {/* CỘT TRÁI - 70% */}
           <div className="payment-left">
-            <h1 className="payment-title">Thanh toán đặt chỗ</h1>
+            <h1 className="payment-title">{getPaymentTitle(bookingInfo?.serviceType)}</h1>
 
             <div className="payment-security-box">
               <ShieldCheck size={24} className="payment-security-icon" />
@@ -271,7 +333,7 @@ export default function PaymentKhachSan() {
 
             <PaymentMethod activeMethod={activeMethod} onMethodChange={setActiveMethod} />
 
-            <>
+            <div>
               <div className="payment-section-title">Thông tin hóa đơn</div>
               <div className="payment-billing-info">
                 <label className="payment-checkbox-wrap">
@@ -282,7 +344,7 @@ export default function PaymentKhachSan() {
                   </div>
                 </label>
               </div>
-            </>
+            </div>
 
             {errorMsg && (
               <div style={{ background: "#fff1f2", color: "#be123c", padding: "12px 16px", borderRadius: 10, marginTop: 16, fontSize: 14 }}>
@@ -291,7 +353,6 @@ export default function PaymentKhachSan() {
             )}
           </div>
 
-          {/* CỘT PHẢI - 30% */}
           <div className="payment-right">
             <BookingSummary info={bookingInfo} onPay={() => void handlePayment()} isLoading={isLoading} />
           </div>

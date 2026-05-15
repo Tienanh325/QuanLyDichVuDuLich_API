@@ -1,17 +1,14 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { formatVnd } from "../utils/money";
 import {
   Info,
-  SlidersHorizontal,
   ScrollText,
 } from "lucide-react";
 import { Spin } from "antd";
 import "../assets/css/CustomerTransactions.css";
 import { getMyOrders, type DonDatDetail } from "../services/donDatService";
 import CustomerSidebar from "../components/Sidebar/CustomerSidebar";
-
-const filtersMock = ["90 ngày qua", "Tháng 4 2026", "Tháng 3 2026", "Ngày tùy chọn"];
 
 function EmptyState() {
   return (
@@ -34,7 +31,6 @@ function EmptyState() {
 // --- MAIN COMPONENT ---
 
 export default function CustomerTransactions() {
-  const [activeFilter, setActiveFilter] = useState("90 ngày qua");
   const [transactions, setTransactions] = useState<DonDatDetail[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -81,22 +77,8 @@ export default function CustomerTransactions() {
             </p>
           </div>
 
-          {/* Filter Bar */}
-          <div className="filter-bar">
-            {filtersMock.map((filter) => (
-              <button
-                key={filter}
-                type="button"
-                className={`filter-btn ${activeFilter === filter ? "active" : ""}`}
-                onClick={() => setActiveFilter(filter)}
-              >
-                {filter}
-              </button>
-            ))}
-            <button className="filter-setting-btn">
-              <SlidersHorizontal size={16} />
-              Bộ lọc
-            </button>
+          <div style={{ marginBottom: 20 }}>
+            <h2 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "#17324d" }}>Lịch sử giao dịch</h2>
           </div>
 
           {/* Data area */}
@@ -109,22 +91,23 @@ export default function CustomerTransactions() {
           ) : (
             <div className="transaction-list">
               {transactions.map((trans) => {
-                const isPaid = trans.trangThai === "DA_THANH_TOAN";
-                const isCanceled = trans.trangThai === "DA_HUY";
-                const tagClass = isPaid ? "tag-success" : isCanceled ? "tag-canceled" : "tag-pending";
-                const tagLabel = isPaid ? "Đã thanh toán" : isCanceled ? "Đã hủy" : "Chờ thanh toán";
+                const normalizedStatus = String(trans.trangThai || "").toUpperCase();
+                const isSuccess = normalizedStatus === "COMPLETED";
+                const isCanceled = ["CANCELLED", "DA_HUY"].includes(normalizedStatus);
+                const tagClass = isSuccess ? "tag-success" : isCanceled ? "tag-canceled" : "tag-pending";
+                const tagLabel = isSuccess ? "Thành công" : isCanceled ? "Đã hủy" : "Chờ xác nhận";
 
                 return (
                   <div key={trans.maDon} className="transaction-card">
                     <div className="trans-main">
                       <div className="trans-meta">Mã giao dịch: {trans.maDon} • {formatDate(trans.ngayTao)}</div>
-                      <h4>{trans.chiTietDon?.[0]?.tenDichVu || "Dịch vụ Traveloka"}</h4>
+                      <h4>{trans.chiTietDon?.[0]?.tenDichVu || "Dịch vụ Travel"}</h4>
                       <div className="trans-meta">Số lượng: {trans.chiTietDon?.[0]?.soLuong || 1}</div>
                       <span className={`trans-tag ${tagClass}`}>{tagLabel}</span>
                     </div>
                     <div className="trans-right">
                       <div className="trans-price">{formatVnd(trans.tongGia)}</div>
-                      <Link to={`/mua-sam/thanh-toan-dat-cho`} style={{ color: "#0194f3", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>
+                      <Link to={`/mua-sam/thanh-toan`} style={{ color: "#0194f3", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>
                         Xem chi tiết
                       </Link>
                     </div>

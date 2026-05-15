@@ -148,7 +148,7 @@ export default function CustomerHotelDetail() {
       tenKhachSan: hotel.ten,
       viTri: hotel.viTri,
     });
-    navigate(`/mua-sam/thanh-toan-khach-san?${params.toString()}`);
+    navigate(`/mua-sam/checkout?${params.toString()}`);
   }
 
   // ── Loading State ──────────────────────────────────────────────

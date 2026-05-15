@@ -1,0 +1,12 @@
+- generic [ref=e3]:
+  - generic [ref=e4]: "[BabelError] D:\\kienthuc\\NAM3\\web-doan3\\DOAN3\\Frontend\\my-react\\src\\pages\\PaymentKhachSan.tsx: Unterminated string constant. (182:0) 180 | 181 | return ( > 182 | '} }definitely_invalid_json <> | ^ 183 | <div className=\"payment-summary-card\"> 184 | <div className=\"payment-hotel-hero\"> 185 | <img src={hotelHeroImg} alt=\"Hotel Hero\" />"
+  - generic [ref=e5]: unknown file:182:0
+  - generic [ref=e7]:
+    - text: Click outside, press Esc key, or fix the code to dismiss.
+    - text: You can also disable this overlay by setting
+    - code [ref=e8]: server.hmr.overlay
+    - text: to
+    - code [ref=e9]: "false"
+    - text: in
+    - code [ref=e10]: vite.config.ts
+    - text: .

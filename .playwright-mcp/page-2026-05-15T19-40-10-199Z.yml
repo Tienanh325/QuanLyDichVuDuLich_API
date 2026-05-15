@@ -1,0 +1,255 @@
+- generic [ref=e3]:
+  - banner:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "traveloka" [ref=e8] [cursor=pointer]:
+          - /url: /mua-sam
+        - generic [ref=e10]:
+          - link "Đăng nhập" [ref=e11] [cursor=pointer]:
+            - /url: /dang-nhap
+          - link "Đăng ký" [ref=e12] [cursor=pointer]:
+            - /url: /dang-ky
+      - navigation [ref=e13]:
+        - link "Khách sạn" [ref=e14] [cursor=pointer]:
+          - /url: /mua-sam/khach-san
+        - link "Vé máy bay" [ref=e15] [cursor=pointer]:
+          - /url: /mua-sam/ve-may-bay
+        - link "Vé tàu" [ref=e16] [cursor=pointer]:
+          - /url: /mua-sam/ve-tau
+        - link "Tour & Hoạt động" [ref=e17] [cursor=pointer]:
+          - /url: /mua-sam/hoat-dong-vui-choi
+  - main [ref=e18]:
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - img [ref=e24]
+          - generic [ref=e27]: Thông tin khách hàng
+        - generic [ref=e29]:
+          - generic [ref=e30]: "2"
+          - generic [ref=e31]: Thanh toán
+        - generic [ref=e33]:
+          - generic [ref=e34]: "3"
+          - generic [ref=e35]: Hoàn tất
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - heading "Thanh toán đặt chỗ" [level=1] [ref=e38]
+          - generic [ref=e39]:
+            - img [ref=e40]
+            - generic [ref=e43]:
+              - heading "Thanh toán an toàn & bảo mật" [level=4] [ref=e44]
+              - paragraph [ref=e45]: Dữ liệu của bạn được mã hóa hoàn toàn bằng công nghệ SSL tiên tiến.
+          - generic [ref=e46]: Phương thức thanh toán
+          - generic [ref=e47]:
+            - generic [ref=e48] [cursor=pointer]:
+              - img [ref=e49]
+              - img [ref=e52]
+              - generic [ref=e54]: Thẻ tín dụng
+              - generic [ref=e55]: Visa, Mastercard, JCB
+            - generic [ref=e56] [cursor=pointer]:
+              - img [ref=e57]
+              - generic [ref=e59]: Chuyển khoản
+              - generic [ref=e60]: Tất cả ngân hàng nội địa
+            - generic [ref=e61] [cursor=pointer]:
+              - img [ref=e62]
+              - generic [ref=e65]: Ví điện tử
+              - generic [ref=e66]: MoMo, ZaloPay, ShopeePay
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - generic [ref=e69]:
+                - generic [ref=e70]: Số thẻ
+                - textbox "0000 0000 0000 0000" [ref=e71]
+              - generic [ref=e72]:
+                - generic [ref=e73]: Tên trên thẻ
+                - textbox "NGUYEN VAN A" [ref=e74]
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - generic [ref=e77]: Ngày hết hạn
+                - textbox "MM / YY" [ref=e78]
+              - generic [ref=e79]:
+                - generic [ref=e80]: CVV/CVC
+                - generic [ref=e81]:
+                  - textbox "***" [ref=e82]
+                  - img [ref=e83]
+          - generic [ref=e86]: Thông tin hóa đơn
+          - generic [ref=e88] [cursor=pointer]:
+            - checkbox "Tôi muốn xuất hóa đơn giá trị gia tăng (VAT) cho doanh nghiệp Thông tin sẽ được gửi qua email sau khi hoàn tất thanh toán." [ref=e89]
+            - generic [ref=e90]:
+              - generic [ref=e91]: Tôi muốn xuất hóa đơn giá trị gia tăng (VAT) cho doanh nghiệp
+              - generic [ref=e92]: Thông tin sẽ được gửi qua email sau khi hoàn tất thanh toán.
+        - generic [ref=e93]:
+          - generic [ref=e94]:
+            - generic [ref=e95]:
+              - img "Hotel Hero" [ref=e96]
+              - generic [ref=e97]:
+                - generic [ref=e98]: Đặt chỗ
+                - heading "Đặt chỗ" [level=3] [ref=e99]
+            - generic [ref=e100]:
+              - generic [ref=e101]:
+                - img [ref=e102]
+                - generic [ref=e104]:
+                  - generic [ref=e105]: Ngày sử dụng
+                  - generic [ref=e106]: —
+              - generic [ref=e107]:
+                - img [ref=e108]
+                - generic [ref=e110]:
+                  - generic [ref=e111]: Chi tiết đặt chỗ
+                  - generic [ref=e112]: —
+              - generic [ref=e113]:
+                - img [ref=e114]
+                - generic [ref=e117]:
+                  - generic [ref=e118]: Dịch vụ
+                  - generic [ref=e119]: —
+            - generic [ref=e120]:
+              - generic [ref=e121]: Chi tiết giá
+              - generic [ref=e122]:
+                - generic [ref=e123]: Giá dịch vụ (1 đêm)
+                - generic [ref=e124]: 0 VNĐ
+              - generic [ref=e125]:
+                - generic [ref=e126]: Thuế và phí dịch vụ (10%)
+                - generic [ref=e127]: 0 VNĐ
+              - generic [ref=e129]:
+                - generic [ref=e130]: Tổng cộng
+                - generic [ref=e131]: 0 VNĐ
+          - button "Thanh toán an toàn" [ref=e132] [cursor=pointer]:
+            - img [ref=e133]
+            - text: Thanh toán an toàn
+          - generic [ref=e136]:
+            - text: Bằng cách nhấn nút, bạn đồng ý với
+            - link "Điều khoản & Chính sách" [ref=e137] [cursor=pointer]:
+              - /url: "#"
+            - text: của chúng tôi.
+  - contentinfo [ref=e138]:
+    - generic [ref=e139]:
+      - generic [ref=e140]:
+        - generic [ref=e142]:
+          - heading "Đối tác thanh toán" [level=3] [ref=e143]
+          - generic [ref=e144]:
+            - generic [ref=e146]: Visa
+            - generic [ref=e148]: Mastercard
+            - generic [ref=e150]: JCB
+            - generic [ref=e152]: Amex
+            - generic [ref=e154]: MoMo
+            - generic [ref=e156]: ZaloPay
+            - generic [ref=e158]: VNPAY
+            - generic [ref=e160]: ShopeePay
+            - generic [ref=e162]: ATM
+            - generic [ref=e164]: PayPal
+            - generic [ref=e166]: Apple Pay
+            - generic [ref=e168]: Google Pay
+            - generic [ref=e170]: BIDV
+            - generic [ref=e172]: Vietcombank
+            - generic [ref=e174]: Techcombank
+            - generic [ref=e176]: MB Bank
+            - generic [ref=e178]: ACB
+            - generic [ref=e180]: VPBank
+            - generic [ref=e182]: Sacombank
+            - generic [ref=e184]: TPBank
+        - generic [ref=e185]:
+          - heading "Về Traveloka" [level=3] [ref=e186]
+          - list [ref=e187]:
+            - listitem [ref=e188]:
+              - link "Cách đặt chỗ" [ref=e189] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e190]:
+              - link "Liên hệ chúng tôi" [ref=e191] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e192]:
+              - link "Trợ giúp" [ref=e193] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e194]:
+              - link "Tuyển dụng" [ref=e195] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e196]:
+              - link "Về chúng tôi" [ref=e197] [cursor=pointer]:
+                - /url: "#uu-dai"
+          - generic [ref=e198]:
+            - heading "Theo dõi chúng tôi trên" [level=3] [ref=e199]
+            - list [ref=e200]:
+              - listitem [ref=e201]:
+                - link "Facebook" [ref=e202] [cursor=pointer]:
+                  - /url: "#uu-dai"
+                  - img [ref=e203]
+                  - text: Facebook
+              - listitem [ref=e205]:
+                - link "Instagram" [ref=e206] [cursor=pointer]:
+                  - /url: "#uu-dai"
+                  - img [ref=e207]
+                  - text: Instagram
+              - listitem [ref=e210]:
+                - link "TikTok" [ref=e211] [cursor=pointer]:
+                  - /url: "#uu-dai"
+                  - img [ref=e212]
+                  - text: TikTok
+              - listitem [ref=e215]:
+                - link "Youtube" [ref=e216] [cursor=pointer]:
+                  - /url: "#uu-dai"
+                  - img [ref=e217]
+                  - text: Youtube
+              - listitem [ref=e220]:
+                - link "Telegram" [ref=e221] [cursor=pointer]:
+                  - /url: "#uu-dai"
+                  - img [ref=e222]
+                  - text: Telegram
+        - generic [ref=e225]:
+          - heading "Sản phẩm" [level=3] [ref=e226]
+          - list [ref=e227]:
+            - listitem [ref=e228]:
+              - link "Khách sạn" [ref=e229] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e230]:
+              - link "Vé máy bay" [ref=e231] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e232]:
+              - link "Vé tàu" [ref=e233] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e234]:
+              - link "Tour & Hoạt động" [ref=e235] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e236]:
+              - link "Du thuyền" [ref=e237] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e238]:
+              - link "Biệt thự" [ref=e239] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e240]:
+              - link "Căn hộ" [ref=e241] [cursor=pointer]:
+                - /url: "#uu-dai"
+        - generic [ref=e242]:
+          - heading "Khác" [level=3] [ref=e243]
+          - list [ref=e244]:
+            - listitem [ref=e245]:
+              - link "Traveloka Affiliate" [ref=e246] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e247]:
+              - link "Giới thiệu bạn bè" [ref=e248] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e249]:
+              - link "Traveloka Blog" [ref=e250] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e251]:
+              - link "Chính Sách Quyền Riêng" [ref=e252] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e253]:
+              - link "Điều khoản & Điều kiện" [ref=e254] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e255]:
+              - link "Đăng ký nơi nghỉ của bạn" [ref=e256] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e257]:
+              - link "Đăng ký doanh nghiệp hoạt động du lịch của bạn" [ref=e258] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e259]:
+              - link "Khu vực báo chí" [ref=e260] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e261]:
+              - link "Quy chế hoạt động" [ref=e262] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e263]:
+              - link "Vulnerability Disclosure Program" [ref=e264] [cursor=pointer]:
+                - /url: "#uu-dai"
+            - listitem [ref=e265]:
+              - link "APAC Travel Insights" [ref=e266] [cursor=pointer]:
+                - /url: "#uu-dai"
+      - generic [ref=e268]:
+        - paragraph [ref=e269]: "Công ty TNHH Traveloka Việt Nam. Mã số doanh nghiệp 0313581779 cấp ngày 18/12/2015 | Địa chỉ: Tòa nhà An Phú, 117 Lý Chính Thắng, Phường Xuân Hòa, TP HCM | Đại diện pháp luật: Lê Minh Tự | Email: cs@traveloka.com | Tel: +84 28 3861 4699"
+        - paragraph [ref=e270]: Copyright © 2026 Traveloka. All rights reserved

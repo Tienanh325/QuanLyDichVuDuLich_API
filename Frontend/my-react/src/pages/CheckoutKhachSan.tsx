@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, type ReactNode } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { formatVnd } from "../utils/money";
 import {
@@ -9,11 +9,17 @@ import {
   BedDouble,
   ShieldCheck,
   Loader2,
+  Plane,
+  Train,
+  MapPinned,
+  CalendarDays,
+  Users,
+  Luggage,
 } from "lucide-react";
 import "../assets/css/checkoutkhachsan.css";
 import hotelRoomImg from "../assets/images/hotel_room_deluxe.png";
 import { getCurrentSession } from "../utils/auth";
-import { createDonDat } from "../services/hotelService";
+import { createDonDat } from "../services/donDatService";
 import { saveBookingInfo } from "../utils/bookingStorage";
 
 // --- HELPERS ---
@@ -62,13 +68,14 @@ interface ContactFormProps {
   sdt: string;
   email: string;
   isGuest: boolean;
+  serviceType: string;
   onHoTenChange: (v: string) => void;
   onSdtChange: (v: string) => void;
   onEmailChange: (v: string) => void;
   onIsGuestChange: (v: boolean) => void;
 }
 
-function ContactForm({ hoTen, sdt, email, isGuest, onHoTenChange, onSdtChange, onEmailChange, onIsGuestChange }: ContactFormProps) {
+function ContactForm({ hoTen, sdt, email, isGuest, serviceType, onHoTenChange, onSdtChange, onEmailChange, onIsGuestChange }: ContactFormProps) {
   return (
     <div className="checkout-card">
       <div className="card-header">
@@ -78,7 +85,7 @@ function ContactForm({ hoTen, sdt, email, isGuest, onHoTenChange, onSdtChange, o
 
       <div className="form-row">
         <div className="form-group">
-          <label className="form-label">Họ và tên (như trên CCCD/Hộ chiếu)</label>
+          <label className="form-label">{serviceType === 'flight' || serviceType === 'train' ? 'Họ và tên (như trên giấy tờ tùy thân)' : 'Họ và tên (như trên CCCD/Hộ chiếu)'}</label>
           <input
             type="text"
             className="form-input"
@@ -87,7 +94,7 @@ function ContactForm({ hoTen, sdt, email, isGuest, onHoTenChange, onSdtChange, o
             onChange={(e) => onHoTenChange(e.target.value)}
             required
           />
-          <div className="form-hint">Vui lòng nhập tên đúng định dạng để nhận diện tại quầy.</div>
+          <div className="form-hint">{serviceType === 'flight' ? 'Vui lòng nhập đúng tên để khớp thông tin làm thủ tục chuyến bay.' : serviceType === 'train' ? 'Vui lòng nhập đúng tên để khớp thông tin vé tàu.' : serviceType === 'tour' ? 'Vui lòng nhập đúng tên để nhà cung cấp xác nhận danh sách tham gia.' : 'Vui lòng nhập tên đúng định dạng để nhận diện tại quầy.'}</div>
         </div>
 
         <div className="form-group">
@@ -120,26 +127,51 @@ function ContactForm({ hoTen, sdt, email, isGuest, onHoTenChange, onSdtChange, o
 
       <label className="checkbox-wrap">
         <input type="checkbox" checked={isGuest} onChange={(e) => onIsGuestChange(e.target.checked)} />
-        <span className="checkbox-label">Tôi là khách lưu trú</span>
+        <span className="checkbox-label">{serviceType === 'flight' || serviceType === 'train' ? 'Tôi là hành khách' : serviceType === 'tour' ? 'Tôi là người tham gia' : 'Tôi là khách lưu trú'}</span>
       </label>
     </div>
   );
 }
 
-function SpecialRequest() {
+function SpecialRequest({ serviceType }: { serviceType: string }) {
+  const requestConfig: Record<string, { title: string; description: string; items: string[] }> = {
+    hotel: {
+      title: 'Yêu cầu đặc biệt',
+      description: 'Mặc dù chúng tôi không thể đảm bảo tất cả các yêu cầu sẽ được đáp ứng, khách sạn sẽ cố gắng hỗ trợ tốt nhất.',
+      items: ['Phòng không hút thuốc', 'Giường lớn', 'Nhận phòng sớm', 'Phòng yên tĩnh'],
+    },
+    flight: {
+      title: 'Tùy chọn chuyến bay',
+      description: 'Các lựa chọn thêm sẽ được nhà cung cấp xác nhận theo điều kiện vé và khả năng phục vụ.',
+      items: ['Ghế ngồi gần cửa sổ', 'Suất ăn đặc biệt', 'Thêm hành lý ký gửi', 'Ưu tiên làm thủ tục'],
+    },
+    train: {
+      title: 'Tùy chọn chuyến tàu',
+      description: 'Một số yêu cầu phụ thuộc vào khoang tàu và tình trạng chỗ thực tế tại thời điểm xác nhận.',
+      items: ['Ngồi cùng khoang', 'Ghế cạnh cửa sổ', 'Hỗ trợ người lớn tuổi', 'Ưu tiên gần cửa ra vào'],
+    },
+    tour: {
+      title: 'Yêu cầu cho hoạt động',
+      description: 'Thông tin thêm sẽ giúp nhà cung cấp chuẩn bị trải nghiệm phù hợp hơn cho đoàn của bạn.',
+      items: ['Đón tại khách sạn', 'Hướng dẫn viên tiếng Việt', 'Phù hợp trẻ em', 'Ăn chay / dị ứng thực phẩm'],
+    },
+  };
+
+  const config = requestConfig[serviceType] ?? requestConfig.hotel;
+
   return (
     <div className="checkout-card">
       <div className="card-header">
         <Settings2 size={22} />
-        Yêu cầu đặc biệt
+        {config.title}
       </div>
 
       <p style={{ fontSize: "14px", color: "#4a5a6a", marginBottom: "16px", lineHeight: "1.5" }}>
-        Mặc dù chúng tôi không thể đảm bảo tất cả các yêu cầu sẽ được đáp ứng, khách sạn sẽ cố gắng hỗ trợ tốt nhất.
+        {config.description}
       </p>
 
       <div className="special-request-grid">
-        {["Phòng không hút thuốc", "Giường lớn", "Nhận phòng sớm", "Phòng yên tĩnh"].map((req) => (
+        {config.items.map((req) => (
           <label key={req} className="special-request-item">
             <input type="checkbox" />
             <span>{req}</span>
@@ -148,6 +180,93 @@ function SpecialRequest() {
       </div>
     </div>
   );
+}
+
+function ServiceInfoPanel({ serviceType, primaryDetail, secondaryDetail, subtitle }: { serviceType: string; primaryDetail: string; secondaryDetail: string; subtitle: string }) {
+  const itemsByType: Record<string, { icon: ReactNode; label: string; value: string }[]> = {
+    hotel: [
+      { icon: <CalendarDays size={18} />, label: 'Lịch lưu trú', value: primaryDetail },
+      { icon: <Users size={18} />, label: 'Thông tin phòng', value: secondaryDetail },
+      { icon: <BedDouble size={18} />, label: 'Loại phòng', value: subtitle },
+    ],
+    flight: [
+      { icon: <Plane size={18} />, label: 'Ngày bay', value: primaryDetail },
+      { icon: <Users size={18} />, label: 'Hành khách', value: secondaryDetail },
+      { icon: <Luggage size={18} />, label: 'Hạng vé', value: subtitle },
+    ],
+    train: [
+      { icon: <Train size={18} />, label: 'Ngày đi', value: primaryDetail },
+      { icon: <Users size={18} />, label: 'Ghế đã chọn', value: subtitle },
+      { icon: <CalendarDays size={18} />, label: 'Hành trình', value: secondaryDetail },
+    ],
+    tour: [
+      { icon: <MapPinned size={18} />, label: 'Ngày tham gia', value: primaryDetail },
+      { icon: <Users size={18} />, label: 'Số khách', value: secondaryDetail },
+      { icon: <CalendarDays size={18} />, label: 'Điểm đến', value: subtitle },
+    ],
+  };
+
+  const items = itemsByType[serviceType] ?? itemsByType.hotel;
+
+  return (
+    <div className="checkout-card">
+      <div className="card-header">
+        {serviceType === 'flight' ? <Plane size={22} /> : serviceType === 'train' ? <Train size={22} /> : serviceType === 'tour' ? <MapPinned size={22} /> : <BedDouble size={22} />}
+        Thông tin dịch vụ
+      </div>
+
+      <div style={{ display: 'grid', gap: 12 }}>
+        {items.map((item) => (
+          <div key={`${item.label}-${item.value}`} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '12px 14px', border: '1px solid #e5edf5', borderRadius: 12, background: '#f8fbff' }}>
+            <div style={{ color: '#0194F3', marginTop: 2 }}>{item.icon}</div>
+            <div>
+              <div style={{ fontSize: 13, color: '#64748b', marginBottom: 4 }}>{item.label}</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{item.value || 'Chưa cập nhật'}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function getOrderType(serviceType: string): 'HOTEL' | 'FLIGHT' | 'TRAIN' | 'ACTIVITY' {
+  switch (serviceType) {
+    case 'flight':
+      return 'FLIGHT';
+    case 'train':
+      return 'TRAIN';
+    case 'tour':
+      return 'ACTIVITY';
+    default:
+      return 'HOTEL';
+  }
+}
+
+function getSubmitLabel(serviceType: string) {
+  switch (serviceType) {
+    case 'flight':
+      return 'Đang giữ chỗ chuyến bay...';
+    case 'train':
+      return 'Đang giữ chỗ tàu...';
+    case 'tour':
+      return 'Đang đặt hoạt động...';
+    default:
+      return 'Đang đặt chỗ...';
+  }
+}
+
+function getErrorLabel(serviceType: string) {
+  switch (serviceType) {
+    case 'flight':
+      return 'Đặt vé máy bay';
+    case 'train':
+      return 'Đặt vé tàu';
+    case 'tour':
+      return 'Đặt hoạt động';
+    default:
+      return 'Đặt phòng';
+  }
 }
 
 interface BookingSummaryProps {
@@ -290,7 +409,7 @@ export default function CheckoutKhachSan() {
       setErrorMsg("Vui lòng nhập đầy đủ họ tên và email.");
       return;
     }
-    if (!maDichVu || !baseAmount) {
+    if (!maDichVu || unitPrice <= 0) {
       setErrorMsg("Thông tin dịch vụ không hợp lệ. Vui lòng quay lại và chọn lại.");
       return;
     }
@@ -306,20 +425,27 @@ export default function CheckoutKhachSan() {
 
     try {
       const donDat = await createDonDat({
+        loaiDon: getOrderType(serviceType),
         chiTietList: [{
           maDichVu: Number(maDichVu),
           maPhanLoaiDichVu: maPhanLoaiDichVu ? Number(maPhanLoaiDichVu) : null,
           soLuong: quantity,
-          giaTaiThoiDiemMua: unitPrice || baseAmount,
+          giaTaiThoiDiemMua: unitPrice,
           ngayBatDauSuDung: startDate || null,
           ngayKetThucSuDung: endDate || null,
         }],
+        thongTinDatCho: {
+          hoTenLienHe: hoTen.trim(),
+          emailLienHe: email.trim(),
+          sdtLienHe: sdt.trim() || null,
+          laNguoiSuDung: isGuest,
+        },
       });
 
       saveBookingInfo({
         maDon: donDat.maDon,
         tongGia: donDat.tongGia,
-        serviceType: serviceType as "hotel" | "flight" | "train" | "tour",
+        serviceType: serviceType as "hotel" | "flight" | "train" | "tour" | "activity",
         serviceLabel,
         serviceName: title,
         title,
@@ -343,7 +469,7 @@ export default function CheckoutKhachSan() {
         khachSanId,
       });
 
-      navigate("/mua-sam/thanh-toan-dat-cho");
+      navigate("/mua-sam/thanh-toan");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Có lỗi xảy ra khi đặt phòng.";
       // Nếu lỗi 401 → chưa đăng nhập
@@ -351,7 +477,7 @@ export default function CheckoutKhachSan() {
         navigate("/dang-nhap");
         return;
       }
-      setErrorMsg(`Đặt phòng thất bại: ${msg}`);
+      setErrorMsg(`${getErrorLabel(serviceType)} thất bại: ${msg}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -370,6 +496,7 @@ export default function CheckoutKhachSan() {
               sdt={sdt}
               email={email}
               isGuest={isGuest}
+              serviceType={serviceType}
               onHoTenChange={setHoTen}
               onSdtChange={setSdt}
               onEmailChange={setEmail}
@@ -380,7 +507,7 @@ export default function CheckoutKhachSan() {
               <div className="checkout-card">
                 <div className="card-header">
                   <UserCircle size={22} />
-                  Thông tin khách lưu trú
+                  {serviceType === 'flight' || serviceType === 'train' ? 'Thông tin hành khách' : serviceType === 'tour' ? 'Thông tin người tham gia' : 'Thông tin khách lưu trú'}
                 </div>
                 <div className="form-group">
                   <label className="form-label">Họ tên khách</label>
@@ -389,7 +516,14 @@ export default function CheckoutKhachSan() {
               </div>
             )}
 
-            <SpecialRequest />
+            <ServiceInfoPanel
+              serviceType={serviceType}
+              primaryDetail={primaryDetail}
+              secondaryDetail={secondaryDetail}
+              subtitle={subtitle}
+            />
+
+            <SpecialRequest serviceType={serviceType} />
 
             {errorMsg && (
               <div style={{ background: "#fff1f2", color: "#be123c", padding: "12px 16px", borderRadius: 10, marginBottom: 16, fontSize: 14 }}>
@@ -405,7 +539,7 @@ export default function CheckoutKhachSan() {
                 disabled={isSubmitting}
                 style={{ opacity: isSubmitting ? 0.7 : 1, display: "flex", alignItems: "center", gap: 8, justifyContent: "center" }}
               >
-                {isSubmitting ? <><Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> Đang đặt chỗ...</> : "Tiếp tục thanh toán"}
+                {isSubmitting ? <><Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> {getSubmitLabel(serviceType)}</> : "Tiếp tục thanh toán"}
               </button>
             </div>
           </div>

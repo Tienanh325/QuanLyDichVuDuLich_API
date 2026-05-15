@@ -22,7 +22,7 @@ import "../assets/css/CustomerHome.css";
 import { buildFlightSearchQuery } from "../utils/flightSearch";
 import { buildHotelSearchQuery } from "../utils/hotelSearch";
 import { ConfigProvider, DatePicker } from "antd";
-import { CountUp, Reveal } from "../components/animation/Motion";
+import { Reveal } from "../components/animation/Motion";
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import viVN from "antd/locale/vi_VN";

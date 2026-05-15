@@ -1,0 +1,7 @@
+[     269ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[     877ms] [VERBOSE] [DOM] Password forms should have (optionally hidden) username fields for accessibility: (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:5173/mua-sam/tai-khoan:0
+[  274787ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:5173/src/pages/PaymentKhachSan.tsx?t=1778875449231:0
+[  274788ms] [ERROR] [vite] Failed to reload /src/pages/PaymentKhachSan.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://127.0.0.1:5173/@vite/client:509
+[  282335ms] [VERBOSE] [DOM] Password forms should have (optionally hidden) username fields for accessibility: (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:5173/mua-sam/tai-khoan:0
+[  283653ms] [VERBOSE] [DOM] Password forms should have (optionally hidden) username fields for accessibility: (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:5173/mua-sam/tai-khoan:0
+[  284914ms] [VERBOSE] [DOM] Password forms should have (optionally hidden) username fields for accessibility: (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:5173/mua-sam/tai-khoan:0

@@ -1,0 +1,24 @@
+[     561ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[    1382ms] [VERBOSE] [DOM] Password forms should have (optionally hidden) username fields for accessibility: (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:5173/mua-sam/tai-khoan:0
+[  687160ms] [VERBOSE] [DOM] Password forms should have (optionally hidden) username fields for accessibility: (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:5173/mua-sam/tai-khoan:0
+[  687888ms] ReferenceError: handleFinish is not defined
+    at PersonalInfoSection (http://127.0.0.1:5173/src/pages/CustomerProfile.tsx?t=1778878025882:146:15)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:12868:12)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:4213:19)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:5569:16)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:6140:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:851:66)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:8429:92)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:8325:37)
+    at renderRootSync (http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:8309:6)
+    at performWorkOnRoot (http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:7994:27)
+[  687892ms] [WARNING] %s
+
+%s
+ An error occurred in the <PersonalInfoSection> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://127.0.0.1:5173/@vite/client:509
+[  689503ms] [VERBOSE] [DOM] Password forms should have (optionally hidden) username fields for accessibility: (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:5173/mua-sam/tai-khoan:0
+[  690582ms] [VERBOSE] [DOM] Password forms should have (optionally hidden) username fields for accessibility: (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:5173/mua-sam/tai-khoan:0
+[  691769ms] [VERBOSE] [DOM] Password forms should have (optionally hidden) username fields for accessibility: (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:5173/mua-sam/tai-khoan:0
+[  692937ms] [VERBOSE] [DOM] Password forms should have (optionally hidden) username fields for accessibility: (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:5173/mua-sam/tai-khoan:0
+[  694227ms] [VERBOSE] [DOM] Password forms should have (optionally hidden) username fields for accessibility: (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:5173/mua-sam/tai-khoan:0

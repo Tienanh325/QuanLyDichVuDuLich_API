@@ -46,6 +46,35 @@ function StepProgress() {
 function SuccessMessage({ booking }: { booking: SuccessState | null }) {
   const navigate = useNavigate();
   const maDon = booking?.maDon;
+  const serviceType = booking?.serviceType;
+  const orderLabel = serviceType === 'flight'
+    ? 'Mã đặt vé'
+    : serviceType === 'train'
+      ? 'Mã đặt chỗ'
+      : serviceType === 'tour' || serviceType === 'activity'
+        ? 'Mã đặt hoạt động'
+        : 'Mã đặt phòng';
+  const title = serviceType === 'flight'
+    ? 'Thanh toán vé máy bay thành công!'
+    : serviceType === 'train'
+      ? 'Thanh toán vé tàu thành công!'
+      : serviceType === 'tour' || serviceType === 'activity'
+        ? 'Thanh toán hoạt động thành công!'
+        : 'Thanh toán thành công!';
+  const description = serviceType === 'flight'
+    ? 'Cảm ơn bạn đã đặt vé. Thông tin chi tiết đã được gửi đến email của bạn. Quý khách vui lòng kiểm tra hộp thư đến hoặc thư rác.'
+    : serviceType === 'train'
+      ? 'Cảm ơn bạn đã đặt vé tàu. Thông tin hành trình đã được gửi đến email của bạn. Quý khách vui lòng kiểm tra hộp thư đến hoặc thư rác.'
+      : serviceType === 'tour' || serviceType === 'activity'
+        ? 'Cảm ơn bạn đã đặt hoạt động. Xác nhận chi tiết đã được gửi đến email của bạn. Quý khách vui lòng kiểm tra hộp thư đến hoặc thư rác.'
+        : 'Cảm ơn bạn đã đặt chỗ. Thông tin chi tiết đã được gửi đến email của bạn. Quý khách vui lòng kiểm tra hộp thư đến hoặc thư rác.';
+  const actionLabel = serviceType === 'flight'
+    ? 'Xem vé điện tử'
+    : serviceType === 'train'
+      ? 'Xem vé tàu'
+      : serviceType === 'tour' || serviceType === 'activity'
+        ? 'Xem phiếu xác nhận'
+        : 'Xem phiếu đặt chỗ';
 
   return (
     <div className="success-left">
@@ -53,22 +82,22 @@ function SuccessMessage({ booking }: { booking: SuccessState | null }) {
         <CheckCircle2 size={48} strokeWidth={2.5} />
       </div>
 
-      <h1 className="success-title">Thanh toán thành công!</h1>
+      <h1 className="success-title">{title}</h1>
 
       {maDon && (
         <div style={{ marginBottom: 16, padding: "10px 18px", background: "#e6f4ea", borderRadius: 10, color: "#15803d", fontSize: 16, fontWeight: 700 }}>
-          Mã đặt phòng: <span style={{ fontSize: 22 }}>#{maDon}</span>
+          {orderLabel}: <span style={{ fontSize: 22 }}>#{maDon}</span>
         </div>
       )}
 
       <p className="success-desc">
-        Cảm ơn bạn đã đặt chỗ. Thông tin chi tiết đã được gửi đến email của bạn. Quý khách vui lòng kiểm tra hộp thư đến hoặc thư rác.
+        {description}
       </p>
 
       <div className="success-actions">
         <button type="button" className="success-btn-primary" onClick={() => navigate("/mua-sam/dat-cho-cua-toi", { state: booking })}>
           <Ticket size={18} />
-          Xem vé điện tử / Phiếu thanh toán
+          {actionLabel}
         </button>
         <button type="button" className="success-btn-secondary" onClick={() => navigate("/mua-sam")}>
           Quay lại Trang chủ
@@ -97,8 +126,8 @@ function BookingSummary({ booking }: { booking: SuccessState | null }) {
     <div className="success-right">
       <div className="success-summary-card">
         <div className="success-hotel-hero">
-          <img src={hotelHeroImg} alt="Hotel Hero" />
-          <div className="success-badge">XÁC NHẬN NGAY</div>
+          <img src={hotelHeroImg} alt="Service Hero" />
+          <div className="success-badge">{booking?.serviceType === 'flight' ? 'VÉ ĐÃ XÁC NHẬN' : booking?.serviceType === 'train' ? 'CHỖ ĐÃ XÁC NHẬN' : booking?.serviceType === 'tour' || booking?.serviceType === 'activity' ? 'LỊCH TRÌNH ĐÃ XÁC NHẬN' : 'XÁC NHẬN NGAY'}</div>
         </div>
 
         <div className="success-hotel-info">

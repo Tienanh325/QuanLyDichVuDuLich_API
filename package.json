@@ -12,6 +12,7 @@
     "nodemon": "^3.1.14"
   },
   "dependencies": {
+    "html2pdf.js": "^0.14.0",
     "multer": "^2.1.1"
   }
 }

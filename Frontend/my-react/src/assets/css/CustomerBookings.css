@@ -2,7 +2,7 @@
   background-color: #f5f7fa;
   min-height: 100vh;
   padding: 160px 0 80px;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 .bookings-container {
@@ -250,11 +250,318 @@
   font-weight: 500;
 }
 
+.booking-detail-page {
+  padding-top: 140px;
+}
+
+.booking-detail-container {
+  align-items: flex-start;
+}
+
+.booking-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.booking-detail-topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.booking-detail-subtitle {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.booking-detail-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.booking-detail-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.booking-detail-voucher {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.booking-detail-hero {
+  overflow: hidden;
+}
+
+.booking-detail-hero-body {
+  align-items: stretch;
+}
+
+.booking-detail-ticket-mark {
+  min-height: 150px;
+}
+
+.booking-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.9fr);
+  gap: 20px;
+}
+
+.booking-detail-side-stack {
+  display: grid;
+  gap: 20px;
+}
+
+.booking-detail-section-card,
+.booking-detail-footer-card {
+  padding: 22px;
+}
+
+.booking-detail-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.booking-detail-payments {
+  display: grid;
+  gap: 14px;
+}
+
+.booking-detail-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+}
+
+.booking-detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.booking-detail-table thead {
+  background: linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
+}
+
+.booking-detail-table th,
+.booking-detail-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #edf2f7;
+  font-size: 14px;
+  color: #334155;
+  vertical-align: top;
+  text-align: left;
+}
+
+.booking-detail-cell-right {
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+.booking-detail-table th {
+  color: #01579b;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.booking-detail-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.booking-detail-table tbody tr:nth-child(even) {
+  background: #f8fbff;
+}
+
+.booking-detail-table tbody tr:hover {
+  background: #eef6ff;
+}
+
+.booking-detail-table-service {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.booking-detail-table-service strong,
+.booking-detail-payment-row strong {
+  margin: 0;
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.booking-detail-table-service span,
+.booking-detail-payment-row p {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.booking-detail-table-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  color: #475569;
+  font-size: 14px;
+}
+
+.booking-detail-table-total strong {
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.booking-detail-table-total-amount strong {
+  color: #01579b;
+  font-size: 18px;
+}
+
+.booking-detail-invoice-summary {
+  margin-top: 14px;
+  border-top: 1px dashed #d8e2ec;
+  padding-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.booking-detail-invoice-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: #475569;
+  font-size: 14px;
+}
+
+.booking-detail-invoice-row strong {
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.booking-detail-invoice-row-total {
+  margin-top: 2px;
+  padding-top: 10px;
+  border-top: 1px solid #edf2f7;
+}
+
+.booking-detail-invoice-row-total strong {
+  color: #01579b;
+  font-size: 18px;
+}
+
+.booking-detail-payment-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 16px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.booking-detail-payment-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  color: #475569;
+  font-size: 13px;
+}
+
+.booking-detail-summary-list {
+  display: grid;
+  gap: 12px;
+}
+
+.booking-detail-summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf2f7;
+  color: #475569;
+  font-size: 14px;
+}
+
+.booking-detail-summary-row strong {
+  color: #0f172a;
+  font-weight: 800;
+  text-align: right;
+}
+
+.booking-detail-summary-row-total {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.booking-detail-summary-row-total strong {
+  color: #01579b;
+  font-size: 18px;
+}
+
+.booking-detail-empty-note,
+.booking-detail-footer-note {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@media print {
+  .print-hidden,
+  .booking-detail-topbar,
+  .booking-ticket-actions,
+  header,
+  nav {
+    display: none !important;
+  }
+
+  .booking-detail-page,
+  .bookings-page {
+    background: white;
+    padding: 0;
+    min-height: auto;
+  }
+
+  .booking-detail-container,
+  .bookings-container {
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+    display: block;
+  }
+
+  .booking-detail-voucher,
+  .booking-ticket-card,
+  .bookings-card {
+    box-shadow: none !important;
+    border: 1px solid #dbe4ee;
+  }
+}
+
 @media (max-width: 768px) {
   .bookings-container,
   .bookings-empty-state,
   .booking-ticket-header,
-  .booking-ticket-actions {
+  .booking-ticket-actions,
+  .booking-detail-topbar,
+  .booking-detail-item-row,
+  .booking-detail-payment-row {
     flex-direction: column;
   }
 
@@ -262,11 +569,15 @@
     text-align: center;
   }
 
-  .booking-ticket-code {
+  .booking-ticket-code,
+  .booking-detail-item-meta,
+  .booking-detail-payment-right {
     text-align: left;
+    align-items: flex-start;
   }
 
-  .booking-ticket-body {
+  .booking-ticket-body,
+  .booking-detail-grid {
     grid-template-columns: 1fr;
   }
 

@@ -444,7 +444,7 @@ export default function CustomerFlight() {
         <div className="customer-shell__container">
           <div className="flight-value__header">
             <span className="flight-section__label">Ưu điểm nổi bật</span>
-            <h2 className="flight-section__title">Tại sao đặt vé máy bay với Traveloka?</h2>
+            <h2 className="flight-section__title">Tại sao đặt vé máy bay với Travel?</h2>
           </div>
           <div className="flight-value__grid">
             {valuePropositions.map((item) => {

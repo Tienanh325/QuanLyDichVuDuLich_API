@@ -9,6 +9,7 @@ import {
   User,
 } from "lucide-react";
 import { clearCurrentSession, getCurrentSession } from "../../utils/auth";
+import { readBookingInfo } from "../../utils/bookingStorage";
 import "../../assets/css/CustomerHeader.css";
 
 const customerMenuItems = [
@@ -43,35 +44,246 @@ const customerMenuItems = [
 ] as const;
 
 const categoryLinks = [
-  { id: "hotel", label: "Khách sạn", to: "/mua-sam/khach-san", activePaths: ["/mua-sam/khach-san", "/mua-sam/ket-qua-khach-san", "/mua-sam/thanh-toan-khach-san", "/mua-sam/thanh-toan-dat-cho", "/mua-sam/thanh-toan-thanh-cong"] },
+  { id: "hotel", label: "Khách sạn", to: "/mua-sam/khach-san", activePaths: ["/mua-sam/khach-san", "/mua-sam/ket-qua-khach-san"] },
   { id: "flight", label: "Vé máy bay", to: "/mua-sam/ve-may-bay", activePaths: ["/mua-sam/ve-may-bay", "/mua-sam/ket-qua-ve-may-bay", "/mua-sam/chi-tiet-chuyen-bay"] },
   { id: "train", label: "Vé tàu", to: "/mua-sam/ve-tau", activePaths: ["/mua-sam/ve-tau", "/mua-sam/ket-qua-tau", "/mua-sam/chi-tiet-tau"] },
-  { id: "activity", label: "Tour & Hoạt động", to: "/mua-sam/hoat-dong-vui-choi", activePaths: ["/mua-sam/hoat-dong-vui-choi", "/mua-sam/ket-qua-hoat-dong", "/mua-sam/chi-tiet-hoat-dong"] },
+  { id: "activity", label: "Tour & Hoạt động", to: "/mua-sam/hoat-dong-vui-choi", activePaths: ["/mua-sam/hoat-dong-vui-choi", "/mua-sam/ket-qua-hoat-dong"] },
 ] as const;
+
+function getCheckoutCategoryId() {
+  const booking = readBookingInfo();
+  switch (booking?.serviceType) {
+    case 'flight':
+      return 'flight';
+    case 'train':
+      return 'train';
+    case 'tour':
+    case 'activity':
+      return 'activity';
+    default:
+      return 'hotel';
+  }
+}
+
+function isCheckoutPath(pathname: string) {
+  return pathname === '/mua-sam/thanh-toan-khach-san'
+    || pathname === '/mua-sam/thanh-toan-dat-cho'
+    || pathname === '/mua-sam/thanh-toan-thanh-cong'
+    || pathname === '/mua-sam/checkout'
+    || pathname === '/mua-sam/thanh-toan'
+    || pathname === '/mua-sam/hoan-tat';
+}
+
+function isPathActive(link: typeof categoryLinks[number], pathname: string) {
+  if (link.activePaths.some((activePath) => pathname === activePath || pathname.startsWith(`${activePath}/`))) {
+    return true;
+  }
+  if (isCheckoutPath(pathname)) {
+    return link.id === getCheckoutCategoryId();
+  }
+  return false;
+}
+
+function isLightThemePath(pathname: string) {
+  return pathname === '/mua-sam/khach-san'
+    || pathname === '/mua-sam/hoat-dong-vui-choi'
+    || pathname === '/mua-sam/ve-may-bay'
+    || pathname === '/mua-sam/ve-tau'
+    || pathname === '/mua-sam/ket-qua-tau'
+    || pathname === '/mua-sam/ket-qua-hoat-dong'
+    || pathname.startsWith('/mua-sam/khach-san/')
+    || pathname.startsWith('/mua-sam/hoat-dong-vui-choi/')
+    || pathname.startsWith('/mua-sam/chi-tiet-chuyen-bay/')
+    || pathname.startsWith('/mua-sam/chi-tiet-tau/')
+    || isCheckoutPath(pathname)
+    || pathname === '/mua-sam/giao-dich'
+    || pathname === '/mua-sam/tai-khoan'
+    || pathname === '/mua-sam/dat-cho-cua-toi';
+}
+
+function isDetailThemePath(pathname: string) {
+  return pathname.startsWith('/mua-sam/khach-san/')
+    || pathname.startsWith('/mua-sam/hoat-dong-vui-choi/')
+    || pathname.startsWith('/mua-sam/chi-tiet-chuyen-bay/')
+    || pathname.startsWith('/mua-sam/chi-tiet-tau/')
+    || isCheckoutPath(pathname)
+    || pathname === '/mua-sam/giao-dich'
+    || pathname === '/mua-sam/tai-khoan'
+    || pathname === '/mua-sam/dat-cho-cua-toi';
+}
+
+function getCategoryAccentClass(categoryId: string) {
+  switch (categoryId) {
+    case 'flight':
+      return 'is-flight';
+    case 'train':
+      return 'is-train';
+    case 'activity':
+      return 'is-activity';
+    default:
+      return 'is-hotel';
+  }
+}
+
+function getCurrentCategoryId(pathname: string) {
+  const matched = categoryLinks.find((link) => isPathActive(link, pathname));
+  return matched?.id ?? 'hotel';
+}
+
+function getCurrentCategoryLabel(pathname: string) {
+  const matched = categoryLinks.find((link) => isPathActive(link, pathname));
+  return matched?.label ?? 'Đặt chỗ';
+}
+
+function getCurrentCategoryPath(pathname: string) {
+  const matched = categoryLinks.find((link) => isPathActive(link, pathname));
+  return matched?.to ?? '/mua-sam/khach-san';
+}
+
+function getCurrentCategoryInfo(pathname: string) {
+  const id = getCurrentCategoryId(pathname);
+  return {
+    id,
+    label: getCurrentCategoryLabel(pathname),
+    to: getCurrentCategoryPath(pathname),
+    accentClass: getCategoryAccentClass(id),
+  };
+}
+
+function getSuccessOrderLabel(serviceType?: string) {
+  switch (serviceType) {
+    case 'flight':
+      return 'Mã đặt vé';
+    case 'train':
+      return 'Mã đặt chỗ';
+    case 'tour':
+    case 'activity':
+      return 'Mã đặt hoạt động';
+    default:
+      return 'Mã đặt phòng';
+  }
+}
+
+function getSuccessMessage(serviceType?: string) {
+  switch (serviceType) {
+    case 'flight':
+      return 'Cảm ơn bạn đã đặt vé. Thông tin chi tiết đã được gửi đến email của bạn. Quý khách vui lòng kiểm tra hộp thư đến hoặc thư rác.';
+    case 'train':
+      return 'Cảm ơn bạn đã đặt vé tàu. Thông tin hành trình đã được gửi đến email của bạn. Quý khách vui lòng kiểm tra hộp thư đến hoặc thư rác.';
+    case 'tour':
+    case 'activity':
+      return 'Cảm ơn bạn đã đặt hoạt động. Xác nhận chi tiết đã được gửi đến email của bạn. Quý khách vui lòng kiểm tra hộp thư đến hoặc thư rác.';
+    default:
+      return 'Cảm ơn bạn đã đặt chỗ. Thông tin chi tiết đã được gửi đến email của bạn. Quý khách vui lòng kiểm tra hộp thư đến hoặc thư rác.';
+  }
+}
+
+function getSuccessActionLabel(serviceType?: string) {
+  switch (serviceType) {
+    case 'flight':
+      return 'Xem vé điện tử';
+    case 'train':
+      return 'Xem vé tàu';
+    case 'tour':
+    case 'activity':
+      return 'Xem phiếu xác nhận';
+    default:
+      return 'Xem phiếu đặt chỗ';
+  }
+}
+
+function getSuccessTitle(serviceType?: string) {
+  switch (serviceType) {
+    case 'flight':
+      return 'Thanh toán vé máy bay thành công!';
+    case 'train':
+      return 'Thanh toán vé tàu thành công!';
+    case 'tour':
+    case 'activity':
+      return 'Thanh toán hoạt động thành công!';
+    default:
+      return 'Thanh toán thành công!';
+  }
+}
+
+function getCheckoutPageTitle(serviceType?: string) {
+  switch (serviceType) {
+    case 'flight':
+      return 'Thông tin hành khách';
+    case 'train':
+      return 'Thông tin hành khách';
+    case 'tour':
+    case 'activity':
+      return 'Thông tin người tham gia';
+    default:
+      return 'Thông tin khách hàng';
+  }
+}
+
+function getContactGuestLabel(serviceType?: string) {
+  switch (serviceType) {
+    case 'flight':
+    case 'train':
+      return 'Tôi là hành khách';
+    case 'tour':
+    case 'activity':
+      return 'Tôi là người tham gia';
+    default:
+      return 'Tôi là khách lưu trú';
+  }
+}
+
+function getContactNameLabel(serviceType?: string) {
+  switch (serviceType) {
+    case 'flight':
+    case 'train':
+      return 'Họ và tên (như trên giấy tờ tùy thân)';
+    default:
+      return 'Họ và tên (như trên CCCD/Hộ chiếu)';
+  }
+}
+
+function getContactNameHint(serviceType?: string) {
+  switch (serviceType) {
+    case 'flight':
+      return 'Vui lòng nhập đúng tên để khớp thông tin làm thủ tục chuyến bay.';
+    case 'train':
+      return 'Vui lòng nhập đúng tên để khớp thông tin vé tàu.';
+    case 'tour':
+    case 'activity':
+      return 'Vui lòng nhập đúng tên để nhà cung cấp xác nhận danh sách tham gia.';
+    default:
+      return 'Vui lòng nhập tên đúng định dạng để nhận diện tại quầy.';
+  }
+}
+
+function getSuccessHeroBadge(serviceType?: string) {
+  switch (serviceType) {
+    case 'flight':
+      return 'VÉ ĐÃ XÁC NHẬN';
+    case 'train':
+      return 'CHỖ ĐÃ XÁC NHẬN';
+    case 'tour':
+    case 'activity':
+      return 'LỊCH TRÌNH ĐÃ XÁC NHẬN';
+    default:
+      return 'XÁC NHẬN NGAY';
+  }
+}
+
+function getServiceHeroImage(serviceType?: string) {
+  return serviceType;
+}
+
 
 export default function HeaderCustomer() {
   const navigate = useNavigate();
   const location = useLocation();
   const session = getCurrentSession();
   const isCustomerSession = session?.role === "customer";
-  const isHotelPage =
-  location.pathname === "/mua-sam/khach-san" ||
-  location.pathname === "/mua-sam/hoat-dong-vui-choi" ||
-  location.pathname === "/mua-sam/ve-may-bay" ||
-  location.pathname === "/mua-sam/ve-tau" ||
-  location.pathname === "/mua-sam/ket-qua-tau" ||
-  location.pathname === "/mua-sam/ket-qua-hoat-dong";
-  const isHotelDetailPage = 
-    location.pathname.startsWith("/mua-sam/khach-san/") ||
-    location.pathname.startsWith("/mua-sam/hoat-dong-vui-choi/") ||
-    location.pathname.startsWith("/mua-sam/chi-tiet-chuyen-bay/") ||
-    location.pathname.startsWith("/mua-sam/chi-tiet-tau/") ||
-    location.pathname === "/mua-sam/thanh-toan-khach-san" || 
-    location.pathname === "/mua-sam/thanh-toan-dat-cho" ||
-    location.pathname === "/mua-sam/thanh-toan-thanh-cong" ||
-    location.pathname === "/mua-sam/giao-dich" ||
-    location.pathname === "/mua-sam/tai-khoan" ||
-    location.pathname === "/mua-sam/dat-cho-cua-toi";
+  const currentCategory = getCurrentCategoryInfo(location.pathname);
+  const isHotelPage = isLightThemePath(location.pathname);
+  const isHotelDetailPage = isDetailThemePath(location.pathname);
   const customerInitials =
     session?.fullName
       ?.split(" ")
@@ -135,7 +347,7 @@ export default function HeaderCustomer() {
           <div className="customer-header__row">
             <div className="customer-header__brand">
               <Link to="/mua-sam" className="customer-header__brand-text">
-                traveloka
+                Travel
               </Link>
             </div>
 
@@ -217,9 +429,9 @@ export default function HeaderCustomer() {
             </div>
           </div>
 
-          <nav className="customer-header__categories">
+          <nav className={`customer-header__categories ${currentCategory.accentClass}`}>
             {categoryLinks.map((item) => {
-              const isActive = item.activePaths.some((path) => location.pathname.startsWith(path));
+              const isActive = isPathActive(item, location.pathname);
 
               return (
                 <NavLink

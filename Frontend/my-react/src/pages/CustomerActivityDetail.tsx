@@ -29,7 +29,6 @@ const CustomerActivityDetail = () => {
     serviceType: 'tour',
     serviceLabel: 'Tour & Hoạt động',
     maDichVu: String(tour?.maDichVu ?? tour?.maTour ?? ''),
-    maPhanLoaiDichVu: String(tour?.maTour ?? ''),
     serviceName: tour?.tenTour || tour?.ten || 'Tour',
     title: tour?.tenTour || tour?.ten || 'Tour',
     subtitle: tour?.diaDiem || tour?.viTri || 'Tour & Hoạt động',
@@ -111,7 +110,7 @@ const CustomerActivityDetail = () => {
                 <div className="w-full border border-gray-200 rounded-xl p-3.5 flex items-center justify-between hover:border-[#0194F3] transition-colors"><div className="flex items-center"><div className="bg-blue-50 p-2 rounded-lg text-[#0194F3] mr-4"><Users className="w-5 h-5" /></div><div><div className="text-xs text-gray-500 font-medium">Khách hàng</div><div className="font-semibold text-gray-900">{guestCount} Người lớn</div></div></div><div className="flex items-center space-x-2"><button className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 disabled:opacity-50" onClick={() => setGuestCount(Math.max(1, guestCount - 1))} disabled={guestCount <= 1}>-</button><span className="font-semibold w-4 text-center">{guestCount}</span><button className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-[#0194F3] hover:bg-blue-50" onClick={() => setGuestCount(guestCount + 1)}>+</button></div></div>
               </div>
               <div className="border-t border-gray-100 pt-5 mb-6"><div className="flex justify-between items-center"><span className="font-semibold text-gray-800">Tổng cộng</span><span className="text-2xl font-bold text-[#0194F3]">{formatCurrency(totalPrice)}</span></div></div>
-              <button className="w-full bg-[#0194F3] hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5" onClick={() => navigate(`/mua-sam/thanh-toan-khach-san?${checkoutParams.toString()}`)}>Đặt ngay bây giờ</button>
+              <button className="w-full bg-[#0194F3] hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5" onClick={() => navigate(`/mua-sam/checkout?${checkoutParams.toString()}`)}>Đặt ngay bây giờ</button>
               <p className="text-center text-xs text-gray-500 mt-4 flex items-center justify-center"><Check className="w-3.5 h-3.5 mr-1 text-green-500" /> {tour.xacNhanTucThi ? 'Xác nhận tức thì.' : 'Xác nhận theo nhà cung cấp.'} Không phí ẩn.</p>
             </div>
           </div>

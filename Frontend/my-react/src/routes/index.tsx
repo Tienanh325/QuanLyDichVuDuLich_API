@@ -30,6 +30,7 @@ import SuccessKhachSan from '../pages/SuccessKhachSan';
 import CustomerTransactions from '../pages/CustomerTransactions';
 import CustomerProfile from '../pages/CustomerProfile';
 import CustomerBookings from '../pages/CustomerBookings';
+import CustomerBookingDetail from '../pages/CustomerBookingDetail';
 import CustomerTrainSearchResults from '../pages/CustomerTrainSearchResults';
 import CustomerActivitySearchResults from '../pages/CustomerActivitySearchResults';
 import CustomerActivityDetail from '../pages/CustomerActivityDetail';
@@ -52,10 +53,14 @@ export default function RoutesIndex() {
         <Route path="giao-dich" element={<CustomerTransactions />} />
         <Route path="tai-khoan" element={<CustomerProfile />} />
         <Route path="dat-cho-cua-toi" element={<CustomerBookings />} />
+        <Route path="dat-cho-cua-toi/:maDon" element={<CustomerBookingDetail />} />
         <Route path="khach-san/:id" element={<CustomerHotelDetail />} />
         <Route path="thanh-toan-khach-san" element={<CheckoutKhachSan />} />
         <Route path="thanh-toan-dat-cho" element={<PaymentKhachSan />} />
         <Route path="thanh-toan-thanh-cong" element={<SuccessKhachSan />} />
+        <Route path="checkout" element={<CheckoutKhachSan />} />
+        <Route path="thanh-toan" element={<PaymentKhachSan />} />
+        <Route path="hoan-tat" element={<SuccessKhachSan />} />
         <Route path="ket-qua-tau" element={<CustomerTrainSearchResults />} />
         <Route path="chi-tiet-tau/:id" element={<CustomerTrainDetail />} />
         <Route path="ket-qua-hoat-dong" element={<CustomerActivitySearchResults />} />

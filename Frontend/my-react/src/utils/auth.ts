@@ -233,6 +233,24 @@ export function clearCurrentSession() {
   }
 }
 
+export function updateCurrentSession(patch: Partial<SessionUser>) {
+  if (!canUseStorage()) {
+    return;
+  }
+
+  const current = getCurrentSession();
+  if (!current) {
+    return;
+  }
+
+  const nextSession: SessionUser = {
+    ...current,
+    ...patch,
+  };
+
+  window.localStorage.setItem(SESSION_KEY, JSON.stringify(nextSession));
+}
+
 export function getDefaultAdminAccount() {
   return defaultAdminAccount;
 }

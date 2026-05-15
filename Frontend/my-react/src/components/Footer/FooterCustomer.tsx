@@ -27,9 +27,9 @@ const productLinks = [
 ];
 
 const otherLinks = [
-  "Traveloka Affiliate",
+  "Travel Affiliate",
   "Giới thiệu bạn bè",
-  "Traveloka Blog",
+  "Travel Blog",
   "Chính Sách Quyền Riêng",
   "Điều khoản & Điều kiện",
   "Đăng ký nơi nghỉ của bạn",
@@ -92,7 +92,7 @@ export default function FooterCustomer() {
           </div>
 
           <div className="customer-footer__column">
-            <h3>Về Traveloka</h3>
+            <h3>Về Travel</h3>
             <ul className="customer-footer__links">
               {aboutLinks.map((item) => (
                 <li key={item}>
@@ -146,11 +146,11 @@ export default function FooterCustomer() {
         <div className="customer-footer__legal">
           <div className="customer-shell__container">
             <p>
-              Công ty TNHH Traveloka Việt Nam. Mã số doanh nghiệp 0313581779 cấp ngày 18/12/2015 |
+              Công ty TNHH Travel Việt Nam. Mã số doanh nghiệp 0313581779 cấp ngày 18/12/2015 |
               Địa chỉ: Tòa nhà An Phú, 117 Lý Chính Thắng, Phường Xuân Hòa, TP HCM | Đại diện pháp
-              luật: Lê Minh Tự | Email: cs@traveloka.com | Tel: +84 28 3861 4699
+              luật: Lê Minh Tự | Email: cs@travel.com | Tel: +84 28 3861 4699
             </p>
-            <p>Copyright © 2026 Traveloka. All rights reserved</p>
+            <p>Copyright © 2026 Travel. All rights reserved</p>
           </div>
         </div>
       </section>

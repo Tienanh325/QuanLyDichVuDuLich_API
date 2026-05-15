@@ -1,6 +1,6 @@
 /* ── Reset / Base ── */
 .hd {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   color: #1a1a2e;
   background: #f8f9fb;
   min-height: 100vh;

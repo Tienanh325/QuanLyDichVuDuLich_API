@@ -2,7 +2,7 @@
   min-height: 100vh;
   background-color: #f8f9fa;
   color: #17324d;
-  font-family: 'Inter', -apple-system, sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 /* 1. Hero Section */
@@ -158,7 +158,7 @@
   align-self: flex-end;
 }
 
-/* 3. Why Traveloka */
+/* 3. Why Travel */
 .train-customer__why {
   padding: 60px 24px;
   background-color: #f1f5f9;

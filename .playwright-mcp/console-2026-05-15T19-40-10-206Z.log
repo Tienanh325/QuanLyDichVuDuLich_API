@@ -1,0 +1,3 @@
+[     227ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/client-DgpY3klJ.js?v=6d301f49:14337
+[  436407ms] [ERROR] [vite] SyntaxError: The requested module '/src/utils/bookingStorage.ts?t=1778874445027' does not provide an export named 'readAllBookingInfo' @ http://127.0.0.1:5173/@vite/client:509
+[  436409ms] [ERROR] [vite] Failed to reload /src/pages/CustomerBookings.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://127.0.0.1:5173/@vite/client:509

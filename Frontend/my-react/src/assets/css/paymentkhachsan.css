@@ -1,7 +1,7 @@
 /* paymentkhachsan.css */
 
 .payment-container {
-  font-family: 'Inter', 'Roboto', sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   background-color: #f5f7fa;
   min-height: 100vh;
   padding: 180px 24px 80px;
@@ -399,7 +399,7 @@
 .payment-total-value {
   font-size: 26px;
   font-weight: 800;
-  color: #ff5e1f; /* Traveloka orange */
+  color: #ff5e1f;
   text-align: right;
   line-height: 1.2;
 }

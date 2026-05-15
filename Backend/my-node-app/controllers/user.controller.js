@@ -99,11 +99,37 @@ class UserController {
     /** Customer: Cập nhật thông tin cá nhân */
     static async updateProfile(req, res) {
         try {
-            const { ten, email, sdt } = req.body;
-            if (!ten) return res.status(400).json({ status: 'error', data: null, message: 'Tên không được để trống!' });
-            const isUpdated = await UserModel.update(req.user.maUser, { ten, email, sdt });
+            const { ten, email, sdt, gioiTinh, ngaySinh, thanhPho } = req.body;
+            if (!ten || !String(ten).trim()) {
+                return res.status(400).json({ status: 'error', data: null, message: 'Tên không được để trống!' });
+            }
+
+            const normalizedGender = gioiTinh ? String(gioiTinh).trim() : null;
+            if (normalizedGender && !['Nam', 'Nữ', 'Khác'].includes(normalizedGender)) {
+                return res.status(400).json({ status: 'error', data: null, message: 'Giới tính không hợp lệ!' });
+            }
+
+            let normalizedNgaySinh = null;
+            if (ngaySinh) {
+                const date = new Date(ngaySinh);
+                if (Number.isNaN(date.getTime())) {
+                    return res.status(400).json({ status: 'error', data: null, message: 'Ngày sinh không hợp lệ!' });
+                }
+                normalizedNgaySinh = date.toISOString().slice(0, 10);
+            }
+
+            const payload = {
+                ten: String(ten).trim(),
+                email: email ? String(email).trim() : null,
+                sdt: sdt ? String(sdt).trim() : null,
+                gioiTinh: normalizedGender,
+                ngaySinh: normalizedNgaySinh,
+                thanhPho: thanhPho ? String(thanhPho).trim() : null,
+            };
+
+            const isUpdated = await UserModel.update(req.user.maUser, payload);
             if (!isUpdated) return res.status(404).json({ status: 'error', data: null, message: 'Không tìm thấy tài khoản!' });
-            return res.status(200).json({ status: 'success', data: { ten, email, sdt }, message: 'Cập nhật thông tin thành công!' });
+            return res.status(200).json({ status: 'success', data: payload, message: 'Cập nhật thông tin thành công!' });
         } catch (error) {
             return res.status(500).json({ status: 'error', data: null, message: error.message });
         }

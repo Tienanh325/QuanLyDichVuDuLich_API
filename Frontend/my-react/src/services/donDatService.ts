@@ -4,16 +4,27 @@ import api from './api';
 
 export interface ChiTietDonPayload {
   maDichVu: number;
-  maPhanLoaiDichVu?: number | null; // ID LoaiPhong hoặc ID GiaVe
+  maPhanLoaiDichVu?: number | null;
   soLuong: number;
   giaTaiThoiDiemMua: number;
   ngayBatDauSuDung?: string | null;
   ngayKetThucSuDung?: string | null;
 }
 
+export interface ThongTinDatChoPayload {
+  hoTenLienHe: string;
+  emailLienHe: string;
+  sdtLienHe?: string | null;
+  laNguoiSuDung?: boolean;
+  tenKhachSuDung?: string | null;
+  ghiChuYeuCau?: string | null;
+}
+
 export interface CreateDonDatPayload {
   maKhuyenMai?: number | null;
+  loaiDon?: 'HOTEL' | 'FLIGHT' | 'TRAIN' | 'TOUR' | 'ACTIVITY' | 'MIXED';
   chiTietList: ChiTietDonPayload[];
+  thongTinDatCho?: ThongTinDatChoPayload;
 }
 
 export interface DonDatResponse {

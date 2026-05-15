@@ -180,7 +180,7 @@ export default function CustomerTrainTicket() {
             <div className="train-customer__hero-content">
               <h1 className="train-customer__hero-title">Trải nghiệm hành trình tàu hỏa tuyệt vời.</h1>
               <p className="train-customer__hero-subtitle">
-                Đặt vé tàu dễ dàng, nhanh chóng và an toàn. Khám phá vẻ đẹp Việt Nam qua 8 cung kinh tàu hỏa cùng Traveloka.
+                Đặt vé tàu dễ dàng, nhanh chóng và an toàn. Khám phá vẻ đẹp Việt Nam qua 8 cung kinh tàu hỏa cùng Travel.
               </p>
             </div>
             <div className="train-customer__hero-image">
@@ -215,7 +215,7 @@ export default function CustomerTrainTicket() {
       <section className="train-customer__why">
         <div className="train-customer__why-container">
           <div className="train-customer__why-title-wrapper">
-            <h2>Tại sao nên đặt vé tàu trên Traveloka?</h2>
+            <h2>Tại sao nên đặt vé tàu trên Travel?</h2>
           </div>
           <div className="train-customer__why-grid">
             <div className="train-customer__why-card">

@@ -96,6 +96,9 @@ class AuthService {
                 ten: user.ten,
                 email: user.email,
                 sdt: user.sdt,
+                gioiTinh: user.gioiTinh,
+                ngaySinh: user.ngaySinh,
+                thanhPho: user.thanhPho,
                 vaiTro: user.vaiTro
             }
         };

@@ -114,14 +114,11 @@ export default function DangNhap() {
     clearCurrentSession();
   }, []);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function submitLogin() {
     setErrorMessage("");
     setSuccessMessage("");
     setIsLoading(true);
 
-
-    // Thử đăng nhập qua API backend trước
     const apiResult = await loginWithAPI(username, password);
     if (apiResult.ok && apiResult.session) {
       setIsLoading(false);
@@ -132,6 +129,11 @@ export default function DangNhap() {
 
     setIsLoading(false);
     setErrorMessage(apiResult.message ?? "Tên đăng nhập hoặc mật khẩu không đúng.");
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await submitLogin();
   }
 
   return (
@@ -296,7 +298,7 @@ export default function DangNhap() {
               </label>
             </div>
 
-            <button type="submit" style={{ ...primaryButtonStyle, opacity: isLoading ? 0.7 : 1 }} disabled={isLoading}>
+            <button type="button" onClick={() => void submitLogin()} style={{ ...primaryButtonStyle, opacity: isLoading ? 0.7 : 1 }} disabled={isLoading}>
               {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
             </button>
           </form>

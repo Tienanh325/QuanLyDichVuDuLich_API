@@ -1,7 +1,7 @@
 /* successkhachsan.css */
 
 .success-container {
-  font-family: 'Inter', 'Roboto', sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   background-color: #eef3f8;
   min-height: 100vh;
   padding: 180px 24px 80px;

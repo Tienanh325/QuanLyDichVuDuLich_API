@@ -111,7 +111,7 @@ const destinationGradients = [
   "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
 ] as const;
 
-const whyBookWithTraveloka = [
+const whyBookWithTravel = [
   {
     icon: CheckCircle,
     title: "Giá tốt nhất thị trường",
@@ -363,7 +363,7 @@ export default function CustomerHotel() {
             }}
           >
             <div className="hotel-customer__hero-copy">
-              <h1>Điểm đến tiếp theo của bạn? Đặt khách sạn giá tốt với Traveloka</h1>
+              <h1>Điểm đến tiếp theo của bạn? Đặt khách sạn giá tốt với Travel</h1>
               <p>Khám phá nhiều lựa chọn từ khách sạn, biệt thự, resort và hơn thế nữa</p>
             </div>
           </div>
@@ -571,7 +571,7 @@ export default function CustomerHotel() {
             <div className="hotel-customer__why-us-content">
               <div className="hotel-customer__why-us-header">
                 <span>Tại sao nên chọn</span>
-                <h2>Tại sao nên đặt phòng với Traveloka</h2>
+                <h2>Tại sao nên đặt phòng với Travel</h2>
                 <p>
                   Chúng tôi mang đến trải nghiệm đặt phòng tuyệt vời với dịch vụ hỗ trợ tốt
                   nhất, giá cả cạnh tranh và chính sách linh hoạt.
@@ -579,7 +579,7 @@ export default function CustomerHotel() {
               </div>
 
               <div className="hotel-customer__why-us-benefits">
-                {whyBookWithTraveloka.map((benefit) => {
+                {whyBookWithTravel.map((benefit) => {
                   const Icon = benefit.icon;
                   return (
                     <div key={benefit.title} className="hotel-customer__benefit-item">
