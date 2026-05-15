@@ -153,31 +153,28 @@ function SpecialRequest() {
 }
 
 interface BookingSummaryProps {
-  tenKhachSan: string;
-  tenLoaiPhong: string;
-  checkIn: string;
-  checkOut: string;
-  nights: number;
-  giaPhong: number;
-  rooms: number;
-  adults: number;
+  serviceLabel: string;
+  title: string;
+  subtitle: string;
+  primaryDetail: string;
+  secondaryDetail: string;
+  quantityLabel: string;
+  baseAmount: number;
+  taxFee: number;
+  total: number;
 }
 
-function BookingSummary({ tenKhachSan, tenLoaiPhong, checkIn, checkOut, nights, giaPhong, rooms, adults }: BookingSummaryProps) {
-  const roomCharge = giaPhong * nights * rooms;
-  const taxFee = Math.round(roomCharge * 0.1);
-  const total = roomCharge + taxFee;
-
+function BookingSummary({ serviceLabel, title, subtitle, primaryDetail, secondaryDetail, quantityLabel, baseAmount, taxFee, total }: BookingSummaryProps) {
   return (
     <>
       <div className="checkout-card hotel-summary-card">
         <div className="hotel-thumbnail">
-          <div className="hotel-badge">{tenLoaiPhong || "Phòng đã chọn"}</div>
-          <img src={hotelRoomImg} alt="Phòng khách sạn" />
+          <div className="hotel-badge">{serviceLabel || "Đặt chỗ"}</div>
+          <img src={hotelRoomImg} alt="Dịch vụ đã chọn" />
         </div>
 
         <div className="hotel-info-body">
-          <h3 className="hotel-name">{tenKhachSan || "Khách sạn"}</h3>
+          <h3 className="hotel-name">{title || "Dịch vụ đã chọn"}</h3>
           <div className="hotel-stars">
             {[1, 2, 3, 4, 5].map((star) => (
               <Star key={star} size={14} fill="currentColor" stroke="none" />
@@ -187,23 +184,20 @@ function BookingSummary({ tenKhachSan, tenLoaiPhong, checkIn, checkOut, nights, 
           <div className="room-meta">
             <BedDouble size={18} className="room-meta-icon" />
             <div>
-              <span className="room-meta-text">{tenLoaiPhong}</span>
-              <span className="room-meta-sub">{rooms} phòng, {adults} người lớn</span>
+              <span className="room-meta-text">{subtitle || serviceLabel}</span>
+              <span className="room-meta-sub">{secondaryDetail || "Thông tin đặt chỗ"}</span>
             </div>
           </div>
 
           <div className="booking-dates">
             <div className="date-block">
-              <div className="date-label">Nhận phòng</div>
-              <div className="date-value">{formatDate(checkIn)}</div>
+              <div className="date-label">Ngày sử dụng</div>
+              <div className="date-value">{primaryDetail || "Chưa chọn"}</div>
             </div>
             <div className="date-block">
-              <div className="date-label">Trả phòng</div>
-              <div className="date-value">{formatDate(checkOut)}</div>
+              <div className="date-label">Dịch vụ</div>
+              <div className="date-value">{serviceLabel || "Đặt chỗ"}</div>
             </div>
-          </div>
-          <div style={{ fontSize: 13, color: "#647b92", marginTop: 8 }}>
-            {nights} đêm
           </div>
         </div>
       </div>
@@ -214,8 +208,8 @@ function BookingSummary({ tenKhachSan, tenLoaiPhong, checkIn, checkOut, nights, 
         </h4>
 
         <div className="price-row">
-          <span className="price-label">Giá phòng ({nights} đêm × {rooms} phòng)</span>
-          <span className="price-value">{formatVnd(roomCharge)}</span>
+          <span className="price-label">{quantityLabel || "Giá dịch vụ"}</span>
+          <span className="price-value">{formatVnd(baseAmount)}</span>
         </div>
         <div className="price-row">
           <span className="price-label">Thuế và phí dịch vụ (10%)</span>
@@ -246,9 +240,12 @@ export default function CheckoutKhachSan() {
   const [searchParams] = useSearchParams();
 
   // Đọc params từ URL
+  const serviceType = searchParams.get("serviceType") ?? "hotel";
+  const serviceLabel = searchParams.get("serviceLabel") ?? "Khách sạn";
   const khachSanId = searchParams.get("khachSanId") ?? "";
   const maDichVu = searchParams.get("maDichVu") ?? "";
   const loaiPhongId = searchParams.get("loaiPhongId") ?? "";
+  const maPhanLoaiDichVu = searchParams.get("maPhanLoaiDichVu") ?? loaiPhongId;
   const tenLoaiPhong = searchParams.get("tenLoaiPhong") ?? "";
   const giaPhong = Number(searchParams.get("giaPhong") ?? "0");
   const checkIn = searchParams.get("checkIn") ?? "";
@@ -256,8 +253,21 @@ export default function CheckoutKhachSan() {
   const adults = searchParams.get("adults") ?? "2";
   const rooms = searchParams.get("rooms") ?? "1";
   const tenKhachSan = searchParams.get("tenKhachSan") ?? "";
+  const title = searchParams.get("title") ?? tenKhachSan ?? "Dịch vụ đã chọn";
+  const subtitle = searchParams.get("subtitle") ?? tenLoaiPhong;
+  const primaryDetail = searchParams.get("primaryDetail") ?? (checkIn && checkOut ? `${formatDate(checkIn)} → ${formatDate(checkOut)}` : formatDate(checkIn));
+  const secondaryDetail = searchParams.get("secondaryDetail") ?? `${rooms} phòng, ${adults} khách`;
+  const quantityLabel = searchParams.get("quantityLabel") ?? `Giá phòng (${rooms} phòng)`;
+  const quantity = Number(searchParams.get("quantity") ?? rooms ?? "1") || 1;
+  const unitPrice = Number(searchParams.get("unitPrice") ?? giaPhong ?? "0");
+  const directPrice = Number(searchParams.get("price") ?? "0");
+  const startDate = searchParams.get("startDate") ?? checkIn;
+  const endDate = searchParams.get("endDate") ?? checkOut;
 
   const nights = calculateNights(checkIn, checkOut);
+  const baseAmount = directPrice || giaPhong * nights * Number(rooms);
+  const taxFee = Math.round(baseAmount * 0.1);
+  const total = baseAmount + taxFee;
 
   // Form state
   const [hoTen, setHoTen] = useState("");
@@ -282,8 +292,8 @@ export default function CheckoutKhachSan() {
       setErrorMsg("Vui lòng nhập đầy đủ họ tên và email.");
       return;
     }
-    if (!maDichVu || !giaPhong) {
-      setErrorMsg("Thông tin phòng không hợp lệ. Vui lòng quay lại và chọn phòng lại.");
+    if (!maDichVu || !baseAmount) {
+      setErrorMsg("Thông tin dịch vụ không hợp lệ. Vui lòng quay lại và chọn lại.");
       return;
     }
 
@@ -300,27 +310,27 @@ export default function CheckoutKhachSan() {
       const donDat = await createDonDat({
         chiTietList: [{
           maDichVu: Number(maDichVu),
-          maPhanLoaiDichVu: loaiPhongId ? Number(loaiPhongId) : null,
-          soLuong: Number(rooms),
-          giaTaiThoiDiemMua: giaPhong,
-          ngayBatDauSuDung: checkIn || null,
-          ngayKetThucSuDung: checkOut || null,
+          maPhanLoaiDichVu: maPhanLoaiDichVu ? Number(maPhanLoaiDichVu) : null,
+          soLuong: quantity,
+          giaTaiThoiDiemMua: unitPrice || baseAmount,
+          ngayBatDauSuDung: startDate || null,
+          ngayKetThucSuDung: endDate || null,
         }],
       });
 
       saveBookingInfo({
         maDon: donDat.maDon,
         tongGia: donDat.tongGia,
-        serviceType: "hotel",
-        serviceLabel: "Khách sạn",
-        serviceName: tenKhachSan,
-        title: tenKhachSan,
-        subtitle: tenLoaiPhong,
-        primaryDetail: `${formatDate(checkIn)} → ${formatDate(checkOut)}`,
-        secondaryDetail: `${nights} đêm • ${rooms} phòng • ${adults} khách`,
-        startDate: checkIn,
-        endDate: checkOut,
-        quantityLabel: `${rooms} phòng, ${adults} khách`,
+        serviceType: serviceType as "hotel" | "flight" | "train" | "tour",
+        serviceLabel,
+        serviceName: title,
+        title,
+        subtitle,
+        primaryDetail,
+        secondaryDetail,
+        startDate,
+        endDate,
+        quantityLabel,
         priceLabel: formatVnd(donDat.tongGia),
         tenKhachSan,
         tenLoaiPhong,
@@ -395,7 +405,7 @@ export default function CheckoutKhachSan() {
                 disabled={isSubmitting}
                 style={{ opacity: isSubmitting ? 0.7 : 1, display: "flex", alignItems: "center", gap: 8, justifyContent: "center" }}
               >
-                {isSubmitting ? <><Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> Đang đặt phòng...</> : "Tiếp tục thanh toán"}
+                {isSubmitting ? <><Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> Đang đặt chỗ...</> : "Tiếp tục thanh toán"}
               </button>
             </div>
           </div>
@@ -403,14 +413,15 @@ export default function CheckoutKhachSan() {
           {/* CỘT PHẢI - 30% */}
           <div className="checkout-right">
             <BookingSummary
-              tenKhachSan={tenKhachSan}
-              tenLoaiPhong={tenLoaiPhong}
-              checkIn={checkIn}
-              checkOut={checkOut}
-              nights={nights}
-              giaPhong={giaPhong}
-              rooms={Number(rooms)}
-              adults={Number(adults)}
+              serviceLabel={serviceLabel}
+              title={title}
+              subtitle={subtitle}
+              primaryDetail={primaryDetail}
+              secondaryDetail={secondaryDetail}
+              quantityLabel={quantityLabel}
+              baseAmount={baseAmount}
+              taxFee={taxFee}
+              total={total}
             />
           </div>
         </div>

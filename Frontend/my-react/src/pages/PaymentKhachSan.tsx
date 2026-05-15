@@ -113,9 +113,9 @@ function PaymentMethod({
 
 // ─── BookingSummary ───────────────────────────────────────────────
 function BookingSummary({ info, onPay, isLoading }: { info: StoredBookingInfo | null; onPay: () => void; isLoading: boolean }) {
-  const roomCharge = info?.giaPhong && info?.nights && info?.rooms ? info.giaPhong * info.nights * Number(info.rooms) : 0;
-  const taxFee = roomCharge ? Math.round(roomCharge * 0.1) : 0;
-  const total = info?.tongGia ?? roomCharge + taxFee;
+  const total = info?.tongGia ?? 0;
+  const roomCharge = info?.giaPhong && info?.nights && info?.rooms ? info.giaPhong * info.nights * Number(info.rooms) : Math.round(total / 1.1);
+  const taxFee = Math.max(0, total - roomCharge);
   const durationLabel = info?.secondaryDetail ?? (info?.nights ? `${info.nights} đêm (${info.rooms ?? 1} phòng, ${info.adults ?? 1} khách)` : "—");
 
   return (
@@ -179,7 +179,7 @@ function BookingSummary({ info, onPay, isLoading }: { info: StoredBookingInfo | 
 
       {info?.maDon && (
         <div style={{ marginBottom: 12, padding: "10px 16px", background: "#f0f9ff", borderRadius: 10, fontSize: 13, color: "#0369a1" }}>
-          Mã đặt phòng: <strong>#{info.maDon}</strong>
+          Mã đặt chỗ: <strong>#{info.maDon}</strong>
         </div>
       )}
 
@@ -223,9 +223,7 @@ export default function PaymentKhachSan() {
     setIsLoading(true);
     setErrorMsg("");
 
-    const roomCharge = bookingInfo.giaPhong && bookingInfo.nights && bookingInfo.rooms ? bookingInfo.giaPhong * bookingInfo.nights * Number(bookingInfo.rooms) : 0;
-    const taxFee = roomCharge ? Math.round(roomCharge * 0.1) : 0;
-    const total = bookingInfo.tongGia ?? roomCharge + taxFee;
+    const total = bookingInfo.tongGia ?? 0;
 
     try {
       await createThanhToan({

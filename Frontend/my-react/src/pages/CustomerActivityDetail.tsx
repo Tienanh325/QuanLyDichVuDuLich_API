@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import "../assets/css/CustomerActivityDetail.css";
 import { MapPin, Star, Share2, Heart, Check, X, Calendar, Users } from 'lucide-react';
 import { getTourById, type TourDetail } from '../services/tourService';
@@ -8,6 +8,7 @@ import ReviewSection from '../components/ReviewSection';
 const PLACEHOLDER_IMAGE = "https://images.unsplash.com/photo-1596522354195-e83ae3a4c514?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80";
 
 const CustomerActivityDetail = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [tour, setTour] = useState<TourDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,6 +24,22 @@ const CustomerActivityDetail = () => {
   const originalPrice = tour?.giaGoc;
   const totalPrice = price * guestCount;
   const formatCurrency = (amount: number) => new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
+  const checkoutParams = new URLSearchParams({
+    serviceType: 'tour',
+    serviceLabel: 'Tour & Hoạt động',
+    maDichVu: String(tour?.maDichVu ?? tour?.maTour ?? ''),
+    maPhanLoaiDichVu: String(tour?.maTour ?? ''),
+    serviceName: tour?.tenTour || tour?.ten || 'Tour',
+    title: tour?.tenTour || tour?.ten || 'Tour',
+    subtitle: tour?.diaDiem || tour?.viTri || 'Tour & Hoạt động',
+    primaryDetail: tour?.ngayBatDau ? new Date(tour.ngayBatDau).toLocaleDateString('vi-VN') : 'Ngày khởi hành linh hoạt',
+    secondaryDetail: `${tour?.thoiGian || 'Thời gian linh hoạt'} • ${guestCount} khách`,
+    quantityLabel: `Tour (${guestCount} khách)`,
+    price: String(totalPrice),
+    unitPrice: String(price),
+    quantity: String(guestCount),
+    startDate: tour?.ngayBatDau || '',
+  });
 
   if (loading) return <div className="bg-[#F5F7FA] min-h-screen font-sans text-gray-800 pt-[120px]"><main className="max-w-7xl mx-auto px-4 py-6">Đang tải hoạt động...</main></div>;
   if (!tour) return <div className="bg-[#F5F7FA] min-h-screen font-sans text-gray-800 pt-[120px]"><main className="max-w-7xl mx-auto px-4 py-6">Không tìm thấy hoạt động.</main></div>;
@@ -93,7 +110,7 @@ const CustomerActivityDetail = () => {
                 <div className="w-full border border-gray-200 rounded-xl p-3.5 flex items-center justify-between hover:border-[#0194F3] transition-colors"><div className="flex items-center"><div className="bg-blue-50 p-2 rounded-lg text-[#0194F3] mr-4"><Users className="w-5 h-5" /></div><div><div className="text-xs text-gray-500 font-medium">Khách hàng</div><div className="font-semibold text-gray-900">{guestCount} Người lớn</div></div></div><div className="flex items-center space-x-2"><button className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 disabled:opacity-50" onClick={() => setGuestCount(Math.max(1, guestCount - 1))} disabled={guestCount <= 1}>-</button><span className="font-semibold w-4 text-center">{guestCount}</span><button className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-[#0194F3] hover:bg-blue-50" onClick={() => setGuestCount(guestCount + 1)}>+</button></div></div>
               </div>
               <div className="border-t border-gray-100 pt-5 mb-6"><div className="flex justify-between items-center"><span className="font-semibold text-gray-800">Tổng cộng</span><span className="text-2xl font-bold text-[#0194F3]">{formatCurrency(totalPrice)}</span></div></div>
-              <button className="w-full bg-[#0194F3] hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5">Đặt ngay bây giờ</button>
+              <button className="w-full bg-[#0194F3] hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5" onClick={() => navigate(`/mua-sam/thanh-toan-khach-san?${checkoutParams.toString()}`)}>Đặt ngay bây giờ</button>
               <p className="text-center text-xs text-gray-500 mt-4 flex items-center justify-center"><Check className="w-3.5 h-3.5 mr-1 text-green-500" /> {tour.xacNhanTucThi ? 'Xác nhận tức thì.' : 'Xác nhận theo nhà cung cấp.'} Không phí ẩn.</p>
             </div>
           </div>

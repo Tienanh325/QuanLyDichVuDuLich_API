@@ -126,6 +126,18 @@
   }
 }
 
+.ctd-review-main {
+  max-width: 72rem;
+  margin: 1.5rem auto 0;
+  padding: 0 1rem;
+}
+
+@media (min-width: 768px) {
+  .ctd-review-main {
+    padding: 0 1.5rem;
+  }
+}
+
 .ctd-main__left {
   display: flex;
   flex-direction: column;

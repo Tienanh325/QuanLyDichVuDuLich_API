@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import "../assets/css/CustomerFlightDetail.css";
 import { ArrowRight, Plane, Briefcase, Shield, XCircle, Calendar, Info } from 'lucide-react';
 import { formatGio, formatVnd, getVeById, tinhThoiGianBay, type VeDetail } from '../services/veService';
@@ -27,6 +27,7 @@ type FlightDetailData = {
 };
 
 const CustomerFlightDetail = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [ticket, setTicket] = useState<VeDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,6 +45,23 @@ const CustomerFlightDetail = () => {
   const basePrice = useMemo(() => ticket?.bảngGia?.[0]?.gia ?? 0, [ticket]);
   const tax = Number(detail.thuePhiSanBay ?? ticket?.bảngGia?.[0]?.soChoTrong ?? 0);
   const total = basePrice + tax;
+  const checkoutParams = new URLSearchParams({
+    serviceType: 'flight',
+    serviceLabel: 'Vé máy bay',
+    maDichVu: String(ticket?.maDichVu ?? ticket?.maVe ?? ''),
+    maPhanLoaiDichVu: String(ticket?.maVe ?? ''),
+    serviceName: detail.hangHangKhong || ticket?.tenDichVu || 'Chuyến bay',
+    title: `${detail.diemKhoiHanh || 'Điểm đi'} → ${detail.diemDen || 'Điểm đến'}`,
+    subtitle: detail.soHieuChuyenBay || detail.hangVe || 'Vé máy bay',
+    primaryDetail: detail.thoiGianKhoiHanh ? new Date(detail.thoiGianKhoiHanh).toLocaleDateString('vi-VN') : 'Ngày bay chưa cập nhật',
+    secondaryDetail: `${detail.hangVe || 'Phổ thông'} • 1 hành khách`,
+    quantityLabel: 'Vé máy bay (x1)',
+    price: String(total),
+    unitPrice: String(basePrice),
+    quantity: '1',
+    startDate: detail.thoiGianKhoiHanh || '',
+    endDate: detail.thoiGianDen || '',
+  });
 
   if (loading) return <div className="cfd-page"><main className="cfd-main">Đang tải chi tiết chuyến bay...</main></div>;
   if (!ticket) return <div className="cfd-page"><main className="cfd-main">Không tìm thấy chuyến bay.</main></div>;
@@ -124,7 +142,7 @@ const CustomerFlightDetail = () => {
               </div>
               <div className="cfd-cost-card__divider"></div>
               <div className="cfd-cost-card__total"><div><div className="cfd-cost-card__total-label">Tổng cộng</div><div className="cfd-cost-card__total-sub">Đã bao gồm thuế, phí</div></div><div className="cfd-cost-card__total-price">{formatVnd(total)}</div></div>
-              <button className="cfd-cost-card__cta">Chọn chuyến bay này <ArrowRight className="cfd-cost-card__cta-icon" /></button>
+              <button className="cfd-cost-card__cta" onClick={() => navigate(`/mua-sam/thanh-toan-khach-san?${checkoutParams.toString()}`)}>Chọn chuyến bay này <ArrowRight className="cfd-cost-card__cta-icon" /></button>
             </div></div>
           </div>
         </div>
